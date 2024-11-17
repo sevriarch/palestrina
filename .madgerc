@@ -1,0 +1,8 @@
+{
+    "fontSize": "24px",
+    "detectiveOptions": {
+        "ts": {
+            "skipTypeImports": true
+        }
+    }
+}
