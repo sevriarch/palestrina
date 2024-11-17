@@ -1,0 +1,164 @@
+<canvas id=__CANVAS_NAME__ style="display:none;width:0px;height:0px;border:1px solid #000000; background-color:#000000"></canvas>
+<script>
+(() => {
+    const timeline = __CANVAS_TIMELINE__;
+
+    const data = __CANVAS_DATA__;
+
+    const options = __CANVAS_OPTS__;
+
+    const px_horiz = options.px_horiz || (1 / 40);
+    const px_vert  = options.px_vert  || 10;
+
+    const LEFTPAD  = options.leftpad || 16;
+    const RIGHTPAD = options.rightpad || 8;
+    const TOPPAD   = options.header ? 10 : 0;
+
+    const BARLINES = options.barlines;
+
+    const [ maxval, minval, vpos_fn ] = get_min_max();
+
+    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * px_vert)));
+    const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * px_horiz)) + RIGHTPAD);
+
+    const color_rule = get_color_rule();
+    const value_rule = get_value_rule();
+
+    const canvas  = document.getElementById(__CANVAS_NAME__);
+    const context = canvas.getContext("2d");
+
+    const textstyle = options.textstyle || "#C0C0C0";
+
+    canvas.height = height;
+    canvas.width  = width;
+    canvas.style.height = height + "px";
+    canvas.style.width  = width + "px";
+    canvas.style.display = 'none';
+
+    context.fillStyle = textstyle;
+    context.textStyle = textstyle;
+    context.strokeStyle = textstyle;
+    context.font = "12px Arial";
+
+    function get_color_rule() {
+        switch (options.color_rule) {
+        case 'mod12':
+            return i => {
+                switch (i % 12) {
+                case 0: return '#E08080';
+                case 1: return '#80E080';
+                case 2: return '#8080E0';
+                case 3: return '#E0E080';
+                case 4: return '#E080E0';
+                case 5: return '#80E0E0';
+                case 6: return '#E02020';
+                case 7: return '#20E080';
+                case 8: return '#2080E0';
+                case 9: return '#E0E020';
+                case 10: return '#E020E0';
+                case 11: return '#20E0E0';
+                }
+            };
+
+        default:
+            return i => '#C0C0C0';
+        }
+    }
+
+    function get_value_rule() {
+        switch (options.value_rule) {
+        case 'note':
+            return n => {
+                return [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ][n % 12]
+                    + String.fromCharCode(0x2080 + (Math.floor(n / 12) - 1));
+            };
+        case 'pitch':
+            return n => [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ][n % 12];
+        default:
+            return n => n;
+        }
+    }
+
+    function get_min_max() {
+        const flattened = data.flat();
+        const maxv = options.maxval || Math.max(...flattened);
+        const minv = options.minval || Math.min(...flattened);
+        const func = v => TOPPAD + px_vert * (maxv - v);
+
+        return [ maxv, minv, func ];
+    }
+
+    function add_annotations() {
+        for (let i = 11; i < 128; i += 24) {
+            context.fillStyle = "#181818";
+            context.fillRect(0, vpos_fn(i), width, px_vert * 12);
+            context.fillStyle = "#000000";
+            context.fillRect(0, vpos_fn(i) + px_vert * 12, width, px_vert * 12);
+        }
+        context.fillStyle = "#C0C0C0";
+
+        const gap = Math.max(Math.ceil(10 / px_vert), 1);
+
+        for (let i = minval; i <= maxval; i += gap) {
+            context.fillStyle = color_rule(i);
+
+            const gap = BARLINES ? BARLINES * (options.value_bars || 8) : 1e7;
+            for (let j = 2; j < width; j += gap) {
+                context.fillText(value_rule(i), j, vpos_fn(i) + px_vert);
+            }
+        }
+        context.fillStyle = "#C0C0C0";
+
+        if (BARLINES) {
+            const beats = options.beats || 0;
+            const beatpx = BARLINES / beats;
+            const beatstyle = options.beatstyle || "#404040";
+
+            let bar = 1;
+            for (let i = LEFTPAD; i < width; i += BARLINES) {
+                context.beginPath();
+                context.moveTo(i, 0);
+                context.lineTo(i, height);
+                context.stroke();
+
+                if (beats) {
+                    context.strokeStyle = beatstyle;
+                    for (j = 1; j < options.beats; j++) {
+                        context.beginPath();
+                        context.moveTo(i + j * beatpx, 0);
+                        context.lineTo(i + j * beatpx, height);
+                        context.stroke();
+                    }
+                    context.strokeStyle = textstyle;
+                }
+
+                context.fillText(bar, i + BARLINES / 2 - 8, height);
+                context.fillText(bar, i + BARLINES / 2 - 8, 10);
+                bar++;
+            }
+        }
+
+        if (options.header) {
+            context.fillText(options.header, LEFTPAD, 10);
+        }
+    }
+
+    function add_data() {
+        for (let i = 0; i < data.length; i++) {
+            let left = LEFTPAD + Math.floor(timeline[i] * px_horiz);
+            let wid  = Math.max(Math.ceil((timeline[i + 1] - timeline[i]) * px_horiz), 1);
+
+            data[i].forEach(v => {
+                context.fillStyle = color_rule(v);
+
+                context.fillRect(left, vpos_fn(v), wid, px_vert);
+            });
+        }
+    }
+
+    add_annotations();
+    add_data();
+
+    canvas.style.display = 'inline';
+})();
+</script>

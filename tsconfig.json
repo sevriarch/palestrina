@@ -1,0 +1,16 @@
+{
+    "extends": "@tsconfig/node-lts-strictest/tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./built",
+        "allowJs": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "noImplicitReturns": false,
+        "noUncheckedIndexedAccess": false,
+        "exactOptionalPropertyTypes": false
+    },
+    "include": [
+        "./src/**/*",
+        "./index.ts"
+    ]
+}

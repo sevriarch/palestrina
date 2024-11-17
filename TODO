@@ -1,0 +1,44 @@
+HIGH PRIORITY:
+
+FEATURES:
+- MusicXML import/export
+
+ERROR HANDLING:
+- Review (including type checking)
+
+DOCUMENTATION:
+- There should be more non-API documentation
+ - README.md should gain guided examples of how to create a score
+ - Backfill ADRs
+ - Keep dictionary up to date
+- Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
+
+PUBLICATION:
+- Update git email address to point to thesevwright@gmail.com
+- Create new github/gitlab repo with a copy of Palestrina. Implement CI in it if github
+- Find out what npm requires in order to publish there. Get np working for publication workflow
+- Publish on npm using shared thesevwright accounts there & on github
+
+
+LOW PRIORITY:
+
+ERROR HANDLING:
+- Error-checking on arrays should show a list of failing members/indices
+ - This is a major undertaking that would require the order: MetaList, ChordSeqMember, Sequences
+
+BUGS/DESIGN ISSUES:
+- Nested .if()/.while()s will be unpredictable unless we implement using a stack.
+- sliding window methods are implemented in an unintuitive manner
+
+MIDI:
+- many changes done, could review these
+- midi-reader could potentially attempt to associate events with the related note(s) and/or collapse chords into one event.
+
+SCORES:
+- The original Score canvas could use some love and some compatibility with the 2D canvas style
+
+CLEANLINESS:
+- Perhaps move helpers around and use the term only for those available to the end user?
+
+ONCE DONE:
+- Review docs, compile checklist of things to rereview

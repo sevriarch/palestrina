@@ -1,0 +1,7 @@
+<script>
+var stringvar = __STRING_VAR__;
+var numvar = __NUM_VAR__;
+var boolvar = __BOOL_VAR__;
+var arrayvar = __ARRAY_VAR__;
+var objvar = __OBJ_VAR__;
+</script>

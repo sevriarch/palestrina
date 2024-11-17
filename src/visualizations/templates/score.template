@@ -1,0 +1,309 @@
+<html>
+<head></head>
+<body style="background-color:#000000">
+<div style="height:20px"><canvas id="header-canvas" style="position:fixed;width:600px;height:20px;border:0px solid #000000;background:transparent"></canvas></div>
+<div><canvas id="pitch-canvas" style="top:20px;width:600px;height:200px;border:1px solid #000000; background-color:#000000"></canvas></div>
+<div><canvas id="volume-canvas" style="width:600px;height:200px;border:1px solid #000000;background-color:#000000"></canvas></div>
+<div><canvas id="gamut-canvas" style="width:600px;height:200px;border:1px solid #000000;background-color:#000000"></canvas></div>
+</body>
+
+<script>
+var h_can = document.getElementById("header-canvas");
+var p_can = document.getElementById("pitch-canvas");
+var v_can = document.getElementById("volume-canvas");
+var g_can = document.getElementById("gamut-canvas");
+
+function clr_inc() {
+    currcolor = (currcolor + 1) % 32;
+    render();
+}
+
+function clr_dec() {
+    currcolor = (currcolor + 31) % 32;
+    render();
+}
+
+function toggle_voice(i) {
+    if (i >= showing.length) { return; }
+    showing[i] = !showing[i];
+    render();
+}
+
+document.addEventListener('keydown', function (e) {
+    var k = e.keyCode;
+
+    if (k === 37) { return clr_dec(); }
+    if (k === 39) { return clr_inc(); }
+    if (k === 48) { return toggle_voice(9); }
+    if (e.keyCode > 48 && e.keyCode < 58) { return toggle_voice(k - 49); }
+});
+
+// Set up this event listener once only
+h_can.addEventListener('click', function (e) {
+    var xpos = e.layerX;
+    var ypos = e.layerY;
+
+    if (ypos < 2 || ypos > 17 || xpos % 20 < 2 || xpos % 20 > 17) { return; }
+
+    var ix = Math.floor(xpos / 20);
+
+    if (ix < num_tracks) {
+        toggle_voice(ix);
+    } else if (ix === num_tracks) {
+        clr_dec();
+    } else {
+        clr_inc();
+    }
+});
+
+var h_ctx = h_can.getContext("2d");
+var p_ctx = p_can.getContext("2d");
+var v_ctx = v_can.getContext("2d");
+var g_ctx = g_can.getContext("2d");
+
+var tracks = __SCORE__;
+
+var num_tracks = tracks.length;
+var showing    = new Array(num_tracks).fill(1);
+var currcolor  = 0;
+
+var TEXTFILL = "rgb(192, 192, 192, 1)";
+var TEXTFONT = "12px Arial";
+var GREYFILL = 'rgb(24, 24, 24, 1)';
+
+var LEFTPAD  = 24;
+var RIGHTPAD = 6;
+
+function getrgba(track, v) {
+    var clr, min;
+
+    if ((track + currcolor) & 16) {
+        min = 64;
+        clr = v + 96;
+    } else {
+        min = 32;
+        clr = v + 128;
+    }
+
+    var mix = Math.round((clr + min) / 2);
+    var arr;
+    switch ((track + currcolor) % 16) {
+    case 0:
+        arr = [ clr, min, min ];
+        break;
+    case 1:
+        arr = [ min, clr, min ];
+        break;
+    case 2:
+        arr = [ min, min, clr ];
+        break;
+    case 3:
+        arr = [ clr, clr, min ];
+        break;
+    case 4:
+        arr = [ clr, min, clr ];
+        break;
+    case 5:
+        arr = [ min, clr, clr ];
+        break;
+    case 6:
+        arr = [ clr, clr, clr ];
+        break;
+    case 7:
+        arr = [ clr, mix, min ];
+        break;
+    case 8:
+        arr = [ min, clr, mix ];
+        break;
+    case 9:
+        arr = [ mix, min, clr ];
+        break;
+    case 10:
+        arr = [ clr, min, mix ];
+        break;
+    case 11:
+        arr = [ mix, clr, min ];
+        break;
+    case 12:
+        arr = [ min, mix, clr ];
+        break;
+    case 13:
+        arr = [ clr, mix, mix ];
+        break;
+    case 14:
+        arr = [ mix, clr, mix ];
+        break;
+    case 15:
+        arr = [ mix, mix, clr ];
+        break;
+    }
+
+    return 'rgba(' + arr.join(', ') + ', 1)';
+}
+
+function render() {
+    var min_p = __MIN_PITCH__;
+    var max_p = __MAX_PITCH__;
+
+    var end = __LAST_TICK__;
+
+    var tgt_ht = __TARGET_HT__;
+    var tgt_wd = __TARGET_WD__;
+    var min_wd = __MIN_WD__;
+
+    var ticks_sc = __TICKS_SCALE__;
+    var ticks_px = __TICKS_PX__;
+
+    var range_p = max_p - min_p;
+
+    var p_ht = Math.max(1, tgt_ht / range_p);
+    var v_ht = 2;
+    var g_ht = 10;
+
+    var notenames = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ];
+
+    if (!ticks_px) {
+        ticks_px = Math.max(2, end / tgt_wd);
+    }
+
+    var can_wd = Math.ceil(end / ticks_px) + LEFTPAD + RIGHTPAD;
+
+    function toggle_visibility(arg) {
+        const vis = arg ? 'inline' : 'none';
+
+        h_can.style.display = vis;
+        p_can.style.display = vis;
+        v_can.style.display = vis;
+        g_can.style.display = vis;
+    }
+
+    function setup_header_canvas() {
+        h_can.height       = 20;
+        h_can.style.height = '20px';
+        h_can.width        = 45 + num_tracks * 20;
+        h_can.style.width  = h_can.width + 'px';
+
+        h_ctx.font = TEXTFONT;
+        h_ctx.fillStyle = TEXTFILL;
+
+        h_ctx.beginPath();
+        h_ctx.moveTo(2 + num_tracks * 20, 10);
+        h_ctx.lineTo(17 + num_tracks * 20, 17);
+        h_ctx.lineTo(17 + num_tracks * 20, 3);
+        h_ctx.closePath();
+        h_ctx.fill();
+
+        h_ctx.beginPath();
+        h_ctx.moveTo(37 + num_tracks * 20, 10);
+        h_ctx.lineTo(23 + num_tracks * 20, 17);
+        h_ctx.lineTo(23 + num_tracks * 20, 3);
+        h_ctx.closePath();
+        h_ctx.fill();
+
+        for (var i = 0; i < num_tracks; i++) {
+            if (showing[i]) {
+                h_ctx.fillStyle = getrgba(i, 96);
+                h_ctx.fillRect(2 + i * 20, 2, 16, 16);
+            } else {
+                h_ctx.strokeStyle = getrgba(i, 96);
+                h_ctx.strokeRect(2 + i * 20, 2, 16, 16);
+            }
+        }
+    }
+
+    function setup_pitch_canvas() {
+        p_can.height       = (range_p + 1) * p_ht + 10;
+        p_can.style.height = p_can.height + "px";
+        p_can.width        = can_wd;
+        p_can.style.width  = p_can.width + "px";
+
+        p_ctx.globalCompositeOperation = 'soft-light';
+        p_ctx.font = TEXTFONT;
+        p_ctx.fillStyle = TEXTFILL;
+
+        for (let i = 0; i < can_wd; i += 128) {
+            p_ctx.fillText(Math.round(i * ticks_px / ticks_sc), i + LEFTPAD, p_can.height - 1);
+        }
+
+        for (let i = 0; i < 9; i++) {
+            var p =  Math.round(max_p - (range_p * i / 8));
+            var pn = notenames[p % 12] + Math.floor((p / 12) - 1);
+
+            p_ctx.fillText(pn, 0, Math.min(p_can.height - 1, 9 + (max_p - p) * p_ht));
+        }
+    }
+
+    function setup_volume_canvas() {
+        v_can.height       = 128 * v_ht + 10;
+        v_can.style.height = v_can.height + "px";
+        v_can.width        = can_wd;
+        v_can.style.width  = v_can.width + "px";
+
+        v_ctx.globalCompositeOperation = 'soft-light';// TODO: May need a better solution here
+        v_ctx.font = TEXTFONT;
+        v_ctx.fillStyle = TEXTFILL;
+
+        [ 128, 96, 64, 32, 0 ].forEach(v => v_ctx.fillText(v, 0, 9 + v_ht * (128 - v)));
+    }
+
+    function setup_gamut_canvas() {
+        g_can.height       = 12 * g_ht;
+        g_can.style.height = g_can.height + 'px';
+        g_can.width        = can_wd;
+        g_can.style.width  = g_can.width + 'px';
+
+        // hard-light works better for gamut because of dupes
+        g_ctx.globalCompositeOperation = 'hard-light';
+        g_ctx.font = TEXTFONT;
+
+        g_ctx.fillStyle = GREYFILL;
+        [ 1, 3, 5, 8, 10 ].forEach(v => g_ctx.fillRect(0, v * 10, can_wd, 10));
+
+        g_ctx.fillStyle = TEXTFILL;
+        notenames.forEach((v, i) => g_ctx.fillText(v, 0, 120 - i * g_ht));
+    }
+
+    function write_notes() {
+        tracks.forEach((track, i) => {
+            if (!showing[i]) { return; }
+
+            track.forEach(n => {
+                var c = getrgba(i, n.velocity);
+
+                v_ctx.fillStyle = c;
+                p_ctx.fillStyle = c;
+                g_ctx.fillStyle = c;
+
+                var left = LEFTPAD + Math.floor(n.tick / ticks_px);
+                var wid  = Math.max(min_wd, Math.floor(n.duration / ticks_px));
+
+                var v_top = 5 + (128 - n.velocity) * v_ht;
+                n.pitch.forEach(p => {
+                    var p_top = (max_p - p) * p_ht;
+                    var g_top = (11 - (p % 12)) * g_ht;
+
+                    p_ctx.fillRect(left, p_top, wid, p_ht);
+                    v_ctx.fillRect(left, v_top, wid, v_ht);
+                    g_ctx.fillRect(left, g_top, wid, g_ht);
+
+                    if (g_top < 0) {
+                        g_ctx.fillRect(left, g_top + 12 * g_ht, wid, -g_top);
+                    }
+                });
+            });
+        });
+    }
+
+    toggle_visibility(false);
+    setup_header_canvas();
+    setup_pitch_canvas();
+    setup_volume_canvas();
+    setup_gamut_canvas();
+    write_notes();
+    toggle_visibility(true);
+}
+
+render();
+</script>
+
+</html>
