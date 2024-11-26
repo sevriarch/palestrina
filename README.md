@@ -1,6 +1,6 @@
 # Palestrina
 
-[![CI](https://github.com/sevriarch/palestrina/actions/workflows/main.yml/badge.svg)
+![CI](https://github.com/sevriarch/palestrina/actions/workflows/main.yml/badge.svg)
 [![codecov](https://codecov.io/github/sevriarch/palestrina/branch/main/graph/badge.svg?token=6N3RBEJ7AX)](https://codecov.io/github/sevriarch/palestrina)
 
 Palestrina is a library and toolkit for algorithmic composition using JavaScript. It provides the ability to create and manipulate integer sequences, and to convert them into musical representations of these sequences, as well as the ability to export these as MIDI files.
