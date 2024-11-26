@@ -5,6 +5,8 @@ import MetaEvent from './meta-event';
 
 import { isNonNegNumber, isPosNumber } from '../helpers/validation';
 
+import { dumpOneLine } from '../dump/dump';
+
 /**
  * Class representing a list of Meta events. This functionality is used in a number of places
  * at the start and end of MelodyMembers, at the start of Melodies and Scores, and is used
@@ -19,16 +21,20 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
      * If creating from a MetaList, return that MetaList.
      * Otherwise, create a new one.
      */
-    static from(ob?: MetaListArg): MetaList {
+    static from(ob: MetaListArg = []): MetaList {
         if (ob instanceof MetaList) {
             return ob;
         }
 
-        if (!ob || ob.length === 0) {
-            return MetaList.EMPTY_META_LIST;
+        if (!Array.isArray(ob)) {
+            throw new Error(`MetaList.from(): invalid argument: ${dumpOneLine(ob)}`);
         }
 
-        return new MetaList(ob.map(MetaEvent.from));
+        if (ob.length) {
+            return new MetaList(ob.map(MetaEvent.from));
+        }
+
+        return MetaList.EMPTY_META_LIST;
     }
 
     /**
@@ -90,7 +96,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
      */
     augmentRhythm(i: number): MetaList {
         if (!isNonNegNumber(i)) {
-            throw new Error(`MetaList.augmentRhythm(): must augment by a non-negative number; was ${i}`);
+            throw new Error(`MetaList.augmentRhythm(): must augment by a non-negative number; was ${dumpOneLine(i)}`);
         }
 
         if (!this.length) {
@@ -105,7 +111,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
      */
     diminishRhythm(i: number): MetaList {
         if (!isPosNumber(i)) {
-            throw new Error(`MetaList.diminishRhythm(): must diminish by a positive number; was ${i}`);
+            throw new Error(`MetaList.diminishRhythm(): must diminish by a positive number; was ${dumpOneLine(i)}`);
         }
 
         if (!this.length) {
