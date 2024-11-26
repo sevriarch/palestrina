@@ -14,8 +14,6 @@ DOCUMENTATION:
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
 PUBLICATION:
-- Update git email address to point to thesevwright@gmail.com
-- Create new github/gitlab repo with a copy of Palestrina. Implement CI in it if github
 - Find out what npm requires in order to publish there. Get np working for publication workflow
 - Publish on npm using shared thesevwright accounts there & on github
 
