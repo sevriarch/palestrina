@@ -13,19 +13,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: checkout
         uses: actions/checkout@v3
 
-      - name: Use Node 20.x
+      - name: install node 20
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: Install dependencies
+      - name: install deps
         run: npm ci
 
-      - name: Unit Tests
+      - name: unit tests
         run: npm t
 
-      - name: System Tests
-        run: cd misc && ./integration.sh
+      - name: system tests
+        run: misc/integration.sh
