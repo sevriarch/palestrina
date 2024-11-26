@@ -13,10 +13,6 @@ DOCUMENTATION:
  - Keep dictionary up to date
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
-PUBLICATION:
-- Find out what npm requires in order to publish there. Get np working for publication workflow
-- Publish on npm using shared thesevwright accounts there & on github
-
 
 LOW PRIORITY:
 
