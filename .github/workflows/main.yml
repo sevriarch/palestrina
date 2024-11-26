@@ -25,7 +25,10 @@ jobs:
         run: npm ci
 
       - name: unit tests
-        run: npm t
+        run: npm t | tee coverage.txt
 
       - name: system tests
         run: misc/integration.sh
+
+      - name: codecov
+        uses: codecov/codecov-action@v5
