@@ -4,9 +4,9 @@
   "description": "A Node.js library for creating algorithmic music",
   "main": "built/index.js",
   "scripts": {
-    "build": "eslint {src,test}/**/*.ts && tsc -d && cp -R src/visualizations/templates built/src/visualizations",
-    "lint": "eslint {src,test}/**/*.ts",
-    "test": "eslint {src,test}/**/*.ts && tsc -d && cp -R src/visualizations/templates built/src/visualizations && jest",
+    "build": "eslint src/**/*.ts && tsc -d && cp -R src/visualizations/templates built/src/visualizations",
+    "lint": "eslint src/**/*.ts",
+    "test": "eslint src/**/*.ts && tsc -d && cp -R src/visualizations/templates built/src/visualizations && jest",
     "integration": "misc/integration.sh",
     "docs": "typedoc index.ts",
     "depgraph": "madge -i depgraph.png index.ts"

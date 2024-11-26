@@ -12,7 +12,7 @@ const cache: Record<string, number[]> = {};
  * HELPERS
  */
 
-function throwIfNotNumber(i: unknown, key = 'argument'): void {
+function throwIfNotNumber(i: unknown, key: string): void {
     if (!isNumber(i)) {
         throw new Error(`${key} must be a number, was ${dumpOneLine(i)}`);
     }
@@ -74,7 +74,7 @@ export function primes(n: number): number[] {
     const primes = new Array(n);
 
     let count = 0;
-    for (let curr = 2; count < n; curr ++) {
+    for (let curr = 2; count < n; curr++) {
         if (isprime(curr)) {
             primes[count] = curr;
             count++;
@@ -117,11 +117,11 @@ export function primepi(n: number): number[] {
     const primepi = new Array(n);
 
     let count = 0;
-    for (let curr = 0; curr < n; curr ++) {
+    for (let curr = 0; curr < n; curr++) {
         if (isprime(curr)) {
             count++;
         }
-            
+
         primepi[curr] = count;
     }
 
@@ -202,7 +202,7 @@ export function fibonacci(n: number): number[] {
     const ret = new Array(n);
 
     if (n > 0) { ret[0] = 0; }
-    if (n > 1) { ret[1] = 1; } 
+    if (n > 1) { ret[1] = 1; }
 
     for (let i = 2; i < n; i++) {
         ret[i] = ret[i - 1] + ret[i - 2];
@@ -244,7 +244,7 @@ export function infinity(n: number): number[] {
 
     function valat(v: number): number {
         if (!v) { return 0; }
-        
+
         return v % 2 ? valat((v - 1) / 2) + 1 : sanitizeMinusZero(-valat(v / 2));
     }
 
@@ -369,7 +369,7 @@ export function increment(n: number): number[] {
  * Return a series of length n where all values are val.
  */
 export function constant<T>(n: number, val: T): T[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'first argument');
 
     return new Array(n).fill(val);
 }
@@ -378,9 +378,9 @@ export function constant<T>(n: number, val: T): T[] {
  * Return a floored linear series based on length and first and last values.
  */
 export function linear(n: number, first: number, last: number): number[] {
-    throwIfNotNonnegInt(n);
-    throwIfNotNumber(first);
-    throwIfNotNumber(last);
+    throwIfNotNonnegInt(n, 'first argument');
+    throwIfNotNumber(first, 'second argument');
+    throwIfNotNumber(last, 'third argument');
 
     const grad = (last - first) / (n - 1);
 
@@ -392,9 +392,9 @@ export function linear(n: number, first: number, last: number): number[] {
  * by inc for each and ends as soon as the stop value has been passed.
  */
 export function step(start: number, stop: number, inc: number): number[] {
-    throwIfNotNumber(start);
-    throwIfNotNumber(stop);
-    throwIfNotNumber(inc);
+    throwIfNotNumber(start, 'first argument');
+    throwIfNotNumber(stop, 'second argument');
+    throwIfNotNumber(inc, 'third argument');
 
     if (!inc) {
         throw new Error('Cannot step with zero increment.');
@@ -416,9 +416,9 @@ export function step(start: number, stop: number, inc: number): number[] {
  * The pseudorandom seed can be passed if desired, otherwise a default is used.
  */
 export function xorshift(n: number, max: number, seed = 0x57B37C1E): number[] {
-    throwIfNotNonnegInt(n);
-    throwIfNotNonnegInt(max);
-    throwIfNotNonnegInt(seed);
+    throwIfNotNonnegInt(n, 'first argument');
+    throwIfNotNonnegInt(max, 'second argument');
+    throwIfNotNonnegInt(seed, 'third argument');
 
     const ret = new Array(n);
 
@@ -441,10 +441,10 @@ export function xorshift(n: number, max: number, seed = 0x57B37C1E): number[] {
  * The angle corresponding to the last member of the sequence is stop.
  */
 export function sinusoidal(n: number, width: number, firstAngle: number, lastAngle: number): number[] {
-    throwIfNotNonnegInt(n);
-    throwIfNotNumber(width);
-    throwIfNotNumber(firstAngle);
-    throwIfNotNumber(lastAngle);
+    throwIfNotNonnegInt(n, 'first argument');
+    throwIfNotNumber(width, 'second argument');
+    throwIfNotNumber(firstAngle, 'third argument');
+    throwIfNotNumber(lastAngle, 'fourth argument');
 
     const grad = (lastAngle - firstAngle) / (n - 1);
     const PI180 = Math.PI / 180;
