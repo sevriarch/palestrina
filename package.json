@@ -1,6 +1,6 @@
 {
   "package-name": "@sevriarch/palestrina",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A Node.js library for creating algorithmic music",
   "main": "built/index.js",
   "scripts": {
