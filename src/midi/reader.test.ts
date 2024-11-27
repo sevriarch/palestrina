@@ -684,11 +684,10 @@ describe('extractMidiTrack()', () => {
         expect(new MidiReader(arr).extractMidiTrack()).toStrictEqual(Melody.from([], {}));
     });
 
-    test('extract a track containing note on and off events keeps those events and sets track channel to the channel associated with those notes', () => {
+    test('extract a track containing note on and off events but with end track event missing', () => {
         const arr = [
             0x00, 0x95, 0x40, 0x60, // Note on, channel 6
             0x40, 0x85, 0x40, 0x60, // Note off, channel 6
-            0x10, 0xff, 0x2f, 0x00  // End track
         ];
 
         expect(new MidiReader(arr).extractMidiTrack()).toStrictEqual(Melody.from([

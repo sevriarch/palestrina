@@ -424,7 +424,8 @@ class MidiReader {
 
         const notes = Melody.from(this.notes.sort((a, b) => a.at - b.at));
 
-        if (this.otherEvents?.length && this.otherEvents[this.otherEvents.length - 1].event === 'end-track') {
+        // a track should always end with an end track event, but we will not throw an error if it does not
+        if (this.otherEvents.length && this.otherEvents[this.otherEvents.length - 1].event === 'end-track') {
             this.otherEvents.pop();
         }
 
