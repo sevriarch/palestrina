@@ -28,8 +28,9 @@ MIDI:
 - many changes done, could review these
 - midi-reader could potentially attempt to associate events with the related note(s) and/or collapse chords into one event.
 
-SCORES:
+VISUALISATIONS:
 - The original Score canvas could use some love and some compatibility with the 2D canvas style
+- SVG as an alternative to canvas
 
 CLEANLINESS:
 - Perhaps move helpers around and use the term only for those available to the end user?
