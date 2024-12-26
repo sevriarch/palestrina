@@ -621,7 +621,13 @@ describe('Melody.augmentRhythm()', () => {
         { pitch: [66], duration: 50, velocity: 60, delay: 50 },
         { pitch: [69], duration: 150, velocity: 50, at: 40 },
         { pitch: [72], duration: 100, velocity: 60, after: [{ event: 'sustain', value: 0, at: 600 }] },
-    ]);
+    ],
+    {
+        before: MetaList.from([
+            { event: 'sustain', value: 1, at: 50 },
+            { event: 'sustain', value: 0, at: 150 }
+        ])
+    });
 
     test('throws if argument is not a non-negative number', () => {
         expect(() => s.augmentRhythm(-1)).toThrow();
@@ -638,7 +644,13 @@ describe('Melody.augmentRhythm()', () => {
             { pitch: [66], duration: 25, velocity: 60, delay: 25 },
             { pitch: [69], duration: 75, velocity: 50, at: 20 },
             { pitch: [72], duration: 50, velocity: 60, after: [{ event: 'sustain', value: 0, at: 300 }] },
-        ]));
+        ],
+        {
+            before: MetaList.from([
+                { event: 'sustain', value: 1, at: 25 },
+                { event: 'sustain', value: 0, at: 75 }
+            ])
+        }));
     });
 
     test('increases durations, offsets and delays', () => {
@@ -648,7 +660,13 @@ describe('Melody.augmentRhythm()', () => {
             { pitch: [66], duration: 250, velocity: 60, delay: 250 },
             { pitch: [69], duration: 750, velocity: 50, at: 200 },
             { pitch: [72], duration: 500, velocity: 60, after: [{ event: 'sustain', value: 0, at: 3000 }] },
-        ]));
+        ],
+        {
+            before: MetaList.from([
+                { event: 'sustain', value: 1, at: 250 },
+                { event: 'sustain', value: 0, at: 750 }
+            ])
+        }));
     });
 });
 
@@ -659,7 +677,13 @@ describe('Melody.diminishRhythm()', () => {
         { pitch: [66], duration: 50, velocity: 60, delay: 50 },
         { pitch: [69], duration: 150, velocity: 50, at: 40 },
         { pitch: [72], duration: 100, velocity: 60, after: [{ event: 'sustain', value: 0, at: 600 }] },
-    ]);
+    ],
+    {
+        before: MetaList.from([
+            { event: 'sustain', value: 1, at: 50 },
+            { event: 'sustain', value: 0, at: 150 }
+        ])
+    });
 
     test('throws if argument is not a positive number', () => {
         expect(() => s.diminishRhythm(0)).toThrow();
@@ -676,7 +700,13 @@ describe('Melody.diminishRhythm()', () => {
             { pitch: [66], duration: 25, velocity: 60, delay: 25 },
             { pitch: [69], duration: 75, velocity: 50, at: 20 },
             { pitch: [72], duration: 50, velocity: 60, after: [{ event: 'sustain', value: 0, at: 300 }] },
-        ]));
+        ],
+        {
+            before: MetaList.from([
+                { event: 'sustain', value: 1, at: 25 },
+                { event: 'sustain', value: 0, at: 75 }
+            ])
+        }));
     });
 
     test('increases durations, offsets and delays', () => {
@@ -686,7 +716,13 @@ describe('Melody.diminishRhythm()', () => {
             { pitch: [66], duration: 250, velocity: 60, delay: 250 },
             { pitch: [69], duration: 750, velocity: 50, at: 200 },
             { pitch: [72], duration: 500, velocity: 60, after: [{ event: 'sustain', value: 0, at: 3000 }] },
-        ]));
+        ],
+        {
+            before: MetaList.from([
+                { event: 'sustain', value: 1, at: 250 },
+                { event: 'sustain', value: 0, at: 750 }
+            ])
+        }));
     });
 });
 

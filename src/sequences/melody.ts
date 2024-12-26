@@ -1,7 +1,8 @@
-import type { SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import { type SeqArgument, type SeqMemberArgument, type MetadataData, type MelodySummary, type MapperFn, type SeqIndices, type MetaEventValue, type MetaEventOpts, type MetaEventArg, type ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
+import MetaList from '../meta-events/meta-list';
 
 import { melodyToTimedMidiBytes, melodyToMidiTrack } from '../midi/conversions';
 
@@ -228,14 +229,18 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Return a new Melody containing this melody, but rhythms augmented.
      */
     augmentRhythm(n: number): this {
-        return this.map(e => e.augmentRhythm(n));
+        return this.map(e => e.augmentRhythm(n))
+            .if(this.metadata.before != MetaList.EMPTY_META_LIST)
+            .then(m => m.withMetadataValues({ before: this.metadata.before.augmentRhythm(n) }));
     }
 
     /**
      * Return a new Melody containing this melody, but rhythms diminished.
      */
     diminishRhythm(n: number): this {
-        return this.map(e => e.diminishRhythm(n));
+        return this.map(e => e.diminishRhythm(n))
+            .if(this.metadata.before != MetaList.EMPTY_META_LIST)
+            .then(m => m.withMetadataValues({ before: this.metadata.before.diminishRhythm(n) }));
     }
 
     /**
