@@ -139,6 +139,17 @@ export default class MetaEvent {
     }
 
     /**
+     * Augment the timing values in this object
+     */
+    augment(i: number): MetaEvent {
+        return new MetaEvent({
+            event: this.event,
+            value: this.value,
+            timing: this.timing.augment(i)
+        } as MetaEventData);
+    }
+
+    /**
      * Return this object with a different offset
      */
     withOffset(i: number): MetaEvent {

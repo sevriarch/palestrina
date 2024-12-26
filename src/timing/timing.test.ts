@@ -11,12 +11,19 @@ describe('augment()', () => {
 
     test('doubling', () => {
         expect(undef.augment(2)).toStrictEqual(undef);
-        expect(def.augment(2)).toStrictEqual(new Timing(50, 200, 300, 400));
+        expect(def.augment(2)).toStrictEqual(new Timing(100, 200, 300, 400));
     });
 
     test('halving', () => {
         expect(undef.augment(0.5)).toStrictEqual(undef);
-        expect(def.augment(0.5)).toStrictEqual(new Timing(50, 50, 75, 100));
+        expect(def.augment(0.5)).toStrictEqual(new Timing(25, 50, 75, 100));
+    });
+
+    test('generating non-integer values', () => {
+        expect(() => new Timing(11, 100, 100, 100).augment(0.1)).toThrow();
+        expect(() => new Timing(100, 11, 100, 100).augment(0.1)).toThrow();
+        expect(() => new Timing(100, 100, 11, 100).augment(0.1)).toThrow();
+        expect(() => new Timing(100, 100, 100, 11).augment(0.1)).toThrow();
     });
 });
 
@@ -32,12 +39,19 @@ describe('diminish()', () => {
 
     test('doubling', () => {
         expect(undef.diminish(0.5)).toStrictEqual(undef);
-        expect(def.diminish(0.5)).toStrictEqual(new Timing(50, 200, 300, 400));
+        expect(def.diminish(0.5)).toStrictEqual(new Timing(100, 200, 300, 400));
     });
 
     test('halving', () => {
         expect(undef.diminish(2)).toStrictEqual(undef);
-        expect(def.diminish(2)).toStrictEqual(new Timing(50, 50, 75, 100));
+        expect(def.diminish(2)).toStrictEqual(new Timing(25, 50, 75, 100));
+    });
+
+    test('generating non-integer values', () => {
+        expect(() => new Timing(11, 100, 100, 100).diminish(10)).toThrow();
+        expect(() => new Timing(100, 11, 100, 100).diminish(10)).toThrow();
+        expect(() => new Timing(100, 100, 11, 100).diminish(10)).toThrow();
+        expect(() => new Timing(100, 100, 100, 11).diminish(10)).toThrow();
     });
 });
 
@@ -104,17 +118,17 @@ describe('startTick()', () => {
     const delay = new Timing(undefined, undefined, 300);
     const all = new Timing(100, 200, 300);
 
-    const table: [ string, Timing, number, number ][] = [
-        [ 'curr 0, no timing', undef, 0, 0 ],
-        [ 'curr 150, no timing', undef, 150, 150 ],
-        [ 'curr 0, exact', exact, 0, 100 ],
-        [ 'curr 150, exact', exact, 150, 100 ],
-        [ 'curr 0, offset', offset, 0, 200 ],
-        [ 'curr 150, offset', offset, 150, 350 ],
-        [ 'curr 0, delay', delay, 0, 300 ],
-        [ 'curr 150, delay', delay, 150, 450 ],
-        [ 'curr 0, all', all, 0, 600 ],
-        [ 'curr 150, all', all, 150, 600 ],
+    const table: [string, Timing, number, number][] = [
+        ['curr 0, no timing', undef, 0, 0],
+        ['curr 150, no timing', undef, 150, 150],
+        ['curr 0, exact', exact, 0, 100],
+        ['curr 150, exact', exact, 150, 100],
+        ['curr 0, offset', offset, 0, 200],
+        ['curr 150, offset', offset, 150, 350],
+        ['curr 0, delay', delay, 0, 300],
+        ['curr 150, delay', delay, 150, 450],
+        ['curr 0, all', all, 0, 600],
+        ['curr 150, all', all, 150, 600],
     ];
 
     test.each(table)('%s', (_, ob, curr, ret) => {
@@ -130,19 +144,19 @@ describe('endTick()', () => {
     const delay = new Timing(undefined, undefined, 300, 50);
     const all = new Timing(100, 200, 300, 50);
 
-    const table: [ string, Timing, number, number ][] = [
-        [ 'curr 0, no timing', undef, 0, 0 ],
-        [ 'curr 150, no timing', undef, 150, 150 ],
-        [ 'curr 0, dur', dur, 0, 50 ],
-        [ 'curr 150, dur', dur, 150, 200 ],
-        [ 'curr 0, exact', exact, 0, 150 ],
-        [ 'curr 150, exact', exact, 150, 150 ],
-        [ 'curr 0, offset', offset, 0, 250 ],
-        [ 'curr 150, offset', offset, 150, 400 ],
-        [ 'curr 0, delay', delay, 0, 350 ],
-        [ 'curr 150, delay', delay, 150, 500 ],
-        [ 'curr 0, all', all, 0, 650 ],
-        [ 'curr 150, all', all, 150, 650 ],
+    const table: [string, Timing, number, number][] = [
+        ['curr 0, no timing', undef, 0, 0],
+        ['curr 150, no timing', undef, 150, 150],
+        ['curr 0, dur', dur, 0, 50],
+        ['curr 150, dur', dur, 150, 200],
+        ['curr 0, exact', exact, 0, 150],
+        ['curr 150, exact', exact, 150, 150],
+        ['curr 0, offset', offset, 0, 250],
+        ['curr 150, offset', offset, 150, 400],
+        ['curr 0, delay', delay, 0, 350],
+        ['curr 150, delay', delay, 150, 500],
+        ['curr 0, all', all, 0, 650],
+        ['curr 150, all', all, 150, 650],
     ];
 
     test.each(table)('%s', (_, ob, curr, ret) => {
@@ -158,19 +172,19 @@ describe('nextTick()', () => {
     const delay = new Timing(undefined, undefined, 300, 50);
     const all = new Timing(100, 200, 300, 50);
 
-    const table: [ string, Timing, number, number ][] = [
-        [ 'curr 0, no timing', undef, 0, 0 ],
-        [ 'curr 150, no timing', undef, 150, 150 ],
-        [ 'curr 0, dur', dur, 0, 50 ],
-        [ 'curr 150, dur', dur, 150, 200 ],
-        [ 'curr 0, exact', exact, 0, 150 ],
-        [ 'curr 150, exact', exact, 150, 150 ],
-        [ 'curr 0, offset', offset, 0, 50 ],
-        [ 'curr 150, offset', offset, 150, 200 ],
-        [ 'curr 0, delay', delay, 0, 350 ],
-        [ 'curr 150, delay', delay, 150, 500 ],
-        [ 'curr 0, all', all, 0, 450 ],
-        [ 'curr 150, all', all, 150, 450 ],
+    const table: [string, Timing, number, number][] = [
+        ['curr 0, no timing', undef, 0, 0],
+        ['curr 150, no timing', undef, 150, 150],
+        ['curr 0, dur', dur, 0, 50],
+        ['curr 150, dur', dur, 150, 200],
+        ['curr 0, exact', exact, 0, 150],
+        ['curr 150, exact', exact, 150, 150],
+        ['curr 0, offset', offset, 0, 50],
+        ['curr 150, offset', offset, 150, 200],
+        ['curr 0, delay', delay, 0, 350],
+        ['curr 150, delay', delay, 150, 500],
+        ['curr 0, all', all, 0, 450],
+        ['curr 150, all', all, 150, 450],
     ];
 
     test.each(table)('%s', (_, ob, curr, ret) => {
@@ -181,13 +195,13 @@ describe('nextTick()', () => {
 describe('equals()', () => {
     const t = new Timing(100, 200, 300, 50);
 
-    const table: [ string, unknown, boolean ][] = [
-        [ 'not a Timing object', [ 100, 200, 300, 50 ], false ],
-        [ 'exact differs', new Timing(50, 200, 300, 50), false ],
-        [ 'offset differs', new Timing(100, 250, 300, 50), false ],
-        [ 'delay differs', new Timing(100, 200, 250, 50), false ],
-        [ 'duration differs', new Timing(100, 200, 300, 150), false ],
-        [ 'identical', new Timing(100, 200, 300, 50), true ],
+    const table: [string, unknown, boolean][] = [
+        ['not a Timing object', [100, 200, 300, 50], false],
+        ['exact differs', new Timing(50, 200, 300, 50), false],
+        ['offset differs', new Timing(100, 250, 300, 50), false],
+        ['delay differs', new Timing(100, 200, 250, 50), false],
+        ['duration differs', new Timing(100, 200, 300, 150), false],
+        ['identical', new Timing(100, 200, 300, 50), true],
     ];
 
     test.each(table)('%s', (_, cmp, ret) => {

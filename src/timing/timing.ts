@@ -53,12 +53,40 @@ export default class Timing {
             throw new Error(`Timing.augment(): argument must be a non-negative number, was ${dumpOneLine(n)}`);
         }
 
-        return new Timing(
-            this.exact,
-            this.offset === undefined ? undefined : this.offset * n,
-            this.delay === undefined ? undefined : this.delay * n,
-            this.duration === undefined ? undefined : this.duration * n,
-        );
+        let exact, offset, delay, duration: number | undefined;
+        if (this.exact !== undefined) {
+            exact = this.exact * n;
+
+            if (!Timing.isExactTickValid(exact)) {
+                throw new Error(`Timing.augment(): calculated exact tick was not a non-negative integer, was ${dumpOneLine(n)}`);
+            }
+        }
+
+        if (this.offset !== undefined) {
+            offset = this.offset * n;
+
+            if (!Timing.isOffsetValid(offset)) {
+                throw new Error(`Timing.augment(): calculated offset was not an integer, was ${dumpOneLine(n)}`);
+            }
+        }
+
+        if (this.delay !== undefined) {
+            delay = this.delay * n;
+
+            if (!Timing.isDelayValid(delay)) {
+                throw new Error(`Timing.augment(): calculated delay was not a non-negative integer, was ${dumpOneLine(n)}`);
+            }
+        }
+
+        if (this.duration !== undefined) {
+            duration = this.duration * n;
+
+            if (!Timing.isDurationValid(duration)) {
+                throw new Error(`Timing.augment(): calculated duration was not an integer, was ${dumpOneLine(n)}`);
+            }
+        }
+
+        return new Timing(exact, offset, delay, duration);
     }
 
     diminish(n: number): Timing {

@@ -103,7 +103,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
             return this;
         }
 
-        return this.map(e => e.withOffset(e.offset * i));
+        return this.map(e => e.augment(i));
     }
 
     /**
@@ -118,6 +118,6 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
             return this;
         }
 
-        return this.map(e => e.withOffset(e.offset / i));
+        return this.map(e => e.augment(1 / i));
     }
 }

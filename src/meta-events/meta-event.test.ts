@@ -142,6 +142,18 @@ describe('MetaEvent constructor/.val() tests', () => {
     });
 });
 
+describe('MetaEvent.augment() tests', () => {
+    test('multiplies offset when it is set and at is not', () => {
+        expect(MetaEvent.from({ event: 'sustain', value: 0, offset: 60 }).augment(5))
+            .toStrictEqual(MetaEvent.from({ event: 'sustain', value: 0, offset: 300 }));
+    });
+
+    test('multiplies at and offset when both are set', () => {
+        expect(MetaEvent.from({ event: 'sustain', value: 0, at: 120, offset: 60 }).augment(5))
+            .toStrictEqual(MetaEvent.from({ event: 'sustain', value: 0, at: 600, offset: 300 }));
+    });
+});
+
 describe('MetaEvent.withOffset() tests', () => {
     test('sets offset when was not previously set', () => {
         expect(MetaEvent.from({ event: 'sustain', value: 0 }).withOffset(5))
