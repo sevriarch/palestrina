@@ -150,6 +150,17 @@ export default class MetaEvent {
     }
 
     /**
+     * Diminish the timing values in this object
+     */
+    diminish(i: number): MetaEvent {
+        return new MetaEvent({
+            event: this.event,
+            value: this.value,
+            timing: this.timing.diminish(i)
+        } as MetaEventData);
+    }
+
+    /**
      * Return this object with a different offset
      */
     withOffset(i: number): MetaEvent {

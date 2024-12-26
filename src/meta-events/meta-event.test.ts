@@ -154,6 +154,18 @@ describe('MetaEvent.augment() tests', () => {
     });
 });
 
+describe('MetaEvent.diminish() tests', () => {
+    test('divides offset when it is set and at is not', () => {
+        expect(MetaEvent.from({ event: 'sustain', value: 0, offset: 60 }).diminish(5))
+            .toStrictEqual(MetaEvent.from({ event: 'sustain', value: 0, offset: 12 }));
+    });
+
+    test('divides at and offset when both are set', () => {
+        expect(MetaEvent.from({ event: 'sustain', value: 0, at: 120, offset: 60 }).diminish(5))
+            .toStrictEqual(MetaEvent.from({ event: 'sustain', value: 0, at: 24, offset: 12 }));
+    });
+});
+
 describe('MetaEvent.withOffset() tests', () => {
     test('sets offset when was not previously set', () => {
         expect(MetaEvent.from({ event: 'sustain', value: 0 }).withOffset(5))

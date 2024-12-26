@@ -58,7 +58,7 @@ export default class Timing {
             exact = this.exact * n;
 
             if (!Timing.isExactTickValid(exact)) {
-                throw new Error(`Timing.augment(): calculated exact tick was not a non-negative integer, was ${dumpOneLine(n)}`);
+                throw new Error(`Timing.augment(): calculated exact tick was not a non-negative integer, was ${dumpOneLine(exact)}`);
             }
         }
 
@@ -66,7 +66,7 @@ export default class Timing {
             offset = this.offset * n;
 
             if (!Timing.isOffsetValid(offset)) {
-                throw new Error(`Timing.augment(): calculated offset was not an integer, was ${dumpOneLine(n)}`);
+                throw new Error(`Timing.augment(): calculated offset was not an integer, was ${dumpOneLine(offset)}`);
             }
         }
 
@@ -74,7 +74,7 @@ export default class Timing {
             delay = this.delay * n;
 
             if (!Timing.isDelayValid(delay)) {
-                throw new Error(`Timing.augment(): calculated delay was not a non-negative integer, was ${dumpOneLine(n)}`);
+                throw new Error(`Timing.augment(): calculated delay was not a non-negative integer, was ${dumpOneLine(delay)}`);
             }
         }
 
@@ -82,7 +82,7 @@ export default class Timing {
             duration = this.duration * n;
 
             if (!Timing.isDurationValid(duration)) {
-                throw new Error(`Timing.augment(): calculated duration was not an integer, was ${dumpOneLine(n)}`);
+                throw new Error(`Timing.augment(): calculated duration was not an integer, was ${dumpOneLine(duration)}`);
             }
         }
 

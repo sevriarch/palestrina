@@ -118,6 +118,6 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
             return this;
         }
 
-        return this.map(e => e.augment(1 / i));
+        return this.map(e => e.diminish(i));
     }
 }
