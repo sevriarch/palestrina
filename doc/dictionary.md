@@ -21,16 +21,16 @@ These entities are children of the Collection class, which is a container for an
 |---|---|
 | SequenceMember | A container for a single member of a Sequence (number, nullable number, array of numbers, array of numbers plus metadata) |
 | MetaEvent | A container for an object defining some non-note-related action within a Sequence (eg: tempo change, pedal being depressed, text in a score); roughly corresponds to meta-events in MIDI |
-| Metadata | A container for associated metadata related to an entity. See types.ts for possible metadata fields |
-| Scale | An array of numbers indicating a scale or a string corresponding to this array, eg: major scale is [ 0, 2, 4, 5, 7, 9, 11 ] |
+| Metadata | A container for associated metadata related to an entity. See [types.ts](../src/types.ts) for possible metadata fields |
+| Scale | An array of numbers indicating a scale or a string corresponding to this array, eg: a major scale is [ 0, 2, 4, 5, 7, 9, 11 ] |
 | Gamut | A group of notes to distribute values into (the term stolen largely from Cage) |
-| MidiEvent | An event in the MIDI standard |
+| MidiEvent | An event in the MIDI standard (is not exposed to end users) |
 
 ## Properties of entities
 
 | Term | Meaning |
 |---|---|
-| Pitch | A null, number or array of numbers representing a pitch: 60 corresponds to middle C as with the MIDI pitch standard |
+| Pitch | A null, number or array of numbers representing a pitch: 60 corresponds to middle C as with the MIDI pitch standard; numbers will be integers for a non-microtonal composition but can be floating point numbers for microtonal compositions |
 | Rhythm | A number indicating the duration of the entity or its members |
 | Volume | A number indicating the volume of the entity or its members |
 
@@ -40,37 +40,43 @@ This is data that helps define the position in time of an entity. Normally this 
 
 | Term | Meaning |
 |---|---|
-| Offset | A number indicating a delta in tick that should only be applied to this member |
-| Delay | A number indicating a delta in tick that should also be applied to subsequent members |
-| ExactTick | A number indicating an exact tick that should be applied to this members and which subsequent members should be resynced to |
+| Offset | An integer indicating a delta in tick that should only be applied to this member |
+| Delay | An integer indicating a delta in tick that should also be applied to subsequent members |
+| ExactTick | A non-negative integer indicating an exact tick that should be applied to this member and which subsequent members should be resynced to |
+| Duration | A non-negative integer indication the duration of a note, silence or chord |
 
-## Types of method
+## Method prefixes
+
+In many cases method names will begin with one of these prefixes, indicating the type of operation they provide.
 
 | Term | Meaning |
 |---|---|
-| to() | Convert to a new entity of the specified type |
-| is() | Return a boolean determining if an entity is the specified type |
-| insert() | Return a new entity with members inserted before in appropriate locations |
-| findIf() | Find matching members, return their indices |
-| replace() | Replace matching entities with an entity of a similar type |
-| map() | A map operation on the contents of an entity that returns a new entity |
-| filter() | A filter operation on the contents of an entity that returns a new entity |
-| partition() | A partition operation on the contents of an entity that returns two new entities |
-| groupBy() | A group by operation on the contents of an entity that returns a string-to-entity map |
-| with() | Return a new entity with a property added |
-| combine() | Return new collections combining data from those passed |
-| patch() | Return a new entity with modified existing values |
-| add() | Return a new entity with modified existing numeric values |
+| .to | Convert to a new entity of the specified type |
+| .is | Return a boolean determining if an entity is the specified type |
+| .insert | Return a new entity with member(s) inserted in appropriate locations |
+| .find | Find matching member(s), return their indices |
+| .replace | Replace matching entities with an entity of a similar type |
+| .map | A map operation on the contents of an entity that returns a new entity |
+| .filter | A filter operation on the contents of an entity that returns a new entity |
+| .partition | A partition operation on the contents of an entity that returns two new entities |
+| .groupBy | A group by operation on the contents of an entity that returns a string-to-entity map |
+| .with | Return a new entity with a property added |
+| .combine | Return new collections combining data from those passed |
+| .patch | Return a new entity with modified existing values |
+| .add | Return a new entity with modified existing numeric values |
+| .append | Return a collection with new entities added at the end |
+| .prepend | Return a collection with new entities added at the beginning |
 
 ## Locations within a Collection or Sequence
 
 | Term | Meaning |
 |---|---|
-| Before | Directly before a specific location |
-| At | At a specific location or location; can also be referred to using Indices |
-| After | Directly after a specific location |
-| Left | Typically implicit rather than explicit (eg in: pad() or keep()), but operate starting from beginning of Collection |
-| Right | Operate starting from end of Collection |
+| Before | Directly before specific location(s) |
+| At | At a specific location(s) |
+| Indices | At a specific index or indices |
+| After | Directly after specific location |
+| Left | Operation begins at the start of the Collection (typically implicit rather than explicit, eg in: .pad or .keep methods) |
+| Right | Operation begins at the end of the Collection |
 | First | The first matching location |
 | Last | The last matching location |
 
