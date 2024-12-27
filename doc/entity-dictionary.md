@@ -39,3 +39,4 @@ This document lists entities within Palestrina.
 | Canvas | A visual representation of a Score as an HTML canvas | HTML, JavaScript code |
 | Canvas Options | An object configuring canvas generation for visualising music | CanvasOpts |
 | Score Canvas Options | An object configuring canvas generation for visualising a Score | ScoreCanvasOpts |
+| Replacer | A value, object or method representing the replacement for an existing value within a Sequence | Replacer<TFrom, TTo> |

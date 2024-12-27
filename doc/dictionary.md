@@ -20,7 +20,7 @@ These entities are children of the Collection class, which is a container for an
 | Term | Meaning |
 |---|---|
 | SequenceMember | A container for a single member of a Sequence (number, nullable number, array of numbers, array of numbers plus metadata) |
-| MetaEvent | A container for an object defining some non-note-related action within a Sequence (eg: tempo change, pedal being depressed, text in a score); roughly corresponds to meta-events in MIDI |
+| MetaEvent | A container for an object defining some non-note-related action within a Sequence (eg: tempo change, pedal being depressed, text in a score); includes supported MIDI meta-events and channel events |
 | Metadata | A container for associated metadata related to an entity. See [types.ts](../src/types.ts) for possible metadata fields |
 | Scale | An array of numbers indicating a scale or a string corresponding to this array, eg: a major scale is [ 0, 2, 4, 5, 7, 9, 11 ] |
 | Gamut | A group of notes to distribute values into (the term stolen largely from Cage) |
@@ -31,18 +31,18 @@ These entities are children of the Collection class, which is a container for an
 | Term | Meaning |
 |---|---|
 | Pitch | A null, number or array of numbers representing a pitch: 60 corresponds to middle C as with the MIDI pitch standard; numbers will be integers for a non-microtonal composition but can be floating point numbers for microtonal compositions |
-| Rhythm | A number indicating the duration of the entity or its members |
 | Volume | A number indicating the volume of the entity or its members |
+| Timing | A collection of temporal data (see below) associated with the entity |
 
 ## Temporal data
 
-This is data that helps define the position in time of an entity. Normally this would be calculated based on what came before in the sequence, but temporal data indicates when that is insufficient and other operations must be applied.
+This is data that helps define the position in time of an entity. Normally this would be calculated based on what came before in the sequence, but temporal data indicates when that is insufficient and other operations must be applied. SequenceMembers contain all of these properties, Metadata and MetaEvents contain only ExactTick and Offset.
 
 | Term | Meaning |
 |---|---|
+| ExactTick | A non-negative integer indicating an exact tick that should be applied to this member and (in a Sequence) to which subsequent members should be resynced to |
 | Offset | An integer indicating a delta in tick that should only be applied to this member |
 | Delay | An integer indicating a delta in tick that should also be applied to subsequent members |
-| ExactTick | A non-negative integer indicating an exact tick that should be applied to this member and which subsequent members should be resynced to |
 | Duration | A non-negative integer indication the duration of a note, silence or chord |
 
 ## Method prefixes
