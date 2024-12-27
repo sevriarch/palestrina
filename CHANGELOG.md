@@ -4,6 +4,8 @@
 
 ### Documentation
 * Some fleshing out of the Palestrina Cookbook. There is still much work to be done here.
+* Clarifying and cleaning up some of the dictionary and entity listing.
+* Links to cookbook, dictionary and entity listing are now in the README file.
 
 ### Bugfixes
 * `Melody.augmentRhythm()` and `Melody.diminishRhythm()` now change exact ticks in MIDI events associated with notes.

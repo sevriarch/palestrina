@@ -57,12 +57,12 @@ In many cases method names will begin with one of these prefixes, indicating the
 | .find | Find matching member(s), return their indices |
 | .replace | Replace matching entities with an entity of a similar type |
 | .map | A map operation on the contents of an entity that returns a new entity |
+| .flatMap | A map operation on the contents of an entity that flattens the results of the map and returns a new entity |
 | .filter | A filter operation on the contents of an entity that returns a new entity |
 | .partition | A partition operation on the contents of an entity that returns two new entities |
 | .groupBy | A group by operation on the contents of an entity that returns a string-to-entity map |
-| .with | Return a new entity with a property added |
-| .combine | Return new collections combining data from those passed |
-| .patch | Return a new entity with modified existing values |
+| .with | Return a new entity with a property added (or replaced) |
+| .combine | Return new collection(s) combining data from the current one and those passed as an argument |
 | .add | Return a new entity with modified existing numeric values |
 | .append | Return a collection with new entities added at the end |
 | .prepend | Return a collection with new entities added at the beginning |
@@ -71,10 +71,10 @@ In many cases method names will begin with one of these prefixes, indicating the
 
 | Term | Meaning |
 |---|---|
-| Before | Directly before specific location(s) |
 | At | At a specific location(s) |
+| Before | Directly before specific location(s) |
+| After | Directly after specific location(s) |
 | Indices | At a specific index or indices |
-| After | Directly after specific location |
 | Left | Operation begins at the start of the Collection (typically implicit rather than explicit, eg in: .pad or .keep methods) |
 | Right | Operation begins at the end of the Collection |
 | First | The first matching location |

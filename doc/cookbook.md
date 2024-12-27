@@ -29,6 +29,26 @@ score([ base, part2, part3 ], { ticks_per_quarter: QUARTER_NOTE })
     .writeMidi(__filename)
 ```
 
+### Set volume for a melody
+
+```
+// Constant volume
+const newmelody = oldmelody.withVolume(64);
+
+// A volume that varies sinusoidally over 1024 notes (requires you to import the 'imports' and 'numseq' modules)
+const newmelody = oldmelody.withVolume(numseq(imports.sinusoidal(1024, 32, 0, 360)).transpose(48));
+```
+
+### Set durations for a melody
+
+```
+// Constant durations
+const newmelody = oldmelody.withDurations(64);
+
+// 300 note loop of the main rhythm in the 2nd movement of Beethoven's 7th symphony
+const newmelody = oldmelody.withDuration(numseq([192, 96, 96, 192, 192]).loop(300));
+```
+
 ### Some standard musical manipulations
 
 Transposition:
@@ -149,15 +169,92 @@ const newmelody = oldmelody.scale('lydian', 60); // 60 = middle C in MIDI
 ```
 
 ### Remove (or keep) only some of the melody
+```
+const newmelody = oldmelody.keep(256); // keep first 256 notes
+const newmelody = oldmelody.keepRight(256); // keep last 256 notes
+const newmelody = oldmelody.drop(256); // keep all but first 256 notes
+const newmelody = oldmelody.dropRight(256); // keep all but last 256 notes
+const newmelody = oldmelody.keepSlice(256, 512); // keep notes 256-511
+const newmelody = oldmelody.dropSlice(256, 512); // keep all but notes 256-511
+```
 
 ### Apply manipulations to some (but not all) of a melody
+```
+// Transpose notes 256-511 up an octave
+const newmelody = oldmelody.replaceSlice(256, 512, m => m.transpose(12));
+
+// Replace notes 256-511 with a completely different melody
+const newmelody = oldmelody.replaceSlice(256, 512, othermelody);
+
+// Perform a custom manipulation on notes in 256-511
+const newmelody = oldmelody.mapSlice(256, 512, c => c.mapEachPitch(p => (p + 12 + p % 6)));
+```
 
 ### Add a second part in a canon
+```
+const TICKS_PER_QUARTER_NOTE = 192;
+
+// voice2 is voice1 transposed down an octave and delay by 8 quarter notes
+const voice2 = voice1.transpose(-12).withStartTick(8 * TICKS_PER_QUARTER_NOTE);
+
+// this is a score containing both voices
+score([ voice1, voice 2])
+    .do_something(...)
+```
 
 ### Swap notes in a two-part composition so the first voice is never lower than the second
- 
+
+```
+// For the opposite operation, use .exchangeValuesIncreasing()
+const [ newVoice1, newVoice2 ] = voice1.exchangeValuesDecreasing(voice2);
+```
+
 ### Add some lyrics
+
+This is a somewhat laborious process unless you can somehow link the lyrics programmatically to
+individual notes, but this would be a typical way to do it:
+```
+// m is the name of the melody we're adding notes to
+const lyrics = [
+    [ 0, 'this' ],
+    [ 4, 'is' ],
+    [ 5, 'the' ],
+    [ 7, 'way' ],
+    [ 13, 'the' ],
+    [ 16, 'world' ],
+    [ 19, 'ends ],
+];
+
+vocalLine.pipe(m => {
+    lyrics.forEach([ note, text ] => m = m.withTextBefore('lyric', note, text));
+})
+```
 
 ### Check that the music did not change when you rewrote the script generating it
 
-### Generate an HTML visualization of the score
+You can do this by using the hash functions associated with the `Score` object.
+
+Before rewriting, use the `score.toHash()` method to determine the hash of the score.
+```
+score.pipe(s => console.log('Score hash:', s.toHash()));
+```
+
+Take note of what the hash output was, and in the new version, make a constant at the top of the file
+```
+const EXPECTED_HASH = 'd0422047681ce6632afd75527f33c3ef'; // replace with what you got
+```
+
+And before generating the score use the `score.expectHash()` method to confirm that the hash is as you expected:
+```
+score.expectHash(EXPECTED_HASH)
+    .writeMidi(__filename);
+```
+
+### Generate an HTML canvas visualization of the score
+
+There are a lot of options available for building score canvases, but a basic score canvas generation from a score object:
+```
+score.writeMidi(__filename)
+    .writeCanvas(__filename, { wd_scale: 2 })
+                            // ^ options go in this object
+```
