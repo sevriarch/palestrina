@@ -1,13 +1,13 @@
 {
   "package-name": "@sevriarch/palestrina",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A Node.js library for creating algorithmic music",
   "main": "built/index.js",
   "scripts": {
     "build": "eslint src/**/*.ts && tsc -d && cp -R src/visualizations/templates built/src/visualizations",
     "lint": "eslint src/**/*.ts",
     "test": "eslint src/**/*.ts && tsc -d && cp -R src/visualizations/templates built/src/visualizations && jest",
-    "integration": "misc/integration.sh",
+    "e2e": "misc/e2e.sh",
     "docs": "typedoc index.ts",
     "depgraph": "madge -i depgraph.png index.ts"
   },
