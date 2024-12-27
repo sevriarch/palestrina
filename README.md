@@ -51,6 +51,12 @@ Node.js 16 or above, and npm.
 
 Type `npm install` in the root directory.
 
-## Run tests
+## Run Tests
 
 Type `npm test`.
+
+## Further Reading
+
+* [Palestrina Cookbook](./doc/cookbook.md) (under development)
+* [Palestrina Dictionary](./doc/dictionary.md)&mdash;some of the terminology used in Palestrina, with brief explanations of their meaning.
+* [Palestrina Entities](./doc-entity-dictionary.md)&mdash;a list of the various components of the software.
