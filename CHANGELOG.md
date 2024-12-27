@@ -2,6 +2,9 @@
 
 ## 0.2.0
 
+### Documentation
+* Some fleshing out of the Palestrina Cookbook. There is still much work to be done here.
+
 ### Bugfixes
 * `Melody.augmentRhythm()` and `Melody.diminishRhythm()` now change exact ticks in MIDI events associated with notes.
 * `Melody.augmentRhythm()` and `Melody.diminishRhythm()` now change exact ticks and offsets in Melody metadata.
