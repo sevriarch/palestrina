@@ -63,7 +63,11 @@ Type `npm install` in the root directory.
 
 Type `npm test`.
 
-## Further Reading
+## Sample compositions made using Palestrina
+
+These&mdash;complete with comments illustrating what's happening&mdash;can be found in the [/examples](.examples) directory. So far there aren't many.
+
+## Further reading
 
 * [Palestrina Cookbook](./doc/cookbook.md) (under development)
 * [Palestrina Dictionary](./doc/dictionary.md)&mdash;some of the terminology used in Palestrina, with brief explanations of their meaning.

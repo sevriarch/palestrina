@@ -22,4 +22,6 @@ node ./midi-reader.js
 
 test_music_creation water1.new.js d0422047681ce6632afd75527f33c3ef
 test_music_creation danse.js 1005ed2d433072460c5a43614009be90
-test_music_creation pf-son-1-finale.js a66dc38696bf0df061dcf4e1db93e370
+
+cd ../examples
+test_music_creation pf-son-1-finale.js dff50ffd4fb4d247db5691118cd058c2
