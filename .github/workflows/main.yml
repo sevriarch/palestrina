@@ -27,8 +27,8 @@ jobs:
       - name: unit tests
         run: tsc -d && cp -R src/visualizations/templates built/src/visualizations && npx jest --coverage
 
-      - name: system tests
-        run: misc/integration.sh
+      - name: e2e tests
+        run: misc/e2e.sh
 
       - name: codecov
         uses: codecov/codecov-action@v4

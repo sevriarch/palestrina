@@ -13,6 +13,10 @@ DOCUMENTATION:
  - Keep dictionary up to date
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
+REFACTORING:
+- Consider using the visitor pattern for .describe() and midi conversion
+- Instrument/time signature/key signature should perhaps be entities of their own (create an entities directory for such things?)
+
 
 LOW PRIORITY:
 
@@ -28,11 +32,13 @@ MIDI:
 - many changes done, could review these
 - midi-reader could potentially attempt to associate events with the related note(s) and/or collapse chords into one event.
 
-SCORES:
+VISUALISATIONS:
 - The original Score canvas could use some love and some compatibility with the 2D canvas style
+- SVG as an alternative to canvas
 
 CLEANLINESS:
 - Perhaps move helpers around and use the term only for those available to the end user?
+ - Exports are kind of messy as a result of this.
 
 ONCE DONE:
 - Review docs, compile checklist of things to rereview

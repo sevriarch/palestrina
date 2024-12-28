@@ -95,12 +95,12 @@ export function primefactors(n: number): number[][] {
 
         let num = v;
         for (let i = 0; i < v; i++) {
+            if (num < pri[i]) { break; }
+
             while (num % pri[i] === 0) {
                 ret.push(pri[i]);
 
                 num /= pri[i];
-
-                if (num < pri[i]) { break; }
             }
         }
 

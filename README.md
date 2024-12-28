@@ -31,17 +31,25 @@ score([ base, part2, part3 ], { ticks_per_quarter: QUARTER_NOTE })
     .writeMidi(__filename)
 ```
 
-## High-Level Architecture
+## How it works
 
-The generic building block of a Palestrina composition is the abstract class <a href="./src/sequences/generic.ts">**Sequence**</a>. Sequences contain a series of manipulable values, which could be integers, floating point numbers, arrays of integers, or complex objects representing musical notes with metadata, depending on the subclass used, and provide a wide variety of ways to manipulate them, perform conditional logic, and to inject your own JavaScript code to perform any actions not implemented within Palestrina.
+Palestrina works on the principle that some types of algorithmic music composition can be seen as performing manipulations on numeric series. Some considerations associated with this:
+- transposition/inversion/retrograde/retrograde inversion of a melody can be seen as a manipulation of a numeric series
+- a canon can be seen as making a copy of the series and performing manipulations on that copy
+- the rhythms associated with a melody can be seen as another, different numeric series
+- many common processes in repertoire works can be seen in this regard (eg: much Renaissance polyphony, or Sofia Gubaidulina's violin concerto "Offertorium")
 
-Numeric Sequences include <a href="./src/sequences/number.ts">**NumSeq**</a> (which represents a sequnce of numbers), and <a href="./src/sequences/note.ts">**NoteSeq**</a> (which represents a sequence of nullable numbers), while a <a href="./src/sequences/chord.ts">**ChordSeq**</a> contains a sequence of arrays of numbers -- chords, in other words.
+The process of creating a composition within Palestrina involves creating one or more such series, performing appropriate manipulations on them, packing them together into a score, then generating MIDI or visualization output from this score.
 
-A <a href="./src/sequences/melody.ts">**Melody**</a> is a representation of an individual part within a score, with notes and chords, volume, rhythm, textual addenda and the like. It contains a series of <a href="./src/sequences/members/melody.ts">**MelodyMember**</a>s.
-
-All sequences all include metadata.
-
-A <a href="./src/scores/score.ts">**Score**</a> is a representation of a music score with zero or more parts (each of which is a Melody) and metadata, and can be used to write MIDI files, graphical depictions of the score as an HTML canvas, and so on.
+The types of series available within Palestrina:
+- intseq(): a series of integers
+- floatseq(): a series of floating point numbers
+- noteseq(): a series of pitches (represented by numbers) or silences (represented by nulls)
+- microtonalnoteseq(): similarly, but for microtonal music
+- chordseq(): a series of chords (0 or more notes)
+- microtonalchordseq(): similarly, but for microtonal music
+- melody(): a series of chords, each also including temporal data, volume information and metadata
+- microtonalmelody(): similarly, but for microtonal music
 
 ## Requirements
 
@@ -51,6 +59,16 @@ Node.js 16 or above, and npm.
 
 Type `npm install` in the root directory.
 
-## Run tests
+## Run Tests
 
 Type `npm test`.
+
+## Sample compositions made using Palestrina
+
+These&mdash;complete with comments illustrating what's happening&mdash;can be found in the [/examples](/examples) directory. So far there aren't many.
+
+## Further reading
+
+* [Palestrina Cookbook](./doc/cookbook.md) (under development)
+* [Palestrina Dictionary](./doc/dictionary.md)&mdash;some of the terminology used in Palestrina, with brief explanations of their meaning.
+* [Palestrina Entities](./doc-entity-dictionary.md)&mdash;a list of the various components of the software.

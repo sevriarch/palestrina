@@ -1,7 +1,8 @@
-import type { SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import { type SeqArgument, type SeqMemberArgument, type MetadataData, type MelodySummary, type MapperFn, type SeqIndices, type MetaEventValue, type MetaEventOpts, type MetaEventArg, type ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
+import MetaList from '../meta-events/meta-list';
 
 import { melodyToTimedMidiBytes, melodyToMidiTrack } from '../midi/conversions';
 
@@ -228,14 +229,18 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Return a new Melody containing this melody, but rhythms augmented.
      */
     augmentRhythm(n: number): this {
-        return this.map(e => e.augmentRhythm(n));
+        return this.map(e => e.augmentRhythm(n))
+            .if(this.metadata.before != MetaList.EMPTY_META_LIST)
+            .then(m => m.withMetadataValues({ before: this.metadata.before.augmentRhythm(n) }));
     }
 
     /**
      * Return a new Melody containing this melody, but rhythms diminished.
      */
     diminishRhythm(n: number): this {
-        return this.map(e => e.diminishRhythm(n));
+        return this.map(e => e.diminishRhythm(n))
+            .if(this.metadata.before != MetaList.EMPTY_META_LIST)
+            .then(m => m.withMetadataValues({ before: this.metadata.before.diminishRhythm(n) }));
     }
 
     /**
@@ -288,8 +293,8 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // 2-argument format: release sustain pedal 1024 ticks after note 100 begins
      * myMelody.withEventBefore([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
-    withEventBefore(pos: SeqIndices, event: string | MetaEventArg, value?: MetaEventValue, meta?: MetaEventOpts): this {
-        return this.replaceIndices(pos, e => e.withEventBefore(event, value, meta));
+    withEventBefore(pos: SeqIndices, event: string | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+        return this.replaceIndices(pos, e => e.withEventBefore(event, value, opts));
     }
 
     /**
@@ -304,8 +309,8 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // 2-argument format: release sustain pedal 1024 ticks after note 100 ends
      * myMelody.withEventAfter([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
-    withEventAfter(pos: SeqIndices, event: string | MetaEventArg, value?: MetaEventValue, meta?: MetaEventOpts): this {
-        return this.replaceIndices(pos, e => e.withEventAfter(event, value, meta));
+    withEventAfter(pos: SeqIndices, event: string | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+        return this.replaceIndices(pos, e => e.withEventAfter(event, value, opts));
     }
 
     /**
@@ -377,10 +382,10 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * myMelody.withTextBefore([ 40, 80, 120 ], 'emphasise melodic line', { offset: -64 })
      * 
      * // Add a lyric at the start of note 60
-     * myMelody.withTextBefore([ 60 ], 'lyric', 'merciful')
+     * myMelody.withTextBefore([ 60 ], 'merciful', lyric')
      */
-    withTextBefore(pos: SeqIndices, val: string, arg2: string | MetaEventOpts = 'text', arg3?: MetaEventOpts) {
-        return this.replaceIndices(pos, e => e.withTextBefore(val, arg2, arg3));
+    withTextBefore(pos: SeqIndices, val: string, typeOrOpts?: string | MetaEventOpts, opts?: MetaEventOpts) {
+        return this.replaceIndices(pos, e => e.withTextBefore(val, typeOrOpts, opts));
     }
 
     /**
@@ -391,9 +396,9 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * myMelody.withTextAfter([ 40, 80, 120 ], 'emphasise melodic line', { offset: -64 })
      * 
      * // Add a lyric at the end of note 60
-     * myMelody.withTextAfter([ 60 ], 'lyric', 'merciful')
+     * myMelody.withTextAfter([ 60 ], 'merciful', 'lyric')
      */
-    withTextAfter(pos: SeqIndices, val: string, arg2: string | MetaEventOpts = 'text', arg3?: MetaEventOpts) {
-        return this.replaceIndices(pos, e => e.withTextAfter(val, arg2, arg3));
+    withTextAfter(pos: SeqIndices, val: string, typeOrOpts?: string | MetaEventOpts, opts?: MetaEventOpts) {
+        return this.replaceIndices(pos, e => e.withTextAfter(val, typeOrOpts, opts));
     }
 }

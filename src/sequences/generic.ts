@@ -31,7 +31,7 @@ type SeqCtor<T, MT> = new (contents: MT[], metadata: Metadata) => T;
 type MemberClass<MT> = { from: (val: SeqMemberArgument) => MT };
 export default abstract class Sequence<ET extends SeqMember<unknown>> extends CollectionWithMetadata<ET> implements ISequence<ET> {
     /**
-     * Return a method that can be used to build a Sequence of the specified class and member class.
+     * Return a Sequence of the specified class and member class.
      * @hidden
      */
     static build<T extends Sequence<MT>, MT extends SeqMember<unknown>>(SeqClass: SeqCtor<T, MT>, MemberClass: MemberClass<MT>, seq: SeqArgument, metadata?: MetadataData): T {
