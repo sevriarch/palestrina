@@ -8,22 +8,25 @@ const TICKS  = Number(process.env.INF_TICKS || 64)
 const GAP    = Number(process.env.INF_GAP   || 5)
 const MOD    = Number(process.env.INF_MOD   || 25)
 const BAR    = 16
+const HASH   = 'dff50ffd4fb4d247db5691118cd058c2'
 
-// Map bars to MIDI ticks
+// Map bar numbers to the sequence member that starts the bar
 function bar(x) {
     return (x - 1) * BAR
 }
 
 // Make a sequence of the same length as the melodic content, used to move the main melody up or down in pitch
+// This sequence is a basic sinusoidal curve with some passages modified and the last 12 bars replaced by
+// static values followed by a steady ascent
 function makeOverlay() {
     const xpos = imports.sinusoidal(LEN, 8.5, 0, 3600)
     const max  = Math.max(...xpos)
     const min  = Math.min(...xpos)
 
     return noteseq(xpos)
-        .mapSlice(bar(29), bar(37), v => v.setPitches(2 * max - v.val()))
+        .mapSlice(bar(29), bar(37), v => v.invert(max))
         .mapSlice(bar(37), bar(45), v => v.setPitches(min - Math.floor(v.val() / 2)))
-        .mapSlice(bar(61), bar(69), v => v.setPitches(2 * max - v.val()))
+        .mapSlice(bar(61), bar(69), v => v.invert(max))
         .setSlice(bar(69), bar(73), min)
         .setSlice(bar(73), bar(77), max + 8)
         .mapSlice(bar(77), bar(81), (v, i) => v.setPitches(min + Math.round(i / BAR * 8)))
@@ -37,7 +40,7 @@ function makeMelody(offset = 0) {
     return noteseq(imports.infinity_var1(LEN * GAP))
         .keepNth(GAP, offset)
         .mod(MOD)
-    	.scale('chromatic', 57)
+        .scale('chromatic', 57)
 }
 
 // Function to transpose each member of the passed sequence up or down in pitch according to
@@ -50,6 +53,8 @@ function applyOverlay(seq) {
 function makeVolume() {
     const { PPP, PP, P, MP, MF, F, FF, FFF } = CONSTANTS.DYNAMICS
 
+    // Returns a function that generates a dynamic gradation over the length of the passed
+    // sequence
     function dy(from, to = from) { return s => imports.linear(s.length, from, to) }
 
     return intseq(imports.constant(LEN, MF))
@@ -122,7 +127,7 @@ function makeScore() {
         .withTimeSignature('4/4')
         .writeCanvas(__filename)
         .writeMidi(__filename)
-        .tap(s => console.log('hash:', s.toHash()))
+        .expectHash(HASH)
 }
 
 makeScore()
