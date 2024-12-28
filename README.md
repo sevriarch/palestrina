@@ -65,7 +65,7 @@ Type `npm test`.
 
 ## Sample compositions made using Palestrina
 
-These&mdash;complete with comments illustrating what's happening&mdash;can be found in the [/examples](.examples) directory. So far there aren't many.
+These&mdash;complete with comments illustrating what's happening&mdash;can be found in the [/examples](/examples) directory. So far there aren't many.
 
 ## Further reading
 
