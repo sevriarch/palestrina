@@ -43,7 +43,7 @@ const newmelody = oldmelody.withVolume(numseq(imports.sinusoidal(1024, 32, 0, 36
 
 ```
 // Constant durations
-const newmelody = oldmelody.withDurations(64);
+const newmelody = oldmelody.withDuration(64);
 
 // 300 note loop of the main rhythm in the 2nd movement of Beethoven's 7th symphony
 const newmelody = oldmelody.withDuration(numseq([192, 96, 96, 192, 192]).loop(300));
@@ -146,9 +146,9 @@ Double the duration of every third note in a melody, starting with the third:
 const newmelody = oldmelody.replaceNth(3, n => n.augmentRhythm(2), 2); // last argument is 2 as melodies are zero-indexed
 ```
 
-The dark-light two-note version of Per Nørgård's infinity series:
+The dark-light two-note version of Per Nørgård's infinity series as a numeric sequence:
 ```
-const darklight = infinity.mod(2);
+const darklight = intseq(imports.infinity).mod(2);
 ```
 
 If any note is outside the supplied minimum or maximum, set it to those values:
@@ -212,7 +212,7 @@ const [ newVoice1, newVoice2 ] = voice1.exchangeValuesDecreasing(voice2);
 ### Add some lyrics
 
 This is a somewhat laborious process unless you can somehow link the lyrics programmatically to
-individual notes, but this would be a typical way to do it:
+individual notes, but the process below would be one way to do this semi-manually:
 ```
 // m is the name of the melody we're adding notes to
 const lyrics = [
@@ -232,7 +232,7 @@ vocalLine.pipe(m => {
 
 ### Check that the music did not change when you rewrote the script generating it
 
-You can do this by using the hash functions associated with the `Score` object.
+You can do this by using the hash functions associated with the `Score` entity.
 
 Before rewriting, use the `score.toHash()` method to determine the hash of the score.
 ```

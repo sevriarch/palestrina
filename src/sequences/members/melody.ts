@@ -285,9 +285,9 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      * Optional second argument is the type of text event.
      * Optional third argument are the standard meta event options.
      */
-    withTextBefore(val: string, arg2: string | MetaEventOpts = 'text', arg3?: MetaEventOpts): this {
-        if (typeof arg2 === 'string') {
-            switch (arg2) {
+    withTextBefore(val: string, typeOrOpts: string | MetaEventOpts = 'text', opts?: MetaEventOpts): this {
+        if (typeof typeOrOpts === 'string') {
+            switch (typeOrOpts) {
             case 'text':
             case 'lyric':
             case 'cue-point':
@@ -295,13 +295,13 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
                 break;
             
             default:
-                throw new Error(`invalid text event type: ${arg2}`);
+                throw new Error(`invalid text event type: ${typeOrOpts}`);
             }
 
-            return this.withEventBefore(arg2, val, arg3);
+            return this.withEventBefore(typeOrOpts, val, opts);
         }
 
-        return this.withEventBefore('text', val, arg2);
+        return this.withEventBefore('text', val, typeOrOpts);
     }
 
     /**
@@ -309,9 +309,9 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      * Optional second argument is the type of text event.
      * Optional third argument are the standard meta event options.
      */
-    withTextAfter(val: string, arg2: string | MetaEventOpts = 'text', arg3?: MetaEventOpts): this {
-        if (typeof arg2 === 'string') {
-            switch (arg2) {
+    withTextAfter(val: string, typeOrOpts: string | MetaEventOpts = 'text', opts?: MetaEventOpts): this {
+        if (typeof typeOrOpts === 'string') {
+            switch (typeOrOpts) {
             case 'text':
             case 'lyric':
             case 'cue-point':
@@ -319,13 +319,13 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
                 break;
             
             default:
-                throw new Error(`invalid text event type: ${arg2}`);
+                throw new Error(`invalid text event type: ${typeOrOpts}`);
             }
 
-            return this.withEventAfter(arg2, val, arg3);
+            return this.withEventAfter(typeOrOpts, val, opts);
         }
 
-        return this.withEventAfter('text', val, arg2);
+        return this.withEventAfter('text', val, typeOrOpts);
     }
 
     /**
@@ -347,15 +347,15 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
     /**
      * Returns a new MelodyMember copying this but with a meta event to execute before it.
      */
-    withEventBefore(event: string | MetaEventArg, value?: MetaEventValue, meta?: MetaEventOpts): this {
-        return this.construct({ ...this._val, before: this._val.before.withNewEvent(event, value, meta) });
+    withEventBefore(event: string | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+        return this.construct({ ...this._val, before: this._val.before.withNewEvent(event, value, opts) });
     }
 
     /**
      * Returns a new MelodyMember copying this but with new meta events to execute after it.
      */
-    withEventAfter(event: string | MetaEventArg, value?: MetaEventValue, meta?: MetaEventOpts): this {
-        return this.construct({ ...this._val, after: this._val.after.withNewEvent(event, value, meta) });
+    withEventAfter(event: string | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+        return this.construct({ ...this._val, after: this._val.after.withNewEvent(event, value, opts) });
     }
 
     /**

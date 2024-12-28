@@ -13,6 +13,10 @@ DOCUMENTATION:
  - Keep dictionary up to date
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
+REFACTORING:
+- Consider using the visitor pattern for .describe() and midi conversion
+- Instrument/time signature/key signature should perhaps be entities of their own (create an entities directory for such things?)
+
 
 LOW PRIORITY:
 
@@ -34,6 +38,7 @@ VISUALISATIONS:
 
 CLEANLINESS:
 - Perhaps move helpers around and use the term only for those available to the end user?
+ - Exports are kind of messy as a result of this.
 
 ONCE DONE:
 - Review docs, compile checklist of things to rereview

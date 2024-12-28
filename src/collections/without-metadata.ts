@@ -126,9 +126,12 @@ export default class Collection<T> {
      * Takes an index, an array of indices or a Sequence containing indices, converts
      * negative indices to non-negative ones, and throws an error if any index does not
      * fall within the Collection. Returns an array of indices.
+     * 
+     * If second argument is supplied and true, also allow a value equal to the length
+     * of the Collection.
      */
-    indices(i: SeqIndices, end = false): number[] {
-        const max = end ? this.length + 1 : this.length;
+    indices(i: SeqIndices, inclusive = false): number[] {
+        const max = inclusive ? this.length + 1 : this.length;
         const ix = seqIndicesToIndices(i);
         const ret = ix.map(v => index(v, this.length, max));
 

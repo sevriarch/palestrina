@@ -5,7 +5,7 @@
 ### Documentation
 * Some fleshing out of the Palestrina Cookbook. There is still much work to be done here.
 * Clarifying and cleaning up some of the dictionary and entity listing.
-* Links to cookbook, dictionary and entity listing are now in the README file.
+* Links to cookbook, dictionary and entity listing are now in the README file, which has hopefully been made a little more useful.
 
 ### Bugfixes
 * `Melody.augmentRhythm()` and `Melody.diminishRhythm()` now change exact ticks in MIDI events associated with notes.
@@ -14,6 +14,7 @@
 
 ### Enhancements
 * Minor optimisation in `primefactors()` import.
+* Some parameter names have been changed to make their meaning clearer.
 
 ### Features
 * `MetaEvent.augment()` exists and returns a copy of the MetaEvent with any MIDI tick values in it augmented.
