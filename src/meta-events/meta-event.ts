@@ -116,7 +116,7 @@ export default class MetaEvent {
         return new MetaEvent({
             event: ob.event,
             value: value,
-            timing: new Timing(ob.at, ob.offset ?? 0)
+            timing: new Timing(ob.at, ob.offset)
         } as MetaEventData);
     }
 
@@ -168,6 +168,17 @@ export default class MetaEvent {
             event: this.event,
             value: this.value,
             timing: this.timing.withOffset(i)
+        } as MetaEventData);
+    }
+    
+    /**
+     * Return this object with ticks converted to exact ticks
+     */
+    withAllTicksExact(curr: number): MetaEvent {
+        return new MetaEvent({
+            event: this.event,
+            value: this.value,
+            timing: this.timing.withAllTicksExact(curr)
         } as MetaEventData);
     }
 

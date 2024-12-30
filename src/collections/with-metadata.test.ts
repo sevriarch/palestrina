@@ -277,6 +277,30 @@ describe('Collection.withNewEvents()', () => {
     });
 });
 
+describe('Collection.withMetadataTicksExact()', () => {
+    test('no before', () => {
+        const m = new Collection([ 1, 2, 3 ], Metadata.from({ ticks_per_quarter: 640 }));
+
+        expect(m.withMetadataTicksExact()).toBe(m);
+    });
+
+    test('with before', () => {
+        expect(new Collection([ 1, 2, 3 ], Metadata.from({
+            before: MetaList.from([
+                { event: 'text', value: 'test 1' },
+                { event: 'text', value: 'test 2', offset: 64 },
+                { event: 'text', value: 'test 3', at: 128, offset: 64 }
+            ])
+        }).withAllTicksExact())).toStrictEqual(new Collection([ 1, 2, 3 ], Metadata.from({
+            before: MetaList.from([
+                { event: 'text', value: 'test 1', at: 0 },
+                { event: 'text', value: 'test 2', at: 64 },
+                { event: 'text', value: 'test 3', at: 192 }
+            ])
+        })));
+    });
+});
+
 describe('Collection.mergeMetadataFrom()', () => {
     const c = new Collection([ 1, 5, 4 ], Metadata.EMPTY_METADATA);
 

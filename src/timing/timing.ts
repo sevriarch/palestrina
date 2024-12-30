@@ -129,6 +129,10 @@ export default class Timing {
         return new Timing(this.exact, this.offset, this.delay, n);
     }
 
+    withAllTicksExact(curr: number): Timing {
+        return new Timing(this.startTick(curr), undefined, undefined, this.duration);
+    }
+
     startTick(curr: number): number {
         return (this.exact ?? curr) + (this.delay ?? 0) + (this.offset ?? 0);
     }

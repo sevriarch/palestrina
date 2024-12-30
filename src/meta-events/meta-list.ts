@@ -3,7 +3,7 @@ import type { MetaEventArg, MetaEventOpts, MetaEventValue, MetaListArg } from '.
 import CollectionWithoutMetadata from '../collections/without-metadata';
 import MetaEvent from './meta-event';
 
-import { isNonNegNumber, isPosNumber } from '../helpers/validation';
+import { isNonNegNumber, isNonnegInt, isPosNumber } from '../helpers/validation';
 
 import { dumpOneLine } from '../dump/dump';
 
@@ -119,5 +119,20 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
         }
 
         return this.map(e => e.diminish(i));
+    }
+
+    /**
+     * Return a copy of this MetaList with all ticks converted to exact ones.
+     */
+    withAllTicksExact(curr: number): MetaList {
+        if (!isNonnegInt(curr)) {
+            throw new Error(`MetaList.diminishRhythm(): must diminish by a positive number; was ${dumpOneLine(curr)}`);
+        }
+
+        if (!this.length) {
+            return this;
+        }
+
+        return this.map(e => e.withAllTicksExact(curr));
     }
 }

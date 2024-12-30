@@ -375,6 +375,20 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
+     * Return a new Melody where all ticks of everything within it are exact.
+     */
+    withAllTicksExact(): this {
+        let curr = 0;
+
+        return this.map(m => {
+            const ret = m.withAllTicksExact(curr);
+            curr = m.timing.nextTick(curr);
+
+            return ret;
+        }).withMetadataTicksExact();
+    }
+
+    /**
      * Return a new Melody with text events added before the specified locations.
      * 
      * @example

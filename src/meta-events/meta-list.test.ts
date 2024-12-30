@@ -158,13 +158,13 @@ describe('MetaList.augmentRhythm() tests', () => {
         expect(() => MetaList.from([]).augmentRhythm('1' as unknown as number)).toThrow();
     });
 
+    test('returns self if empty', () => {
+        const empty = MetaList.from([]);
+
+        expect(empty.augmentRhythm(4)).toBe(empty);
+    });
+
     const table: [ string, MetaEvent[], number, MetaEvent[] ][] = [
-        [
-            'works on empty MetaList',
-            [],
-            2,
-            []
-        ],
         [
             'doubles all offsets',
             [
@@ -203,13 +203,13 @@ describe('MetaList.diminishRhythm() tests', () => {
         expect(() => MetaList.from([]).diminishRhythm('1' as unknown as number)).toThrow();
     });
 
+    test('returns self if empty', () => {
+        const empty = MetaList.from([]);
+
+        expect(empty.diminishRhythm(4)).toBe(empty);
+    });
+
     const table: [ string, MetaEvent[], number, MetaEvent[] ][] = [
-        [
-            'works on empty MetaList',
-            [],
-            2,
-            []
-        ],
         [
             'halves all offsets',
             [
@@ -243,10 +243,36 @@ describe('MetaList.diminishRhythm() tests', () => {
     });
 });
 
+describe('MetaList.withAllTicksExact()', () => {
+    test('fails with non-integer argument', () => {
+        expect(() => MetaList.from([]).withAllTicksExact(1.5)).toThrow();
+    });
+
+    test('returns self if empty', () => {
+        const empty = MetaList.from([]);
+
+        expect(empty.withAllTicksExact(0)).toBe(empty);
+    });
+
+    test('with all ticks converted to exact ones', () => {
+        expect(MetaList.from([
+            { event: 'text', value: 'test 1' },
+            { event: 'text', value: 'test 2', offset: 64 },
+            { event: 'text', value: 'test 3', at: 128, offset: 64 }
+        ]).withAllTicksExact(200)).toStrictEqual(
+            MetaList.from([
+                { event: 'text', value: 'test 1', at: 200 },
+                { event: 'text', value: 'test 2', at: 264 },
+                { event: 'text', value: 'test 3', at: 192 }
+            ])
+        );
+    });
+});
+
 // inherited from CollectionWithoutMetadata
 describe('MetaList.describe()', () => {
     test('empty MetaList', () => {
-        expect(MetaList.EMPTY_META_LIST.describe()).toStrictEqual('MetaList(length=0)([])');
+        expect(MetaList.from([]).describe()).toStrictEqual('MetaList(length=0)([])');
     });
 
     test('non-empty MetaList', () => {
@@ -254,6 +280,6 @@ describe('MetaList.describe()', () => {
             { event: 'instrument', value: 'violin', at: 64, offset: 32 },
             { event: 'end-track' },
         ]).describe())
-            .toStrictEqual('MetaList(length=2)([0: MetaEvent({event:"instrument",value:"violin",at:64,offset:32}),1: MetaEvent({event:"end-track",value:undefined,at:undefined,offset:0}),])');
+            .toStrictEqual('MetaList(length=2)([0: MetaEvent({event:"instrument",value:"violin",at:64,offset:32}),1: MetaEvent({event:"end-track",value:undefined,at:undefined,offset:undefined}),])');
     });
 });

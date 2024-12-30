@@ -403,6 +403,38 @@ describe('Score.lastTick() tests', () => {
     });
 });
 
+// This test makes the assumption that melody.withAllTicksExact() works correctly and only 
+// tests the most basic cases (simple melody data and metadata, score metadata)
+describe('Score.withAllTicksExact() tests', () => {
+    test('test that this does not create additional entities for an empty Score', () => {
+        expect(Score.from([]).withAllTicksExact()).toStrictEqual(Score.from([]));
+    });
+
+    test('applies to metadata and all melodies', () => {
+        expect(score([
+            T0,
+            melody([
+                { pitch: [ 64 ], duration: 4, velocity: 45 },
+                { pitch: [ 52 ], duration: 4, velocity: 40 },
+            ], {
+                before: MetaList.from([ { event: 'text', value: 'test', offset: 64 } ])
+            })
+        ], {
+            before: MetaList.from([ { event: 'tempo', value: 144, offset: 512 } ])
+        }).withAllTicksExact()).toStrictEqual(score([
+            T0,
+            melody([
+                { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
+                { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
+            ], {
+                before: MetaList.from([ { event: 'text', value: 'test', at: 64 } ])
+            })
+        ], {
+            before: MetaList.from([ { event: 'tempo', value: 144, at: 512 } ])
+        }));
+    });
+});
+
 describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() tests', () => {
     describe('should throw if ticks_per_quarter is invalid', () => {
         expect(() => score([], { ticks_per_quarter: 65536 }).toMidiBytes()).toThrow();

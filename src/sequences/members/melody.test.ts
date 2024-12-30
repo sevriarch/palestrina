@@ -8,6 +8,7 @@ import MelodyMember from './melody';
 import MetaList from '../../meta-events/meta-list';
 import MetaEvent from '../../meta-events/meta-event';
 import Timing from '../../timing/timing';
+import { fromMidiBytes } from '../../helpers/key-signature';
 
 type MelodyMemberPatcher = {
     pitch?: ChordSeqMember | number[],
@@ -659,6 +660,140 @@ describe('MelodyMember.addDelay() tests', () => {
     });
 });
 
+describe('MelodyMember.withAllTicksExact()', () => {
+    test('with invalid argumnent', () => {
+        expect(() => MelodyMember.from({ pitch: [ 66 ] }).withAllTicksExact(1.5)).toThrow();
+    });
+
+    test('with no temporal parameters', () => {
+        expect(MelodyMember.from({ pitch: [ 66 ] }).withAllTicksExact(8))
+            .toStrictEqual(MelodyMember.from({ pitch: [ 66 ], at: 8 }));
+    });
+
+    test('with offset and delay', () => {
+        expect(MelodyMember.from({ pitch: [ 66 ], offset: 32, delay: 16 }).withAllTicksExact(8))
+            .toStrictEqual(MelodyMember.from({ pitch: [ 66 ], at: 56 }));
+    });
+
+    test('with all temporal parameters', () => {
+        expect(MelodyMember.from({ pitch: [ 66 ], at: 64, offset: 32, delay: 16 }).withAllTicksExact(8))
+            .toStrictEqual(MelodyMember.from({ pitch: [ 66 ], at: 112 }));
+    });
+
+    test('with no temporal parameters, but before and after', () => {
+        expect(MelodyMember.from({
+            pitch: [ 66 ],
+            duration: 128,
+            before: MetaList.from([
+                { event: 'text', value: 'text 0' },
+                { event: 'text', value: 'text 1', offset: 16 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 32, offset: 16 },
+            ]),
+            after: MetaList.from([
+                { event: 'text', value: 'text 0' },
+                { event: 'text', value: 'text 1', offset: 16 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 32, offset: 16 },
+            ]),
+        }).withAllTicksExact(8))
+            .toStrictEqual(MelodyMember.from({
+                pitch: [ 66 ],
+                duration: 128,
+                at: 8,
+                before: MetaList.from([
+                { event: 'text', value: 'text 0', at: 8 },
+                { event: 'text', value: 'text 1', at: 24 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 48 },
+            ]),
+            after: MetaList.from([
+                { event: 'text', value: 'text 0', at: 136 },
+                { event: 'text', value: 'text 1', at: 152 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 48 },
+            ]),
+        }));
+    });
+
+    test('with delay and offset, before and after', () => {
+        expect(MelodyMember.from({
+            pitch: [ 66 ],
+            duration: 128,
+            delay: 36,
+            offset: 18,
+            before: MetaList.from([
+                { event: 'text', value: 'text 0' },
+                { event: 'text', value: 'text 1', offset: 16 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 32, offset: 16 },
+            ]),
+            after: MetaList.from([
+                { event: 'text', value: 'text 0' },
+                { event: 'text', value: 'text 1', offset: 16 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 32, offset: 16 },
+            ]),
+        }).withAllTicksExact(8))
+            .toStrictEqual(MelodyMember.from({
+                pitch: [ 66 ],
+                duration: 128,
+                at: 62,
+                before: MetaList.from([
+                { event: 'text', value: 'text 0', at: 62 },
+                { event: 'text', value: 'text 1', at: 78 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 48 },
+            ]),
+            after: MetaList.from([
+                { event: 'text', value: 'text 0', at: 190 },
+                { event: 'text', value: 'text 1', at: 206 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 48 },
+            ]),
+        }));
+    });
+
+    test('with all temporal parameters, before and after', () => {
+        expect(MelodyMember.from({
+            pitch: [ 66 ],
+            duration: 128,
+            at: 72,
+            delay: 36,
+            offset: 18,
+            before: MetaList.from([
+                { event: 'text', value: 'text 0' },
+                { event: 'text', value: 'text 1', offset: 16 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 32, offset: 16 },
+            ]),
+            after: MetaList.from([
+                { event: 'text', value: 'text 0' },
+                { event: 'text', value: 'text 1', offset: 16 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 32, offset: 16 },
+            ]),
+        }).withAllTicksExact(8))
+            .toStrictEqual(MelodyMember.from({
+                pitch: [ 66 ],
+                duration: 128,
+                at: 126,
+                before: MetaList.from([
+                { event: 'text', value: 'text 0', at: 126 },
+                { event: 'text', value: 'text 1', at: 142 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 48 },
+            ]),
+            after: MetaList.from([
+                { event: 'text', value: 'text 0', at: 254 },
+                { event: 'text', value: 'text 1', at: 270 },
+                { event: 'text', value: 'text 2', at: 32 },
+                { event: 'text', value: 'text 3', at: 48 },
+            ]),
+        }));
+    });
+});
+
 describe('MelodyMember.withTextBefore()', () => {
     const e1 = makeEventWithDefaults({});
     const e2 = makeEventWithDefaults({
@@ -1144,6 +1279,6 @@ describe('MelodyMember.describe() tests', () => {
             before: MetaList.from([ { event: 'sustain', value: 1 } ]),
             after: MetaList.from([ { event: 'sustain', value: 0 } ]),
         }).describe())
-            .toStrictEqual('MelodyMember({pitch:ChordSeqMember([]),velocity:32,duration:48,at:0,offset:80,delay:96,before:MetaList(length=1)([0: MetaEvent({event:"sustain",value:1,at:undefined,offset:0}),]),after:MetaList(length=1)([0: MetaEvent({event:"sustain",value:0,at:undefined,offset:0}),])})');
+            .toStrictEqual('MelodyMember({pitch:ChordSeqMember([]),velocity:32,duration:48,at:0,offset:80,delay:96,before:MetaList(length=1)([0: MetaEvent({event:"sustain",value:1,at:undefined,offset:undefined}),]),after:MetaList(length=1)([0: MetaEvent({event:"sustain",value:0,at:undefined,offset:undefined}),])})');
     });
 });

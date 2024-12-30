@@ -244,6 +244,30 @@ describe('Metadata.withoutValues()', () => {
     });
 });
 
+describe('Metadata.withAllTicksExact()', () => {
+    test('no before', () => {
+        const m = new Metadata({ ticks_per_quarter: 640 });
+
+        expect(m.withAllTicksExact()).toBe(m);
+    });
+
+    test('with before', () => {
+        expect(new Metadata({
+            before: MetaList.from([
+                { event: 'text', value: 'test 1' },
+                { event: 'text', value: 'test 2', offset: 64 },
+                { event: 'text', value: 'test 3', at: 128, offset: 64 }
+            ])
+        }).withAllTicksExact()).toStrictEqual(new Metadata({
+            before: MetaList.from([
+                { event: 'text', value: 'test 1', at: 0 },
+                { event: 'text', value: 'test 2', at: 64 },
+                { event: 'text', value: 'test 3', at: 192 }
+            ])
+        }));
+    });
+});
+
 describe('Metadata.describe()', () => {
     test('empty metadata', () => {
         expect(new Metadata({}).describe()).toStrictEqual('Metadata({})');

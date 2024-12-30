@@ -214,6 +214,17 @@ export default class Metadata {
     }
 
     /**
+     * Return a copy of this metadata with all ticks converted to exact ones.
+     */
+    withAllTicksExact(): this {
+        if (!this.metadata.before) {
+            return this;
+        }
+
+        return this.withValues({ before: this.metadata.before.withAllTicksExact(0) });
+    }
+
+    /**
      * Return a description of this metadata for debugging purposes.
      */
     describe(): string {

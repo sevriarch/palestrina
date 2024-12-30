@@ -9,7 +9,7 @@ import { DEFAULTS } from '../../constants';
 import { isInt, isNonnegInt, isNonNegNumber, isPosNumber, invalidKeys } from '../../helpers/validation';
 import { dumpOneLine } from '../../dump/dump';
 
-const DEFAULT_TIMING = new Timing(undefined, 0, 0, DEFAULTS.NOTE_DURATION);
+const DEFAULT_TIMING = new Timing(undefined, undefined, undefined, DEFAULTS.NOTE_DURATION);
 const INVALID_KEYS = new Set([ 'pitch', 'duration', 'velocity', 'delay', 'offset', 'at', 'before', 'after' ]);
 
 function pitchToMelodyMemberData(pitch: PitchArgument | ChordSeqMember): MelodyMemberData {
@@ -61,8 +61,6 @@ function inputToMelodyMemberData(ob: MelodyMemberArg): MelodyMemberData {
             failed.push('delay');
         }
         delay = ob.delay;
-    } else {
-        delay = 0;
     }
 
     let offset;
@@ -71,8 +69,6 @@ function inputToMelodyMemberData(ob: MelodyMemberArg): MelodyMemberData {
             failed.push('offset');
         }
         offset = ob.offset;
-    } else {
-        offset = 0;
     }
 
     if (ob.at !== undefined && !Timing.isExactTickValid(ob.at)) {
@@ -113,8 +109,8 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
     get pitch(): ChordSeqMember { return this._val.pitch; }
     get duration(): number { return this._val.timing.duration || 0; }
     get velocity(): number { return this._val.velocity; }
-    get delay(): number { return this._val.timing.delay || 0; }
-    get offset(): number { return this._val.timing.offset || 0; }
+    get delay(): number { return this._val.timing.delay ?? 0; }
+    get offset(): number { return this._val.timing.offset ?? 0; }
     get at(): number | undefined { return this._val.timing.exact; }
     get before(): MetaList { return this._val.before; }
     get after(): MetaList { return this._val.after; }
@@ -278,6 +274,30 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
         }
 
         return this.withDelay(this.delay + i);
+    }
+
+    /**
+     * Returns a new MelodyMember where its tick is converted to an exact one;
+     * meta-events associated with have it undergo the same tick conversion.
+     */
+    withAllTicksExact(curr: number): this {
+        if (!isNonnegInt(curr)) {
+            throw new Error(`invalid curr: ${curr}`);
+        }
+
+        const newtiming = this.timing.withAllTicksExact(curr);
+
+        // exact tick was set by the previous call
+        const start = newtiming.exact as number;
+        const end = this.timing.endTick(curr);
+
+        return this.construct({
+            pitch: this.pitch,
+            velocity: this.velocity,
+            timing: newtiming,
+            before: this.before.withAllTicksExact(start),
+            after: this.after.withAllTicksExact(end),
+        });
     }
 
     /**

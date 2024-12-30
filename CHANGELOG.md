@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+### Features
+* `Score.withAllTicksExact()` and `Melody.withAllTicksExact()` allow you to convert temporal data to exact ticks only. This can be used to aid merging together multiple tracks that are not rhythmically identical.
+
 ## 0.2.0
 
 ### Documentation

@@ -85,6 +85,13 @@ export default class Score extends CollectionWithMetadata<Melody> {
     }
 
     /**
+     * Return a new Score where all ticks of everything within it are exact.
+     */
+    withAllTicksExact(): this {
+        return this.map(m => m.withAllTicksExact()).withMetadataTicksExact();
+    }
+
+    /**
      * Returns an HTML canvas visualisation of the Score. Will attempt to size the canvas
      * as close as possible to the sizes supplied.
      * 
