@@ -286,6 +286,8 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
         }
 
         const newtiming = this.timing.withAllTicksExact(curr);
+
+        // exact tick was set by the previous call
         const start = newtiming.exact as number;
         const end = this.timing.endTick(curr);
 

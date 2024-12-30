@@ -1,6 +1,6 @@
 import type { MapperFn, SeqIndices, MetaEventOpts, MetaEventArg } from '../types';
 
-import type MelodyMember from './members/melody';
+import MelodyMember from './members/melody';
 
 import Melody from './melody';
 import MetaList from '../meta-events/meta-list';
@@ -979,6 +979,136 @@ describe('Melody.withVolumeAt()', () => {
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
             { pitch: [80], duration: 50, velocity: 60 }
         ]));
+    });
+});
+
+describe('MelodyMember.withAllTicksExact()', () => {
+    test('test for a Melody with all parts included', () => {
+        expect(Melody.from([
+            MelodyMember.from({ pitch: [ 60 ], duration: 8 }),
+            MelodyMember.from({ pitch: [ 61 ], duration: 128, offset: 32, delay: 16 }),
+            MelodyMember.from({ pitch: [ 62 ], duration: 8, offset: 32, delay: 16 }),
+            MelodyMember.from({
+                pitch: [ 63 ],
+                duration: 128,
+                before: MetaList.from([
+                    { event: 'text', value: 'text 0' },
+                    { event: 'text', value: 'text 1', offset: 16 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 32, offset: 16 },
+                ]),
+                after: MetaList.from([
+                    { event: 'text', value: 'text 0' },
+                    { event: 'text', value: 'text 1', offset: 16 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 32, offset: 16 },
+                ]),
+            }),
+            MelodyMember.from({
+                pitch: [ 64 ],
+                duration: 8,
+                delay: 36,
+                offset: 18,
+                before: MetaList.from([
+                    { event: 'text', value: 'text 0' },
+                    { event: 'text', value: 'text 1', offset: 16 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 32, offset: 16 },
+                ]),
+                after: MetaList.from([
+                    { event: 'text', value: 'text 0' },
+                    { event: 'text', value: 'text 1', offset: 16 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 32, offset: 16 },
+                ]),
+            }),
+            MelodyMember.from({ pitch: [ 65 ], duration: 32 }),
+            MelodyMember.from({ pitch: [ 66 ], duration: 32, at: 1000 }),
+            MelodyMember.from({ pitch: [ 67 ], duration: 32 }),
+            MelodyMember.from({
+                pitch: [ 68 ],
+                duration: 128,
+                at: 1000,
+                offset: 64,
+                delay: 32,
+                before: MetaList.from([
+                    { event: 'text', value: 'text 0' },
+                    { event: 'text', value: 'text 1', offset: 16 },
+                ]),
+                after: MetaList.from([
+                    { event: 'text', value: 'text 0' },
+                    { event: 'text', value: 'text 1', offset: 16 },
+                ]),
+            }),
+            MelodyMember.from({ pitch: [ 69 ], duration: 128 }),
+        ], {
+            before: MetaList.from([
+                { event: 'text', value: 'test 1' },
+                { event: 'text', value: 'test 2', offset: 64 },
+                { event: 'text', value: 'test 3', at: 128, offset: 64 }
+            ])
+        }).withAllTicksExact()).toStrictEqual(Melody.from([
+            MelodyMember.from({ pitch: [ 60 ], duration: 8, at: 0 }),
+            MelodyMember.from({ pitch: [ 61 ], duration: 128, at: 56 }),
+            MelodyMember.from({ pitch: [ 62 ], duration: 8, at: 200 }),
+            MelodyMember.from({
+                pitch: [ 63 ],
+                duration: 128,
+                at: 176,
+                before: MetaList.from([
+                    { event: 'text', value: 'text 0', at: 176 },
+                    { event: 'text', value: 'text 1', at: 192 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 48 },
+                ]),
+                after: MetaList.from([
+                    { event: 'text', value: 'text 0', at: 304 },
+                    { event: 'text', value: 'text 1', at: 320 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 48 },
+                ]),
+            }),
+            MelodyMember.from({
+                pitch: [ 64 ],
+                duration: 8,
+                at: 358,
+                before: MetaList.from([
+                    { event: 'text', value: 'text 0', at: 358 },
+                    { event: 'text', value: 'text 1', at: 374 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 48 },
+                ]),
+                after: MetaList.from([
+                    { event: 'text', value: 'text 0', at: 366 },
+                    { event: 'text', value: 'text 1', at: 382 },
+                    { event: 'text', value: 'text 2', at: 32 },
+                    { event: 'text', value: 'text 3', at: 48 },
+                ]),
+            }),
+            MelodyMember.from({ pitch: [ 65 ], duration: 32, at: 348 }),
+            MelodyMember.from({ pitch: [ 66 ], duration: 32, at: 1000 }),
+            MelodyMember.from({ pitch: [ 67 ], duration: 32, at: 1032 }),
+            MelodyMember.from({
+                pitch: [ 68 ],
+                duration: 128,
+                at: 1096,
+                before: MetaList.from([
+                    { event: 'text', value: 'text 0', at: 1096 },
+                    { event: 'text', value: 'text 1', at: 1112 },
+                ]),
+                after: MetaList.from([
+                    { event: 'text', value: 'text 0', at: 1224 },
+                    { event: 'text', value: 'text 1', at: 1240 },
+                ]),
+            }),
+            MelodyMember.from({ pitch: [ 69 ], duration: 128, at: 1160 }),
+        ], {
+            before: MetaList.from([
+                { event: 'text', value: 'test 1', at: 0 },
+                { event: 'text', value: 'test 2', at: 64 },
+                { event: 'text', value: 'test 3', at: 192 }
+            ])
+        }));
     });
 });
 

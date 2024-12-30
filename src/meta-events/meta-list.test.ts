@@ -250,14 +250,14 @@ describe('MetaList.withAllTicksExact()', () => {
 
     test('with all ticks converted to exact ones', () => {
         expect(MetaList.from([
-            { event: 'text', value: 'test' },
-            { event: 'text', value: 'test', offset: 64 },
-            { event: 'text', value: 'test', at: 128, offset: 64 }
+            { event: 'text', value: 'test 1' },
+            { event: 'text', value: 'test 2', offset: 64 },
+            { event: 'text', value: 'test 3', at: 128, offset: 64 }
         ]).withAllTicksExact(200)).toStrictEqual(
             MetaList.from([
-                { event: 'text', value: 'test', at: 200 },
-                { event: 'text', value: 'test', at: 264 },
-                { event: 'text', value: 'test', at: 192 }
+                { event: 'text', value: 'test 1', at: 200 },
+                { event: 'text', value: 'test 2', at: 264 },
+                { event: 'text', value: 'test 3', at: 192 }
             ])
         );
     });
