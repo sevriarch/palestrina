@@ -1144,6 +1144,6 @@ describe('MelodyMember.describe() tests', () => {
             before: MetaList.from([ { event: 'sustain', value: 1 } ]),
             after: MetaList.from([ { event: 'sustain', value: 0 } ]),
         }).describe())
-            .toStrictEqual('MelodyMember({pitch:ChordSeqMember([]),velocity:32,duration:48,at:0,offset:80,delay:96,before:MetaList(length=1)([0: MetaEvent({event:"sustain",value:1,at:undefined,offset:0}),]),after:MetaList(length=1)([0: MetaEvent({event:"sustain",value:0,at:undefined,offset:0}),])})');
+            .toStrictEqual('MelodyMember({pitch:ChordSeqMember([]),velocity:32,duration:48,at:0,offset:80,delay:96,before:MetaList(length=1)([0: MetaEvent({event:"sustain",value:1,at:undefined,offset:undefined}),]),after:MetaList(length=1)([0: MetaEvent({event:"sustain",value:0,at:undefined,offset:undefined}),])})');
     });
 });

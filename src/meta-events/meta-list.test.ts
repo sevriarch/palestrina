@@ -274,6 +274,6 @@ describe('MetaList.describe()', () => {
             { event: 'instrument', value: 'violin', at: 64, offset: 32 },
             { event: 'end-track' },
         ]).describe())
-            .toStrictEqual('MetaList(length=2)([0: MetaEvent({event:"instrument",value:"violin",at:64,offset:32}),1: MetaEvent({event:"end-track",value:undefined,at:undefined,offset:0}),])');
+            .toStrictEqual('MetaList(length=2)([0: MetaEvent({event:"instrument",value:"violin",at:64,offset:32}),1: MetaEvent({event:"end-track",value:undefined,at:undefined,offset:undefined}),])');
     });
 });

@@ -116,7 +116,7 @@ export default class MetaEvent {
         return new MetaEvent({
             event: ob.event,
             value: value,
-            timing: new Timing(ob.at, ob.offset ?? 0)
+            timing: new Timing(ob.at, ob.offset)
         } as MetaEventData);
     }
 

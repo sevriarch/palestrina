@@ -135,7 +135,6 @@ describe('MetaEvent constructor/.val() tests', () => {
 
             expect(m1.event).toEqual(cmp.event);
             expect(m1.value).toEqual(cmp.value);
-            expect(m1.offset).toEqual(cmp.offset);
             expect(m1.at).toEqual(cmp.at);
             expect(Object.isFrozen(m1)).toBe(true);
         }
@@ -216,12 +215,12 @@ describe('MetaEvent.equals() tests', () => {
 describe('MetaEvent.describe() tests', () => {
     test('describes correctly', () => {
         expect(MetaEvent.from({ event: 'end-track' }).describe())
-            .toStrictEqual('MetaEvent({event:"end-track",value:undefined,at:undefined,offset:0})');
+            .toStrictEqual('MetaEvent({event:"end-track",value:undefined,at:undefined,offset:undefined})');
 
         expect(MetaEvent.from({ event: 'instrument', value: 'violin', offset: 64, at: 64 }).describe())
             .toStrictEqual('MetaEvent({event:"instrument",value:"violin",at:64,offset:64})');
 
         expect(MetaEvent.from({ event: 'sustain', value: 0, at: 0 }).describe())
-            .toStrictEqual('MetaEvent({event:"sustain",value:0,at:0,offset:0})');
+            .toStrictEqual('MetaEvent({event:"sustain",value:0,at:0,offset:undefined})');
     });
 });

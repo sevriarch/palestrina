@@ -132,12 +132,12 @@ describe('withAllTicksExact()', () => {
     ];
 
     test.each(table)('%s', (_, ob, curr, ret) => {
-        expect(ob.withAllTicksExact(curr)).toStrictEqual(new Timing(ret, 0));
+        expect(ob.withAllTicksExact(curr)).toStrictEqual(new Timing(ret));
     });
 
     test('does not affect duration', () => {
         expect(new Timing(100, 200, 300, 400).withAllTicksExact(500))
-            .toStrictEqual(new Timing(600, 0, undefined, 400));
+            .toStrictEqual(new Timing(600, undefined, undefined, 400));
     });
 });
 

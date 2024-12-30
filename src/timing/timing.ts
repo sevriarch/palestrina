@@ -130,7 +130,7 @@ export default class Timing {
     }
 
     withAllTicksExact(curr: number): Timing {
-        return new Timing(this.startTick(curr), 0, undefined, this.duration);
+        return new Timing(this.startTick(curr), undefined, undefined, this.duration);
     }
 
     startTick(curr: number): number {

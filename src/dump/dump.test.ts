@@ -155,7 +155,7 @@ describe('dump.dumpMultiLine()', () => {
             'MetaList',
             MetaList.from([ { event: 'copyright', value: 'test' }, { event: 'tempo', value: 144 } ]),
             4,
-            'MetaList(length=2)([0: MetaEvent({event:"copyright",value:"test",at:undefined,offset:0}),1: MetaEvent({event:"tempo",value:144,at:undefined,offset:0}),])'
+            'MetaList(length=2)([0: MetaEvent({event:"copyright",value:"test",at:undefined,offset:undefined}),1: MetaEvent({event:"tempo",value:144,at:undefined,offset:undefined}),])'
         ],
         [
             'NoteSeq',
@@ -186,7 +186,7 @@ describe('dump.dumpMultiLine()', () => {
         ]),
         1: Melody(length=2,metadata=Metadata({instrument=\"cello\"}))([
             0: MelodyMember({pitch:ChordSeqMember([12]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
-            1: MelodyMember({pitch:ChordSeqMember([6]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=1)([0: MetaEvent({event:\"text\",value:\"test\",at:undefined,offset:0}),]),after:MetaList(length=0)([])}),
+            1: MelodyMember({pitch:ChordSeqMember([6]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=1)([0: MetaEvent({event:\"text\",value:\"test\",at:undefined,offset:undefined}),]),after:MetaList(length=0)([])}),
         ]),
     ])`
         ]
@@ -256,7 +256,7 @@ describe('dump.dumpOneLine()', () => {
         [
             'MetaList',
             MetaList.from([ { event: 'copyright', value: 'test' }, { event: 'tempo', value: 144 } ]),
-            'MetaList(length=2)([0: MetaEvent({event:"copyright",value:"test",at:undefined,offset:0}),1: MetaEvent({event:"tempo",value:144,at:undefined,offset:0}),])'
+            'MetaList(length=2)([0: MetaEvent({event:"copyright",value:"test",at:undefined,offset:undefined}),1: MetaEvent({event:"tempo",value:144,at:undefined,offset:undefined}),])'
         ],
     ];
 
