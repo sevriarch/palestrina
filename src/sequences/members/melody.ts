@@ -277,6 +277,28 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
     }
 
     /**
+     * Returns a new MelodyMember where its tick is converted to an exact one;
+     * meta-events associated with have it undergo the same tick conversion.
+     */
+    withAllTicksExact(curr: number): this {
+        if (!isNonnegInt(curr)) {
+            throw new Error(`invalid curr: ${curr}`);
+        }
+
+        const newtiming = this.timing.withAllTicksExact(curr);
+        const start = newtiming.exact as number;
+        const end = this.timing.endTick(curr);
+
+        return this.construct({
+            pitch: this.pitch,
+            velocity: this.velocity,
+            timing: newtiming,
+            before: this.before.withAllTicksExact(start),
+            after: this.after.withAllTicksExact(end),
+        });
+    }
+
+    /**
      * Returns a new MelodyMember with a text event before it.
      * Optional second argument is the type of text event.
      * Optional third argument are the standard meta event options.
