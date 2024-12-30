@@ -129,6 +129,10 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
             throw new Error(`MetaList.diminishRhythm(): must diminish by a positive number; was ${dumpOneLine(curr)}`);
         }
 
+        if (!this.length) {
+            return this;
+        }
+
         return this.map(e => e.withAllTicksExact(curr));
     }
 }

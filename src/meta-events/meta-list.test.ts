@@ -158,13 +158,13 @@ describe('MetaList.augmentRhythm() tests', () => {
         expect(() => MetaList.from([]).augmentRhythm('1' as unknown as number)).toThrow();
     });
 
+    test('returns self if empty', () => {
+        const empty = MetaList.from([]);
+
+        expect(empty.augmentRhythm(4)).toBe(empty);
+    });
+
     const table: [ string, MetaEvent[], number, MetaEvent[] ][] = [
-        [
-            'works on empty MetaList',
-            [],
-            2,
-            []
-        ],
         [
             'doubles all offsets',
             [
@@ -203,13 +203,13 @@ describe('MetaList.diminishRhythm() tests', () => {
         expect(() => MetaList.from([]).diminishRhythm('1' as unknown as number)).toThrow();
     });
 
+    test('returns self if empty', () => {
+        const empty = MetaList.from([]);
+
+        expect(empty.diminishRhythm(4)).toBe(empty);
+    });
+
     const table: [ string, MetaEvent[], number, MetaEvent[] ][] = [
-        [
-            'works on empty MetaList',
-            [],
-            2,
-            []
-        ],
         [
             'halves all offsets',
             [
@@ -248,6 +248,12 @@ describe('MetaList.withAllTicksExact()', () => {
         expect(() => MetaList.from([]).withAllTicksExact(1.5)).toThrow();
     });
 
+    test('returns self if empty', () => {
+        const empty = MetaList.from([]);
+
+        expect(empty.withAllTicksExact(0)).toBe(empty);
+    });
+
     test('with all ticks converted to exact ones', () => {
         expect(MetaList.from([
             { event: 'text', value: 'test 1' },
@@ -266,7 +272,7 @@ describe('MetaList.withAllTicksExact()', () => {
 // inherited from CollectionWithoutMetadata
 describe('MetaList.describe()', () => {
     test('empty MetaList', () => {
-        expect(MetaList.EMPTY_META_LIST.describe()).toStrictEqual('MetaList(length=0)([])');
+        expect(MetaList.from([]).describe()).toStrictEqual('MetaList(length=0)([])');
     });
 
     test('non-empty MetaList', () => {

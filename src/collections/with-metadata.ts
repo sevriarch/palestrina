@@ -114,6 +114,19 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
     }
 
     /**
+     * Return a copy of this Collection with metadata ticks converted to exact ticks.
+    */
+    withMetadataTicksExact(): this {
+        const m = this.metadata.withAllTicksExact();
+
+        if (m === this.metadata) {
+            return this;
+
+        }
+        return this.withMetadata(m);
+    }
+
+    /**
      * Merge in metadata from another entity, but only when this metadata value wasn't present.
      */
     mergeMetadataFrom(source: { metadata: Metadata }): this {
