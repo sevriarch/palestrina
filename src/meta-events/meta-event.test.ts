@@ -178,6 +178,18 @@ describe('MetaEvent.withOffset() tests', () => {
     });
 });
 
+describe('MetaEvent.withAllTicksExact() tests', () => {
+    test('sets when no exact tick set', () => {
+        expect(MetaEvent.from({ event: 'sustain', value: 0, offset: 100 }).withAllTicksExact(500))
+            .toStrictEqual(MetaEvent.from({ event: 'sustain', value: 0, at: 600 }));
+    });
+
+    test('sets when exact tick set', () => {
+        expect(MetaEvent.from({ event: 'sustain', value: 0, at: 50, offset: 100 }).withAllTicksExact(500))
+            .toStrictEqual(MetaEvent.from({ event: 'sustain', value: 0, at: 150 }));
+    });
+});
+
 describe('MetaEvent.equals() tests', () => {
     const DEF: MetaEventArg = { event: 'sustain', value: 0, offset: 0 };
 

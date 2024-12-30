@@ -111,6 +111,36 @@ describe('withDuration()', () => {
     });
 });
 
+describe('withAllTicksExact()', () => {
+    const undef = new Timing();
+    const exact = new Timing(100);
+    const offset = new Timing(undefined, 200);
+    const delay = new Timing(undefined, undefined, 300);
+    const all = new Timing(100, 200, 300);
+
+    const table: [string, Timing, number, number][] = [
+        ['curr 0, no timing', undef, 0, 0],
+        ['curr 150, no timing', undef, 150, 150],
+        ['curr 0, exact', exact, 0, 100],
+        ['curr 150, exact', exact, 150, 100],
+        ['curr 0, offset', offset, 0, 200],
+        ['curr 150, offset', offset, 150, 350],
+        ['curr 0, delay', delay, 0, 300],
+        ['curr 150, delay', delay, 150, 450],
+        ['curr 0, all', all, 0, 600],
+        ['curr 150, all', all, 150, 600],
+    ];
+
+    test.each(table)('%s', (_, ob, curr, ret) => {
+        expect(ob.withAllTicksExact(curr)).toStrictEqual(new Timing(ret, 0));
+    });
+
+    test('does not affect duration', () => {
+        expect(new Timing(100, 200, 300, 400).withAllTicksExact(500))
+            .toStrictEqual(new Timing(600, 0, undefined, 400));
+    });
+});
+
 describe('startTick()', () => {
     const undef = new Timing();
     const exact = new Timing(100);

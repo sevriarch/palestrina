@@ -243,6 +243,26 @@ describe('MetaList.diminishRhythm() tests', () => {
     });
 });
 
+describe('MetaList.withAllTicksExact()', () => {
+    test('fails with non-integer argument', () => {
+        expect(() => MetaList.from([]).withAllTicksExact(1.5)).toThrow();
+    });
+
+    test('with all ticks converted to exact ones', () => {
+        expect(MetaList.from([
+            { event: 'text', value: 'test' },
+            { event: 'text', value: 'test', offset: 64 },
+            { event: 'text', value: 'test', at: 128, offset: 64 }
+        ]).withAllTicksExact(200)).toStrictEqual(
+            MetaList.from([
+                { event: 'text', value: 'test', at: 200 },
+                { event: 'text', value: 'test', at: 264 },
+                { event: 'text', value: 'test', at: 192 }
+            ])
+        );
+    });
+});
+
 // inherited from CollectionWithoutMetadata
 describe('MetaList.describe()', () => {
     test('empty MetaList', () => {

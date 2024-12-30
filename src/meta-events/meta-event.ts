@@ -170,6 +170,17 @@ export default class MetaEvent {
             timing: this.timing.withOffset(i)
         } as MetaEventData);
     }
+    
+    /**
+     * Return this object with ticks converted to exact ticks
+     */
+    withAllTicksExact(curr: number): MetaEvent {
+        return new MetaEvent({
+            event: this.event,
+            value: this.value,
+            timing: this.timing.withAllTicksExact(curr)
+        } as MetaEventData);
+    }
 
     /**
      * Is this MetaEvent equal to the passed MetaEvent?
