@@ -983,6 +983,15 @@ describe('Melody.withVolumeAt()', () => {
 });
 
 describe('MelodyMember.withAllTicksExact()', () => {
+    test('test that this does not create additional entities for an empty Melody', () => {
+        expect(Melody.from([]).withAllTicksExact()).toStrictEqual(Melody.from([]));
+    });
+
+    // this is a wildly complex test as it needs to confirm behaviour for various
+    // combinations of temporal data, not only for the current melody member but
+    // also for the subsequent one
+    // there may be value breaking it up into multiple tests to cover behaviour
+    // one part at a time, at a cost of making the test for this method even longer
     test('test for a Melody with all parts included', () => {
         expect(Melody.from([
             MelodyMember.from({ pitch: [ 60 ], duration: 8 }),

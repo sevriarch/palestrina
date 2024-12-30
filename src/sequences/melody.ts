@@ -385,7 +385,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
             curr = m.timing.nextTick(curr);
 
             return ret;
-        }).withMetadataValues({ before: this.metadata.before.withAllTicksExact(0) });
+        }).withMetadataTicksExact();
     }
 
     /**
