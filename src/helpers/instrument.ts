@@ -66,8 +66,62 @@ const INSTRUMENTS: { [k: string]: number } = {
     ocarina: 79
 };
 
+const PERCUSSION_INSTRUMENTS: { [k: string]: number } = {
+    'bass drum': 35,
+    'bass drum 2': 36,
+    'side drum': 37,
+    'snare drum': 38,
+    'hand clap': 39,
+    'electric snare drum': 40,
+    'low floor tom': 41,
+    'closed hi-hat': 42,
+    'high floor tom': 43,
+    'pedal hi-hat': 44,
+    'low tom': 45,
+    'open hi-hat': 46,
+    'low-mid tom': 47,
+    'hi-mid tom': 48,
+    'crash cymbal': 49,
+    'high tom': 50,
+    'ride cymbal': 51,
+    'chinese cymbal': 52,
+    'ride bell': 53,
+    'tambourine': 54,
+    'splash cymbal': 55,
+    'cowbell': 56,
+    'crash cymbal 2': 57,
+    'vibraslap': 58,
+    'ride cymbal 2': 59,
+    'high bongo': 60,
+    'low bongo': 61,
+    'high conga': 62,
+    'mid conga': 63,
+    'low conga': 64,
+    'high timbale': 65,
+    'low timbale': 66,
+    'high agogo': 67,
+    'low agogo': 68,
+    'cabasa': 69,
+    'maracas': 70,
+    'whistle': 71,
+    'long whistle': 72,
+    'guiro': 73,
+    'long guiro': 74,
+    'claves': 75,
+    'high wood block': 76,
+    'low wood block': 77,
+    'mute cuica': 78,
+    'open cuica': 79,
+    'mute triangle': 80,
+    'open triangle': 81,
+    'shaker': 82,
+};
+
 const BYTE_TO_INSTRUMENT: string[] = [];
 Object.keys(INSTRUMENTS).forEach(inst => BYTE_TO_INSTRUMENT[INSTRUMENTS[inst]] = inst);
+
+const BYTE_TO_PERCUSSION_INSTRUMENT: string[] = [];
+Object.keys(PERCUSSION_INSTRUMENTS).forEach(inst => BYTE_TO_PERCUSSION_INSTRUMENT[PERCUSSION_INSTRUMENTS[inst]] = inst);
 
 /**
  * Is this a valid MIDI instrument?
@@ -83,12 +137,29 @@ export function toInstrument(arg?: MetaEventValue): string | undefined {
 }
 
 /**
+ * Is this a valid MIDI instrument?
+ */
+export function toPercussionInstrument(arg?: MetaEventValue): string | undefined {
+    if (typeof arg === 'number') {
+        return BYTE_TO_PERCUSSION_INSTRUMENT[arg];
+    }
+
+    if (typeof arg === 'string' && arg in PERCUSSION_INSTRUMENTS) {
+        return arg;
+    }
+}
+
+/**
  * Given a MIDI instrument name or MIDI byte, get the MIDI byte for that name.
  */
 export function toMidiByte(arg: number | string): number {
     if (typeof arg === 'string') {
         if (arg in INSTRUMENTS) {
             return INSTRUMENTS[arg];
+        }
+
+        if (arg in PERCUSSION_INSTRUMENTS) {
+            return PERCUSSION_INSTRUMENTS[arg];
         }
 
         throw new Error(`unknown instrument: "${arg}"`);
