@@ -67,6 +67,14 @@ const INSTRUMENTS: { [k: string]: number } = {
 };
 
 const PERCUSSION_INSTRUMENTS: { [k: string]: number } = {
+    'high q': 27,
+    'spal': 28,
+    'scratch push': 29,
+    'scratch pull': 30,
+    'sticks': 31,
+    'square click': 32,
+    'metronome click': 33,
+    'metronome bell': 34,
     'bass drum': 35,
     'bass drum 2': 36,
     'side drum': 37,
@@ -115,6 +123,11 @@ const PERCUSSION_INSTRUMENTS: { [k: string]: number } = {
     'mute triangle': 80,
     'open triangle': 81,
     'shaker': 82,
+    'jingle bell': 83,
+    'belltree': 84,
+    'castanets': 85,
+    'mute surdo': 86,
+    'open surdo': 87,
 };
 
 const BYTE_TO_INSTRUMENT: string[] = [];
