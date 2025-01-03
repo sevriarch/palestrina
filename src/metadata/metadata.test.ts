@@ -132,6 +132,11 @@ describe('Metadata constructor tests', () => {
         }
     });
 
+    test('sets midi channel for percussion instruments', () => {
+        expect(new Metadata({ instrument: 'maracas' }).metadata)
+            .toStrictEqual({ instrument: 'maracas', midichannel: 10 });
+    });
+
     test('metadata is frozen', () => {
         expect(Object.isFrozen(new Metadata({}))).toBe(true);
     });
@@ -224,7 +229,18 @@ describe('Metadata.withValues()', () => {
     });
 
     test('adding metadata fields overrides existing values and adds new ones', () => {
-        expect(m.withValues({ tempo: 120, copyright: 'this' })).toStrictEqual(new Metadata({ tempo: 120, key_signature: 'E', ticks_per_quarter: 240, copyright: 'this' }));
+        expect(m.withValues({ tempo: 120, copyright: 'this' }))
+            .toStrictEqual(new Metadata({ tempo: 120, key_signature: 'E', ticks_per_quarter: 240, copyright: 'this' }));
+    });
+
+    test('switching instrument to percussion instrument changes midi channel', () => {
+        expect(m.withValues({ instrument: 'maracas' }))
+            .toStrictEqual(new Metadata({ tempo: 144, key_signature: 'E', ticks_per_quarter: 240, instrument: 'maracas', midichannel: 10 }));
+    });
+
+    test('switching instrument to percussion instrument changes midi channel', () => {
+        expect(m.withValues({ instrument: 'maracas' }).withValues({ instrument: 'piano' }))
+            .toStrictEqual(new Metadata({ tempo: 144, key_signature: 'E', ticks_per_quarter: 240, instrument: 'piano', midichannel: 1 }));
     });
 });
 
@@ -286,9 +302,9 @@ describe('Metadata.describe()', () => {
             key_signature: 'C',
             copyright: 'test',
             trackname: 'track',
-            instrument: 'violin',
+            instrument: 'maracas',
             before: MetaList.EMPTY_META_LIST,
             validator: NumericValidator.NOOP_VALIDATOR,
-        }).describe()).toStrictEqual('Metadata({midichannel=10,tempo=144,ticks_per_quarter=480,time_signature="3/8",key_signature="C",copyright="test",trackname="track",instrument="violin",before=MetaList(length=0)([]),validator=NumericValidator({type="noop"})})');
+        }).describe()).toStrictEqual('Metadata({midichannel=10,tempo=144,ticks_per_quarter=480,time_signature="3/8",key_signature="C",copyright="test",trackname="track",instrument="maracas",before=MetaList(length=0)([]),validator=NumericValidator({type="noop"})})');
     });
 });

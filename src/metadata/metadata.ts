@@ -157,6 +157,15 @@ export default class Metadata {
 
         this.metadata = { ...ob };
 
+        // Update midi channel if necessary
+        if ('instrument' in this.metadata) {
+            if (instrument.toPercussionInstrument(this.metadata.instrument)) {
+                this.metadata.midichannel = 10;
+            } else if (this.metadata.midichannel === 10 && instrument.toInstrument(this.metadata.instrument)) {
+                this.metadata.midichannel = 1;
+            }
+        }
+
         Object.freeze(this);
         Object.freeze(this.metadata);
     }

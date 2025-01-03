@@ -192,8 +192,8 @@ describe('Collection.withInstrument() tests', () => {
         expect(() => meta.withInstrument(555 as unknown as string)).toThrow();
     });
 
-    test('string time signature works correctly', () => {
-        expect(meta.withInstrument('F').metadata.instrument).toEqual('F');
+    test('string instrument works correctly', () => {
+        expect(meta.withInstrument('piano').metadata.instrument).toEqual('piano');
     });
 
     test('string trackname does not overwrite other metadata', () => {
@@ -201,6 +201,14 @@ describe('Collection.withInstrument() tests', () => {
 
         expect(meta2.metadata.copyright).toEqual('foobar');
         expect(meta2.metadata.instrument).toEqual('violin');
+    });
+
+    test('numeric non-percussion instrument works correctly', () => {
+        expect(meta.withInstrument(60).metadata.instrument).toEqual('horn');
+    });
+
+    test('numeric non-percussion instrument works correctly', () => {
+        expect(meta.withMidiChannel(10).withInstrument(60).metadata.instrument).toEqual('high bongo');
     });
 });
 
