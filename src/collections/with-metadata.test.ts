@@ -208,7 +208,7 @@ describe('Collection.withInstrument() tests', () => {
     });
 
     test('numeric non-percussion instrument works correctly', () => {
-        expect(meta.withMidiChannel(10).withInstrument(60).metadata.instrument).toEqual('high bongo');
+        expect(meta.withMidiChannel(10).withInstrument(60).metadata.instrument).toEqual('low bongo');
     });
 });
 

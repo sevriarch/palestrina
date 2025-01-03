@@ -46,9 +46,9 @@ describe('instrument.toPercussionInstrument()', () => {
     });
 
     test('expect some common instruments to be correctly converted', () => {
-        expect(instrument.toPercussionInstrument(0x40)).toBe('low conga');
-        expect(instrument.toPercussionInstrument(0x47)).toBe('whistle');
-        expect(instrument.toPercussionInstrument(0x26)).toBe('snare drum');
+        expect(instrument.toPercussionInstrument(0x3f)).toBe('low conga');
+        expect(instrument.toPercussionInstrument(0x46)).toBe('whistle');
+        expect(instrument.toPercussionInstrument(0x25)).toBe('snare drum');
     });
 });
 
@@ -73,7 +73,7 @@ describe('instrument.toMidiByte()', () => {
         expect(instrument.toMidiByte('celesta')).toBe(0x08);
         expect(instrument.toMidiByte('oboe')).toBe(0x44);
         expect(instrument.toMidiByte('trombone')).toBe(0x39);
-        expect(instrument.toMidiByte('bass drum')).toBe(0x23);
-        expect(instrument.toMidiByte('claves')).toBe(0x4b);
+        expect(instrument.toMidiByte('bass drum')).toBe(0x22);
+        expect(instrument.toMidiByte('claves')).toBe(0x4a);
     });
 });

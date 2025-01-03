@@ -14,7 +14,7 @@ const INSTRUMENTS: { [k: string]: number } = {
     clavinet: 7,
     celesta: 8,
     glockenspiel: 9,
-    "music box": 10,
+    'music box': 10,
     vibraphone: 11,
     marimba: 12,
     xylophone: 13,
