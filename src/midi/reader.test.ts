@@ -335,17 +335,24 @@ describe('extractMidiTrackEvents()', () => {
             1
         ],
         [
-            'an instrument event on channel 4',
-            [ 0x00, 0xc3, 0x48 ],
+            'an unknown instrument on channel 6',
+            [ 0x00, 0xc5, 0x7f ],
             [],
-            [ { event: 'instrument', value: 0x48, at: 0x00 } ],
-            4
+            [ { event: 'instrument', value: 127, at: 0x00 } ],
+            6
+        ],
+        [
+            'an instrument event on channel 10',
+            [ 0x00, 0xc9, 0x41 ],
+            [],
+            [ { event: 'instrument', value: 'high timbale', at: 0x00 } ],
+            10 
         ],
         [
             'an instrument event on channel 9',
-            [ 0x88, 0x81, 0x00, 0xc8, 0x32 ],
+            [ 0x88, 0x81, 0x00, 0xc8, 0x29 ],
             [],
-            [ { event: 'instrument', value: 0x32, at: 0x20080 } ],
+            [ { event: 'instrument', value: 'viola', at: 0x20080 } ],
             9
         ],
         [
@@ -645,7 +652,7 @@ describe('extractMidiTrackEvents()', () => {
             'extract a track containing more events on channel 5',
             [
                 0x00, 0xff, 0x02, 0x04, 0x54, 0x65, 0x73, 0x74, // Copyright: "Test"
-                0x00, 0xc4, 0x32, // Instrument 0x32 on channel 5
+                0x00, 0xc4, 0x28, // Instrument 0x28 on channel 5
                 0x00, 0x94, 0x30, 0x30, // Note on on channel 5
                 0x82, 0x00, 0x84, 0x30, 0x30, // Note off on channel 5
                 0x00, 0xff, 0x2f, 0x00
@@ -655,7 +662,7 @@ describe('extractMidiTrackEvents()', () => {
             ],
             [
                 { event: 'copyright', value: 'Test', at: 0 },
-                { event: 'instrument', value: 0x32, at: 0 },
+                { event: 'instrument', value: 'violin', at: 0 },
                 { event: 'end-track', at: 0x100 }
             ],
             5

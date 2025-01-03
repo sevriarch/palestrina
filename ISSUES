@@ -27,15 +27,7 @@ table.forEach(([ _, [ a, b, c ] ]) => {
     console.log(`${_}: is equal? ${x(a, b) === c}`);
 });
 
-2. DEPENDENCE ON FACTORY TO INJECT SEQUENCE CONSTRUCTORS [RESOLVED]
-- can't easily do midi-reader to score through non-factory because creation of the score depends on the factory to inject sequence constructors and validator
-- new SequenceType() should not be an invalid way to create sequences
- - alternatively
-  - revoke non-type access to all sequences and members
-  - force everything to go through constructor
-  - create scores through factory -> constructor (if array args) and factory -> midi-reader (if string args)
-
-3. REPLACER IS A MESS
+2. REPLACER IS A MESS
 - replacer is still problematic, even with sequences/generic.ts containing this:
 - perhaps two types of replacer? replaceWithSingleValue() v replaceWithMultipleValues?
 protected override replacer<FromT>(r: Replacer<FromT, ET>, curr: FromT, i: number): ET[] {
@@ -56,7 +48,7 @@ concerns:
 - different typing from in collection makes this messy AF to implement
 - [ a, b, c ] could mean a chord containing [ a, b, c ] or a melody containing [ [ a ], [ b ], [ c ] ]
 
-4. CONTROL FLOW IN COLLECTIONS
+3. CONTROL FLOW IN COLLECTIONS
 - Chained .while() and .do() calls are possibly problematic as they are not placed on a stack
  - Figure out if this needs solved, and if this also an issue with .if()/.then()/.else()
   - Unintuitive: after exiting the DO_1().WHILE_1() loop; it then executes a DO_1().WHILE_2() loop
@@ -64,6 +56,3 @@ concerns:
        .while(v => { console.log('checking length > 4'); return v.length > 4; }) // WHILE_1
        .while(v => { console.log('checking length < 6'); return v.length < 6; }) // WHILE_2
        .do(v => { console.log('trying to append'); return v.appendItems(v.valAt(0)); }) // DO_2
-
-5. VALIDATOR [RESOLVED]
-- likely could be cleaner

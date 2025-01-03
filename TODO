@@ -16,6 +16,7 @@ DOCUMENTATION:
 REFACTORING:
 - Consider using the visitor pattern for .describe() and midi conversion
 - Instrument/time signature/key signature should perhaps be entities of their own (create an entities directory for such things?)
+- Consider backporting the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina.
 
 
 LOW PRIORITY:
@@ -40,5 +41,5 @@ CLEANLINESS:
 - Perhaps move helpers around and use the term only for those available to the end user?
  - Exports are kind of messy as a result of this.
 
-ONCE DONE:
+ONGOING
 - Review docs, compile checklist of things to rereview

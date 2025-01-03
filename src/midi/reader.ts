@@ -12,6 +12,7 @@ import { dumpOneLine, dumpHex } from '../dump/dump';
 
 import * as keySignature from '../helpers/key-signature';
 import * as timeSignature from '../helpers/time-signature';
+import { toInstrument, toPercussionInstrument } from '../helpers/instrument';
 
 // Used to flag types where we can be certain the 'at' field has been set
 type Timed<X> = X & { at: number };
@@ -333,7 +334,10 @@ class MidiReader {
                 throw new Error('instrument out of range');
             }
 
-            return { event: 'instrument', value, at: this.currenttick };
+            // Convert to a string value if known, otherwise keep as int to avoid obstructive errors
+            const strvalue = (this.runningstatus & 0x0f) === 0x09 ? toPercussionInstrument(value) : toInstrument(value);
+
+            return { event: 'instrument', value: strvalue ?? value, at: this.currenttick };
         }
 
         if (type === 0xd0) {
