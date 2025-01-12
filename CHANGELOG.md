@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+* Palestrina has 100% test coverage again.
+* `Melody.firstTick()` has parallel functionality to `Melody.lastTick()`.
+
 ## 0.4.0
 
 ### Enhancements
