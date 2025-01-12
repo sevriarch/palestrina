@@ -133,7 +133,16 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
-     * Returns the Midi tick of the end of this Melody.
+     * Returns the first Midi tick of this Melody.
+     */
+    firstTick(): number {
+        const events = melodyToTimedMidiBytes(this);
+
+        return events.length ? events[0][0] : 0;
+    }
+
+    /**
+     * Returns the last Midi tick of this Melody.
      */
     lastTick(): number {
         const events = melodyToTimedMidiBytes(this);
