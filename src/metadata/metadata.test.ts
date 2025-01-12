@@ -33,6 +33,7 @@ describe('MetaList.fromMetaEventArg()', () => {
     const EVT_KSIG: MetaEventArg = { event: 'key-signature', value: 'E' };
     const EVT_TEMPO: MetaEventArg = { event: 'tempo', value: 152 };
     const EVT_INSTRUMENT: MetaEventArg = { event: 'instrument', value: 'viola' };
+    const EVT_INSTRUMENT_NUMERIC: MetaEventArg = { event: 'instrument', value: 41 };
 
     const table: [ string, MetaEventArg[], MetadataData ][] = [
         [
@@ -62,7 +63,7 @@ describe('MetaList.fromMetaEventArg()', () => {
         ],
         [
             'MetaList with a wild mixture',
-            [ EVT_SUS1, EVT_NAME, EVT_NAME_DELAYED, EVT_SUS2, EVT_COPY_DELAYED, EVT_COPY, EVT_INSTRUMENT ],
+            [ EVT_SUS1, EVT_NAME, EVT_NAME_DELAYED, EVT_SUS2, EVT_COPY_DELAYED, EVT_COPY, EVT_INSTRUMENT_NUMERIC ],
             { trackname: 'test', copyright: 'best', instrument: 'viola', before: MetaList.from([ EVT_SUS1, EVT_NAME_DELAYED, EVT_SUS2, EVT_COPY_DELAYED ]) },
         ],
     ];

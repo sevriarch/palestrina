@@ -363,6 +363,45 @@ describe('Melody.withExactTick()', () => {
     });
 });
 
+describe('Melody.firstTick()', () => {
+    test('first tick is zero for empty melody', () => {
+        expect(melody([]).firstTick()).toEqual(0);
+    });
+
+    test('first tick is as expected without meta-events', () => {
+        expect(melody([
+            { pitch: [60], at: 96, duration: 8, velocity: 50, },
+            { pitch: [61], duration: 16, velocity: 51 },
+            { pitch: [63], at: 64, duration: 16, velocity: 52 },
+            { pitch: [64], duration: 8, velocity: 53 },
+            { pitch: [66], at: 48, duration: 16, velocity: 54 },
+            { pitch: [66], duration: 16, velocity: 55 },
+        ]).firstTick()).toEqual(48);
+    });
+
+    test('first tick is as expected with before meta-event', () => {
+        expect(melody([
+            { pitch: [60], at: 96, duration: 8, velocity: 50, },
+            { pitch: [61], duration: 16, velocity: 51 },
+            { pitch: [63], at: 64, duration: 16, velocity: 52 },
+            { pitch: [64], duration: 8, velocity: 53 },
+            { pitch: [66], at: 48, duration: 16, velocity: 54 },
+            { pitch: [66], duration: 16, velocity: 55, before: [{ event: 'sustain', value: 0, at: 0, offset: 32 }] },
+        ]).firstTick()).toEqual(32);
+    });
+
+    test('first tick is as expected with after meta-event', () => {
+        expect(melody([
+            { pitch: [60], duration: 8, velocity: 50, },
+            { pitch: [61], duration: 16, velocity: 51 },
+            { pitch: [63], at: 64, duration: 16, velocity: 52 },
+            { pitch: [64], duration: 8, velocity: 53 },
+            { pitch: [66], at: 48, duration: 16, velocity: 54 },
+            { pitch: [66], duration: 16, velocity: 55, after: [{ event: 'sustain', value: 0, at: 0 }] },
+        ]).firstTick()).toEqual(0);
+    });
+});
+
 describe('Melody.lastTick()', () => {
     test('last tick is zero for empty melody', () => {
         expect(melody([]).lastTick()).toEqual(0);
@@ -383,22 +422,22 @@ describe('Melody.lastTick()', () => {
         expect(melody([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
-            { pitch: [63], at: 64, duration: 16, velocity: 52 },
+            { pitch: [63], at: 64, duration: 16, velocity: 52, before: [{ event: 'sustain', value: 0, offset: 64 }] },
             { pitch: [64], duration: 8, velocity: 53 },
             { pitch: [66], at: 48, duration: 16, velocity: 54 },
             { pitch: [66], duration: 16, velocity: 55, before: [{ event: 'sustain', value: 0, offset: 32 }] },
-        ]).lastTick()).toEqual(96);
+        ]).lastTick()).toEqual(128);
     });
 
     test('last tick is as expected with after meta-event', () => {
         expect(melody([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
-            { pitch: [63], at: 64, duration: 16, velocity: 52 },
+            { pitch: [63], at: 64, duration: 16, velocity: 52, after: [{ event: 'sustain', value: 0, offset: 64 }] },
             { pitch: [64], duration: 8, velocity: 53 },
             { pitch: [66], at: 48, duration: 16, velocity: 54 },
             { pitch: [66], duration: 16, velocity: 55, after: [{ event: 'sustain', value: 0, offset: 32 }] },
-        ]).lastTick()).toEqual(112);
+        ]).lastTick()).toEqual(144);
     });
 });
 
