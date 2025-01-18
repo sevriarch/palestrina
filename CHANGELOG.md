@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+* Sequence methods are now available for generating pitch distribution and location maps.
+* Some error messages have been improved and will generate more detail.
+* Dev dependencies have been updated.
+
 ## 0.4.1
 
 * Palestrina has 100% test coverage again.
