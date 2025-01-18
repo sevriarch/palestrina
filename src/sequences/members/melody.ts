@@ -30,7 +30,7 @@ function inputToMelodyMemberData(ob: MelodyMemberArg): MelodyMemberData {
     const badkeys = invalidKeys(ob, INVALID_KEYS);
 
     if (badkeys.length) {
-        throw new Error(`invalid keys in ${dumpOneLine(ob)}: ${dumpOneLine(badkeys)}`);
+        throw new Error(`MelodyMember: invalid keys in ${dumpOneLine(ob)}: ${dumpOneLine(badkeys)}`);
     }
 
     const failed: string[] = [];
@@ -76,7 +76,7 @@ function inputToMelodyMemberData(ob: MelodyMemberArg): MelodyMemberData {
     }
 
     if (failed.length) {
-        throw new Error(`invalid data ${dumpOneLine(ob)}: fields ${dumpOneLine(failed)} failed validation`);
+        throw new Error(`MelodyMember: invalid data ${dumpOneLine(ob)}: fields ${dumpOneLine(failed)} failed validation`);
     }
 
     return {
@@ -227,7 +227,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     withVolume(i: number): this {
         if (!isVelocityValid(i)) {
-            throw new Error(`invalid velocity: ${i}`);
+            throw new Error(`MelodyMember.withVolume(): invalid volume: ${i}`);
         }
 
         return this.construct({ ...this._val, velocity: i });
@@ -252,7 +252,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     addOffset(i: number): this {
         if (!isInt(i)) {
-            throw new Error(`invalid delta: ${i}`);
+            throw new Error(`MelodyMember.addOffset(): invalid offset delta: ${i}`);
         }
 
         return this.withOffset(this.offset + i);
@@ -270,7 +270,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     addDelay(i: number): this {
         if (!isInt(i)) {
-            throw new Error(`invalid delta: ${i}`);
+            throw new Error(`MelodyMember.addDelay(): invalid delay delta: ${i}`);
         }
 
         return this.withDelay(this.delay + i);
@@ -282,7 +282,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     withAllTicksExact(curr: number): this {
         if (!isNonnegInt(curr)) {
-            throw new Error(`invalid curr: ${curr}`);
+            throw new Error(`MelodyMember.withAllTicksExact(): invalid current tick: ${dumpOneLine(curr)}`);
         }
 
         const newtiming = this.timing.withAllTicksExact(curr);
@@ -315,7 +315,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
                 break;
             
             default:
-                throw new Error(`invalid text event type: ${typeOrOpts}`);
+                throw new Error(`MelodyMember.withTextBefore(): invalid text event type: ${typeOrOpts}`);
             }
 
             return this.withEventBefore(typeOrOpts, val, opts);
@@ -339,7 +339,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
                 break;
             
             default:
-                throw new Error(`invalid text event type: ${typeOrOpts}`);
+                throw new Error(`MelodyMember.withTextAfter(): invalid text event type: ${typeOrOpts}`);
             }
 
             return this.withEventAfter(typeOrOpts, val, opts);
@@ -383,7 +383,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     augmentRhythm(i: number): this {
         if (!isNonNegNumber(i)) {
-            throw new Error(`must augment by a non-negative number; was ${i}`);
+            throw new Error(`MelodyMember.augmentRhythm(): must augment by a non-negative number; was ${i}`);
         }
 
         const v = this._val;
@@ -402,7 +402,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     diminishRhythm(i: number): this {
         if (!isPosNumber(i)) {
-            throw new Error(`must diminish by a positive num/ber; was ${i}`);
+            throw new Error(`MelodyMember.diminishRhythm(): must diminish by a positive num/ber; was ${i}`);
         }
 
         const v = this._val;

@@ -45,19 +45,19 @@ export function JSONTemplate(template: string, substitutions: { [k: string]: JSO
  */
 export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg): string {
     if (typeof name !== 'string') {
-        throw new Error('canvas name should be a string');
+        throw new Error(`visualizations.render2DCanvas(): canvas name should be a string, was ${dumpOneLine(name)}`);
     }
 
     if (!Array.isArray(timeline)) {
-        throw new Error('timeline missing or not an array');
+        throw new Error(`visualizations.render2DCanvas(): timeline was not an array, was ${dumpOneLine(timeline)}`);
     }
 
     if (!Array.isArray(data)) {
-        throw new Error('data missing or not an array');
+        throw new Error(`visualizations.render2DCanvas(): data was not an array, was ${dumpOneLine(data)}`);
     }
 
     if (timeline.length !== data.length) {
-        throw new Error('timeline length is not the same as data length');
+        throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
     }
 
     return JSONTemplate('canvas-2d', {

@@ -3,7 +3,7 @@ import type { MetadataData, MetaEventValue, MetaListArg, MetaEventOpts, MetaEven
 import CollectionWithoutMetadata from './without-metadata';
 
 import { toInstrument, toPercussionInstrument } from '../helpers/instrument';
-import { dumpMultiLine } from '../dump/dump';
+import { dumpOneLine, dumpMultiLine } from '../dump/dump';
 
 import type Metadata from '../metadata/metadata';
 
@@ -104,7 +104,7 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
         const istr = this.metadata.midichannel === 10 ? toPercussionInstrument(inst) : toInstrument(inst);
 
         if (!istr) {
-            throw new Error(`invalid instrument: ${inst}`);
+            throw new Error(`${this.constructor.name}.withInstrument(): invalid instrument: ${dumpOneLine(inst)}`);
         }
 
         return this.withMetadataValues({ instrument: istr });

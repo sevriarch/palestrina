@@ -47,15 +47,15 @@ export function getScale(scale: string | number[]): number[] {
             return SCALES[scale].slice();
         }
 
-        throw new Error(`${dumpOneLine(scale)} is not a scale`);
+        throw new Error(`mutators.getScale(): ${dumpOneLine(scale)} is not a scale`);
     }
 
     if (!scale.length) {
-        throw new Error('cannot supply an empty scale');
+        throw new Error('mutators.getScale(): cannot supply an empty scale');
     }
 
     if (!scale.every(isNumber)) {
-        throw new Error(`scale ${dumpOneLine(scale)} contains invalid value(s)`);
+        throw new Error(`mutators.getScale(): scale ${dumpOneLine(scale)} contains invalid value(s)`);
     }
 
     return scale;
@@ -276,7 +276,7 @@ export function gamutFn(gamut: number[], opts: GamutOpts = {}): PitchMutatorFn {
 
     return (v: number) => {
         if (!isInt(v)) {
-            throw new Error(`gamuts can only be applied to integer pitches; was ${dumpOneLine(v)}`);
+            throw new Error(`mutators.gamutFn(): gamuts can only be applied to integer pitches; was ${dumpOneLine(v)}`);
         }
 
         const val = v + zero;

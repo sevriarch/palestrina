@@ -186,7 +186,7 @@ export default class Metadata {
      */
     mergeFrom(ob: Metadata) {
         if (!(ob instanceof Metadata)) {
-            throw new Error('can only merge from another Metadata object');
+            throw new Error('Metadata.mergeFrom(): can only merge from another Metadata object');
         }
 
         const vals = { ...ob.metadata, ...this.metadata };

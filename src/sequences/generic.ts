@@ -185,7 +185,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Returns a Map mapping pitches to how often they appear in the Sequence.
+     * Returns a Map mapping chords to how often they appear in the Sequence.
      */
     toChordDistributionMap(): Map<string, number> {
         const map: Map<string, number> = new Map();
@@ -199,7 +199,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Returns a Map mapping to their locations in the Sequence.
+     * Returns a Map mapping pitches to their locations in the Sequence.
      */
     toPitchLocationMap(): Map<number, number[]> {
         const map: Map<number, number[]> = new Map();
@@ -217,6 +217,26 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         });
 
         return map;
+    }
+
+    /**
+     * Returns a Map mapping chords to their locations in the Sequence.
+     */
+    toChordLocationMap(): Map<number[], number[]> {
+        const map: Map<string, number[]> = new Map();
+
+        this.toPitches().forEach((v, i) => {
+            const serialized = JSON.stringify(v);
+            const curr = map.get(serialized);
+
+            if (curr) {
+                curr.push(i);
+            } else {
+                map.set(serialized, [ i ]);
+            }
+        });
+
+        return new Map(Array.from(map).map(([ p, ct ]) => [ JSON.parse(p), ct ]));
     }
 
     /*

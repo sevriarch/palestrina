@@ -209,6 +209,40 @@ describe('Sequence.toPitchLocationMap()', () => {
     });
 });
 
+describe('Sequence.toChordLocationMap()', () => {
+    const table: [ string, AnySeq, Map<number[], number[]> ][] = [
+        [
+            'an empty intseq',
+            intseq([]),
+            new Map(),
+        ],
+        [
+            'an intseq',
+            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            new Map([ [ [ 1 ], [ 0, 4 ] ], [ [ 2 ], [ 1, 7 ] ], [ [ 3 ], [ 2 ] ], [ [ 4 ], [ 3, 6 ] ], [ [ 5 ], [ 5, 9 ] ], [ [ 8 ], [ 8 ] ] ]),
+        ],
+        [
+            'a noteseq',
+            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            new Map([ [ [ 1 ], [ 0, 5 ] ], [ [ 2 ], [ 1, 9 ] ], [ [ 3 ], [ 3 ] ], [ [ 4 ], [ 4, 8 ] ], [ [ 5 ], [ 7, 11 ] ], [ [ 8 ], [ 10 ] ], [ [], [ 2, 6 ] ] ]),
+        ],
+        [
+            'a chordseq',
+            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            new Map([ [ [ 1, 2 ], [ 0 ] ], [ [ 1, 3, 4 ], [ 2 ] ], [ [ 5 ], [ 4, 6 ] ], [ [ 2, 4, 8 ], [ 5 ] ], [ [], [ 1, 3 ] ] ]),
+        ],
+        [
+            'a melody',
+            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            new Map([ [ [ 1, 2 ], [ 0 ] ], [ [ 1, 3, 4 ], [ 2 ] ], [ [ 5 ], [ 4, 6 ] ], [ [ 2, 4, 8 ], [ 5 ] ], [ [], [ 1, 3 ] ] ]),
+        ],
+    ];
+
+    test.each(table)('returns the expected map for %s', (_, s, ret) => {
+        expect(s.toChordLocationMap()).toStrictEqual(ret);
+    });
+});
+
 describe('Sequence.min()', () => {
     const table: [ string, AnySeq, null | number ][] = [
         [ 'an empty sequence', intseq([]), null ],
