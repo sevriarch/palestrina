@@ -172,11 +172,6 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Returns an array of tuples containing pitches and how often they appear in
-     * the Sequence. This array will be ordered by first appearance in the Sequence.
-     */
-
-    /**
      * Returns a Map mapping pitches to how often they appear in the Sequence.
      */
     toPitchDistributionMap(): Map<number, number> {
@@ -201,6 +196,27 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         });
 
         return new Map(Array.from(map).map(([ p, ct ]) => [ JSON.parse(p), ct ]));
+    }
+
+    /**
+     * Returns a Map mapping to their locations in the Sequence.
+     */
+    toPitchLocationMap(): Map<number, number[]> {
+        const map: Map<number, number[]> = new Map();
+
+        this.toPitches().forEach((v, i) => {
+            v.forEach(p => {
+                const curr = map.get(p);
+
+                if (curr) {
+                    curr.push(i);
+                } else {
+                    map.set(p, [ i ]);
+                }
+            });
+        });
+
+        return map;
     }
 
     /*
