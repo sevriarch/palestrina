@@ -107,6 +107,40 @@ describe('Sequence.toNullableNumericValues()', () => {
     });
 });
 
+describe('Sequence.toPitchDistributionMap()', () => {
+    const table: [ string, AnySeq, Map<number, number> ][] = [
+        [
+            'an empty intseq',
+            intseq([]),
+            new Map(),
+        ],
+        [
+            'an intseq',
+            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+        ],
+        [
+            'a noteseq',
+            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+        ],
+        [
+            'a chordseq',
+            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ] ]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+        ],
+        [
+            'a melody',
+            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ] ]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+        ],
+    ];
+
+    test.each(table)('returns the expected map for %s', (_, s, ret) => {
+        expect(s.toPitchDistributionMap()).toStrictEqual(ret);
+    });
+});
+
 describe('Sequence.min()', () => {
     const table: [ string, AnySeq, null | number ][] = [
         [ 'an empty sequence', intseq([]), null ],
