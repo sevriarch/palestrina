@@ -227,7 +227,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     withVolume(i: number): this {
         if (!isVelocityValid(i)) {
-            throw new Error(`MelodyMember.withVolume(): invalid volume: ${i}`);
+            throw new Error(`MelodyMember.withVolume(): invalid volume: ${dumpOneLine(i)}`);
         }
 
         return this.construct({ ...this._val, velocity: i });
@@ -252,7 +252,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     addOffset(i: number): this {
         if (!isInt(i)) {
-            throw new Error(`MelodyMember.addOffset(): invalid offset delta: ${i}`);
+            throw new Error(`MelodyMember.addOffset(): invalid offset delta: ${dumpOneLine(i)}`);
         }
 
         return this.withOffset(this.offset + i);
@@ -270,7 +270,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     addDelay(i: number): this {
         if (!isInt(i)) {
-            throw new Error(`MelodyMember.addDelay(): invalid delay delta: ${i}`);
+            throw new Error(`MelodyMember.addDelay(): invalid delay delta: ${dumpOneLine(i)}`);
         }
 
         return this.withDelay(this.delay + i);
@@ -383,7 +383,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     augmentRhythm(i: number): this {
         if (!isNonNegNumber(i)) {
-            throw new Error(`MelodyMember.augmentRhythm(): must augment by a non-negative number; was ${i}`);
+            throw new Error(`MelodyMember.augmentRhythm(): must augment by a non-negative number; was ${dumpOneLine(i)}`);
         }
 
         const v = this._val;
@@ -402,7 +402,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
      */
     diminishRhythm(i: number): this {
         if (!isPosNumber(i)) {
-            throw new Error(`MelodyMember.diminishRhythm(): must diminish by a positive num/ber; was ${i}`);
+            throw new Error(`MelodyMember.diminishRhythm(): must diminish by a positive num/ber; was ${dumpOneLine(i)}`);
         }
 
         const v = this._val;
