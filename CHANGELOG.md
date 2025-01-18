@@ -2,19 +2,22 @@
 
 ## 0.5.0
 
+### Features
 * Sequence methods are now available for generating pitch distribution and location maps.
+
+### Enhancements
 * Some error messages have been improved and will generate more detail.
 * Dev dependencies have been updated.
 
 ## 0.4.1
 
+### Enhancements
 * Palestrina has 100% test coverage again.
 * `Melody.firstTick()` has parallel functionality to `Melody.lastTick()`.
 
 ## 0.4.0
 
 ### Enhancements
-
 * Palestrina now understands the MIDI names of percussion instruments.
 ** Percussion instruments are still referred to by pitch to match the MIDI standard, and because this would be a very breaking change.
 
