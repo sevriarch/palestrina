@@ -78,7 +78,7 @@ export default class NoteSeqMember extends SeqMember<number | null> implements I
 
     numericValue(): number {
         if (this._val === null) {
-            throw new Error('value was null');
+            throw new Error('NoteSeqMember.numericValue(): value was null');
         }
 
         return this._val;

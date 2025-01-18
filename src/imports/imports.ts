@@ -12,15 +12,15 @@ const cache: Record<string, number[]> = {};
  * HELPERS
  */
 
-function throwIfNotNumber(i: unknown, key: string): void {
+function throwIfNotNumber(i: unknown, fn: string, key: string): void {
     if (!isNumber(i)) {
-        throw new Error(`${key} must be a number, was ${dumpOneLine(i)}`);
+        throw new Error(`imports.${fn}(): ${key} must be a number, was ${dumpOneLine(i)}`);
     }
 }
 
-function throwIfNotNonnegInt(i: unknown, key = 'argument'): void {
+function throwIfNotNonnegInt(i: unknown, fn: string, key = 'argument'): void {
     if (!isNonnegInt(i)) {
-        throw new Error(`${key} must be a non-negative integer, was ${dumpOneLine(i)}`);
+        throw new Error(`imports.${fn}(): ${key} must be a non-negative integer, was ${dumpOneLine(i)}`);
     }
 }
 
@@ -132,7 +132,7 @@ export function primepi(n: number): number[] {
  * Return the squares of the first n integers (OEIS A000290).
  */
 export function squares(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'squares');
 
     return mapRange(v => v * v, n);
 }
@@ -141,7 +141,7 @@ export function squares(n: number): number[] {
  * Return the integer parts of the first n square roots (OEIS A000196).
  */
 export function sqrt_floor(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'sqrt_floor');
 
     return mapRange(v => Math.floor(Math.sqrt(v)), n);
 }
@@ -150,7 +150,7 @@ export function sqrt_floor(n: number): number[] {
  * Return the nearest integer to the first n square roots (OEIS A000914).
  */
 export function sqrt_round(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'sqrt_round');
 
     return mapRange(v => Math.round(Math.sqrt(v)), n);
 }
@@ -159,7 +159,7 @@ export function sqrt_round(n: number): number[] {
  * Return the ceiling of the first n square roots (OEIS A135034).
  */
 export function sqrt_ceil(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'sqrt_ceil');
 
     return mapRange(v => Math.ceil(Math.sqrt(v)), n);
 }
@@ -168,7 +168,7 @@ export function sqrt_ceil(n: number): number[] {
  * Return the first n bigomegas (OEIS A001222).
  */
 export function bigomega(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'bigomega');
 
     return primefactors(n).map(v => v.length);
 }
@@ -177,7 +177,7 @@ export function bigomega(n: number): number[] {
  * Return the first n triangular numbers (OEIS A000217).
  */
 export function triangular(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'triangular');
 
     const ret = new Array(n);
 
@@ -197,7 +197,7 @@ export function triangular(n: number): number[] {
  * once values exceed Number.MAX_SAFE_INTEGER (9007199254740991).
  */
 export function fibonacci(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'fibonacci');
 
     const ret = new Array(n);
 
@@ -215,7 +215,7 @@ export function fibonacci(n: number): number[] {
  * Return the number of runs in binary expansion (OEIS A005811).
  */
 export function binary_runs(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'binary_runs');
 
     function valat(v: number): number {
         let ct = 0;
@@ -240,7 +240,7 @@ export function binary_runs(n: number): number[] {
  * Return the first n members of Per Nørgård's infinity series (OEIS A004718).
  */
 export function infinity(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'infinity');
 
     function valat(v: number): number {
         if (!v) { return 0; }
@@ -255,7 +255,7 @@ export function infinity(n: number): number[] {
  * Return the first n members of Per Nørgård's rhythmic infinity series (OEIS A073334).
  */
 export function infinity_rhythmic(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'infinity_rhythmic');
 
     const fib = fibonacci(Math.ceil(Math.log2(n || 1)) + 5);
 
@@ -266,7 +266,7 @@ export function infinity_rhythmic(n: number): number[] {
  * Return the first n members of the first variant of Per Nørgård's infinity series (OEIS A256184).
  */
 export function infinity_var1(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'infinity_var1');
 
     function valat(v: number): number {
         if (!v) { return 0; }
@@ -285,7 +285,7 @@ export function infinity_var1(n: number): number[] {
  * Return the first n members of the second variant of Per Nørgård's infinity series (OEIS A256185).
  */
 export function infinity_var2(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'infinity_var2');
 
     function valat(v: number): number {
         if (!v) { return 0; }
@@ -304,7 +304,7 @@ export function infinity_var2(n: number): number[] {
  * Return the first n members of Karl Aage Rasmussen's series (OEIS A056239).
  */
 export function rasmussen(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'rasmussen');
 
     const ppi = withCache(v => primepi(v), n, 'primepi');
 
@@ -316,7 +316,7 @@ export function rasmussen(n: number): number[] {
  * Return the first n members of the series used in the 3rd movement of Triptych.
  */
 export function my1(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'my1');
 
     return triangular(n + 1)
         .map((v, i) => v % Math.floor(Math.sqrt(i)))
@@ -328,7 +328,7 @@ export function my1(n: number): number[] {
  * n numbers and reversing their bit order.
  */
 export function bitrev(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'bitrev');
 
     function valat(i: number): number {
         if (!i) { return 0; }
@@ -356,7 +356,7 @@ export function bitrev(n: number): number[] {
  * Return the first n numbers, starting from 0.
  */
 export function increment(n: number): number[] {
-    throwIfNotNonnegInt(n);
+    throwIfNotNonnegInt(n, 'increment');
 
     return mapRange(v => v, n);
 }
@@ -369,7 +369,7 @@ export function increment(n: number): number[] {
  * Return a series of length n where all values are val.
  */
 export function constant<T>(n: number, val: T): T[] {
-    throwIfNotNonnegInt(n, 'first argument');
+    throwIfNotNonnegInt(n, 'constant', 'first argument');
 
     return new Array(n).fill(val);
 }
@@ -378,9 +378,9 @@ export function constant<T>(n: number, val: T): T[] {
  * Return a floored linear series based on length and first and last values.
  */
 export function linear(n: number, first: number, last: number): number[] {
-    throwIfNotNonnegInt(n, 'first argument');
-    throwIfNotNumber(first, 'second argument');
-    throwIfNotNumber(last, 'third argument');
+    throwIfNotNonnegInt(n, 'linear', 'first argument');
+    throwIfNotNumber(first, 'linear', 'second argument');
+    throwIfNotNumber(last, 'linear', 'third argument');
 
     const grad = (last - first) / (n - 1);
 
@@ -392,12 +392,12 @@ export function linear(n: number, first: number, last: number): number[] {
  * by inc for each and ends as soon as the stop value has been passed.
  */
 export function step(start: number, stop: number, inc: number): number[] {
-    throwIfNotNumber(start, 'first argument');
-    throwIfNotNumber(stop, 'second argument');
-    throwIfNotNumber(inc, 'third argument');
+    throwIfNotNumber(start, 'step', 'first argument');
+    throwIfNotNumber(stop, 'step', 'second argument');
+    throwIfNotNumber(inc, 'step', 'third argument');
 
     if (!inc) {
-        throw new Error('Cannot step with zero increment.');
+        throw new Error('imports.step(): Cannot step with zero increment.');
     }
 
     const cmpfn = inc > 0 ? (x: number) => x <= stop : (x: number) => x >= stop;
@@ -416,9 +416,9 @@ export function step(start: number, stop: number, inc: number): number[] {
  * The pseudorandom seed can be passed if desired, otherwise a default is used.
  */
 export function xorshift(n: number, max: number, seed = 0x57B37C1E): number[] {
-    throwIfNotNonnegInt(n, 'first argument');
-    throwIfNotNonnegInt(max, 'second argument');
-    throwIfNotNonnegInt(seed, 'third argument');
+    throwIfNotNonnegInt(n, 'xorshift', 'first argument');
+    throwIfNotNonnegInt(max, 'xorshift', 'second argument');
+    throwIfNotNonnegInt(seed, 'xorshift', 'third argument');
 
     const ret = new Array(n);
 
@@ -441,10 +441,10 @@ export function xorshift(n: number, max: number, seed = 0x57B37C1E): number[] {
  * The angle corresponding to the last member of the sequence is stop.
  */
 export function sinusoidal(n: number, width: number, firstAngle: number, lastAngle: number): number[] {
-    throwIfNotNonnegInt(n, 'first argument');
-    throwIfNotNumber(width, 'second argument');
-    throwIfNotNumber(firstAngle, 'third argument');
-    throwIfNotNumber(lastAngle, 'fourth argument');
+    throwIfNotNonnegInt(n, 'sinusoidal', 'first argument');
+    throwIfNotNumber(width, 'sinusoidal', 'second argument');
+    throwIfNotNumber(firstAngle, 'sinusoidal', 'third argument');
+    throwIfNotNumber(lastAngle, 'sinusoidal', 'fourth argument');
 
     const grad = (lastAngle - firstAngle) / (n - 1);
     const PI180 = Math.PI / 180;
@@ -497,7 +497,7 @@ export function func(n: number, fn: (i: number) => number): number[] {
         throw new Error('imports.func(): second argument must be a function');
     }
 
-    throwIfNotNonnegInt(n, 'first argument');
+    throwIfNotNonnegInt(n, 'func', 'first argument');
 
     return mapRange(fn, n);
 }

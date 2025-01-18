@@ -171,6 +171,74 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         return this.contents.map(e => e.nullableNumericValue());
     }
 
+    /**
+     * Returns a Map mapping pitches to how often they appear in the Sequence.
+     */
+    toPitchDistributionMap(): Map<number, number> {
+        const map: Map<number, number> = new Map();
+
+        this.toFlatPitches().forEach(v => {
+            map.set(v, (map.get(v) ?? 0) + 1);
+        });
+
+        return map;
+    }
+
+    /**
+     * Returns a Map mapping chords to how often they appear in the Sequence.
+     */
+    toChordDistributionMap(): Map<string, number> {
+        const map: Map<string, number> = new Map();
+
+        this.toPitches().forEach(v => {
+            const serialized = JSON.stringify(v);
+            map.set(serialized, (map.get(serialized) ?? 0) + 1);
+        });
+
+        return new Map(Array.from(map).map(([ p, ct ]) => [ JSON.parse(p), ct ]));
+    }
+
+    /**
+     * Returns a Map mapping pitches to their locations in the Sequence.
+     */
+    toPitchLocationMap(): Map<number, number[]> {
+        const map: Map<number, number[]> = new Map();
+
+        this.toPitches().forEach((v, i) => {
+            v.forEach(p => {
+                const curr = map.get(p);
+
+                if (curr) {
+                    curr.push(i);
+                } else {
+                    map.set(p, [ i ]);
+                }
+            });
+        });
+
+        return map;
+    }
+
+    /**
+     * Returns a Map mapping chords to their locations in the Sequence.
+     */
+    toChordLocationMap(): Map<number[], number[]> {
+        const map: Map<string, number[]> = new Map();
+
+        this.toPitches().forEach((v, i) => {
+            const serialized = JSON.stringify(v);
+            const curr = map.get(serialized);
+
+            if (curr) {
+                curr.push(i);
+            } else {
+                map.set(serialized, [ i ]);
+            }
+        });
+
+        return new Map(Array.from(map).map(([ p, ct ]) => [ JSON.parse(p), ct ]));
+    }
+
     /*
      * INFORMATION ABOUT THIS SEQUENCE
      */
