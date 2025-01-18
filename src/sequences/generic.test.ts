@@ -116,28 +116,62 @@ describe('Sequence.toPitchDistributionMap()', () => {
         ],
         [
             'an intseq',
-            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8]),
-            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
         [
             'a noteseq',
-            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8]),
-            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
         [
             'a chordseq',
-            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ] ]),
-            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
         [
             'a melody',
-            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ] ]),
-            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1], [ 4, 2 ], [ 5, 1 ], [ 8, 1 ] ]),
+            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
     ];
 
     test.each(table)('returns the expected map for %s', (_, s, ret) => {
         expect(s.toPitchDistributionMap()).toStrictEqual(ret);
+    });
+});
+
+describe('Sequence.toChordDistributionMap()', () => {
+    const table: [ string, AnySeq, Map<number[], number> ][] = [
+        [
+            'an empty intseq',
+            intseq([]),
+            new Map(),
+        ],
+        [
+            'an intseq',
+            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            new Map([ [ [ 1 ], 2 ], [ [ 2 ], 2 ], [ [ 3 ], 1 ], [ [ 4 ], 2 ], [ [ 5 ], 2 ], [ [ 8 ], 1 ] ]),
+        ],
+        [
+            'a noteseq',
+            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            new Map([ [ [ 1 ], 2 ], [ [ 2 ], 2 ], [ [ 3 ], 1 ], [ [ 4 ], 2 ], [ [ 5 ], 2 ], [ [ 8 ], 1 ], [ [], 2 ] ]),
+        ],
+        [
+            'a chordseq',
+            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            new Map([ [ [ 1, 2 ], 1 ], [ [ 1, 3, 4 ], 1 ], [ [ 5 ], 2 ], [ [ 2, 4, 8 ], 1 ], [ [], 2 ] ]),
+        ],
+        [
+            'a melody',
+            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            new Map([ [ [ 1, 2 ], 1 ], [ [ 1, 3, 4 ], 1 ], [ [ 5 ], 2 ], [ [ 2, 4, 8 ], 1 ], [ [], 2 ] ]),
+        ],
+    ];
+
+    test.each(table)('returns the expected map for %s', (_, s, ret) => {
+        expect(s.toChordDistributionMap()).toStrictEqual(ret);
     });
 });
 

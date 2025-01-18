@@ -189,6 +189,20 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         return map;
     }
 
+    /**
+     * Returns a Map mapping pitches to how often they appear in the Sequence.
+     */
+    toChordDistributionMap(): Map<string, number> {
+        const map: Map<string, number> = new Map();
+
+        this.toPitches().forEach(v => {
+            const serialized = JSON.stringify(v);
+            map.set(serialized, (map.get(serialized) ?? 0) + 1);
+        });
+
+        return new Map(Array.from(map).map(([ p, ct ]) => [ JSON.parse(p), ct ]));
+    }
+
     /*
      * INFORMATION ABOUT THIS SEQUENCE
      */
