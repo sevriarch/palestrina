@@ -530,11 +530,11 @@ export default class Collection<T> {
      */
     mapFirstIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
         if (typeof findfn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a finder function`);
+            throw new Error(`${this.constructor.name}.mapFirstIndex() requires a finder function`);
         }
 
         if (typeof mapfn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a mapper function`);
+            throw new Error(`${this.constructor.name}.mapFirstIndex() requires a mapper function`);
         }
 
         const ix = this.findFirstIndex(findfn);
@@ -563,6 +563,28 @@ export default class Collection<T> {
         const ix = this.findLastIndex(fn);
  
         return ix === null ? this : this.replaceIndices(ix, rep);
+    }
+
+    /**
+     * Return a new collection where the first value (if any) that matches the finder function
+     * will be mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     */
+    mapLastIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapLastIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapLastIndex() requires a mapper function`);
+        }
+
+        const ix = this.findLastIndex(findfn);
+ 
+        return ix === null ? this : this.mapIndices(ix, mapfn);
     }
 
     /**
