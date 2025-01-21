@@ -476,6 +476,10 @@ export default class Collection<T> {
     /**
      * Return a new Collection, where the values at the specified index or indices have
      * been mapped through the supplied function. Other values are left unchanged.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 9 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
      */
     mapIndices(pos: SeqIndices, fn: MapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -514,6 +518,28 @@ export default class Collection<T> {
         const ix = this.findFirstIndex(fn);
  
         return ix === null ? this : this.replaceIndices(ix, rep);
+    }
+
+    /**
+     * Return a new collection where the first value (if any) that matches the finder function
+     * will be mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     */
+    mapFirstIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a mapper function`);
+        }
+
+        const ix = this.findFirstIndex(findfn);
+ 
+        return ix === null ? this : this.mapIndices(ix, mapfn);
     }
 
     /**
