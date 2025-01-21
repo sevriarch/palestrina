@@ -474,6 +474,26 @@ export default class Collection<T> {
     }
 
     /**
+     * Return a new Collection, where the values at the specified index or indices have
+     * been mapped through the supplied function. Other values are left unchanged.
+     */
+    mapIndices(pos: SeqIndices, fn: MapperFn<T>): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
+        }
+
+        const locs = this.indices(pos).sort((a, b) => b - a); // last to first order
+
+        const contents = this.val(); // make a shallow copy for splicing
+
+        for (const ix of locs) {
+            contents.splice(ix, 1, fn(this.contents[ix], ix));
+        }
+
+        return this.construct(contents);
+    }
+
+    /**
      * Replace the first value in the Collection that matches the finder function.
      * New values can be a Collection, a Collection member, an array of Collection members,
      * or a function taking a Collection member and its position within the collection and

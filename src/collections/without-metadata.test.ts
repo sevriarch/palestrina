@@ -699,6 +699,33 @@ describe('Collection.replaceIndices()', () => {
     });
 });
 
+describe('Collection.mapIndices()', () => {
+    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.mapIndices([ 1, 2, 3 ], 55 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    const table: [ string, number[], MapperFn<number>, number[] ][] = [
+        [
+            'with a value from a function with arity one at multiple locations',
+            [ -5, -3, -3, -1 ],
+            v => v + 8,
+            [ 1, 10, 3, 12, 5, 14 ]
+        ],
+        [
+            'with a value from a function with arity two at multiple locations',
+            [ -5, -3, -1 ],
+            (v, i) => v + i,
+            [ 1, 3, 3, 7, 5, 11 ]
+        ],
+    ];
+
+    test.each(table)('replacing %s', (_, ix, fn, ret) => {
+        expect(c.mapIndices(ix, fn)).toStrictEqual(new Collection(ret));
+    });
+});
+
 describe('Collection.replaceFirstIndex()', () => {
     const c0 = new Collection([]);
     const c6 = new Collection([ 1, 4, 6, 4, 5, 4 ]);
