@@ -877,6 +877,30 @@ describe('Collection.mapLastIndex()', () => {
     });
 });
 
+describe('Collection.flatMapLastIndex()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.flatMapLastIndex(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapLastIndex(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.flatMapFirstIndex(v => v > 10, v => v + 4)).toBe(c);
+    });
+
+    test('finds first matching item by value and maps it by value', () => {
+        expect(c.flatMapLastIndex(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 4, 6, 4, 5, 8 ]));
+    });
+
+    test('finds first matching item by value and index and maps it by value and index', () => {
+        expect(c.flatMapLastIndex((_, i) => i % 2 == 1, (v, i) => [ v, i ])).toStrictEqual(new Collection([ 1, 4, 6, 4, 5, 4, 5 ]));
+    });
+});
+
 describe('Collection.replaceIf()', () => {
     const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
 

@@ -636,7 +636,7 @@ export default class Collection<T> {
     }
 
     /**
-     * Return a new collection where the first value (if any) that matches the finder function
+     * Return a new collection where the last value (if any) that matches the finder function
      * has been mapped through the mapper function.
      * 
      * @example
@@ -655,6 +655,28 @@ export default class Collection<T> {
         const ix = this.findLastIndex(findfn);
  
         return ix === null ? this : this.mapIndices(ix, mapfn);
+    }
+
+    /**
+     * Return a new collection where the last value (if any) that matches the finder function
+     * has been flat mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 3, 4, 8, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapLastIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     */
+    flatMapLastIndex(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapLastIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapLastIndex() requires a mapper function`);
+        }
+
+        const ix = this.findLastIndex(findfn);
+ 
+        return ix === null ? this : this.flatMapIndices(ix, mapfn);
     }
 
     /**
