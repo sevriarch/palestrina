@@ -894,6 +894,31 @@ describe('Collection.replaceNth()', () => {
     });
 });
 
+describe('Collection.mapNth()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    const errortable: [ string, number, number | undefined ][] = [
+        [ 'non-integer argument', 0.5, undefined ],
+        [ 'zero argument', 0, undefined ],
+        [ 'non-integer offset', 1, 0.5 ],
+        [ 'negative offset', 1, -1 ],
+    ];
+
+    test.each(errortable)('throws an error with a %s', (_, n, offset) => {
+        expect(() => c.mapNth(n, v => v + 4, offset)).toThrow();
+    });
+
+    const table: [ string, number, MapperFn<number>, number | undefined, number[] ][] = [
+        [ 'member', 1, v => -v, undefined, [ -1, -5, -4, -2, -3, -6 ] ],
+        [ 'member, with offset, with its index', 1, (_, i) => i, 3, [ 1, 5, 4, 3, 4, 5 ] ],
+        [ 'third member, with offset', 3, (v, i) => v + i, 1, [ 1, 6, 4, 2, 7, 6] ],
+    ];
+
+    test.each(table)('replacing every %s', (_, fn, rep, offset, ret) => {
+        expect(c.mapNth(fn, rep, offset)).toStrictEqual(new Collection(ret));
+    });
+});
+
 describe('Collection.replaceSlice()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
