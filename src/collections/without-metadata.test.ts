@@ -1086,6 +1086,24 @@ describe('Collection.mapSlice()', () => {
     });
 });
 
+describe('Collection.flatMapSlice()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    test('throws an error if a function is not passed', () => {
+        expect(() => c.flatMapSlice(1, 2, 555 as unknown as FlatMapperFn<number>)).toThrow();
+    });
+
+    const table: [ string, number, number, FlatMapperFn<number>, number[] ][] = [
+        [ 'adding one to the first three members', 0, 3, v => v + 1, [ 2, 6, 5, 2, 3, 6 ] ],
+        [ 'replacing the last three members with multiple values', 3, 6, (v, i) => [ v + i, v - i ], [ 1, 5, 4, 5, -1, 7, -1, 11, 1 ] ],
+        [ 'mapping an empty slice does nothing', 2, 2, () => [ 55, 66 ], [ 1, 5, 4, 2, 3, 6 ] ],
+    ];
+
+    test.each(table)('%s', (_, start, end, fn, ret) => {
+        expect(c.flatMapSlice(start, end, fn)).toStrictEqual(new Collection(ret));
+    });
+});
+
 describe('Collection.append()', () => {
     class CX extends Collection<number> {}
 

@@ -837,7 +837,7 @@ export default class Collection<T> {
 
     /**
      * Map a slice of the Collection through a mapper function while retaining the
-     * values from the rest of the original Collection. Returns a new Sequence.
+     * values from the rest of the original Collection. Returns a new Collection.
      * 
      * @example
      * // returns intseq([ 1, 6, 5, 4, 5 ])
@@ -851,6 +851,24 @@ export default class Collection<T> {
         const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
     
         return p1.append(p2.map(fn), p3);
+    }
+
+    /**
+     * Flat map a slice of the Collection through a mapper function while retaining the
+     * values from the rest of the original Collection. Return a new Collection.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 6, 2, 3, 5, 3, 4, 4, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapSlice(1, -1, [ m, m => m.invert(4), m ])
+     */
+    flatMapSlice(start: number, end: number, fn: FlatMapperFn<T>): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapSlice() requires a function`);
+        }
+    
+        const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
+    
+        return p1.append(p2.flatMap(fn), p3);
     }
 
     /**
