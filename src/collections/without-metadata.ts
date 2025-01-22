@@ -408,7 +408,13 @@ export default class Collection<T> {
      */
 
     protected replaceRelative(pos: SeqIndices, rep: Replacer<T, T>, len: number, offset: number): this {
-        const locs = this.indices(pos).sort((a, b) => b - a); // last to first order
+        const locs = this.indices(pos);
+
+        if (!locs.length) {
+            return this;
+        }
+
+        locs.sort((a, b) => b - a); // last to first order
 
         const contents = this.val(); // make a shallow copy for splicing
 
@@ -474,6 +480,72 @@ export default class Collection<T> {
     }
 
     /**
+     * Return a new Collection, where the values at the specified index or indices have
+     * been mapped through the supplied function. Other values are left unchanged.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 9 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
+     */
+    mapIndices(pos: SeqIndices, fn: MapperFn<T>): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
+        }
+
+        const locs = this.indices(pos);
+
+        if (!locs.length) {
+            return this;
+        }
+
+        locs.sort((a, b) => b - a); // last to first order
+
+        const contents = this.val(); // make a shallow copy for splicing
+
+        for (const ix of locs) {
+            contents.splice(ix, 1, fn(this.contents[ix], ix));
+        }
+
+        return this.construct(contents);
+    }
+
+    /**
+     * Return a new Collection, where the values at the specified index or indices have
+     * been flat mapped through the supplied function. Other values are left unchanged.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 9 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
+     */
+    flatMapIndices(pos: SeqIndices, fn: FlatMapperFn<T>): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
+        }
+
+        const locs = this.indices(pos);
+
+        if (!locs.length) {
+            return this;
+        }
+
+        locs.sort((a, b) => b - a); // last to first order
+
+        const contents = this.val(); // make a shallow copy for splicing
+
+        for (const ix of locs) {
+            const rep = fn(contents[ix], ix);
+
+            if (Array.isArray(rep)) {
+                contents.splice(ix, 1, ...rep);
+            } else {
+                contents.splice(ix, 1, rep);
+            }
+        }
+
+        return this.construct(contents);
+    }
+
+    /**
      * Replace the first value in the Collection that matches the finder function.
      * New values can be a Collection, a Collection member, an array of Collection members,
      * or a function taking a Collection member and its position within the collection and
@@ -494,6 +566,50 @@ export default class Collection<T> {
         const ix = this.findFirstIndex(fn);
  
         return ix === null ? this : this.replaceIndices(ix, rep);
+    }
+
+    /**
+     * Return a new collection where the first value (if any) that matches the finder function
+     * has been mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     */
+    mapFirstIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapFirstIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapFirstIndex() requires a mapper function`);
+        }
+
+        const ix = this.findFirstIndex(findfn);
+ 
+        return ix === null ? this : this.mapIndices(ix, mapfn);
+    }
+
+    /**
+     * Return a new collection where the first value (if any) that matches the finder function
+     * has been flat mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 6, 2, 3, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapFirstIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     */
+    flatMapFirstIndex(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapFirstIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapFirstIndex() requires a mapper function`);
+        }
+
+        const ix = this.findFirstIndex(findfn);
+ 
+        return ix === null ? this : this.flatMapIndices(ix, mapfn);
     }
 
     /**
@@ -520,6 +636,50 @@ export default class Collection<T> {
     }
 
     /**
+     * Return a new collection where the last value (if any) that matches the finder function
+     * has been mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 3, 8, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     */
+    mapLastIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapLastIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapLastIndex() requires a mapper function`);
+        }
+
+        const ix = this.findLastIndex(findfn);
+ 
+        return ix === null ? this : this.mapIndices(ix, mapfn);
+    }
+
+    /**
+     * Return a new collection where the last value (if any) that matches the finder function
+     * has been flat mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 3, 4, 8, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapLastIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     */
+    flatMapLastIndex(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapLastIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapLastIndex() requires a mapper function`);
+        }
+
+        const ix = this.findLastIndex(findfn);
+ 
+        return ix === null ? this : this.flatMapIndices(ix, mapfn);
+    }
+
+    /**
      * Replace all values in the Collection that match the finder function.
      * New values can be a Collection, a Collection member, an array of Collection members,
      * or a function taking a Collection member and its position within the collection and
@@ -541,6 +701,46 @@ export default class Collection<T> {
     }
 
     /**
+     * Create a new Collection where values that match the finder function have been mapped
+     * through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 8, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapIf(v => v.val() % 2 === 0, v => v.transpose(4))
+     */
+    mapIf(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIf() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIf() requires a mapper function`);
+        }
+
+        return this.mapIndices(this.findIndices(findfn), mapfn);
+    }
+
+    /**
+     * Create a new Collection where values that match the finder function have been flat 
+     * mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 6, 2, 3, 4, 8, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapIf(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     */
+    flatMapIf(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapIf() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapIf() requires a mapper function`);
+        }
+
+        return this.flatMapIndices(this.findIndices(findfn), mapfn);
+    }
+
+    /**
      * Replace every nth values in the Collection, optionally starting after an offset.
      * New values can be a Collection, a Collection member, an array of Collection members,
      * or a function taking a Collection member and its position within the collection and
@@ -555,7 +755,7 @@ export default class Collection<T> {
      */
     replaceNth(n: number, rep: Replacer<T, T>, offset = 0): this {
         if (!isPosInt(n)) {
-            throw new Error(`${this.constructor.name}.keepNth(): argument must be a positive integer`);
+            throw new Error(`${this.constructor.name}.replaceNth(): argument must be a positive integer`);
         }
 
         if (!isNonnegInt(offset)) {
@@ -563,6 +763,56 @@ export default class Collection<T> {
         }
 
         return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacer(rep, v, i) : v);
+    }
+
+    /**
+     * Create a new collection where every nth value has been mapped through the supplied
+     * mapper function. If an offset is supplied, replacement will start at that index,
+     * otherwise it starts at the first member of the collection.
+     * 
+     * @example
+     * // returns intseq([ 5, 2, 3, 8, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => v.transpose(4))
+     */
+    mapNth(n: number, fn: MapperFn<T>, offset = 0): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapNth() requires a function`);
+        }
+
+        if (!isPosInt(n)) {
+            throw new Error(`${this.constructor.name}.mapNth(): argument must be a positive integer`);
+        }
+
+        if (!isNonnegInt(offset)) {
+            throw new Error(`${this.constructor.name}.mapNth(): offset must be a non-negative integer`);
+        }
+
+        return this.map((v, i) => i >= offset && ((i - offset) % n) === 0 ? fn(v, i) : v);
+    }
+
+    /**
+     * Create a new collection where every nth value has been mapped through the supplied
+     * mapper function. If an offset is supplied, replacement will start at that index,
+     * otherwise it starts at the first member of the collection.
+     * 
+     * @example
+     * // returns intseq([ 1, 5, 1, 2, 3, 4, 8, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => [ v, v.transpose(4), v ])
+     */
+    flatMapNth(n: number, fn: FlatMapperFn<T>, offset = 0): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapNth() requires a function`);
+        }
+
+        if (!isPosInt(n)) {
+            throw new Error(`${this.constructor.name}.flatMapNth(): argument must be a positive integer`);
+        }
+
+        if (!isNonnegInt(offset)) {
+            throw new Error(`${this.constructor.name}.flatMapNth(): offset must be a non-negative integer`);
+        }
+
+        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? fn(v, i) : v);
     }
 
     /**
@@ -587,7 +837,7 @@ export default class Collection<T> {
 
     /**
      * Map a slice of the Collection through a mapper function while retaining the
-     * values from the rest of the original Collection. Returns a new Sequence.
+     * values from the rest of the original Collection. Returns a new Collection.
      * 
      * @example
      * // returns intseq([ 1, 6, 5, 4, 5 ])
@@ -601,6 +851,24 @@ export default class Collection<T> {
         const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
     
         return p1.append(p2.map(fn), p3);
+    }
+
+    /**
+     * Flat map a slice of the Collection through a mapper function while retaining the
+     * values from the rest of the original Collection. Return a new Collection.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 6, 2, 3, 5, 3, 4, 4, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapSlice(1, -1, [ m, m => m.invert(4), m ])
+     */
+    flatMapSlice(start: number, end: number, fn: FlatMapperFn<T>): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapSlice() requires a function`);
+        }
+    
+        const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
+    
+        return p1.append(p2.flatMap(fn), p3);
     }
 
     /**

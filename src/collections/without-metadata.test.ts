@@ -699,78 +699,276 @@ describe('Collection.replaceIndices()', () => {
     });
 });
 
-describe('Collection.replaceFirstIndex()', () => {
-    const c0 = new Collection([]);
-    const c6 = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+describe('Collection.mapIndices()', () => {
+    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
 
-    test('fails when a non-function passed as finder function', () => {
-        expect(() => c6.replaceFirstIndex(555 as unknown as FinderFn<number>, 1)).toThrow();
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.mapIndices([ 1, 2, 3 ], 55 as unknown as MapperFn<number>)).toThrow();
     });
 
-    test('nothing found or replaced in an empty collection', () => {
-        expect(c0.replaceFirstIndex(() => true, 10 as unknown as Replacer<never, never>)).toStrictEqual(c0);
+    const table: [ string, number[], MapperFn<number>, number[] ][] = [
+        [
+            'with a value from a function with arity one at multiple locations',
+            [ -5, -3, -3, -1 ],
+            v => v + 8,
+            [ 1, 10, 3, 12, 5, 14 ]
+        ],
+        [
+            'with a value from a function with arity two at multiple locations',
+            [ -5, -3, -1 ],
+            (v, i) => v + i,
+            [ 1, 3, 3, 7, 5, 11 ]
+        ],
+    ];
+
+    test.each(table)('replacing %s', (_, ix, fn, ret) => {
+        expect(c.mapIndices(ix, fn)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.flatMapIndices()', () => {
+    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapIndices([ 1, 2, 3 ], 55 as unknown as (v: number, i: number) => number[])).toThrow();
+    });
+
+    const table: [ string, number[], FlatMapperFn<number>, number[] ][] = [
+        [
+            'with either an array or a value',
+            [ 0, 2, 4 ],
+            v => v > 3 ? 1 : [ 1, 1 ],
+            [ 1, 1, 2, 1, 1, 4, 1, 6 ],
+        ],
+        [
+            'with values from a function with arity one at multiple locations',
+            [ -5, -3, -3, -1 ],
+            v => v > 5 ? [] : [ v, v + 5, v + 10 ],
+            [ 1, 2, 7, 12, 3, 4, 9, 14, 9, 14, 5 ],
+        ],
+        [
+            'with a value from a function with arity two at multiple locations',
+            [ -5, -3, -1 ],
+            (v, i) => [ v, i ],
+            [ 1, 2, 1, 3, 4, 3, 5, 6, 5 ]
+        ],
+    ];
+
+    test.each(table)('replacing %s', (_, ix, fn, ret) => {
+        expect(c.flatMapIndices(ix, fn)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.replaceFirstIndex()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.replaceFirstIndex(555 as unknown as FinderFn<number>, 1)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.replaceFirstIndex(v => v === 3, 10)).toBe(c);
     });
 
     const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
-        [ 'nothing found or replaced when function never matches', v => v === 3, 10, [ 1, 4, 6, 4, 5, 4 ] ],
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds first matching item and replaces with one item', v => v === 4, 10, [ 1, 10, 6, 4, 5, 4 ] ],
         [ 'finds first matching item and replaces with two items from function of arity two', v => v === 4, (v, i) => [ -v, -i ], [ 1, -4, -1, 6, 4, 5, 4 ] ],
-        [ 'finds only matching item and replaces with a collection', v => v < 3, c6, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
+        [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
     ];
 
     test.each(table)('%s', (_, fn, rep, ret) => {
-        expect(c6.replaceFirstIndex(fn, rep)).toStrictEqual(new Collection(ret));
+        expect(c.replaceFirstIndex(fn, rep)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.mapFirstIndex()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.mapFirstIndex(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.mapFirstIndex(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.mapFirstIndex(v => v > 10, v => v + 4)).toBe(c);
+    });
+
+    test('finds first matching item by value and maps it by value', () => {
+        expect(c.mapFirstIndex(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 8, 6, 4, 5, 4 ]));
+    });
+
+    test('finds first matching item by value and index and maps it by value and index', () => {
+        expect(c.mapFirstIndex((_, i) => i % 2 == 1, (v, i) => v + i)).toStrictEqual(new Collection([ 1, 5, 6, 4, 5, 4 ]));
+    });
+});
+
+describe('Collection.flatMapFirstIndex()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.flatMapFirstIndex(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapFirstIndex(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.flatMapFirstIndex(v => v > 10, v => v + 4)).toBe(c);
+    });
+
+    test('finds first matching item by value and maps it by value', () => {
+        expect(c.flatMapFirstIndex(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 8, 6, 4, 5, 4 ]));
+    });
+
+    test('finds first matching item by value and index and maps it by value and index', () => {
+        expect(c.flatMapFirstIndex((_, i) => i % 2 == 1, (v, i) => [ v, i ])).toStrictEqual(new Collection([ 1, 4, 1, 6, 4, 5, 4 ]));
     });
 });
 
 describe('Collection.replaceLastIndex()', () => {
-    const c0 = new Collection([]);
-    const c6 = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
 
     test('fails when a non-function passed as finder function', () => {
-        expect(() => c6.replaceLastIndex(555 as unknown as FinderFn<number>, 1)).toThrow();
+        expect(() => c.replaceLastIndex(555 as unknown as FinderFn<number>, 1)).toThrow();
     });
 
-    test('nothing found or replaced in an empty collection', () => {
-        expect(c0.replaceLastIndex(() => true, 10 as unknown as Replacer<never, never>)).toStrictEqual(c0);
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.replaceLastIndex(v => v === 3, 10)).toBe(c);
     });
 
     const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
-        [ 'nothing found or replaced when function never matches', v => v === 3, 10, [ 1, 4, 6, 4, 5, 4 ] ],
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds last matching item and replaces with one item', v => v === 4, 10, [ 1, 4, 6, 4, 5, 10 ] ],
         [ 'finds last matching item and replaces with two items from function of arity two', v => v === 4, (v, i) => [ -v, -i ], [ 1, 4, 6, 4, 5, -4, -5 ] ],
-        [ 'finds only matching item and replaces with a collection', v => v < 3, c6, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
+        [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
     ];
 
     test.each(table)('%s', (_, fn, rep, ret) => {
-        expect(c6.replaceLastIndex(fn, rep)).toStrictEqual(new Collection(ret));
+        expect(c.replaceLastIndex(fn, rep)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.mapLastIndex()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.mapLastIndex(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.mapLastIndex(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.mapLastIndex(v => v > 10, v => v + 4)).toBe(c);
+    });
+
+    test('finds last matching item by value and maps it by value', () => {
+        expect(c.mapLastIndex(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 4, 6, 4, 5, 8 ]));
+    });
+
+    test('finds last matching item by value and index and maps it by value and index', () => {
+        expect(c.mapLastIndex((_, i) => i % 2 == 1, (v, i) => v + i)).toStrictEqual(new Collection([ 1, 4, 6, 4, 5, 9 ]));
+    });
+});
+
+describe('Collection.flatMapLastIndex()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.flatMapLastIndex(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapLastIndex(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.flatMapLastIndex(v => v > 10, v => v + 4)).toBe(c);
+    });
+
+    test('finds first matching item by value and maps it by value', () => {
+        expect(c.flatMapLastIndex(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 4, 6, 4, 5, 8 ]));
+    });
+
+    test('finds first matching item by value and index and maps it by value and index', () => {
+        expect(c.flatMapLastIndex((_, i) => i % 2 == 1, (v, i) => [ v, i ])).toStrictEqual(new Collection([ 1, 4, 6, 4, 5, 4, 5 ]));
     });
 });
 
 describe('Collection.replaceIf()', () => {
-    const c0 = new Collection([]);
-    const c6 = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
 
     test('fails when a non-function passed as finder function', () => {
-        expect(() => c6.replaceIf(555 as unknown as FinderFn<number>, 1)).toThrow();
+        expect(() => c.replaceIf(555 as unknown as FinderFn<number>, 1)).toThrow();
     });
 
-    test('nothing found or replaced in an empty collection', () => {
-        expect(c0.replaceIf(() => true, 10 as unknown as Replacer<never, never>)).toStrictEqual(c0);
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.replaceIf(v => v > 10, v => v + 4)).toBe(c);
     });
 
     const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
-        [ 'nothing found or replaced when function never matches', v => v === 3, 10, [ 1, 4, 6, 4, 5, 4 ] ],
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds matching items and replaces each with one item', v => v === 4, 10, [ 1, 10, 6, 10, 5, 10 ] ],
         [ 'finds matching items and replaces with two items from function of arity two', v => v === 4, (v, i) => [ -v, -i ], [ 1, -4, -1, 6, -4, -3, 5, -4, -5 ] ],
-        [ 'finds only matching item and replaces with a collection', v => v < 3, c6, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
+        [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
     ];
 
     test.each(table)('%s', (_, fn, rep, ret) => {
-        expect(c6.replaceIf(fn, rep)).toStrictEqual(new Collection(ret));
+        expect(c.replaceIf(fn, rep)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.mapIf()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.mapIf(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.mapIf(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.mapIf(v => v === 3, v => v + 4)).toBe(c);
+    });
+
+    test('finds all matching items by value and maps them by value', () => {
+        expect(c.mapIf(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 8, 6, 8, 5, 8 ]));
+    });
+
+    test('finds all matching items by value and index and maps them by value and index', () => {
+        expect(c.mapIf((_, i) => i % 2 == 1, (v, i) => v + i)).toStrictEqual(new Collection([ 1, 5, 6, 7, 5, 9 ]));
+    });
+});
+
+describe('Collection.flatMapIf()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.flatMapIf(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapIf(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.flatMapIf(v => v === 3, v => v + 4)).toBe(c);
+    });
+
+    test('finds all matching items by value and maps them by value', () => {
+        expect(c.flatMapIf(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 8, 6, 8, 5, 8 ]));
+    });
+
+    test('finds all matching items by value and index and maps them by value and index', () => {
+        expect(c.flatMapIf((_, i) => i % 2 == 1, (v, i) => [ v, i ])).toStrictEqual(new Collection([ 1, 4, 1, 6, 4, 3, 5, 4, 5 ]));
     });
 });
 
@@ -798,6 +996,58 @@ describe('Collection.replaceNth()', () => {
 
     test.each(table)('replacing every %s', (_, fn, rep, offset, ret) => {
         expect(c.replaceNth(fn, rep, offset)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.mapNth()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    const errortable: [ string, number, MapperFn<number>, number | undefined ][] = [
+        [ 'non-integer argument', 0.5, v => v, undefined ],
+        [ 'zero argument', 0, v => v, undefined ],
+        [ 'non-integer offset', 1, v => v, 0.5 ],
+        [ 'negative offset', 1, v => v, -1 ],
+        [ 'non-function mapper', 1, 5 as unknown as MapperFn<number>, 1 ],
+    ];
+
+    test.each(errortable)('throws an error with a %s', (_, n, fn, offset) => {
+        expect(() => c.mapNth(n, fn, offset)).toThrow();
+    });
+
+    const table: [ string, number, MapperFn<number>, number | undefined, number[] ][] = [
+        [ 'member', 1, v => -v, undefined, [ -1, -5, -4, -2, -3, -6 ] ],
+        [ 'member, with offset, with its index', 1, (_, i) => i, 3, [ 1, 5, 4, 3, 4, 5 ] ],
+        [ 'third member, with offset', 3, (v, i) => v + i, 1, [ 1, 6, 4, 2, 7, 6] ],
+    ];
+
+    test.each(table)('replacing every %s', (_, n, fn, offset, ret) => {
+        expect(c.mapNth(n, fn, offset)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.flatMapNth()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    const errortable: [ string, number, FlatMapperFn<number>, number | undefined ][] = [
+        [ 'non-integer argument', 0.5, v => v, undefined ],
+        [ 'zero argument', 0, v => v, undefined ],
+        [ 'non-integer offset', 1, v => v, 0.5 ],
+        [ 'negative offset', 1, v => v, -1 ],
+        [ 'non-function mapper', 1, 5 as unknown as FlatMapperFn<number>, 1 ],
+    ];
+
+    test.each(errortable)('throws an error with a %s', (_, n, fn, offset) => {
+        expect(() => c.flatMapNth(n, fn, offset)).toThrow();
+    });
+
+    const table: [ string, number, FlatMapperFn<number>, number | undefined, number[] ][] = [
+        [ 'member', 1, v => -v, undefined, [ -1, -5, -4, -2, -3, -6 ] ],
+        [ 'member, with offset, with its index', 1, (_, i) => i, 3, [ 1, 5, 4, 3, 4, 5 ] ],
+        [ 'third member, with offset', 3, (v, i) => [ v, i ], 1, [ 1, 5, 1, 4, 2, 3, 4, 6] ],
+    ];
+
+    test.each(table)('replacing every %s', (_, n, fn, offset, ret) => {
+        expect(c.flatMapNth(n, fn, offset)).toStrictEqual(new Collection(ret));
     });
 });
 
@@ -833,6 +1083,24 @@ describe('Collection.mapSlice()', () => {
 
     test.each(table)('%s', (_, start, end, fn, ret) => {
         expect(c.mapSlice(start, end, fn)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.flatMapSlice()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    test('throws an error if a function is not passed', () => {
+        expect(() => c.flatMapSlice(1, 2, 555 as unknown as FlatMapperFn<number>)).toThrow();
+    });
+
+    const table: [ string, number, number, FlatMapperFn<number>, number[] ][] = [
+        [ 'adding one to the first three members', 0, 3, v => v + 1, [ 2, 6, 5, 2, 3, 6 ] ],
+        [ 'replacing the last three members with multiple values', 3, 6, (v, i) => [ v + i, v - i ], [ 1, 5, 4, 2, 2, 4, 2, 8, 4 ] ],
+        [ 'mapping an empty slice does nothing', 2, 2, () => [ 55, 66 ], [ 1, 5, 4, 2, 3, 6 ] ],
+    ];
+
+    test.each(table)('%s', (_, start, end, fn, ret) => {
+        expect(c.flatMapSlice(start, end, fn)).toStrictEqual(new Collection(ret));
     });
 });
 
