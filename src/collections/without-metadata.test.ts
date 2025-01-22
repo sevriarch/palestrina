@@ -897,15 +897,16 @@ describe('Collection.replaceNth()', () => {
 describe('Collection.mapNth()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
-    const errortable: [ string, number, number | undefined ][] = [
-        [ 'non-integer argument', 0.5, undefined ],
-        [ 'zero argument', 0, undefined ],
-        [ 'non-integer offset', 1, 0.5 ],
-        [ 'negative offset', 1, -1 ],
+    const errortable: [ string, number, MapperFn<number>, number | undefined ][] = [
+        [ 'non-integer argument', 0.5, v => v, undefined ],
+        [ 'zero argument', 0, v => v, undefined ],
+        [ 'non-integer offset', 1, v => v, 0.5 ],
+        [ 'negative offset', 1, v => v, -1 ],
+        [ 'non-function mapper', 1, 5 as unknown as MapperFn<number>, 1 ],
     ];
 
-    test.each(errortable)('throws an error with a %s', (_, n, offset) => {
-        expect(() => c.mapNth(n, v => v + 4, offset)).toThrow();
+    test.each(errortable)('throws an error with a %s', (_, n, fn, offset) => {
+        expect(() => c.mapNth(n, fn, offset)).toThrow();
     });
 
     const table: [ string, number, MapperFn<number>, number | undefined, number[] ][] = [

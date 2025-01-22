@@ -630,11 +630,11 @@ export default class Collection<T> {
      */
     mapIf(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
         if (typeof findfn !== 'function') {
-            throw new Error(`${this.constructor.name}.mapLastIndex() requires a finder function`);
+            throw new Error(`${this.constructor.name}.mapIf() requires a finder function`);
         }
 
         if (typeof mapfn !== 'function') {
-            throw new Error(`${this.constructor.name}.mapLastIndex() requires a mapper function`);
+            throw new Error(`${this.constructor.name}.mapIf() requires a mapper function`);
         }
 
         return this.mapIndices(this.findIndices(findfn), mapfn);
@@ -655,7 +655,7 @@ export default class Collection<T> {
      */
     replaceNth(n: number, rep: Replacer<T, T>, offset = 0): this {
         if (!isPosInt(n)) {
-            throw new Error(`${this.constructor.name}.keepNth(): argument must be a positive integer`);
+            throw new Error(`${this.constructor.name}.replaceNth(): argument must be a positive integer`);
         }
 
         if (!isNonnegInt(offset)) {
@@ -676,15 +676,15 @@ export default class Collection<T> {
      */
     mapNth(n: number, fn: MapperFn<T>, offset = 0): this {
         if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceIf() requires a function`);
+            throw new Error(`${this.constructor.name}.mapNth() requires a function`);
         }
 
         if (!isPosInt(n)) {
-            throw new Error(`${this.constructor.name}.keepNth(): argument must be a positive integer`);
+            throw new Error(`${this.constructor.name}.mapNth(): argument must be a positive integer`);
         }
 
         if (!isNonnegInt(offset)) {
-            throw new Error(`${this.constructor.name}.replaceNth(): offset must be a non-negative integer`);
+            throw new Error(`${this.constructor.name}.mapNth(): offset must be a non-negative integer`);
         }
 
         return this.map((v, i) => i >= offset && ((i - offset) % n) === 0 ? fn(v, i) : v);
