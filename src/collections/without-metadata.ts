@@ -762,7 +762,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.replaceNth(): offset must be a non-negative integer`);
         }
 
-        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacer(rep, v, i) : [ v ]);
+        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacer(rep, v, i) : v);
     }
 
     /**
