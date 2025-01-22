@@ -4,11 +4,17 @@
 
 ### Features
 * The following collection replacer methods now also have `map` and `flatMap` variants, to help clarify intent:
+
 ** `replaceIndices()`
+
 ** `replaceFirstIndex()`
+
 ** `replaceLastIndex()`
+
 ** `replaceIf()`
+
 ** `replaceNth()`
+
 ** `replaceSlice()`
 
 ## 0.5.0
