@@ -889,7 +889,7 @@ describe('Collection.flatMapLastIndex()', () => {
     });
 
     test('nothing found or replaced when function never matches', () => {
-        expect(c.flatMapFirstIndex(v => v > 10, v => v + 4)).toBe(c);
+        expect(c.flatMapLastIndex(v => v > 10, v => v + 4)).toBe(c);
     });
 
     test('finds first matching item by value and maps it by value', () => {
