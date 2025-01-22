@@ -510,6 +510,42 @@ export default class Collection<T> {
     }
 
     /**
+     * Return a new Collection, where the values at the specified index or indices have
+     * been flat mapped through the supplied function. Other values are left unchanged.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 4, 9 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
+     */
+    flatMapIndices(pos: SeqIndices, fn: FlatMapperFn<T>): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
+        }
+
+        const locs = this.indices(pos);
+
+        if (!locs.length) {
+            return this;
+        }
+
+        locs.sort((a, b) => b - a); // last to first order
+
+        const contents = this.val(); // make a shallow copy for splicing
+
+        for (const ix of locs) {
+            const rep = fn(contents[ix], ix);
+
+            if (Array.isArray(rep)) {
+                contents.splice(ix, 1, ...rep);
+            } else {
+                contents.splice(ix, 1, rep);
+            }
+        }
+
+        return this.construct(contents);
+    }
+
+    /**
      * Replace the first value in the Collection that matches the finder function.
      * New values can be a Collection, a Collection member, an array of Collection members,
      * or a function taking a Collection member and its position within the collection and
@@ -662,7 +698,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.replaceNth(): offset must be a non-negative integer`);
         }
 
-        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacer(rep, v, i) : v);
+        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacer(rep, v, i) : [ v ]);
     }
 
     /**

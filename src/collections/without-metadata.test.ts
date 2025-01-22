@@ -726,6 +726,39 @@ describe('Collection.mapIndices()', () => {
     });
 });
 
+describe('Collection.flatMapIndices()', () => {
+    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapIndices([ 1, 2, 3 ], 55 as unknown as (v: number, i: number) => number[])).toThrow();
+    });
+
+    const table: [ string, number[], FlatMapperFn<number>, number[] ][] = [
+        [
+            'with either an array or a value',
+            [ 0, 2, 4 ],
+            v => v > 3 ? 1 : [ 1, 1 ],
+            [ 1, 1, 2, 1, 1, 4, 1, 6 ],
+        ],
+        [
+            'with values from a function with arity one at multiple locations',
+            [ -5, -3, -3, -1 ],
+            v => v > 5 ? [] : [ v, v + 5, v + 10 ],
+            [ 1, 2, 7, 12, 3, 4, 9, 14, 9, 14, 5 ],
+        ],
+        [
+            'with a value from a function with arity two at multiple locations',
+            [ -5, -3, -1 ],
+            (v, i) => [ v, i ],
+            [ 1, 2, 1, 3, 4, 3, 5, 6, 5 ]
+        ],
+    ];
+
+    test.each(table)('replacing %s', (_, ix, fn, ret) => {
+        expect(c.flatMapIndices(ix, fn)).toStrictEqual(new Collection(ret));
+    });
+});
+
 describe('Collection.replaceFirstIndex()', () => {
     const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
 
