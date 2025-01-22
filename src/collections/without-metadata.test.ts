@@ -1095,7 +1095,7 @@ describe('Collection.flatMapSlice()', () => {
 
     const table: [ string, number, number, FlatMapperFn<number>, number[] ][] = [
         [ 'adding one to the first three members', 0, 3, v => v + 1, [ 2, 6, 5, 2, 3, 6 ] ],
-        [ 'replacing the last three members with multiple values', 3, 6, (v, i) => [ v + i, v - i ], [ 1, 5, 4, 5, -1, 7, -1, 11, 1 ] ],
+        [ 'replacing the last three members with multiple values', 3, 6, (v, i) => [ v + i, v - i ], [ 1, 5, 4, 2, 2, 4, 2, 8, 4 ] ],
         [ 'mapping an empty slice does nothing', 2, 2, () => [ 55, 66 ], [ 1, 5, 4, 2, 3, 6 ] ],
     ];
 
