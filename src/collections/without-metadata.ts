@@ -408,7 +408,13 @@ export default class Collection<T> {
      */
 
     protected replaceRelative(pos: SeqIndices, rep: Replacer<T, T>, len: number, offset: number): this {
-        const locs = this.indices(pos).sort((a, b) => b - a); // last to first order
+        const locs = this.indices(pos);
+
+        if (!locs.length) {
+            return this;
+        }
+
+        locs.sort((a, b) => b - a); // last to first order
 
         const contents = this.val(); // make a shallow copy for splicing
 
@@ -486,7 +492,13 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
         }
 
-        const locs = this.indices(pos).sort((a, b) => b - a); // last to first order
+        const locs = this.indices(pos);
+
+        if (!locs.length) {
+            return this;
+        }
+
+        locs.sort((a, b) => b - a); // last to first order
 
         const contents = this.val(); // make a shallow copy for splicing
 
@@ -570,8 +582,8 @@ export default class Collection<T> {
      * will be mapped through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 6, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     * // returns intseq([ 1, 2, 3, 8, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
     mapLastIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
         if (typeof findfn !== 'function') {
@@ -606,6 +618,26 @@ export default class Collection<T> {
         }
 
         return this.replaceIndices(this.findIndices(fn), rep);
+    }
+
+    /**
+     * Create a new Collection where values that match the finder function have been mapped
+     * through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 6, 3, 8, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapIf(v => v.val() % 2 === 0, v => v.transpose(4))
+     */
+    mapIf(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapLastIndex() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.mapLastIndex() requires a mapper function`);
+        }
+
+        return this.mapIndices(this.findIndices(findfn), mapfn);
     }
 
     /**
