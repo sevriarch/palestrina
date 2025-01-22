@@ -791,6 +791,31 @@ export default class Collection<T> {
     }
 
     /**
+     * Create a new collection where every nth value has been mapped through the supplied
+     * mapper function. If an offset is supplied, replacement will start at that index,
+     * otherwise it starts at the first member of the collection.
+     * 
+     * @example
+     * // returns intseq([ 1, 5, 1, 2, 3, 4, 8, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => [ v, v.transpose(4), v ])
+     */
+    flatMapNth(n: number, fn: FlatMapperFn<T>, offset = 0): this {
+        if (typeof fn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapNth() requires a function`);
+        }
+
+        if (!isPosInt(n)) {
+            throw new Error(`${this.constructor.name}.flatMapNth(): argument must be a positive integer`);
+        }
+
+        if (!isNonnegInt(offset)) {
+            throw new Error(`${this.constructor.name}.flatMapNth(): offset must be a non-negative integer`);
+        }
+
+        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? fn(v, i) : v);
+    }
+
+    /**
      * Replace a slice of the Collection with a new Collection while retaining the values
      * from the rest of the original Collection.
      * New values can be a Collection, a Collection member, an array of Collection members,

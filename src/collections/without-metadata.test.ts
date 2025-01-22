@@ -1020,8 +1020,34 @@ describe('Collection.mapNth()', () => {
         [ 'third member, with offset', 3, (v, i) => v + i, 1, [ 1, 6, 4, 2, 7, 6] ],
     ];
 
-    test.each(table)('replacing every %s', (_, fn, rep, offset, ret) => {
-        expect(c.mapNth(fn, rep, offset)).toStrictEqual(new Collection(ret));
+    test.each(table)('replacing every %s', (_, n, fn, offset, ret) => {
+        expect(c.mapNth(n, fn, offset)).toStrictEqual(new Collection(ret));
+    });
+});
+
+describe('Collection.flatMapNth()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    const errortable: [ string, number, FlatMapperFn<number>, number | undefined ][] = [
+        [ 'non-integer argument', 0.5, v => v, undefined ],
+        [ 'zero argument', 0, v => v, undefined ],
+        [ 'non-integer offset', 1, v => v, 0.5 ],
+        [ 'negative offset', 1, v => v, -1 ],
+        [ 'non-function mapper', 1, 5 as unknown as FlatMapperFn<number>, 1 ],
+    ];
+
+    test.each(errortable)('throws an error with a %s', (_, n, fn, offset) => {
+        expect(() => c.flatMapNth(n, fn, offset)).toThrow();
+    });
+
+    const table: [ string, number, FlatMapperFn<number>, number | undefined, number[] ][] = [
+        [ 'member', 1, v => -v, undefined, [ -1, -5, -4, -2, -3, -6 ] ],
+        [ 'member, with offset, with its index', 1, (_, i) => i, 3, [ 1, 5, 4, 3, 4, 5 ] ],
+        [ 'third member, with offset', 3, (v, i) => [ v, i ], 1, [ 1, 5, 1, 4, 2, 3, 4, 6] ],
+    ];
+
+    test.each(table)('replacing every %s', (_, n, fn, offset, ret) => {
+        expect(c.flatMapNth(n, fn, offset)).toStrictEqual(new Collection(ret));
     });
 });
 
