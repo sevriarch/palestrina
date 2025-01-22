@@ -721,6 +721,26 @@ export default class Collection<T> {
     }
 
     /**
+     * Create a new Collection where values that match the finder function have been flat 
+     * mapped through the mapper function.
+     * 
+     * @example
+     * // returns intseq([ 1, 2, 6, 2, 3, 4, 8, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).flatMapIf(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     */
+    flatMapIf(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof findfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapIf() requires a finder function`);
+        }
+
+        if (typeof mapfn !== 'function') {
+            throw new Error(`${this.constructor.name}.flatMapIf() requires a mapper function`);
+        }
+
+        return this.flatMapIndices(this.findIndices(findfn), mapfn);
+    }
+
+    /**
      * Replace every nth values in the Collection, optionally starting after an offset.
      * New values can be a Collection, a Collection member, an array of Collection members,
      * or a function taking a Collection member and its position within the collection and

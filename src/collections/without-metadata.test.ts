@@ -948,6 +948,30 @@ describe('Collection.mapIf()', () => {
     });
 });
 
+describe('Collection.flatMapIf()', () => {
+    const c = new Collection([ 1, 4, 6, 4, 5, 4 ]);
+
+    test('fails when a non-function passed as finder function', () => {
+        expect(() => c.flatMapIf(555 as unknown as FinderFn<number>, v => v + 4)).toThrow();
+    });
+
+    test('fails when a non-function passed as mapper function', () => {
+        expect(() => c.flatMapIf(v => v === 3, 555 as unknown as MapperFn<number>)).toThrow();
+    });
+
+    test('nothing found or replaced when function never matches', () => {
+        expect(c.flatMapIf(v => v === 3, v => v + 4)).toBe(c);
+    });
+
+    test('finds all matching items by value and maps them by value', () => {
+        expect(c.flatMapIf(v => v === 4, v => v + 4)).toStrictEqual(new Collection([ 1, 8, 6, 8, 5, 8 ]));
+    });
+
+    test('finds all matching items by value and index and maps them by value and index', () => {
+        expect(c.flatMapIf((_, i) => i % 2 == 1, (v, i) => [ v, i ])).toStrictEqual(new Collection([ 1, 4, 1, 6, 4, 3, 5, 4, 5 ]));
+    });
+});
+
 describe('Collection.replaceNth()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
