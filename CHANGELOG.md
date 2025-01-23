@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.1
+
+### Documentation
+* Some minor errors and omissions corrected.
+
 ## 0.6.0
 
 ### Features
