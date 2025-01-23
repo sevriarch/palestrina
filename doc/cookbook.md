@@ -2,7 +2,7 @@
 
 This is a short document designed to illustrate some of the things you can easily do with Palestrina.
 
-### Write a MIDI file containing some music.
+### Write a MIDI file containing some music
 
 ```
 const { imports, melody, score } = require('palestrina')
@@ -250,11 +250,15 @@ score.expectHash(EXPECTED_HASH)
     .writeMidi(__filename);
 ```
 
+### Convert a MIDI file into a score
+```
+const newscore = score('myfile.mid');
+```
+
 ### Generate an HTML canvas visualization of the score
 
 There are a lot of options available for building score canvases, but a basic score canvas generation from a score object:
 ```
-score.writeMidi(__filename)
-    .writeCanvas(__filename, { wd_scale: 2 })
+score.writeCanvas(__filename, { wd_scale: 2 })
                             // ^ options go in this object
 ```

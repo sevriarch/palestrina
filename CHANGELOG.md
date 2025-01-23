@@ -1,15 +1,20 @@
 # Changelog
 
+## 0.6.1
+
+### Documentation
+* Some minor errors and omissions corrected.
+
 ## 0.6.0
 
 ### Features
 * The following collection replacer methods now also have `map` and `flatMap` variants, to help clarify intent:
-** `replaceIndices()`
-** `replaceFirstIndex()`
-** `replaceLastIndex()`
-** `replaceIf()`
-** `replaceNth()`
-** `replaceSlice()`
+  * `replaceIndices()`
+  * `replaceFirstIndex()`
+  * `replaceLastIndex()`
+  * `replaceIf()`
+  * `replaceNth()`
+  * `replaceSlice()`
 
 ## 0.5.0
 
@@ -30,7 +35,7 @@
 
 ### Enhancements
 * Palestrina now understands the MIDI names of percussion instruments.
-** Percussion instruments are still referred to by pitch to match the MIDI standard, and because this would be a very breaking change.
+  * Percussion instruments are still referred to by pitch to match the MIDI standard, and because this would be a very breaking change.
 
 ## 0.3.0
 
