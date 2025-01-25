@@ -142,7 +142,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Returns a data URI containing the MIDI data for this score.
      */
     toDataURI(): string {
-        return 'data:audio/midi;base64,' + Buffer.from(this.toMidiBytes()).toString('base64');
+        return midiWriter.toDataURI(this);
     }
 
     /**

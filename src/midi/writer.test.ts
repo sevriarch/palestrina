@@ -35,6 +35,14 @@ describe('midiWriter.writeToFile() tests', () => {
     });
 });
 
+describe('midiWriter.toDataURI()', () => {
+    test('returns the expected data URI', () => {
+        const entity = { toMidiBytes: () => [ 1, 2, 3 ] };
+
+        expect(midiWriter.toDataURI(entity)).toBe('data:audio/midi;base64,AQID');
+    });
+});
+
 describe('midiWriter.toHash() tests', () => {
     test('returns the expected hash value', () => {
         const entity = { toMidiBytes: () => [ 1, 2, 3 ] };

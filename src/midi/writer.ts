@@ -25,6 +25,13 @@ export function writeToFile(file: string, entity: Midifiable) {
 }
 
 /**
+ * Returns the MIDI bytes of this Score or Melody in the form of a data URI.
+ */
+export function toDataURI(entity: Midifiable): string {
+    return 'data:audio/midi;base64,' + Buffer.from(entity.toMidiBytes()).toString('base64');
+}
+
+/**
  * Returns a hash of the MIDI bytes for this Score or Melody.
  */
 export function toHash(entity: Midifiable): string {

@@ -1303,6 +1303,16 @@ describe('Melody.withTextAfter()', () => {
     });
 });
 
+describe('Melody.toDataURI()', () => {
+    test('Empty melody data URI as expected', () => {
+        expect(melody([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
+    });
+
+    test('Non-empty melody data URI as expected', () => {
+        expect(melody([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
+    });
+});
+
 describe('Melody.toMidiBytes()', () => {
     test('converts empty track to expected midi bytes', () => {
         expect(melody([]).withTicksPerQuarter(384).toMidiBytes()).toStrictEqual([

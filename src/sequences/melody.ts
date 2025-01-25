@@ -441,6 +441,13 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
             ...this.toMidiTrack(),
         ];
     }
+    
+    /**
+     * Returns a data URI containing the MIDI data for this score.
+     */
+    toDataURI(): string {
+        return midiWriter.toDataURI(this);
+    }
 
     /**
      * Returns a hash of the MIDI bytes for this Melody.
