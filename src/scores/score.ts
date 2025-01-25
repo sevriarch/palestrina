@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as crypto from 'crypto';
 
 import type { MetadataData, ScoreCanvasOpts } from '../types';
 
@@ -143,30 +142,21 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Returns a data URI containing the MIDI data for this score.
      */
     toDataURI(): string {
-        return 'data:audio/midi;base64,' + Buffer.from(this.toMidiBytes()).toString('base64');
+        return midiWriter.toDataURI(this);
     }
 
     /**
      * Returns a hash of the MIDI bytes for this score.
      */
     toHash(): string {
-        const arr = this.toMidiBytes();
-        const hash = crypto.createHash('md5');
-
-        hash.update(Buffer.from(arr));
-
-        return hash.digest('hex');
+        return midiWriter.toHash(this);
     }
 
     /**
      * Throws if the Score does not generate the expected hash, otherwise returns the Score.
      */
     expectHash(expected: string): this {
-        const hash = this.toHash();
-
-        if (expected !== hash) {
-            throw new Error(`${this.constructor.name}.expectHash(): hash mismatch: expected ${expected}, got ${hash}`);
-        }
+        midiWriter.expectHash(this, expected);
 
         return this;
     }
@@ -200,11 +190,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Writes a MIDI file containing the Score. Returns the Score.
      */
     writeMidi(file: string): this {
-        if (typeof file !== 'string') {
-            throw new Error(`${this.constructor.name}.writeMidi(): requires a string argument; was ${dumpOneLine(file)}`);
-        }
-
-        midiWriter.writeBufferToFile(file + '.mid', Buffer.from(this.toMidiBytes()));
+        midiWriter.writeToFile(file, this);
 
         return this;
     }

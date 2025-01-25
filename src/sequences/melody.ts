@@ -4,7 +4,10 @@ import Sequence from './generic';
 import MelodyMember from './members/melody';
 import MetaList from '../meta-events/meta-list';
 
-import { melodyToTimedMidiBytes, melodyToMidiTrack } from '../midi/conversions';
+import { MIDI } from '../constants';
+
+import { melodyToTimedMidiBytes, melodyToMidiTrack, numberToFixedBytes } from '../midi/conversions';
+import * as midiWriter from '../midi/writer';
 
 /**
  * Class representing a Sequence of {@link MelodyMember}s, each of which contains an array of zero or more numbers
@@ -423,5 +426,51 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     withTextAfter(pos: SeqIndices, val: string, typeOrOpts?: string | MetaEventOpts, opts?: MetaEventOpts) {
         return this.replaceIndices(pos, e => e.withTextAfter(val, typeOrOpts, opts));
+    }
+
+    /**
+     * Returns this Melody, converted to the bytes of a MIDI file.
+     */
+    toMidiBytes(): number[] {
+        return [
+            ...MIDI.HEADER_CHUNK,
+            ...MIDI.HEADER_LENGTH,
+            ...MIDI.HEADER_FORMAT,
+            ...numberToFixedBytes(1, 2),
+            ...numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
+            ...this.toMidiTrack(),
+        ];
+    }
+    
+    /**
+     * Returns a data URI containing the MIDI data for this score.
+     */
+    toDataURI(): string {
+        return midiWriter.toDataURI(this);
+    }
+
+    /**
+     * Returns a hash of the MIDI bytes for this Melody.
+     */
+    toHash(): string {
+        return midiWriter.toHash(this);
+    }
+
+    /**
+     * Throws if the Melody does not generate the expected hash, otherwise returns the Melody.
+     */
+    expectHash(expected: string): this {
+        midiWriter.expectHash(this, expected);
+
+        return this;
+    }
+
+    /**
+     * Writes a MIDI file containing the Score. Returns the Score.
+     */
+    writeMidi(file: string): this {
+        midiWriter.writeToFile(file, this);
+
+        return this;
     }
 }

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0
+
+### Features
+* In order to simplify the creation of one-track compositions, Melody also supports the following MIDI-related methods already available in Score:
+  * `toDataURI()`
+  * `toHash()`
+  * `expectHash()`
+  * `writeMidi()`
+
 ## 0.6.1
 
 ### Documentation

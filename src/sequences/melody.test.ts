@@ -1,11 +1,24 @@
+import fs from 'fs';
+
 import type { MapperFn, SeqIndices, MetaEventOpts, MetaEventArg } from '../types';
 
 import MelodyMember from './members/melody';
-
 import Melody from './melody';
 import MetaList from '../meta-events/meta-list';
 
 import { melody, intseq, microtonalmelody } from '../factory';
+
+// Mocking fs is ugly but without it jest.spyOn(fs, 'writeFileSync') doesn't work
+// in TypeScript, throwing: TypeError: Cannot redefine property: writeFileSync
+// See: https://github.com/aelbore/esbuild-jest/issues/26
+jest.mock('fs', () => {
+    const rawfs = jest.requireActual('fs');
+
+    return {
+        ...rawfs,
+        writeFileSync: jest.fn()
+    };
+});
 
 describe('Melody creation', () => {
     const m = melody([1, 2, 3]);
@@ -1285,13 +1298,129 @@ describe('Melody.withTextAfter()', () => {
         ],
     ];
 
-    test.each(table)('gives expecteed results when %s', (_, ix, txt, arg2, arg3, ret) => {
+    test.each(table)('gives expected results when %s', (_, ix, txt, arg2, arg3, ret) => {
         expect(m.withTextAfter(ix, txt, arg2, arg3)).toStrictEqual(ret);
     });
 });
 
+describe('Melody.toDataURI()', () => {
+    test('Empty melody data URI as expected', () => {
+        expect(melody([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
+    });
+
+    test('Non-empty melody data URI as expected', () => {
+        expect(melody([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
+    });
+});
+
+describe('Melody.toMidiBytes()', () => {
+    test('converts empty track to expected midi bytes', () => {
+        expect(melody([]).withTicksPerQuarter(384).toMidiBytes()).toStrictEqual([
+            0x4d, 0x54, 0x68, 0x64, // MIDI file header
+            0x00, 0x00, 0x00, 0x06, // Header data length
+            0x00, 0x01, 0x00, 0x01, 0x01, 0x80, // Header data
+            0x4d, 0x54, 0x72, 0x6b, // MIDI track header
+            0x00, 0x00, 0x00, 0x04, // MIDI track length
+            0x00, 0xff, 0x2f, 0x00, // end track
+        ]);
+    });
+
+    test('converts non-empty track to expected midi bytes', () => {
+        expect(melody([ 
+            {
+                pitch: 60,
+                duration: 64,
+                velocity: 48,
+                before: MetaList.from([{ event: 'sustain', value: 1 }])
+            },
+            {
+                pitch: [ 64 ],
+                duration: 128,
+                velocity: 64
+            },
+            {
+                pitch: [ 67, 72 ],
+                duration: 192,
+                velocity: 80,
+                after: MetaList.from([{ event: 'sustain', value: 0, offset: 64 }])
+            }
+        ])
+            .withTempo(144)
+            .withTimeSignature('3/4')
+            .toMidiBytes()
+        ).toStrictEqual([
+            0x4d, 0x54, 0x68, 0x64, // MIDI file header
+            0x00, 0x00, 0x00, 0x06, // Header data length
+            0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // Header data
+            0x4d, 0x54, 0x72, 0x6b, // MIDI track header
+            0x00, 0x00, 0x00, 0x3d, // MIDI track length
+            0x00, 0xff, 0x58, 0x04, 0x03, 0x02, 0x18, 0x08, // time signature
+            0x00, 0xff, 0x51, 0x03, 0x06, 0x5b, 0x9b, // tempo
+            0x00, 0xb0, 0x40, 0x7f, // sustain on
+            0x00, 0x90, 0x3c, 0x30, // note on (pitch 60)
+            0x40, 0x80, 0x3c, 0x30, // note off (pitch 60)
+            0x00, 0x90, 0x40, 0x40, // note on (pitch 64)
+            0x81, 0x00, 0x80, 0x40, 0x40, // note off (pitch 64)
+            0x00, 0x90, 0x43, 0x50, // note on (pitch 67)
+            0x00, 0x90, 0x48, 0x50, // note on (pitch 72)
+            0x81, 0x40, 0x80, 0x43, 0x50, // note off (pitch 67)
+            0x00, 0x80, 0x48, 0x50, // note off (pitch 72)
+            0x40, 0xb0, 0x40, 0x00, // sustain off
+            0x00, 0xff, 0x2f, 0x00, // end track
+        ]);
+    });
+});
+
+describe('Melody.toHash()', () => {
+    test('Empty melody hash as expected', () => {
+        expect(melody([]).toHash()).toStrictEqual('6a614850f0493b0cbff25166f12dc7e2');
+    });
+
+    test('Non-empty melody hash as expected', () => {
+        expect(melody([ 60, 63, 67, 72 ]).toHash()).toStrictEqual('d7927d4732948cf44bd2d586d3ca621e');
+    });
+});
+
+describe('Melody.expectHash()', () => {
+    const m = melody([ 60, 63, 67, 72 ]);
+
+    test('does not throw when expected hash passed', () => {
+        expect(() => m.expectHash('d7927d4732948cf44bd2d586d3ca621e')).not.toThrow();
+    });
+
+    test('throws when unexpected hash passed', () => {
+        expect(() => m.expectHash('')).toThrow();
+    });
+});
+
+describe('Melody.writeMidi()', () => {
+    const m = melody([]);
+
+    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    afterAll(() => jest.restoreAllMocks());
+
+    test('writeMidi() with non-string argument fails', () => {
+        expect(() => m.writeMidi(60 as unknown as string)).toThrow();
+    });
+
+    test('writeMidi() returns score and calls fs.writeFileSync() with expected arguments', () => {
+        const base = __filename + Date.now();
+        const midi = base + '.mid';
+
+        expect(m.writeMidi(base)).toBe(m);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(midi, Buffer.from([
+            0x4d, 0x54, 0x68, 0x64, // MIDI file header
+            0x00, 0x00, 0x00, 0x06, // Header data length
+            0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // Header data
+            0x4d, 0x54, 0x72, 0x6b, // MIDI track header
+            0x00, 0x00, 0x00, 0x04, // MIDI track length
+            0x00, 0xff, 0x2f, 0x00, // end track
+        ]));
+    });
+});
+
 // inherited from CollectionWithMetadata
-describe('Melody.describe', () => {
+describe('Melody.describe()', () => {
     test('describes as expected', () => {
         expect(Melody.from([1, [2, 3]], { tempo: 144 }).describe())
             .toStrictEqual(`Melody(length=2,metadata=Metadata({tempo=144}))([
