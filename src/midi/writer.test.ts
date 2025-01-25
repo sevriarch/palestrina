@@ -34,3 +34,9 @@ describe('midiWriter.writeToFile() tests', () => {
         expect(fs.writeFileSync).toHaveBeenLastCalledWith('test.mid', Buffer.from([ 1, 2, 3 ]));
     });
 });
+
+describe('midiWriter.toHash() tests', () => {
+    const entity = { toMidiBytes: () => [ 1, 2, 3 ] };
+
+    expect(midiWriter.toHash(entity)).toBe('5289df737df57326fcdd22597afb1fac');
+});

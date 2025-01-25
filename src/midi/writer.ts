@@ -1,4 +1,7 @@
+import type { Midifiable } from '../types';
+
 import * as fs from 'fs';
+import crypto from 'crypto';
 
 import { dumpOneLine } from '../dump/dump';
 
@@ -7,7 +10,7 @@ import { dumpOneLine } from '../dump/dump';
  * 
  * Second argument must be an object that implements the toMidiBytes() method.
  */
-export function writeToFile(file: string, entity: { toMidiBytes(): number[] }) {
+export function writeToFile(file: string, entity: Midifiable) {
     if (typeof file !== 'string') {
         throw new Error(`MidiWriter.writeMidi(): filename must be a file, was ${dumpOneLine(file)}`);
     }
@@ -19,4 +22,16 @@ export function writeToFile(file: string, entity: { toMidiBytes(): number[] }) {
     }
 
     fs.writeFileSync(file + '.mid', Buffer.from(bytes));
+}
+
+/**
+ * Returns a hash of the MIDI bytes for this Score or Melody.
+ */
+export function toHash(entity: Midifiable): string {
+    const arr = entity.toMidiBytes();
+    const hash = crypto.createHash('md5');
+
+    hash.update(Buffer.from(arr));
+
+    return hash.digest('hex');
 }

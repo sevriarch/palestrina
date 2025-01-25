@@ -127,8 +127,13 @@ export type MetaEventData = MetaEventDef & { timing: Timing };
 export type MetaListArg = MetaList | (MetaEvent | MetaEventArg)[];
 
 /*
- * MIDI EVENTS
+ * MIDI
  */
+
+/**
+ * An entity that can be converted to a string of MIDI bytes
+ */
+export type Midifiable = { toMidiBytes(): number[] };
 
 /**
  * A tuple containing the exact tick at which a MIDI event occurs, and the bytes representing that event.

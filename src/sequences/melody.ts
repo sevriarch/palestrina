@@ -443,6 +443,13 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
+     * Returns a hash of the MIDI bytes for this Melody.
+     */
+    toHash(): string {
+        return midiWriter.toHash(this);
+    }
+
+    /**
      * Writes a MIDI file containing the Score. Returns the Score.
      */
     writeMidi(file: string): this {

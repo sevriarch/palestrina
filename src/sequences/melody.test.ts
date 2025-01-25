@@ -1361,6 +1361,16 @@ describe('Melody.toMidiBytes()', () => {
     });
 });
 
+describe('Melody.toHash()', () => {
+    test('Empty melody hash as expected', () => {
+        expect(melody([]).toHash()).toStrictEqual('6a614850f0493b0cbff25166f12dc7e2');
+    });
+
+    test('Non-empty melody hash as expected', () => {
+        expect(melody([ 60, 63, 67, 72 ]).toHash()).toStrictEqual('d7927d4732948cf44bd2d586d3ca621e');
+    });
+});
+
 describe('Melody.writeMidi()', () => {
     const m = melody([]);
 

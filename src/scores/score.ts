@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as crypto from 'crypto';
 
 import type { MetadataData, ScoreCanvasOpts } from '../types';
 
@@ -150,12 +149,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Returns a hash of the MIDI bytes for this score.
      */
     toHash(): string {
-        const arr = this.toMidiBytes();
-        const hash = crypto.createHash('md5');
-
-        hash.update(Buffer.from(arr));
-
-        return hash.digest('hex');
+        return midiWriter.toHash(this);
     }
 
     /**
