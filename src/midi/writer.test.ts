@@ -14,22 +14,23 @@ jest.mock('fs', () => {
     };
 });
 
-describe('midiWriter.writeBufferToFile() tests', () => {
+describe('midiWriter.writeToFile() tests', () => {
     beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
     afterAll(() => jest.restoreAllMocks());
 
-    const buf = Buffer.from([ 1, 2, 3 ]);
+    const entity = { toMidiBytes: () => [ 1, 2, 3 ] };
+    const bad = { toMidiBytes: () => 123 as unknown as number[] };
 
     test('throws with a non-string filename', () => {
-        expect(() => midiWriter.writeBufferToFile(0 as unknown as string, buf)).toThrow();
+        expect(() => midiWriter.writeToFile(0 as unknown as string, entity)).toThrow();
     });
 
-    test('throws with a non-buffer buffer', () => {
-        expect(() => midiWriter.writeBufferToFile('test', [ 1, 2, 3 ] as unknown as Buffer)).toThrow();
+    test('throws when entity.toMidiBytes() does not return an Array', () => {
+        expect(() => midiWriter.writeToFile('test', bad)).toThrow();
     });
 
     test('calls fs.writeFileSync() when supplied with correct arguments', () => {
-        expect(() => midiWriter.writeBufferToFile('test', buf)).not.toThrow();
-        expect(fs.writeFileSync).toHaveBeenLastCalledWith('test', buf);
+        expect(() => midiWriter.writeToFile('test', entity)).not.toThrow();
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith('test.mid', Buffer.from([ 1, 2, 3 ]));
     });
 });

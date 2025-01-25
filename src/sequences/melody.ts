@@ -6,8 +6,6 @@ import MetaList from '../meta-events/meta-list';
 
 import { MIDI } from '../constants';
 
-import { dumpOneLine } from '../dump/dump';
-
 import { melodyToTimedMidiBytes, melodyToMidiTrack, numberToFixedBytes } from '../midi/conversions';
 import * as midiWriter from '../midi/writer';
 
@@ -448,11 +446,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Writes a MIDI file containing the Score. Returns the Score.
      */
     writeMidi(file: string): this {
-        if (typeof file !== 'string') {
-            throw new Error(`${this.constructor.name}.writeMidi(): requires a string argument; was ${dumpOneLine(file)}`);
-        }
-
-        midiWriter.writeBufferToFile(file + '.mid', Buffer.from(this.toMidiBytes()));
+        midiWriter.writeToFile(file, this);
 
         return this;
     }

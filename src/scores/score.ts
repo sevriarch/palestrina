@@ -200,11 +200,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Writes a MIDI file containing the Score. Returns the Score.
      */
     writeMidi(file: string): this {
-        if (typeof file !== 'string') {
-            throw new Error(`${this.constructor.name}.writeMidi(): requires a string argument; was ${dumpOneLine(file)}`);
-        }
-
-        midiWriter.writeBufferToFile(file + '.mid', Buffer.from(this.toMidiBytes()));
+        midiWriter.writeToFile(file, this);
 
         return this;
     }
