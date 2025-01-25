@@ -156,11 +156,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Throws if the Score does not generate the expected hash, otherwise returns the Score.
      */
     expectHash(expected: string): this {
-        const hash = this.toHash();
-
-        if (expected !== hash) {
-            throw new Error(`${this.constructor.name}.expectHash(): hash mismatch: expected ${expected}, got ${hash}`);
-        }
+        midiWriter.expectHash(this, expected);
 
         return this;
     }

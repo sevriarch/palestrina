@@ -450,6 +450,15 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
+     * Throws if the Melody does not generate the expected hash, otherwise returns the Melody.
+     */
+    expectHash(expected: string): this {
+        midiWriter.expectHash(this, expected);
+
+        return this;
+    }
+
+    /**
      * Writes a MIDI file containing the Score. Returns the Score.
      */
     writeMidi(file: string): this {

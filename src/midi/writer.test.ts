@@ -36,7 +36,21 @@ describe('midiWriter.writeToFile() tests', () => {
 });
 
 describe('midiWriter.toHash() tests', () => {
+    test('returns the expected hash value', () => {
+        const entity = { toMidiBytes: () => [ 1, 2, 3 ] };
+
+        expect(midiWriter.toHash(entity)).toBe('5289df737df57326fcdd22597afb1fac');
+    });
+});
+
+describe('midiWriter.expectHash() tests', () => {
     const entity = { toMidiBytes: () => [ 1, 2, 3 ] };
 
-    expect(midiWriter.toHash(entity)).toBe('5289df737df57326fcdd22597afb1fac');
+    test('does nothing if expected hash value', () => {
+        expect(() => midiWriter.expectHash(entity, '5289df737df57326fcdd22597afb1fac')).not.toThrow();
+    });
+
+    test('throws if unexpected hash value', () => {
+        expect(() => midiWriter.expectHash(entity, '')).toThrow();
+    });
 });

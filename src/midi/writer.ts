@@ -35,3 +35,14 @@ export function toHash(entity: Midifiable): string {
 
     return hash.digest('hex');
 }
+
+/**
+ * Throws unless the hash of the MIDI bytes for this Score or Melody is as expected.
+ */
+export function expectHash(entity: Midifiable, expected: string) {
+    const hash = toHash(entity);
+
+    if (expected !== hash) {
+        throw new Error(`${entity.constructor.name}.expectHash(): hash mismatch: expected ${expected}, got ${hash}`);
+    }
+}

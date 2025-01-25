@@ -1371,6 +1371,18 @@ describe('Melody.toHash()', () => {
     });
 });
 
+describe('Melody.expectHash()', () => {
+    const m = melody([ 60, 63, 67, 72 ]);
+
+    test('does not throw when expected hash passed', () => {
+        expect(() => m.expectHash('d7927d4732948cf44bd2d586d3ca621e')).not.toThrow();
+    });
+
+    test('throws when unexpected hash passed', () => {
+        expect(() => m.expectHash('')).toThrow();
+    });
+});
+
 describe('Melody.writeMidi()', () => {
     const m = melody([]);
 
