@@ -66,17 +66,17 @@ class MidiReader {
             this.length = arg.length;
             this.metadata = metadata;
         } else {
-            throw new Error('MidiReader only takes a filename or an array of byte values between 0 and 255');
+            throw new Error(`MidiReader only takes a filename or an array of byte values between 0 and 255; got ${dumpOneLine(arg)}`);
         }
     }
 
     slurp(num: number): number[] {
         if (!isNonnegInt(num)) {
-            throw new Error(`tried to slurp ${num} bytes, must be a non-negative integer`);
+            throw new Error(`tried to slurp ${dumpOneLine(num)} bytes, must be a non-negative integer`);
         }
 
         if (this.length < this.currentbyte + num) {
-            throw new Error(`tried to slurp ${num} bytes but only ${this.length - this.currentbyte} were available.`);
+            throw new Error(`tried to slurp ${num} bytes starting from byte ${this.currentbyte} but only ${this.length - this.currentbyte} were available`);
         }
 
         const slurp = this.contents.slice(this.currentbyte, this.currentbyte + num);
@@ -88,7 +88,7 @@ class MidiReader {
 
     peek(): number {
         if (this.length <= this.currentbyte) {
-            throw new Error('tried to peek but no bytes were available');
+            throw new Error(`tried to peek from byte ${this.currentbyte} but was at end of stream`);
         }
 
         return this.contents[this.currentbyte];
@@ -114,17 +114,17 @@ class MidiReader {
      * Given an array of MIDI bytes, process the header and return the version.
      * Removes the header from the passed array of bytes.
      */
-    extractMidiVersionFromHeader() {
+    extractMidiVersionFromHeader(): number {
         let cmp = this.slurp(MIDI.HEADER_CHUNK.length);
 
         if (!compareBytes(cmp, MIDI.HEADER_CHUNK)) {
-            throw new Error('invalid header chunk in bytes');
+            throw new Error(`invalid header chunk ${dumpHex(...cmp)}`);
         }
 
         cmp = this.slurp(MIDI.HEADER_LENGTH.length);
 
         if (!compareBytes(cmp, MIDI.HEADER_LENGTH)) {
-            throw new Error('invalid header length in bytes');
+            throw new Error(`invalid header length ${dumpHex(...cmp)}`);
         }
 
         cmp = this.slurp(MIDI.HEADER_FORMAT.length);
@@ -150,7 +150,7 @@ class MidiReader {
         const cmp = this.slurp(MIDI.TRACK_HEADER_CHUNK.length);
 
         if (!compareBytes(cmp, MIDI.TRACK_HEADER_CHUNK)) {
-            throw new Error('invalid track header chunk in bytes');
+            throw new Error(`invalid track header chunk ${dumpHex(...cmp)}`);
         }
 
         const len = fixedBytesToNumber(this.slurp(4));
