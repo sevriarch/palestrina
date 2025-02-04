@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+### Enhancements
+* Some error messages have been improved in the midi reader module.
+
 ## 0.7.0
 
 ### Features
