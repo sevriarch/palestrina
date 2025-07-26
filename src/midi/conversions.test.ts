@@ -614,6 +614,10 @@ describe('conversions.melodyMemberToTimedMidiBytes()', () => {
 });
 
 describe('melodyToTimedMidiBytes()', () => {
+    test('fails when invalid pitches', () => {
+        expect(() => conversions.melodyToTimedMidiBytes(Melody.from([ 1, 2, 3, -1, 0 ]))).toThrow();
+    });
+
     test('testing complete Melody, midichannel 1', () => {
         const m = Melody.from([
             {

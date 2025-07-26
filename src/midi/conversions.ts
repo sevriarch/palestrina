@@ -260,13 +260,17 @@ export function metadataToTimedMidiBytes(m: Metadata): MidiTickAndBytes[] {
     return ret;
 }
 
-export function melodyMemberToTimedMidiBytes(mm: MelodyMember, curr: number, channel: number): MidiTickAndBytes[] {
+export function melodyMemberToTimedMidiBytes(mm: MelodyMember, curr: number, channel: number, ix?: number): MidiTickAndBytes[] {
     const tick = mm.timing.startTick(curr);
     const ret = metaListToTimedMidiBytes(mm.before, tick, channel);
 
     mm.pitch.val().forEach(p => {
         if (p < 0 || p >= 256) {
-            throw new Error(`invalid pitch in ${mm.describe()}`);
+            if (ix !== undefined) {
+                throw new Error(`invalid pitch(es) at melody index ${ix}: ${mm.describe()}`);
+            } else {
+                throw new Error(`invalid pitch(es): ${mm.describe()}`);
+            }
         }
 
         if (p % 1) {
@@ -308,7 +312,7 @@ export function melodyToTimedMidiBytes(m: Melody): MidiTickAndBytes[] {
     let curr = 0;
 
     for (let i = 0; i < m.length; i++) {
-        ret.push(...melodyMemberToTimedMidiBytes(m.contents[i], curr, channel));
+        ret.push(...melodyMemberToTimedMidiBytes(m.contents[i], curr, channel, i));
 
         curr = m.contents[i].timing.nextTick(curr);
     }

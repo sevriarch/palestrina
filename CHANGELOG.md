@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.2
+
+### Enhancements
+* When a Melody contains invalid notes, the error message converting it to MIDI now says where in the Melody the error occurred.
+
 ## 0.7.1
 
 ### Enhancements
