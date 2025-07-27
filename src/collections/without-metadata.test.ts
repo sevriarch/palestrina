@@ -1437,7 +1437,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
         [
             'if().then().else() works as expected #1',
             () => c.if(true)
-                .then(v => v.swapAt([ 0, 1 ]))
+                .then(v => v.swapAt([ 0, 1 ])) // TODO: these and following should use something like replaceIndex() for clarity
                 .else(v => v.swapAt([ 4, 5 ])),
             new Collection([ 2, 1, 3, 4, 5, 6 ])
         ],

@@ -9,8 +9,8 @@ type ControlFlow<T> = {
     while?: (cond: CtrlBoolFn<T>) => T,
     then?: (fn: CtrlTypeFn<T>) => T,
     else?: (fn: CtrlTypeFn<T>) => T,
-    do_stack?: ((fn: CtrlTypeFn<T>) => T)[],
-    while_stack?: ((cond: CtrlBoolFn<T>) => T)[],
+    then_stack?: ((fn: CtrlTypeFn<T>) => T)[],
+    else_stack?: ((fn: CtrlTypeFn<T>) => T)[],
 }
 
 function seqIndicesToIndices(ix: SeqIndices): number[] {
@@ -1112,14 +1112,61 @@ export default class Collection<T> {
         const me = this.clone();
         const yes = typeof cond === 'function' ? cond(me) : cond;
 
+        let thenstack: ((fn: CtrlTypeFn<this>) => this)[];
+        let elsestack: ((fn: CtrlTypeFn<this>) => this)[];
+
+        const yesfn: (fn: CtrlTypeFn<this>) => this = fn => {
+            const ret = fn(me);
+
+            ret._control.then_stack = thenstack.slice(0, -1);
+            ret._control.else_stack = elsestack.slice(0, -1);
+
+            return ret.if(yes);
+        };
+
+        const nofn: (fn: CtrlTypeFn<this>) => this = () => {
+            const ret = me.clone();
+
+            ret._control.then_stack = thenstack.slice(0, -1);
+            ret._control.else_stack = elsestack.slice(0, -1);
+
+            return ret.if(yes);
+        };
+
         if (yes) {
             me._control.then = fn => fn(me).if(yes);
             me._control.else = () => me.if(yes);
+
+            if (this._control.then_stack) {
+                thenstack = [ ...this._control.then_stack, yesfn ];
+            } else {
+                thenstack = [ yesfn ];
+            }
+
+            if (this._control.else_stack) {
+                elsestack = [ ...this._control.else_stack, nofn ];
+            } else {
+                elsestack = [ nofn ];
+            }
         } else {
             me._control.then = () => me.if(yes);
             me._control.else = fn => fn(me).if(yes);
+
+            if (this._control.then_stack) {
+                thenstack = [ ...this._control.then_stack, nofn ];
+            } else {
+                thenstack = [ nofn ];
+            }
+
+            if (this._control.else_stack) {
+                elsestack = [ ...this._control.else_stack, yesfn ];
+            } else {
+                elsestack = [ yesfn ];
+            }
         }
 
+        me._control.then_stack = thenstack;
+        me._control.else_stack = elsestack;
         return me;
     }
 
@@ -1127,7 +1174,17 @@ export default class Collection<T> {
      * End a conditional processing block.
      */
     endif(): this {
-        return this.clone();
+        const me = this.clone();
+
+        if (this._control.then_stack && this._control.then_stack.length > 0) {
+            me._control.then_stack = this._control.then_stack.slice(0, -1);
+        }
+
+        if (this._control.else_stack && this._control.else_stack.length > 0) {
+            me._control.else_stack = this._control.else_stack.slice(0, -1);
+        }
+
+        return me;
     }
 
     /**
@@ -1143,11 +1200,11 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.then() requires a function`);
         }
 
-        if (!this._control.then) {
+        if (!this._control.then_stack || this._control.then_stack.length < 1) {
             throw new Error(`${this.constructor.name}.then() without an if condition`);
         }
 
-        return this._control.then(fn);
+        return this._control.then_stack[this._control.then_stack.length - 1](fn);
     }
 
     /**
@@ -1163,11 +1220,11 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.else() requires a function`);
         }
 
-        if (!this._control.else) {
+        if (!this._control.else_stack || this._control.else_stack.length < 1) {
             throw new Error(`${this.constructor.name}.else() without an if condition`);
         }
 
-        return this._control.else(fn);
+        return this._control.else_stack[this._control.else_stack.length - 1](fn);
     }
 
     /**
