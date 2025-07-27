@@ -1359,14 +1359,14 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
             'then() after if() ended',
             () => c.if(true)
                 .else(v => v.retrograde())
-                .clone()
+                .endif()
                 .then(v => v.retrograde()),
         ],
         [
             'else() after if() ended',
             () => c.if(true)
                 .then(v => v.retrograde())
-                .clone()
+                .endif()
                 .else(v => v.retrograde()),
         ],
         [

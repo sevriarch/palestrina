@@ -9,6 +9,8 @@ type ControlFlow<T> = {
     while?: (cond: CtrlBoolFn<T>) => T,
     then?: (fn: CtrlTypeFn<T>) => T,
     else?: (fn: CtrlTypeFn<T>) => T,
+    do_stack?: ((fn: CtrlTypeFn<T>) => T)[],
+    while_stack?: ((cond: CtrlBoolFn<T>) => T)[],
 }
 
 function seqIndicesToIndices(ix: SeqIndices): number[] {
@@ -1119,6 +1121,13 @@ export default class Collection<T> {
         }
 
         return me;
+    }
+
+    /**
+     * End a conditional processing block.
+     */
+    endif(): this {
+        return this.clone();
     }
 
     /**
