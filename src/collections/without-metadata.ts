@@ -1110,8 +1110,8 @@ export default class Collection<T> {
         const me = this.clone();
         const yes = typeof cond === 'function' ? cond(me) : cond;
 
-        let thenstack: ((fn: CtrlTypeFn<this>) => this)[];
-        let elsestack: ((fn: CtrlTypeFn<this>) => this)[];
+        const thenstack = this._control.then_stack ? this._control.then_stack.slice() : [];
+        const elsestack = this._control.else_stack ? this._control.else_stack.slice() : [];
 
         const yesfn: (fn: CtrlTypeFn<this>) => this = fn => {
             const ret = fn(me);
@@ -1132,29 +1132,11 @@ export default class Collection<T> {
         };
 
         if (yes) {
-            if (this._control.then_stack) {
-                thenstack = [ ...this._control.then_stack, yesfn ];
-            } else {
-                thenstack = [ yesfn ];
-            }
-
-            if (this._control.else_stack) {
-                elsestack = [ ...this._control.else_stack, nofn ];
-            } else {
-                elsestack = [ nofn ];
-            }
+            thenstack.push(yesfn);
+            elsestack.push(nofn);
         } else {
-            if (this._control.then_stack) {
-                thenstack = [ ...this._control.then_stack, nofn ];
-            } else {
-                thenstack = [ nofn ];
-            }
-
-            if (this._control.else_stack) {
-                elsestack = [ ...this._control.else_stack, yesfn ];
-            } else {
-                elsestack = [ yesfn ];
-            }
+            thenstack.push(nofn);
+            elsestack.push(yesfn);
         }
 
         me._control.then_stack = thenstack;
