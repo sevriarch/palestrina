@@ -7,8 +7,6 @@ import { dumpOneLine } from '../dump/dump';
 type ControlFlow<T> = {
     do?: (fn: CtrlTypeFn<T>) => T,
     while?: (cond: CtrlBoolFn<T>) => T,
-    then?: (fn: CtrlTypeFn<T>) => T,
-    else?: (fn: CtrlTypeFn<T>) => T,
     then_stack?: ((fn: CtrlTypeFn<T>) => T)[],
     else_stack?: ((fn: CtrlTypeFn<T>) => T)[],
 }
@@ -1134,9 +1132,6 @@ export default class Collection<T> {
         };
 
         if (yes) {
-            me._control.then = fn => fn(me).if(yes);
-            me._control.else = () => me.if(yes);
-
             if (this._control.then_stack) {
                 thenstack = [ ...this._control.then_stack, yesfn ];
             } else {
@@ -1149,9 +1144,6 @@ export default class Collection<T> {
                 elsestack = [ nofn ];
             }
         } else {
-            me._control.then = () => me.if(yes);
-            me._control.else = fn => fn(me).if(yes);
-
             if (this._control.then_stack) {
                 thenstack = [ ...this._control.then_stack, nofn ];
             } else {
