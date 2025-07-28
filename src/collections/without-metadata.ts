@@ -1092,6 +1092,10 @@ export default class Collection<T> {
      *
      * After the first non-.then()/.else() call, calls to .then() and .else()
      * will throw exceptions until the next .if() call.
+     * 
+     * You may nest conditional programming blocks; in this case each individual
+     * block must be ended with a .endif() call. .endif() calls are optional
+     * when blocks are not nested.
      *
      * The condition may be passed as a value to be evaluated for truthiness,
      * or a function (in which case it will be executed and the return value
@@ -1149,6 +1153,10 @@ export default class Collection<T> {
      */
     endif(): this {
         const me = this.clone();
+
+        if (!this._control.then_stack || this._control.then_stack.length < 1) {
+            throw new Error(`${this.constructor.name}.endif() without an if condition`);
+        }
 
         if (this._control.then_stack && this._control.then_stack.length > 0) {
             me._control.then_stack = this._control.then_stack.slice(0, -1);

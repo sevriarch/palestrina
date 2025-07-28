@@ -1366,7 +1366,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
             'else() after if() ended',
             () => c.if(true)
                 .then(v => v.retrograde())
-                .endif()
+                .retrograde()
                 .else(v => v.retrograde()),
         ],
         [
@@ -1538,6 +1538,22 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
 
     test.each(table)('%s', (_, fn, ret) => {
         expect(fn()).toStrictEqual(ret);
+    });
+});
+
+describe('Collection.endif() tests', () => {
+    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
+
+    test('throws without if() condition', () => {
+        expect(() => c.endif()).toThrow();
+    });
+
+    test('does not throw inside of if() condition', () => {
+        expect(() => c.if(true).then(s => s.retrograde()).endif()).not.toThrow();
+    });
+
+    test('throws outside of if() condition', () => {
+        expect(() => c.if(true).then(s => s.retrograde()).endif().endif()).toThrow();
     });
 });
 
