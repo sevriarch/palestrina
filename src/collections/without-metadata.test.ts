@@ -1344,7 +1344,7 @@ describe('Collection.groupBy()', () => {
 });
 
 describe('Collection.if()/Collection.then()/Collection.else()', () => {
-    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
+    const c = new Collection([ 1, 2, 3, 4 ]);
 
     const errortable = [
         [
@@ -1396,143 +1396,191 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
         ],
         [
             'if(false) does not execute .then() condition',
-            () => c.if(false).then(v => v.swapAt([ 0, 1 ])),
+            () => c.if(false).then(v => v.prependItems(0)),
             c
         ],
         [
             'if(false) executes .else() condition',
-            () => c.if(false).else(v => v.swapAt([ 0, 1 ])),
-            new Collection([ 2, 1, 3, 4, 5, 6 ])
+            () => c.if(false).else(v => v.prependItems(0)),
+            new Collection([ 0, 1, 2, 3, 4 ])
         ],
         [
             'if(true) executes .then() condition',
-            () => c.if(true).then(v => v.swapAt([ 0, 1 ])),
-            new Collection([ 2, 1, 3, 4, 5, 6 ])
+            () => c.if(true).then(v => v.prependItems(0)),
+            new Collection([ 0, 1, 2, 3, 4 ])
         ],
         [
             'if(true) does not execute .else() condition',
-            () => c.if(true).else(v => v.swapAt([ 0, 1 ])),
+            () => c.if(true).else(v => v.prependItems(0)),
             c
         ],
         [
             'if(() => false) does not execute .then() condition',
-            () => c.if(() => false).then(v => v.swapAt([ 0, 1 ])),
+            () => c.if(() => false).then(v => v.prependItems(0)),
             c
         ],
         [
             'if(() => false) executes .else() condition',
-            () => c.if(() => false).else(v => v.swapAt([ 0, 1 ])),
-            new Collection([ 2, 1, 3, 4, 5, 6 ])
+            () => c.if(() => false).else(v => v.prependItems(0)),
+            new Collection([ 0, 1, 2, 3, 4 ])
         ],
         [
             'if(() => true) executes .then() condition',
-            () => c.if(() => true).then(v => v.swapAt([ 0, 1 ])),
-            new Collection([ 2, 1, 3, 4, 5, 6 ])
+            () => c.if(() => true).then(v => v.prependItems(0)),
+            new Collection([ 0, 1, 2, 3, 4 ])
         ],
         [
             'if(() => true) does not execute .else() condition',
-            () => c.if(() => true).else(v => v.swapAt([ 0, 1 ])),
+            () => c.if(() => true).else(v => v.prependItems(0)),
             c
         ],
         [
             'if().then().else() works as expected #1',
             () => c.if(true)
-                .then(v => v.swapAt([ 0, 1 ])) // TODO: these and following should use something like replaceIndex() for clarity
-                .else(v => v.swapAt([ 4, 5 ])),
-            new Collection([ 2, 1, 3, 4, 5, 6 ])
+                .then(v => v.prependItems(0))
+                .else(v => v.appendItems(5)),
+            new Collection([ 0, 1, 2, 3, 4 ])
         ],
         [
             'if().then().else() works as expected #2',
             () => c.if(() => false)
-                .then(v => v.swapAt([ 0, 1 ]))
-                .else(v => v.swapAt([ 4, 5 ])),
-            new Collection([ 1, 2, 3, 4, 6, 5 ])
+                .then(v => v.prependItems(0))
+                .else(v => v.appendItems(5)),
+            new Collection([ 1, 2, 3, 4, 5 ])
         ],
         [
             'if().then().else() works as expected with chained .then()s and else()s #1',
             () => c.if(() => true)
-                .then(v => v.swapAt([ 0, 1 ]))
-                .else(v => v.swapAt([ 4, 5 ]))
-                .then(v => v.swapAt([ 1, 2 ]))
-                .else(v => v.swapAt([ 3, 4 ])),
-            new Collection([ 2, 3, 1, 4, 5, 6 ])
+                .then(v => v.prependItems(0))
+                .else(v => v.appendItems(5))
+                .then(v => v.prependItems(1))
+                .else(v => v.appendItems(4)),
+            new Collection([ 1, 0, 1, 2, 3, 4 ])
         ],
         [
             'if().then().else() works as expected with chained .then()s and else()s #2',
             () => c.if(false)
-                .then(v => v.swapAt([ 0, 1 ]))
-                .else(v => v.swapAt([ 4, 5 ]))
-                .then(v => v.swapAt([ 1, 2 ]))
-                .else(v => v.swapAt([ 3, 4 ])),
-            new Collection([ 1, 2, 3, 6, 4, 5 ])
+                .then(v => v.prependItems(0))
+                .else(v => v.appendItems(5))
+                .then(v => v.prependItems(1))
+                .else(v => v.appendItems(4)),
+            new Collection([ 1, 2, 3, 4, 5, 4 ])
         ],
         [
-            'nested conditions work as expected #1',
+            'nested conditions #1',
             () => c.if(true)
                 .then(
-                    v => v.if(v => v.length === 6)
-                        .then(v => v.swapAt([ 0, 1 ]))
-                        .then(v => v.swapAt([ 1, 2 ]))
-                        .else(v => v.swapAt([ 4, 5 ]))
-                        .retrograde()
-                ).else(
-                    v => v.if(v => v.length === 6)
-                        .then(v => v.swapAt([ 0, 5 ]))
-                        .else(v => v.swapAt([ 2, 3 ]))
-                        .else(v => v.drop())
-                ),
-            new Collection([ 6, 5, 4, 1, 3, 2 ]),
-        ],
-        [
-            'nested conditions work as expected #2',
-            () => c.if(() => false)
-                .then(
                     v => v.if(true)
-                        .then(v => v.swapAt([ 0, 1 ]))
-                        .then(v => v.swapAt([ 1, 2 ]))
-                        .else(v => v.swapAt([ 4, 5 ]))
-                        .retrograde()
+                        .then(v => v.prependItems(0)) // executed
+                        .else(v => v.appendItems(5))
+                        .then(v => v.prependItems(1)) // executed
+                        .else(v => v.appendItems(4))
                 ).else(
                     v => v.if(true)
-                        .then(v => v.swapAt([ 0, 5 ]))
-                        .else(v => v.swapAt([ 2, 3 ]))
-                        .else(v => v.drop())
-                ),
-            new Collection([ 6, 2, 3, 4, 5, 1 ]),
-        ],
-        [
-            'nested conditions work as expected #3',
-            () => c.if(() => true)
-                .then(
-                    v => v.if(v => v.length !== 6)
-                        .then(v => v.swapAt([ 0, 1 ]))
-                        .then(v => v.swapAt([ 1, 2 ]))
-                        .else(v => v.swapAt([ 4, 5 ]))
-                        .retrograde()
+                        .then(v => v.prependItems(10))
+                        .else(v => v.appendItems(15))
+                        .then(v => v.prependItems(11))
+                        .else(v => v.appendItems(14))
+                ).then(
+                    v => v.if(true)
+                        .else(v => v.appendItems(6))
+                        .then(v => v.prependItems(2)) // executed
                 ).else(
-                    v => v.if(v => v.length !== 6)
-                        .then(v => v.swapAt([ 0, 5 ]))
-                        .else(v => v.swapAt([ 2, 3 ]))
-                        .else(v => v.drop())
-                ),
-            new Collection([ 5, 6, 4, 3, 2, 1 ]),
+                    v => v.if(true)
+                        .else(v => v.appendItems(17))
+                        .then(v => v.prependItems(13))
+                ).endif()
+                .if(true)
+                .then(v => v.prependItems(4)) // executed
+                .else(v => v.appendItems(8)),
+            new Collection([ 4, 2, 1, 0, 1, 2, 3, 4 ])
         ],
         [
-            'nested conditions work as expected #4',
+            'nested conditions #2',
+            () => c.if(true)
+                .then(
+                    v => v.if(false)
+                        .then(v => v.prependItems(0))
+                        .else(v => v.appendItems(5)) // executed
+                        .then(v => v.prependItems(1))
+                        .else(v => v.appendItems(4)) // executed
+                ).else(
+                    v => v.if(false)
+                        .then(v => v.prependItems(10))
+                        .else(v => v.appendItems(15))
+                        .then(v => v.prependItems(11))
+                        .else(v => v.appendItems(14))
+                ).then(
+                    v => v.if(false)
+                        .else(v => v.appendItems(6)) // executed
+                        .then(v => v.prependItems(2))
+                ).else(
+                    v => v.if(false)
+                        .else(v => v.appendItems(17))
+                        .then(v => v.prependItems(13))
+                ).endif()
+                .if(false)
+                .then(v => v.prependItems(4))
+                .else(v => v.appendItems(8)), // executed
+            new Collection([ 1, 2, 3, 4, 5, 4, 6, 8 ])
+        ],
+        [
+            'nested conditions #3',
+            () => c.if(false)
+                .then(
+                    v => v.if(true)
+                        .then(v => v.prependItems(0))
+                        .else(v => v.appendItems(5))
+                        .then(v => v.prependItems(1)) 
+                        .else(v => v.appendItems(4))
+                ).else(
+                    v => v.if(true)
+                        .then(v => v.prependItems(10)) // executed
+                        .else(v => v.appendItems(15))
+                        .then(v => v.prependItems(11)) // executed
+                        .else(v => v.appendItems(14))
+                ).then(
+                    v => v.if(true)
+                        .else(v => v.appendItems(6))
+                        .then(v => v.prependItems(2))
+                ).else(
+                    v => v.if(true)
+                        .else(v => v.appendItems(17))
+                        .then(v => v.prependItems(13)) // executed
+                ).endif()
+                .if(true)
+                .then(v => v.prependItems(4)) // executed
+                .else(v => v.appendItems(8)),
+            new Collection([ 4, 13, 11, 10, 1, 2, 3, 4 ])
+        ],
+        [
+            'nested conditions #4',
             () => c.if(false)
                 .then(
                     v => v.if(false)
-                        .then(v => v.swapAt([ 0, 1 ]))
-                        .then(v => v.swapAt([ 1, 2 ]))
-                        .else(v => v.swapAt([ 4, 5 ]))
-                        .retrograde()
+                        .then(v => v.prependItems(0))
+                        .else(v => v.appendItems(5))
+                        .then(v => v.prependItems(1))
+                        .else(v => v.appendItems(4))
                 ).else(
                     v => v.if(false)
-                        .then(v => v.swapAt([ 0, 5 ]))
-                        .else(v => v.swapAt([ 2, 3 ]))
-                        .else(v => v.drop())
-                ),
-            new Collection([ 2, 4, 3, 5, 6 ]),
+                        .then(v => v.prependItems(10))
+                        .else(v => v.appendItems(15)) // executed
+                        .then(v => v.prependItems(11))
+                        .else(v => v.appendItems(14)) // executed
+                ).then(
+                    v => v.if(false)
+                        .else(v => v.appendItems(6))
+                        .then(v => v.prependItems(2))
+                ).else(
+                    v => v.if(false)
+                        .else(v => v.appendItems(17)) // executed
+                        .then(v => v.prependItems(13))
+                ).endif()
+                .if(false)
+                .then(v => v.prependItems(4))
+                .else(v => v.appendItems(8)), // executed
+            new Collection([ 1, 2, 3, 4, 15, 14, 17, 8 ])
         ],
     ];
 
