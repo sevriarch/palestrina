@@ -1180,18 +1180,7 @@ export default class Collection<T> {
      * call returns a falsy value, at which point return the result of the
      * last .do() call.
      *
-     * .while() calls should not be directly nested. Use a .do() call to
-     * separate them, eg:
-     *
-     * collection.while(first_condition)
-     *     .do(
-     *         c => c.while(second_condition)
-     *              .do(action)
-     *     )
-     *
-     * not:
-     *
-     * collection.while(first_condition).while(second_condition).do(action)
+     * Do not use .while() inside a .do() block as this is not supported.
      *
      * @example
      * // Returns Collection([ 1, 2, 3 ])
@@ -1237,12 +1226,7 @@ export default class Collection<T> {
      * If the .while() call returns a falsy value, return the return value
      * from the original .do() call.
      *
-     * Nested .do() calls do not work. Example of this:
-     *
-     * collection.do(
-     *     c => c.while(first_condition)
-     *        .do(action)
-     * ).while(second_condition)
+     * Do not use .while() inside a .do() block as this is not supported.
      *
      * @example
      * // Returns Collection([ 1, 2, 3 ])
@@ -1261,7 +1245,7 @@ export default class Collection<T> {
 
         const me = fn(this);
 
-        me._control.while = cond => cond(me) ? me.do(fn).while(cond) : me;
+        me._control.while = cond => cond(me) ? me.do(fn).while(cond) : me.clone();
 
         return me;
     }

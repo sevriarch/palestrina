@@ -47,12 +47,3 @@ protected override replacer<FromT>(r: Replacer<FromT, ET>, curr: FromT, i: numbe
 concerns:
 - different typing from in collection makes this messy AF to implement
 - [ a, b, c ] could mean a chord containing [ a, b, c ] or a melody containing [ [ a ], [ b ], [ c ] ]
-
-3. CONTROL FLOW IN COLLECTIONS
-- Chained .while() and .do() calls are possibly problematic as they are not placed on a stack
- - Figure out if this needs solved, and if this also an issue with .if()/.then()/.else()
-  - Unintuitive: after exiting the DO_1().WHILE_1() loop; it then executes a DO_1().WHILE_2() loop
-    c.do(v => { console.log('dropping from', v.contents); return v.drop(); }) // DO_1
-       .while(v => { console.log('checking length > 4'); return v.length > 4; }) // WHILE_1
-       .while(v => { console.log('checking length < 6'); return v.length < 6; }) // WHILE_2
-       .do(v => { console.log('trying to append'); return v.appendItems(v.valAt(0)); }) // DO_2
