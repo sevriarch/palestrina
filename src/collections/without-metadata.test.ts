@@ -1700,6 +1700,38 @@ describe('Collection.while()/.do() tests', () => {
     test.each(table)('%s', (_, fn, ret) => {
         expect(fn()).toStrictEqual(ret);
     });
+
+    test('do().while().while().do() where first .do() once, second .do() multiple times', () => {
+        expect(c.do(v => v.drop()) // DO_1
+            .while(v => v.length > 6) // WHILE_1
+            .while(v => v.length < 8) // WHILE_2
+            .do(v => v.appendItems(v.valAt(0))) // DO_2
+        ).toStrictEqual(new Collection([ 2, 3, 4, 5, 6, 2, 2, 2 ]));
+    });
+
+    test('do().while().while().do() where first .do() multiple times, second .do() multiple times', () => {
+        expect(c.do(v => v.drop()) // DO_1
+            .while(v => v.length > 4) // WHILE_1
+            .while(v => v.length < 8) // WHILE_2
+            .do(v => v.appendItems(v.valAt(0))) // DO_2
+        ).toStrictEqual(new Collection([ 3, 4, 5, 6, 3, 3, 3, 3 ]));
+    });
+
+    test('do().while().while().do() where first .do() once, second .do() never', () => {
+        expect(c.do(v => v.drop()) // DO_1
+            .while(v => v.length > 6) // WHILE_1
+            .while(v => v.length < 1) // WHILE_2
+            .do(v => v.appendItems(v.valAt(0))) // DO_2
+        ).toStrictEqual(new Collection([ 2, 3, 4, 5, 6 ]));
+    });
+
+    test('do().while().while().do() where first .do() multiple times, second .do() never', () => {
+        expect(c.do(v => v.drop()) // DO_1
+            .while(v => v.length > 4) // WHILE_1
+            .while(v => v.length < 1) // WHILE_2
+            .do(v => v.appendItems(v.valAt(0))) // DO_2
+        ).toStrictEqual(new Collection([ 3, 4, 5, 6 ]));
+    });
 });
 
 describe('Collection.pipe()', () => {

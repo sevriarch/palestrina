@@ -1252,6 +1252,17 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.while() requires a function`);
         }
 
+        // Cases to be handled:
+        // 1. Not following .do() and .while() returns true
+        // - any .do() statement in the next line should execute as long as the .while() is true
+        // 2. Not following .do() and .while() returns false
+        // - any .do() statement in the next line should return a clone of the collection
+        // 3. Following .do() and .while() returns true
+        // - this .do() statement should continue to be executed as long as .while() is true
+        // 4. Following .do() and .while() returns false
+        // - return a clone of the collection()
+
+        // .do() statement preceded the .while() statement (cases 3 and 4)
         if (this._control.while) {
             return this._control.while(cond);
         }
@@ -1309,7 +1320,7 @@ export default class Collection<T> {
 
         const me = fn(this);
 
-        me._control.while = cond => cond(me) ? me.do(fn).while(cond) : me;
+        me._control.while = cond => cond(me) ? me.do(fn).while(cond) : me.clone();
 
         return me;
     }
