@@ -7,8 +7,8 @@ import { dumpOneLine } from '../dump/dump';
 type ControlFlow<T> = {
     do?: (fn: CtrlTypeFn<T>) => T,
     while?: (cond: CtrlBoolFn<T>) => T,
-    then_stack?: ((fn: CtrlTypeFn<T>) => T)[],
-    else_stack?: ((fn: CtrlTypeFn<T>) => T)[],
+    then?: (fn: CtrlTypeFn<T>) => T,
+    else?: (fn: CtrlTypeFn<T>) => T,
 }
 
 function seqIndicesToIndices(ix: SeqIndices): number[] {
@@ -1092,10 +1092,6 @@ export default class Collection<T> {
      *
      * After the first non-.then()/.else() call, calls to .then() and .else()
      * will throw exceptions until the next .if() call.
-     * 
-     * You may nest conditional programming blocks; in this case each individual
-     * block must be ended with a .endif() call. .endif() calls are optional
-     * when blocks are not nested.
      *
      * The condition may be passed as a value to be evaluated for truthiness,
      * or a function (in which case it will be executed and the return value
@@ -1114,56 +1110,12 @@ export default class Collection<T> {
         const me = this.clone();
         const yes = typeof cond === 'function' ? cond(me) : cond;
 
-        const thenstack = this._control.then_stack ? this._control.then_stack.slice() : [];
-        const elsestack = this._control.else_stack ? this._control.else_stack.slice() : [];
-
-        const yesfn: (fn: CtrlTypeFn<this>) => this = fn => {
-            const ret = fn(me);
-
-            ret._control.then_stack = thenstack.slice(0, -1);
-            ret._control.else_stack = elsestack.slice(0, -1);
-
-            return ret.if(yes);
-        };
-
-        const nofn: (fn: CtrlTypeFn<this>) => this = () => {
-            const ret = me.clone();
-
-            ret._control.then_stack = thenstack.slice(0, -1);
-            ret._control.else_stack = elsestack.slice(0, -1);
-
-            return ret.if(yes);
-        };
-
         if (yes) {
-            thenstack.push(yesfn);
-            elsestack.push(nofn);
+            me._control.then = fn => fn(me).if(yes);
+            me._control.else = () => me.if(yes);
         } else {
-            thenstack.push(nofn);
-            elsestack.push(yesfn);
-        }
-
-        me._control.then_stack = thenstack;
-        me._control.else_stack = elsestack;
-        return me;
-    }
-
-    /**
-     * End a conditional processing block.
-     */
-    endif(): this {
-        const me = this.clone();
-
-        if (!this._control.then_stack || this._control.then_stack.length < 1) {
-            throw new Error(`${this.constructor.name}.endif() without an if condition`);
-        }
-
-        if (this._control.then_stack && this._control.then_stack.length > 0) {
-            me._control.then_stack = this._control.then_stack.slice(0, -1);
-        }
-
-        if (this._control.else_stack && this._control.else_stack.length > 0) {
-            me._control.else_stack = this._control.else_stack.slice(0, -1);
+            me._control.then = () => me.if(yes);
+            me._control.else = fn => fn(me).if(yes);
         }
 
         return me;
@@ -1182,11 +1134,11 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.then() requires a function`);
         }
 
-        if (!this._control.then_stack || this._control.then_stack.length < 1) {
+        if (!this._control.then) {
             throw new Error(`${this.constructor.name}.then() without an if condition`);
         }
 
-        return this._control.then_stack[this._control.then_stack.length - 1](fn);
+        return this._control.then(fn);
     }
 
     /**
@@ -1202,11 +1154,11 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.else() requires a function`);
         }
 
-        if (!this._control.else_stack || this._control.else_stack.length < 1) {
+        if (!this._control.else) {
             throw new Error(`${this.constructor.name}.else() without an if condition`);
         }
 
-        return this._control.else_stack[this._control.else_stack.length - 1](fn);
+        return this._control.else(fn);
     }
 
     /**
@@ -1252,17 +1204,6 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.while() requires a function`);
         }
 
-        // Cases to be handled:
-        // 1. Not following .do() and .while() returns true
-        // - any .do() statement in the next line should execute as long as the .while() is true
-        // 2. Not following .do() and .while() returns false
-        // - any .do() statement in the next line should return a clone of the collection
-        // 3. Following .do() and .while() returns true
-        // - this .do() statement should continue to be executed as long as .while() is true
-        // 4. Following .do() and .while() returns false
-        // - return a clone of the collection()
-
-        // .do() statement preceded the .while() statement (cases 3 and 4)
         if (this._control.while) {
             return this._control.while(cond);
         }

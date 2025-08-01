@@ -1359,7 +1359,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
             'then() after if() ended',
             () => c.if(true)
                 .else(v => v.retrograde())
-                .endif()
+                .retrograde()
                 .then(v => v.retrograde()),
         ],
         [
@@ -1489,8 +1489,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
                     v => v.if(true)
                         .else(v => v.appendItems(17))
                         .then(v => v.prependItems(13))
-                ).endif()
-                .if(true)
+                ).if(true)
                 .then(v => v.prependItems(4)) // executed
                 .else(v => v.appendItems(8)),
             new Collection([ 4, 2, 1, 0, 1, 2, 3, 4 ])
@@ -1518,8 +1517,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
                     v => v.if(false)
                         .else(v => v.appendItems(17))
                         .then(v => v.prependItems(13))
-                ).endif()
-                .if(false)
+                ).if(false)
                 .then(v => v.prependItems(4))
                 .else(v => v.appendItems(8)), // executed
             new Collection([ 1, 2, 3, 4, 5, 4, 6, 8 ])
@@ -1547,8 +1545,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
                     v => v.if(true)
                         .else(v => v.appendItems(17))
                         .then(v => v.prependItems(13)) // executed
-                ).endif()
-                .if(true)
+                ).if(true)
                 .then(v => v.prependItems(4)) // executed
                 .else(v => v.appendItems(8)),
             new Collection([ 4, 13, 11, 10, 1, 2, 3, 4 ])
@@ -1576,8 +1573,7 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
                     v => v.if(false)
                         .else(v => v.appendItems(17)) // executed
                         .then(v => v.prependItems(13))
-                ).endif()
-                .if(false)
+                ).if(false)
                 .then(v => v.prependItems(4))
                 .else(v => v.appendItems(8)), // executed
             new Collection([ 1, 2, 3, 4, 15, 14, 17, 8 ])
@@ -1586,22 +1582,6 @@ describe('Collection.if()/Collection.then()/Collection.else()', () => {
 
     test.each(table)('%s', (_, fn, ret) => {
         expect(fn()).toStrictEqual(ret);
-    });
-});
-
-describe('Collection.endif() tests', () => {
-    const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
-
-    test('throws without if() condition', () => {
-        expect(() => c.endif()).toThrow();
-    });
-
-    test('does not throw inside of if() condition', () => {
-        expect(() => c.if(true).then(s => s.retrograde()).endif()).not.toThrow();
-    });
-
-    test('throws outside of if() condition', () => {
-        expect(() => c.if(true).then(s => s.retrograde()).endif().endif()).toThrow();
     });
 });
 
