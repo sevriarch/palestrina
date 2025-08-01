@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.3
+
+### Bugfixes
+* collection.do(...).while(...).while(...).do(...) and similar chaining is now guaranteed to work correctly.
+
 ## 0.7.2
 
 ### Enhancements
