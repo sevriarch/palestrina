@@ -8,15 +8,14 @@ ERROR HANDLING:
 
 DOCUMENTATION:
 - There should be more non-API documentation
- - README.md should gain guided examples of how to create a score
- - Backfill ADRs
+ - Documentation should gain guided examples of how to create a score
  - Keep dictionary up to date
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
 REFACTORING:
 - Consider using the visitor pattern for .describe() and midi conversion
 - Instrument/time signature/key signature should perhaps be entities of their own (create an entities directory for such things?)
-- Consider backporting the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina.
+- Consider backporting the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina
 
 
 LOW PRIORITY:
@@ -24,14 +23,20 @@ LOW PRIORITY:
 ERROR HANDLING:
 - Error-checking on arrays should show a list of failing members/indices
  - This is a major undertaking that would require the order: MetaList, ChordSeqMember, Sequences
+ - This would be best performed using a module like @trylonai/ts-result
 
 BUGS/DESIGN ISSUES:
-- Nested .if()/.while()s will be unpredictable unless we implement using a stack.
-- sliding window methods are implemented in an unintuitive manner
+- Sliding window methods are implemented in a manner that allows recursive application of modifications
+ - eg: `.replaceIfWindow(2, 1, () => true, ([a,b]) => a.transpose(b.val()))` will never return a Sequence longer than 2
+ - While this behaviour is likely desired in some cases, it will also be undesired in other cases
+- The replacer logic still shows very clearly its origin in untyped JavaScript
+ - Consider replacing replacer methods with ones that indicate if they perform one-to-one or one-to-many replacement
 
 MIDI:
-- many changes done, could review these
-- midi-reader could potentially attempt to associate events with the related note(s) and/or collapse chords into one event.
+- A lot of changes have been done and a review should be performed
+- Potential enhancement: midi-reader could attempt to:
+ - associate events with the related note(s)
+ - collapse chords into one event
 
 VISUALISATIONS:
 - The original Score canvas could use some love and some compatibility with the 2D canvas style
@@ -39,7 +44,7 @@ VISUALISATIONS:
 
 CLEANLINESS:
 - Perhaps move helpers around and use the term only for those available to the end user?
- - Exports are kind of messy as a result of this.
+ - Exports are messy as a result of this
 
 ONGOING
 - Review docs, compile checklist of things to rereview
