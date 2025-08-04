@@ -3,9 +3,6 @@ HIGH PRIORITY:
 FEATURES:
 - MusicXML import/export
 
-ERROR HANDLING:
-- Review (including type checking)
-
 DOCUMENTATION:
 - There should be more non-API documentation
  - Documentation should gain guided examples of how to create a score
@@ -13,9 +10,10 @@ DOCUMENTATION:
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
 REFACTORING:
-- Consider using the visitor pattern for .describe() and midi conversion
-- Instrument/time signature/key signature should perhaps be entities of their own (create an entities directory for such things?)
-- Consider backporting the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina
+- The following possible refactors should probably be considered when adding the MusicXML import/export feature
+ - Use the visitor pattern for .describe() and midi conversion
+ - Introduce entities concept for instrument/time signature/key signature
+ - Backport the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina
 
 
 LOW PRIORITY:
@@ -33,10 +31,9 @@ BUGS/DESIGN ISSUES:
  - Consider replacing replacer methods with ones that indicate if they perform one-to-one or one-to-many replacement
 
 MIDI:
-- A lot of changes have been done and a review should be performed
 - Potential enhancement: midi-reader could attempt to:
- - associate events with the related note(s)
- - collapse chords into one event
+ - Associate events with the related note(s)
+ - Collapse chords into one event
 
 VISUALISATIONS:
 - The original Score canvas could use some love and some compatibility with the 2D canvas style
