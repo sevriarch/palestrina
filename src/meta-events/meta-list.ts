@@ -126,7 +126,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent> {
      */
     withAllTicksExact(curr: number): MetaList {
         if (!isNonnegInt(curr)) {
-            throw new Error(`MetaList.diminishRhythm(): must diminish by a positive number; was ${dumpOneLine(curr)}`);
+            throw new Error(`MetaList.withAllTicksExact(): current tick must be a non-negative integer; was ${dumpOneLine(curr)}`);
         }
 
         if (!this.length) {
