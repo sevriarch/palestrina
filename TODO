@@ -43,8 +43,7 @@ VISUALISATIONS:
 - SVG as an alternative to canvas
 
 CLEANLINESS:
-- Perhaps move helpers around and use the term only for those available to the end user?
- - Exports are messy as a result of this
+- Pitch helpers are the only ones exported, which feels weird.
 
 ONGOING
 - Review docs, compile checklist of things to rereview
