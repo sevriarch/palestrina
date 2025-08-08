@@ -2,9 +2,7 @@ HIGH PRIORITY:
 
 FEATURES:
 - MusicXML import/export
-
-ERROR HANDLING:
-- Review (including type checking)
+- SVG exports as an alternative to canvas
 
 DOCUMENTATION:
 - There should be more non-API documentation
@@ -13,9 +11,10 @@ DOCUMENTATION:
 - Determine if we can easily replace terms in the documentation with the class they're already in, eg: Collection->ChordSeq
 
 REFACTORING:
-- Consider using the visitor pattern for .describe() and midi conversion
-- Instrument/time signature/key signature should perhaps be entities of their own (create an entities directory for such things?)
-- Consider backporting the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina
+- The following possible refactors should probably be considered when adding the MusicXML import/export feature
+ - Use the visitor pattern for .describe() and midi conversion
+ - Introduce entities concept for instrument/time signature/key signature
+ - Backport the more efficient flow for MIDI file generation implemented in the ongoing Rust port of Palestrina
 
 
 LOW PRIORITY:
@@ -23,7 +22,7 @@ LOW PRIORITY:
 ERROR HANDLING:
 - Error-checking on arrays should show a list of failing members/indices
  - This is a major undertaking that would require the order: MetaList, ChordSeqMember, Sequences
- - This would be best performed using a module like @trylonai/ts-result
+ - This would be best performed using a module that implements result monads, eg: @trylonai/ts-result
 
 BUGS/DESIGN ISSUES:
 - Sliding window methods are implemented in a manner that allows recursive application of modifications
@@ -33,18 +32,15 @@ BUGS/DESIGN ISSUES:
  - Consider replacing replacer methods with ones that indicate if they perform one-to-one or one-to-many replacement
 
 MIDI:
-- A lot of changes have been done and a review should be performed
 - Potential enhancement: midi-reader could attempt to:
- - associate events with the related note(s)
- - collapse chords into one event
+ - Associate events with the related note(s)
+ - Collapse chords into one event
 
 VISUALISATIONS:
 - The original Score canvas could use some love and some compatibility with the 2D canvas style
-- SVG as an alternative to canvas
 
 CLEANLINESS:
-- Perhaps move helpers around and use the term only for those available to the end user?
- - Exports are messy as a result of this
+- Pitch helpers are the only ones exported, which feels weird.
 
 ONGOING
 - Review docs, compile checklist of things to rereview

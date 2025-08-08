@@ -16,16 +16,13 @@ export type {
     FilterFn, FinderFn, ArrayFinderFn, GrouperFn, MapperFn, FlatMapperFn, ValidatorFn // general method types
 } from './src/types';
 
-export * as imports from './src/imports/imports';
-
-export { exportable as CONSTANTS } from './src/constants';
-
 import NumericValidator from './src/validation/numeric';
 import Registry from './src/registry/registry';
-export { NumericValidator, Registry };
+import { exportable as CONSTANTS } from './src/constants';
 
+export { NumericValidator, Registry, CONSTANTS };
+export * as imports from './src/imports/imports';
 export * as helpers from './src/helpers/pitch';
 export * as transformations from './src/transformations/transformations';
 export * as visualizations from './src/visualizations/visualizations';
-
 export * from './src/factory';
