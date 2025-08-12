@@ -91,6 +91,24 @@ export default class Score extends CollectionWithMetadata<Melody> {
     }
 
     /**
+     * Return a new Score where all chords with identical duration, start tick
+     * and volume are combined into one.
+     */
+    withChordsCombined(): this {
+        if (this.length === 0) { return this; }
+
+        const exact = this.withAllTicksExact();
+        const mel = exact.contents[0].append(...exact.contents.slice(1))
+            .sort((a, b) => ((a.at as number) - (b.at as number)) || (a.duration - b.duration))
+            .replaceIfWindow(2, 1,
+                ([ curr, next ]) => (curr.at as number) === (next.at as number) && curr.duration === next.duration && curr.velocity === next.velocity,
+                ([ curr, next ]) => curr.setPitches([ ...curr.pitch.pitches(), ...next.pitch.pitches() ])
+            );
+
+        return this.construct([ mel ]);
+    }
+
+    /**
      * Returns an HTML canvas visualisation of the Score. Will attempt to size the canvas
      * as close as possible to the sizes supplied.
      * 

@@ -435,6 +435,64 @@ describe('Score.withAllTicksExact() tests', () => {
     });
 });
 
+describe('Score.withChordsCombined()', () => {
+    describe('does not fail if no tracks', () => {
+        expect(score([]).withChordsCombined()).toStrictEqual(score([]));
+    });
+
+    describe('does not fail if no notes', () => {
+        expect(score([ T0, T0 ]).withChordsCombined()).toStrictEqual(score([ T0 ]));
+    });
+
+    describe('combines only when all are equal', () => {
+        expect(score([
+            melody([
+                { pitch: [ 60 ], duration: 16, velocity: 50 },
+                { pitch: [ 64 ], duration: 16, velocity: 55 },
+                { pitch: [ 67 ], duration: 32, velocity: 60 },
+            ]),
+            melody([
+                { pitch: [ 52 ], duration: 8, velocity: 50 },
+                { pitch: [ 54 ], duration: 8, velocity: 50 },
+                { pitch: [ 56 ], duration: 16, velocity: 55 },
+                { pitch: [ 58 ], duration: 32, velocity: 60 },
+            ]),
+            melody([
+                { pitch: [ 48 ], duration: 32, velocity: 50 },
+                { pitch: [ 41 ], duration: 32, velocity: 60 },
+            ]),
+            melody([
+                { pitch: [ 36 ], duration: 32, velocity: 60 },
+                { pitch: [ 48 ], duration: 32, velocity: 50 },
+            ]),
+        ]).withChordsCombined()).toStrictEqual(score([
+            melody([
+                { pitch: [ 52 ], duration: 8, velocity: 50, at: 0 },
+                { pitch: [ 60 ], duration: 16, velocity: 50, at: 0 },
+                { pitch: [ 48 ], duration: 32, velocity: 50, at: 0 },
+                { pitch: [ 36 ], duration: 32, velocity: 60, at: 0 },
+                { pitch: [ 54 ], duration: 8, velocity: 50, at: 8 },
+                { pitch: [ 56, 64 ], duration: 16, velocity: 55, at: 16 },
+                { pitch: [ 41, 58, 67 ], duration: 32, velocity: 60, at: 32 },
+                { pitch: [ 48 ], duration: 32, velocity: 50, at: 32 },
+            ])
+        ]));
+    });
+
+    describe('does not eliminate duplicated notes', () => {
+        expect(score([
+            melody([ 54, 56, 58 ]),
+            melody([ 54, 60, 58 ])
+        ]).withChordsCombined()).toStrictEqual(score([
+            melody([ 
+                { pitch: [ 54, 54 ], duration: 16, velocity: 64, at: 0 },
+                { pitch: [ 56, 60 ], duration: 16, velocity: 64, at: 16 },
+                { pitch: [ 58, 58 ], duration: 16, velocity: 64, at: 32 }
+            ])
+        ]));
+    });
+});
+
 describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() tests', () => {
     describe('should throw if ticks_per_quarter is invalid', () => {
         expect(() => score([], { ticks_per_quarter: 65536 }).toMidiBytes()).toThrow();
