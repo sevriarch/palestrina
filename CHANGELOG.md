@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0
+
+### Features
+* Scores and Melodies have an experimental feature, `.withChordsCombined()`. This will combine notes with identical start and end times
+and volumes into a single chord, but it does this in a destructive manner, potentially causing the loss of metadata, note order and other
+things. The primary use case for this feature is to combine the notes of chords contained in a Score or Melodies read from a MIDI file.
+
 ## 0.7.3
 
 ### Bugfixes
@@ -9,6 +16,7 @@
 
 ### Enhancements
 * When a Melody contains invalid notes, the error message converting it to MIDI now says where in the Melody the error occurred.
+* Dev dependencies have been updated.
 
 ## 0.7.1
 
