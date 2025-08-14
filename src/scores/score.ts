@@ -94,6 +94,8 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Return a new Score where all notes with identical duration, start tick
      * and volume are combined into a single chord.
      * 
+     * This is an experimental feature: the API should *not* be considered stable.
+     *
      * Caveats:
      *  - all tracks are collapsed into a single track
      *  - metadata associated with tracks beyond the first are lost
