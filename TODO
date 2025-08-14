@@ -32,9 +32,7 @@ BUGS/DESIGN ISSUES:
  - Consider replacing replacer methods with ones that indicate if they perform one-to-one or one-to-many replacement
 
 MIDI:
-- Potential enhancement: midi-reader could attempt to:
- - Associate events with the related note(s)
- - Collapse chords into one event
+- Potential enhancement: midi-reader could attempt to associate events with the related note(s)
 
 VISUALISATIONS:
 - The original Score canvas could use some love and some compatibility with the 2D canvas style

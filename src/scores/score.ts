@@ -91,8 +91,16 @@ export default class Score extends CollectionWithMetadata<Melody> {
     }
 
     /**
-     * Return a new Score where all chords with identical duration, start tick
-     * and volume are combined into one.
+     * Return a new Score where all notes with identical duration, start tick
+     * and volume are combined into a single chord.
+     * 
+     * Caveats:
+     *  - all tracks are collapsed into a single track
+     *  - metadata associated with tracks beyond the first are lost
+     *  - metadata associated with notes beyond the first in a chord is lost
+     *  - note order is not retained
+     *  - exact ticks are applied to all notes within the Score
+     *  - notes in different instruments may be collapsed into one chord
      */
     withChordsCombined(): this {
         if (this.length === 0) { return this; }

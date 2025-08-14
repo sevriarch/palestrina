@@ -401,6 +401,28 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
+     * Return a new Melody where all notes with identical duration, start tick
+     * and volume are combined into a single chord.
+     * 
+     * Caveats:
+     *  - all tracks are collapsed into a single track
+     *  - metadata associated with notes beyond the first in a chord is lost
+     *  - note order is not retained
+     *  - exact ticks are applied to all notes within the Melody
+     *  - notes in different instruments may be collapsed into one chord
+     */
+    withChordsCombined(): this {
+        if (this.length === 0) { return this; }
+
+        return this.withAllTicksExact()
+            .sort((a, b) => ((a.at as number) - (b.at as number)) || (a.duration - b.duration))
+            .replaceIfWindow(2, 1,
+                ([ curr, next ]) => (curr.at as number) === (next.at as number) && curr.duration === next.duration && curr.velocity === next.velocity,
+                ([ curr, next ]) => curr.setPitches([ ...curr.pitch.pitches(), ...next.pitch.pitches() ])
+            );
+    }
+
+    /**
      * Return a new Melody with text events added before the specified locations.
      * 
      * @example

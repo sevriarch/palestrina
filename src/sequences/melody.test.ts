@@ -1173,6 +1173,38 @@ describe('MelodyMember.withAllTicksExact()', () => {
     });
 });
 
+describe('Melody.withChordsCombined()', () => {
+    describe('does not fail if no notes', () => {
+        expect(melody([]).withChordsCombined()).toStrictEqual(melody([]));
+    });
+
+    describe('combines only when all are equal', () => {
+        expect(melody([
+            { pitch: [ 60 ], duration: 16, velocity: 50 },
+            { pitch: [ 64 ], duration: 16, velocity: 55 },
+            { pitch: [ 67 ], duration: 32, velocity: 60 },
+            { pitch: [ 52 ], duration: 8, velocity: 50, at: 0 },
+            { pitch: [ 54 ], duration: 8, velocity: 50 },
+            { pitch: [ 56 ], duration: 16, velocity: 55 },
+            { pitch: [ 58 ], duration: 32, velocity: 60 },
+            { pitch: [ 48 ], duration: 32, velocity: 50, at: 0 },
+            { pitch: [ 41 ], duration: 32, velocity: 60 },
+            { pitch: [ 36 ], duration: 32, velocity: 60, at: 0 },
+            { pitch: [ 48 ], duration: 32, velocity: 50 },
+            { pitch: [ 54 ], duration: 32, velocity: 60, at: 0 }
+        ]).withChordsCombined()).toStrictEqual(melody([
+            { pitch: [ 52 ], duration: 8, velocity: 50, at: 0 },
+            { pitch: [ 60 ], duration: 16, velocity: 50, at: 0 },
+            { pitch: [ 48 ], duration: 32, velocity: 50, at: 0 },
+            { pitch: [ 36, 54 ], duration: 32, velocity: 60, at: 0 },
+            { pitch: [ 54 ], duration: 8, velocity: 50, at: 8 },
+            { pitch: [ 56, 64 ], duration: 16, velocity: 55, at: 16 },
+            { pitch: [ 41, 58, 67 ], duration: 32, velocity: 60, at: 32 },
+            { pitch: [ 48 ], duration: 32, velocity: 50, at: 32 },
+        ]));
+    });
+});
+
 describe('Melody.withStartTick()', () => {
     test('changing start tick changes undefined ticks in sequence', () => {
         const s = melody([{ pitch: [50], duration: 100, velocity: 80 }, { pitch: [60], duration: 50, velocity: 80, at: 50 }]);
