@@ -35,6 +35,31 @@ export function JSONTemplate(template: string, substitutions: { [k: string]: JSO
     return str;
 }
 
+function getColorRule(rule?: string): (i: number) => string {
+    switch (rule) {
+    case 'mod12':
+        return i => {
+            switch (i % 12) {
+            case 0: return '#E08080';
+            case 1: return '#80E080';
+            case 2: return '#8080E0';
+            case 3: return '#E0E080';
+            case 4: return '#E080E0';
+            case 5: return '#80E0E0';
+            case 6: return '#E02020';
+            case 7: return '#20E080';
+            case 8: return '#2080E0';
+            case 9: return '#E0E020';
+            case 10: return '#E020E0';
+            default: return '#20E0E0';
+            }
+        };
+
+    default:
+        return () => '#C0C0C0';
+    }
+}
+
 /**
  * Return HTML and Javascript for rendering a 2D canvas.
  * Fields within the argument passed are:
@@ -65,6 +90,83 @@ export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg
         __CANVAS_TIMELINE__: timeline,
         __CANVAS_DATA__: data,
         __CANVAS_OPTS__: options
+    });
+}
+
+/**
+ * Return HTML for a 2D SVG.
+ * Fields within the argument passed are:
+ * name: A name for the SVG.
+ * timeline: A timeline of events in MIDI ticks.
+ * data: An array of values corresponding to the timeline.
+ * options: A list of options for rendering the canvas.
+ */
+export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): string {
+    if (typeof name !== 'string') {
+        throw new Error(`visualizations.render2DCanvas(): canvas name should be a string, was ${dumpOneLine(name)}`);
+    }
+
+    if (!Array.isArray(timeline)) {
+        throw new Error(`visualizations.render2DCanvas(): timeline was not an array, was ${dumpOneLine(timeline)}`);
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error(`visualizations.render2DCanvas(): data was not an array, was ${dumpOneLine(data)}`);
+    }
+
+    if (timeline.length !== data.length) {
+        throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
+    }
+
+    const px_horiz = options.px_horiz ?? (1 / 40);
+    const px_vert  = options.px_vert  ?? 10;
+
+    const LEFTPAD  = options.leftpad ?? 16;
+    const RIGHTPAD = options.rightpad ?? 8;
+    const TOPPAD   = options.header ? 10 : 0;
+
+
+    const flattened = data.flat();
+    const maxval = options.maxval || Math.max(...flattened);
+    const minval = options.minval || Math.min(...flattened);
+    const vpos_fn: (v: number) => number = v => TOPPAD + px_vert * (maxval - v);
+
+    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * px_vert)));
+    const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * px_horiz)) + RIGHTPAD);
+
+    const colorRule = getColorRule(options.color_rule);
+
+    //const value_rule = get_value_rule();
+    //const BARLINES = options.barlines;
+    //const textstyle = options.textstyle || '#C0C0C0';
+
+    let str = `<svg width="${width}" height="${height}" style="border:1px solid black; background: black">\n`;
+
+    for (let i = 0; i < timeline.length; i++) {
+        const x = LEFTPAD + Math.floor(timeline[i] * px_horiz);
+        const wd = Math.max(Math.ceil((timeline[i + 1] - timeline[i]) * px_horiz), 1);
+
+        data[i].forEach(v => {
+            const clr = colorRule(v);
+            str += `  <rect x="${x}" y="${vpos_fn(v)}" width="${wd}" height="${px_vert}" fill="${clr}" stroke="${clr}" stroke-width="0" />\n`;
+        });
+    }
+
+    str += '</svg>\n';
+    return str;
+}
+
+/**
+ * Given a Score, create an SVG showing the notes in the Score.
+ */
+export function scoreToNotesSVG(score: Score, opts: CanvasArgOpts = {}, name = 'notes' ): string {
+    const [ timeline, data ] = transformations.scoreToNotes(score);
+
+    return render2DSVG({
+        name,
+        timeline,
+        data,
+        options: { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts }
     });
 }
 
