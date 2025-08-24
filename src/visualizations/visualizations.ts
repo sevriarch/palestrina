@@ -60,6 +60,20 @@ function getColorRule(rule?: string): (i: number) => string {
     }
 }
 
+function getValueRule(rule?: string): (str: number) => string {
+    switch (rule) {
+    case 'note':
+        return n => {
+            return [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12]
+                + String.fromCharCode(0x2080 + (Math.floor(n / 12) - 1));
+        };
+    case 'pitch':
+        return n => [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12];
+    default:
+        return n => n.toString();
+    }
+}
+
 /**
  * Return HTML and Javascript for rendering a 2D canvas.
  * Fields within the argument passed are:
@@ -118,29 +132,49 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
         throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
     }
 
+    // Pixel scale
     const px_horiz = options.px_horiz ?? (1 / 40);
     const px_vert  = options.px_vert  ?? 10;
 
+    // Padding
     const LEFTPAD  = options.leftpad ?? 16;
     const RIGHTPAD = options.rightpad ?? 8;
     const TOPPAD   = options.header ? 10 : 0;
 
-
+    // SVG size and positioning within it
     const flattened = data.flat();
     const maxval = options.maxval || Math.max(...flattened);
     const minval = options.minval || Math.min(...flattened);
     const vpos_fn: (v: number) => number = v => TOPPAD + px_vert * (maxval - v);
-
     const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * px_vert)));
     const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * px_horiz)) + RIGHTPAD);
 
+    // Styling
     const colorRule = getColorRule(options.color_rule);
+    const valueRule = getValueRule(options.value_rule);
+    const textstyle = options.textstyle || '#C0C0C0';
+    const BARLINES = options.barlines;
 
-    //const value_rule = get_value_rule();
-    //const BARLINES = options.barlines;
-    //const textstyle = options.textstyle || '#C0C0C0';
+    let str = `<svg viewbox="0,0,${width},${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+  <style>
+    text {
+      font-family: "Arial";
+      font-size: 12px;
+    }
+  </style>
+`;
 
-    let str = `<svg width="${width}" height="${height}" style="border:1px solid black; background: black">\n`;
+    if (options.header) {
+        str += `  <text x="${LEFTPAD}" y="10" fill="${textstyle}">${options.header}</text>\n`;
+    }
+
+    const gap = Math.max(Math.ceil(10 / px_vert), 1);
+    for (let i = minval; i <= maxval; i += gap) {
+        const bargap = BARLINES ? (options.value_bars || 8) : 1e7;
+        for (let j = 2; j < width; j += bargap) {
+            str += `  <text x="${j}" y="${vpos_fn(i) + px_vert}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
+        }
+    }
 
     for (let i = 0; i < timeline.length; i++) {
         const x = LEFTPAD + Math.floor(timeline[i] * px_horiz);
