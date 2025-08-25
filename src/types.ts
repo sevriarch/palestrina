@@ -340,7 +340,7 @@ export type CanvasArgOpts = {
     value_rule?: string, // Rule for determining how values are displayed on the Y axis
     maxval?: number,     // Maximum value to show on Y axis
     minval?: number,     // Minimum value to show on Y axis
-    barlines?: boolean,  // Show barlines?
+    barlines?: number,   // If supplied, show vertical lines every X beats
     value_bars?: number, // Show a vertical line every X bars, if passed
     beats?: number,      // Number of beats per bar
     beatstyle?: string,  // RGB colour for displaying beats

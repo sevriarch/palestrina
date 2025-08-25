@@ -153,6 +153,7 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
     const colorRule = getColorRule(options.color_rule);
     const valueRule = getValueRule(options.value_rule);
     const textstyle = options.textstyle || '#C0C0C0';
+    const beatstyle = options.beatstyle || '#404040';
     const BARLINES = options.barlines;
 
     let str = `<svg viewbox="0,0,${width},${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
@@ -161,18 +162,40 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
       font-family: "Arial";
       font-size: 12px;
     }
+
+    line {
+      stroke-width: 1;
+      stroke: ${beatstyle};
+    }
   </style>
 `;
+
+    for (let i = 11; i < 128; i += 24) {
+        const band = px_vert * 12;
+
+        str += `  <rect x="0" y="${vpos_fn(i)}" width="${width}" height="${band}" fill="#181818"/> \n`
+           + `  <rect x="0" y="${vpos_fn(i) + band}" width="${width}" height="${band}" fill="#000000" />\n`;
+    }
 
     if (options.header) {
         str += `  <text x="${LEFTPAD}" y="10" fill="${textstyle}">${options.header}</text>\n`;
     }
 
     const gap = Math.max(Math.ceil(10 / px_vert), 1);
+    const bargap = BARLINES ? BARLINES * 8 : 1e7;
     for (let i = minval; i <= maxval; i += gap) {
-        const bargap = BARLINES ? (options.value_bars || 8) : 1e7;
         for (let j = 2; j < width; j += bargap) {
             str += `  <text x="${j}" y="${vpos_fn(i) + px_vert}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
+        }
+    }
+
+    if (BARLINES) {
+        let bar = 1;
+        for (let i = LEFTPAD; i < width; i += BARLINES) {
+            str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />\n`
+                + `  <text x="${i + BARLINES / 2 - 8}" y="${height}" fill="${textstyle}">${bar}</text>\n`
+                + `  <text x="${i + BARLINES / 2 - 8}" y="10" fill="${textstyle}">${bar}</text>\n`;
+            bar++;
         }
     }
 
