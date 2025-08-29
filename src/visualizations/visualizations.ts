@@ -35,11 +35,11 @@ export function JSONTemplate(template: string, substitutions: { [k: string]: JSO
     return str;
 }
 
-function getColorRule(rule?: string): (i: number) => string {
+function getColorRule(rule?: string): (n: number) => string {
     switch (rule) {
     case 'mod12':
-        return i => {
-            switch (i % 12) {
+        return n => {
+            switch (n % 12) {
             case 0: return '#E08080';
             case 1: return '#80E080';
             case 2: return '#8080E0';
@@ -60,7 +60,7 @@ function getColorRule(rule?: string): (i: number) => string {
     }
 }
 
-function getValueRule(rule?: string): (str: number) => string {
+function getValueRule(rule?: string): (n: number) => string {
     switch (rule) {
     case 'note':
         return n => {
@@ -72,6 +72,97 @@ function getValueRule(rule?: string): (str: number) => string {
     default:
         return n => n.toString();
     }
+}
+
+/*
+type ParsedCanvasArgOpts = {
+    horizPx: number,   // Number of pixels per MIDI quarter note horizontally
+    vertPx: number,    // Number of pixels per unit value vertically
+    beatPx: number,    // If showing beat lines, number of pixels per beat
+    lineRepeatPx: number,  // If showing beat lines, show them every `beatlines` beats
+    noteRepeatPx: number, // Show list of notes every n pixels
+    height: number,     // Exact height of canvas; overrides vertPx
+    width: number,      // Exact width of canvas; overrides horizPx
+    leftpad: number,    // Pad canvas this many pixels on the left
+    rightpad: number,   // Pad canvas this many pixels on the right
+    toppad: number,     // Pad canvas this many pixels on the top
+    btmpad: number,     // Pad canvas this many pixels on the bottom
+    header?: string,    // Text header to display at the top left of the canvas
+    maxval: number,     // Maximum value to show on Y axis
+    minval: number,     // Minimum value to show on Y axis
+    showbeats: boolean, // Show vertical lines every n beats?
+    beats: number,      // Number of beats per bar
+    textstyle: string,  // RGB colour for displaying text
+    beatstyle: string,  // RGB colour for displaying first beat of the bar
+    offbeatstyle: string, // RGB color for displaying offbeats
+    vposRule: (v: number) => number,  // Function for calculating vertical positions
+    colorRule: (i: number) => string; // Function for converting a pitch to a color
+    valueRule: (i: number) => string; // Function for converting a pitch to a color
+};
+
+function parseOptions({ name, timeline, data, options = {} }: CanvasArg): ParsedCanvasArgOpts {
+    if (typeof name !== 'string') {
+        throw new Error(`visualizations.render2DCanvas(): canvas name should be a string, was ${dumpOneLine(name)}`);
+    }
+
+    if (!Array.isArray(timeline)) {
+        throw new Error(`visualizations.render2DCanvas(): timeline was not an array, was ${dumpOneLine(timeline)}`);
+    }
+
+    if (!Array.isArray(data)) {
+        throw new Error(`visualizations.render2DCanvas(): data was not an array, was ${dumpOneLine(data)}`);
+    }
+
+    if (timeline.length !== data.length) {
+        throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
+    }
+
+    const horizPx = options.px_horiz ?? (1 / 40);
+    const vertPx = options.px_vert ?? 10;
+    const flattened = data.flat();
+    const maxval = options.maxval || Math.max(...flattened);
+    const minval = options.minval || Math.min(...flattened);
+    const leftpad = options.leftpad ?? 16;
+    const rightpad = options.rightpad ?? 8;
+    const toppad = options.header ? 10 : 0;
+    const btmpad = options.barlines ? 10 : 0;
+    const beats = options.beats || 0;
+
+    return {
+        // Pixel scale
+        horizPx,
+        vertPx,
+        beatPx: 1 / beats,
+
+        // Padding
+        leftpad, 
+        rightpad,
+        toppad,
+        btmpad,
+
+        // SVG size and positioning within it
+        maxval,
+        minval,
+        height: Math.floor(toppad + (options.height || ((1 + maxval - minval) * vertPx))),
+        width: Math.floor(leftpad + (options.width || ((1 + timeline[timeline.length - 1]) * horizPx)) + rightpad),
+
+        // Rule methods for calculating how and what to display
+        vposRule: v => toppad + vertPx * (maxval - v),
+        colorRule: getColorRule(options.color_rule),
+        valueRule: getValueRule(options.value_rule),
+
+        // Styling
+        textstyle: options.textstyle || '#C0C0C0',
+        beatstyle: options.beatstyle || '#404040',
+        offbeatstyle: options.offbeatstyle || '#202020',
+
+        // Annotations
+        showbeats: options.barlines ? true : false, 
+        lineRepeatPx: options.barlines ?? 0,
+        noteRepeatPx: options.barlines ? options.barlines * (options.value_bars || 8) : 1e9,
+        beats,
+        header: options.header,
+    };
 }
 
 /**
@@ -133,28 +224,32 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
     }
 
     // Pixel scale
-    const px_horiz = options.px_horiz ?? (1 / 40);
-    const px_vert  = options.px_vert  ?? 10;
+    const horizPx = options.px_horiz ?? (1 / 40);
+    const vertPx = options.px_vert ?? 10;
+    const lineRepeatPx = options.barlines;
+    const noteRepeatPx = lineRepeatPx ? lineRepeatPx * (options.value_bars || 8) : 1e9;
 
     // Padding
     const LEFTPAD  = options.leftpad ?? 16;
     const RIGHTPAD = options.rightpad ?? 8;
     const TOPPAD   = options.header ? 10 : 0;
+    const BTMPAD   = options.barlines ? 10 : 0;
 
     // SVG size and positioning within it
     const flattened = data.flat();
     const maxval = options.maxval || Math.max(...flattened);
     const minval = options.minval || Math.min(...flattened);
-    const vpos_fn: (v: number) => number = v => TOPPAD + px_vert * (maxval - v);
-    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * px_vert)));
-    const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * px_horiz)) + RIGHTPAD);
+    const vposRule: (v: number) => number = v => TOPPAD + vertPx * (maxval - v);
+    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * vertPx))) + BTMPAD;
+    const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * horizPx)) + RIGHTPAD);
 
     // Styling
     const colorRule = getColorRule(options.color_rule);
     const valueRule = getValueRule(options.value_rule);
     const textstyle = options.textstyle || '#C0C0C0';
     const beatstyle = options.beatstyle || '#404040';
-    const BARLINES = options.barlines;
+    const offbeatstyle = options.offbeatstyle || '#202020';
+    const beats = options.beats ?? 0;
 
     let str = `<svg viewbox="0,0,${width},${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
@@ -170,42 +265,59 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
   </style>
 `;
 
+    // Horizontal alternation of background color by octave
     for (let i = 11; i < 128; i += 24) {
-        const band = px_vert * 12;
+        const band = vertPx * 12;
 
-        str += `  <rect x="0" y="${vpos_fn(i)}" width="${width}" height="${band}" fill="#181818"/> \n`
-           + `  <rect x="0" y="${vpos_fn(i) + band}" width="${width}" height="${band}" fill="#000000" />\n`;
+        str += `  <rect x="0" y="${vposRule(i)}" width="${width}" height="${band}" fill="#101010"/>
+  <rect x="0" y="${vposRule(i) + band}" width="${width}" height="${band}" fill="#000000" />
+`;
     }
 
+    // Name of SVG, if supplied
     if (options.header) {
         str += `  <text x="${LEFTPAD}" y="10" fill="${textstyle}">${options.header}</text>\n`;
     }
 
-    const gap = Math.max(Math.ceil(10 / px_vert), 1);
-    const bargap = BARLINES ? BARLINES * 8 : 1e7;
-    for (let i = minval; i <= maxval; i += gap) {
-        for (let j = 2; j < width; j += bargap) {
-            str += `  <text x="${j}" y="${vpos_fn(i) + px_vert}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
+    // Annotate SVG with pitches
+    const pxgap = Math.max(Math.ceil(10 / vertPx), 1);
+    for (let i = minval; i <= maxval; i += pxgap) {
+        for (let j = 2; j < width; j += noteRepeatPx) {
+            str += `  <text x="${j}" y="${vposRule(i) + vertPx}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
         }
     }
 
-    if (BARLINES) {
+    // Annotate with barlines and sub-bar-lines
+    if (lineRepeatPx) {
+        const beatPx = lineRepeatPx / beats;
+
         let bar = 1;
-        for (let i = LEFTPAD; i < width; i += BARLINES) {
+        for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
+            const val = i + lineRepeatPx / 2 - 8;
+
             str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />\n`
-                + `  <text x="${i + BARLINES / 2 - 8}" y="${height}" fill="${textstyle}">${bar}</text>\n`
-                + `  <text x="${i + BARLINES / 2 - 8}" y="10" fill="${textstyle}">${bar}</text>\n`;
+                + `  <text x="${val}" y="${height}" fill="${textstyle}">${bar}</text>\n`
+                + `  <text x="${val}" y="10" fill="${textstyle}">${bar}</text>\n`;
             bar++;
+
+            if (beats) {
+                for (let j = 1; j < beats; j++) {
+                    const xpos = i + j + beatPx;
+
+                    str += `  <line x1="${xpos}" y1="0" x2="${xpos}" y2=${height} style="stroke:${offbeatstyle}" />\n`;
+                }
+            }
         }
     }
 
+    // Add notes to SVG
     for (let i = 0; i < timeline.length; i++) {
-        const x = LEFTPAD + Math.floor(timeline[i] * px_horiz);
-        const wd = Math.max(Math.ceil((timeline[i + 1] - timeline[i]) * px_horiz), 1);
+        const x = LEFTPAD + Math.floor(timeline[i] * horizPx);
+        const wd = Math.max(Math.ceil((timeline[i + 1] - timeline[i]) * horizPx), 1);
 
         data[i].forEach(v => {
             const clr = colorRule(v);
-            str += `  <rect x="${x}" y="${vpos_fn(v)}" width="${wd}" height="${px_vert}" fill="${clr}" stroke="${clr}" stroke-width="0" />\n`;
+            str += `  <rect x="${x}" y="${vposRule(v)}" width="${wd}" height="${vertPx}" fill="${clr}" stroke="${clr}" stroke-width="0" />\n`;
         });
     }
 
