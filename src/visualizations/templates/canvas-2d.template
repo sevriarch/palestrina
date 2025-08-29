@@ -10,15 +10,16 @@
     const px_horiz = options.px_horiz || (1 / 40);
     const px_vert  = options.px_vert  || 10;
 
+    const BARLINES = options.barlines;
+
     const LEFTPAD  = options.leftpad || 16;
     const RIGHTPAD = options.rightpad || 8;
     const TOPPAD   = options.header ? 10 : 0;
-
-    const BARLINES = options.barlines;
+    const BTMPAD   = BARLINES ? 10 : 0;
 
     const [ maxval, minval, vpos_fn ] = get_min_max();
 
-    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * px_vert)));
+    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * px_vert)) + BTMPAD);
     const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * px_horiz)) + RIGHTPAD);
 
     const color_rule = get_color_rule();
