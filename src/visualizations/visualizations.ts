@@ -198,6 +198,26 @@ export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg
     });
 }
 
+function getSVGHeader(ht: number, wd: number, beatstyle = '#404040'): string {
+    return `<svg viewbox="0,0,${wd},${ht}" width="${wd}" height="${ht}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+  <style>
+    text {
+      font-family: "Arial";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: ${beatstyle};
+    }
+  </style>
+`;
+}
+
+function getSVGFooter(): string {
+    return '</svg>\n';
+}
+
 /**
  * Return HTML for a 2D SVG.
  * Fields within the argument passed are:
@@ -223,25 +243,32 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
         throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
     }
 
+    if (timeline.length === 0) {
+        return getSVGHeader(0, 0) + getSVGFooter();
+    }
+
+    const flattened = data.flat();
+    const maxval = options.maxval || Math.max(...flattened);
+    const minval = options.minval || Math.min(...flattened);
+    const timerange = 1 + timeline[timeline.length - 1];
+    const pitchrange = 1 + maxval - minval;
+
     // Pixel scale
-    const horizPx = options.px_horiz ?? (1 / 40);
-    const vertPx = options.px_vert ?? 10;
+    const horizPx = options.width ? (options.width / timerange) : options.px_horiz ?? (1 / 40);
+    const vertPx = options.height ? (options.height / pitchrange) : options.px_vert ?? 10;
     const lineRepeatPx = options.barlines;
     const noteRepeatPx = lineRepeatPx ? lineRepeatPx * (options.value_bars || 8) : 1e9;
 
     // Padding
     const LEFTPAD  = options.leftpad ?? 16;
     const RIGHTPAD = options.rightpad ?? 8;
-    const TOPPAD   = options.header ? 10 : 0;
+    const TOPPAD   = (options.header || options.barlines) ? 10 : 0;
     const BTMPAD   = options.barlines ? 10 : 0;
 
     // SVG size and positioning within it
-    const flattened = data.flat();
-    const maxval = options.maxval || Math.max(...flattened);
-    const minval = options.minval || Math.min(...flattened);
     const vposRule: (v: number) => number = v => TOPPAD + vertPx * (maxval - v);
-    const height = Math.floor(TOPPAD + (options.height || ((1 + maxval - minval) * vertPx))) + BTMPAD;
-    const width  = Math.floor(LEFTPAD + (options.width || ((1 + timeline[timeline.length - 1]) * horizPx)) + RIGHTPAD);
+    const height = Math.floor(TOPPAD + (options.height || (pitchrange * vertPx))) + BTMPAD;
+    const width  = Math.floor(LEFTPAD + (options.width || (timerange * horizPx)) + RIGHTPAD);
 
     // Styling
     const colorRule = getColorRule(options.color_rule);
@@ -251,25 +278,13 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
     const offbeatstyle = options.offbeatstyle || '#202020';
     const beats = options.beats ?? 0;
 
-    let str = `<svg viewbox="0,0,${width},${height}" width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
-  <style>
-    text {
-      font-family: "Arial";
-      font-size: 12px;
-    }
-
-    line {
-      stroke-width: 1;
-      stroke: ${beatstyle};
-    }
-  </style>
-`;
+    let str = getSVGHeader(height, width, beatstyle);
 
     // Horizontal alternation of background color by octave
     for (let i = 11; i < 128; i += 24) {
         const band = vertPx * 12;
 
-        str += `  <rect x="0" y="${vposRule(i)}" width="${width}" height="${band}" fill="#101010"/>
+        str += `  <rect x="0" y="${vposRule(i)}" width="${width}" height="${band}" fill="#101010" />
   <rect x="0" y="${vposRule(i) + band}" width="${width}" height="${band}" fill="#000000" />
 `;
     }
@@ -283,7 +298,7 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
     const pxgap = Math.max(Math.ceil(10 / vertPx), 1);
     for (let i = minval; i <= maxval; i += pxgap) {
         for (let j = 2; j < width; j += noteRepeatPx) {
-            str += `  <text x="${j}" y="${vposRule(i) + vertPx}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
+            str += `  <text x="${j}" y="${vposRule(i) + vertPx / 2 + 5}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
         }
     }
 
@@ -321,8 +336,7 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
         });
     }
 
-    str += '</svg>\n';
-    return str;
+    return str + getSVGFooter();
 }
 
 /**
