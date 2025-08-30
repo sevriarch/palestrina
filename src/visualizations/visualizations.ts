@@ -228,19 +228,19 @@ function getSVGFooter(): string {
  */
 export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): string {
     if (typeof name !== 'string') {
-        throw new Error(`visualizations.render2DCanvas(): canvas name should be a string, was ${dumpOneLine(name)}`);
+        throw new Error(`visualizations.render2DSVG(): canvas name should be a string, was ${dumpOneLine(name)}`);
     }
 
     if (!Array.isArray(timeline)) {
-        throw new Error(`visualizations.render2DCanvas(): timeline was not an array, was ${dumpOneLine(timeline)}`);
+        throw new Error(`visualizations.render2DSVG(): timeline was not an array, was ${dumpOneLine(timeline)}`);
     }
 
     if (!Array.isArray(data)) {
-        throw new Error(`visualizations.render2DCanvas(): data was not an array, was ${dumpOneLine(data)}`);
+        throw new Error(`visualizations.render2DSVG(): data was not an array, was ${dumpOneLine(data)}`);
     }
 
     if (timeline.length !== data.length) {
-        throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
+        throw new Error(`visualizations.render2DSVG(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
     }
 
     if (timeline.length === 0) {
@@ -310,9 +310,10 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
         for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
             const val = i + lineRepeatPx / 2 - 8;
 
-            str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />\n`
-                + `  <text x="${val}" y="${height}" fill="${textstyle}">${bar}</text>\n`
-                + `  <text x="${val}" y="10" fill="${textstyle}">${bar}</text>\n`;
+            str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />
+  <text x="${val}" y="${height}" fill="${textstyle}">${bar}</text>
+  <text x="${val}" y="10" fill="${textstyle}">${bar}</text>
+`;
             bar++;
 
             if (beats) {
