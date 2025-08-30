@@ -74,97 +74,6 @@ function getValueRule(rule?: string): (n: number) => string {
     }
 }
 
-/*
-type ParsedCanvasArgOpts = {
-    horizPx: number,   // Number of pixels per MIDI quarter note horizontally
-    vertPx: number,    // Number of pixels per unit value vertically
-    beatPx: number,    // If showing beat lines, number of pixels per beat
-    lineRepeatPx: number,  // If showing beat lines, show them every `beatlines` beats
-    noteRepeatPx: number, // Show list of notes every n pixels
-    height: number,     // Exact height of canvas; overrides vertPx
-    width: number,      // Exact width of canvas; overrides horizPx
-    leftpad: number,    // Pad canvas this many pixels on the left
-    rightpad: number,   // Pad canvas this many pixels on the right
-    toppad: number,     // Pad canvas this many pixels on the top
-    btmpad: number,     // Pad canvas this many pixels on the bottom
-    header?: string,    // Text header to display at the top left of the canvas
-    maxval: number,     // Maximum value to show on Y axis
-    minval: number,     // Minimum value to show on Y axis
-    showbeats: boolean, // Show vertical lines every n beats?
-    beats: number,      // Number of beats per bar
-    textstyle: string,  // RGB colour for displaying text
-    beatstyle: string,  // RGB colour for displaying first beat of the bar
-    offbeatstyle: string, // RGB color for displaying offbeats
-    vposRule: (v: number) => number,  // Function for calculating vertical positions
-    colorRule: (i: number) => string; // Function for converting a pitch to a color
-    valueRule: (i: number) => string; // Function for converting a pitch to a color
-};
-
-function parseOptions({ name, timeline, data, options = {} }: CanvasArg): ParsedCanvasArgOpts {
-    if (typeof name !== 'string') {
-        throw new Error(`visualizations.render2DCanvas(): canvas name should be a string, was ${dumpOneLine(name)}`);
-    }
-
-    if (!Array.isArray(timeline)) {
-        throw new Error(`visualizations.render2DCanvas(): timeline was not an array, was ${dumpOneLine(timeline)}`);
-    }
-
-    if (!Array.isArray(data)) {
-        throw new Error(`visualizations.render2DCanvas(): data was not an array, was ${dumpOneLine(data)}`);
-    }
-
-    if (timeline.length !== data.length) {
-        throw new Error(`visualizations.render2DCanvas(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
-    }
-
-    const horizPx = options.px_horiz ?? (1 / 40);
-    const vertPx = options.px_vert ?? 10;
-    const flattened = data.flat();
-    const maxval = options.maxval || Math.max(...flattened);
-    const minval = options.minval || Math.min(...flattened);
-    const leftpad = options.leftpad ?? 16;
-    const rightpad = options.rightpad ?? 8;
-    const toppad = options.header ? 10 : 0;
-    const btmpad = options.barlines ? 10 : 0;
-    const beats = options.beats || 0;
-
-    return {
-        // Pixel scale
-        horizPx,
-        vertPx,
-        beatPx: 1 / beats,
-
-        // Padding
-        leftpad, 
-        rightpad,
-        toppad,
-        btmpad,
-
-        // SVG size and positioning within it
-        maxval,
-        minval,
-        height: Math.floor(toppad + (options.height || ((1 + maxval - minval) * vertPx))),
-        width: Math.floor(leftpad + (options.width || ((1 + timeline[timeline.length - 1]) * horizPx)) + rightpad),
-
-        // Rule methods for calculating how and what to display
-        vposRule: v => toppad + vertPx * (maxval - v),
-        colorRule: getColorRule(options.color_rule),
-        valueRule: getValueRule(options.value_rule),
-
-        // Styling
-        textstyle: options.textstyle || '#C0C0C0',
-        beatstyle: options.beatstyle || '#404040',
-        offbeatstyle: options.offbeatstyle || '#202020',
-
-        // Annotations
-        showbeats: options.barlines ? true : false, 
-        lineRepeatPx: options.barlines ?? 0,
-        noteRepeatPx: options.barlines ? options.barlines * (options.value_bars || 8) : 1e9,
-        beats,
-        header: options.header,
-    };
-}
-
 /**
  * Return HTML and Javascript for rendering a 2D canvas.
  * Fields within the argument passed are:
@@ -230,7 +139,7 @@ function getSVGFooter(): string {
  * data: An array of values corresponding to the timeline.
  * options: A list of options for rendering the canvas.
  */
-function render2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts): string {
+function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts): string {
     if (timeline.length === 0) {
         return getSVGHeader(0, 0, options.id, options.beatstyle) + getSVGFooter();
     }
@@ -332,7 +241,7 @@ function render2DSVG(timeline: number[], data: number[][], options: CanvasArgOpt
 export function scoreToNotesSVG(score: Score, opts: CanvasArgOpts = {}): string {
     const [ timeline, data ] = transformations.scoreToNotes(score);
 
-    return render2DSVG(timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
+    return build2DSVG(timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
 }
 
 /**
