@@ -250,7 +250,7 @@ function render2DSVG(timeline: number[], data: number[][], options: CanvasArgOpt
     // Padding
     const LEFTPAD  = options.leftpad ?? 16;
     const RIGHTPAD = options.rightpad ?? 8;
-    const TOPPAD   = (options.header || options.barlines) ? 10 : 0;
+    const TOPPAD   = 10;
     const BTMPAD   = options.barlines ? 10 : 0;
 
     // SVG size and positioning within it
@@ -277,10 +277,8 @@ function render2DSVG(timeline: number[], data: number[][], options: CanvasArgOpt
 `;
     }
 
-    // Name of SVG, if supplied
-    if (options.header) {
-        str += `  <text x="${LEFTPAD}" y="10" fill="${textstyle}">${options.header}</text>\n`;
-    }
+    // Brief text header for the SVG
+    str += `  <text x="${LEFTPAD}" y="10" fill="${textstyle}">${options.header}</text>\n`;
 
     // Annotate SVG with pitches
     const pxgap = Math.max(Math.ceil(10 / vertPx), 1);

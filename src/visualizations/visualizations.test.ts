@@ -191,8 +191,9 @@ describe('visualizations.scoreToNotesSVG()', () => {
 `);
     });
 
-    test('generates SVG with fallback rules', () => {
-        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE, { value_rule: 'default', color_rule: 'default' })).toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,29,440\" width=\"29\" height=\"440\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+    test('generates SVG with fallback rules, defined pixels and padding', () => {
+        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE, { value_rule: 'default', color_rule: 'default', px_horiz: 2, px_vert: 12, leftpad: 26, rightpad: 16, header: 'fallback' }))
+            .toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,492,526\" width=\"492\" height=\"526\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
       font-family: \"Arial\";
@@ -204,72 +205,72 @@ describe('visualizations.scoreToNotesSVG()', () => {
       stroke: #404040;
     }
   </style>
-  <rect x="0" y="580" width="29" height="120" fill="#101010" />
-  <rect x="0" y="700" width="29" height="120" fill="#000000" />
-  <rect x="0" y="340" width="29" height="120" fill="#101010" />
-  <rect x="0" y="460" width="29" height="120" fill="#000000" />
-  <rect x="0" y="100" width="29" height="120" fill="#101010" />
-  <rect x="0" y="220" width="29" height="120" fill="#000000" />
-  <rect x="0" y="-140" width="29" height="120" fill="#101010" />
-  <rect x="0" y="-20" width="29" height="120" fill="#000000" />
-  <rect x="0" y="-380" width="29" height="120" fill="#101010" />
-  <rect x="0" y="-260" width="29" height="120" fill="#000000" />
-  <text x="16" y="10" fill="#C0C0C0">Notes</text>
-  <text x="2" y="440" fill="#C0C0C0">26</text>
-  <text x="2" y="430" fill="#C0C0C0">27</text>
-  <text x="2" y="420" fill="#C0C0C0">28</text>
-  <text x="2" y="410" fill="#C0C0C0">29</text>
-  <text x="2" y="400" fill="#C0C0C0">30</text>
-  <text x="2" y="390" fill="#C0C0C0">31</text>
-  <text x="2" y="380" fill="#C0C0C0">32</text>
-  <text x="2" y="370" fill="#C0C0C0">33</text>
-  <text x="2" y="360" fill="#C0C0C0">34</text>
-  <text x="2" y="350" fill="#C0C0C0">35</text>
-  <text x="2" y="340" fill="#C0C0C0">36</text>
-  <text x="2" y="330" fill="#C0C0C0">37</text>
-  <text x="2" y="320" fill="#C0C0C0">38</text>
-  <text x="2" y="310" fill="#C0C0C0">39</text>
-  <text x="2" y="300" fill="#C0C0C0">40</text>
-  <text x="2" y="290" fill="#C0C0C0">41</text>
-  <text x="2" y="280" fill="#C0C0C0">42</text>
-  <text x="2" y="270" fill="#C0C0C0">43</text>
-  <text x="2" y="260" fill="#C0C0C0">44</text>
-  <text x="2" y="250" fill="#C0C0C0">45</text>
-  <text x="2" y="240" fill="#C0C0C0">46</text>
-  <text x="2" y="230" fill="#C0C0C0">47</text>
-  <text x="2" y="220" fill="#C0C0C0">48</text>
-  <text x="2" y="210" fill="#C0C0C0">49</text>
-  <text x="2" y="200" fill="#C0C0C0">50</text>
-  <text x="2" y="190" fill="#C0C0C0">51</text>
-  <text x="2" y="180" fill="#C0C0C0">52</text>
-  <text x="2" y="170" fill="#C0C0C0">53</text>
-  <text x="2" y="160" fill="#C0C0C0">54</text>
-  <text x="2" y="150" fill="#C0C0C0">55</text>
-  <text x="2" y="140" fill="#C0C0C0">56</text>
-  <text x="2" y="130" fill="#C0C0C0">57</text>
-  <text x="2" y="120" fill="#C0C0C0">58</text>
-  <text x="2" y="110" fill="#C0C0C0">59</text>
-  <text x="2" y="100" fill="#C0C0C0">60</text>
-  <text x="2" y="90" fill="#C0C0C0">61</text>
-  <text x="2" y="80" fill="#C0C0C0">62</text>
-  <text x="2" y="70" fill="#C0C0C0">63</text>
-  <text x="2" y="60" fill="#C0C0C0">64</text>
-  <text x="2" y="50" fill="#C0C0C0">65</text>
-  <text x="2" y="40" fill="#C0C0C0">66</text>
-  <text x="2" y="30" fill="#C0C0C0">67</text>
-  <text x="2" y="20" fill="#C0C0C0">68</text>
-  <rect x="16" y="430" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="16" y="400" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="16" y="50" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="16" y="430" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="16" y="400" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="17" y="360" width="2" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="19" y="390" width="2" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="19" y="370" width="2" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="19" y="90" width="2" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="19" y="10" width="2" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="20" y="390" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="20" y="370" width="1" height="10" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="0" y="694" width="492" height="144" fill="#101010" />
+  <rect x="0" y="838" width="492" height="144" fill="#000000" />
+  <rect x="0" y="406" width="492" height="144" fill="#101010" />
+  <rect x="0" y="550" width="492" height="144" fill="#000000" />
+  <rect x="0" y="118" width="492" height="144" fill="#101010" />
+  <rect x="0" y="262" width="492" height="144" fill="#000000" />
+  <rect x="0" y="-170" width="492" height="144" fill="#101010" />
+  <rect x="0" y="-26" width="492" height="144" fill="#000000" />
+  <rect x="0" y="-458" width="492" height="144" fill="#101010" />
+  <rect x="0" y="-314" width="492" height="144" fill="#000000" />
+  <text x="26" y="10" fill="#C0C0C0">fallback</text>
+  <text x="2" y="525" fill="#C0C0C0">26</text>
+  <text x="2" y="513" fill="#C0C0C0">27</text>
+  <text x="2" y="501" fill="#C0C0C0">28</text>
+  <text x="2" y="489" fill="#C0C0C0">29</text>
+  <text x="2" y="477" fill="#C0C0C0">30</text>
+  <text x="2" y="465" fill="#C0C0C0">31</text>
+  <text x="2" y="453" fill="#C0C0C0">32</text>
+  <text x="2" y="441" fill="#C0C0C0">33</text>
+  <text x="2" y="429" fill="#C0C0C0">34</text>
+  <text x="2" y="417" fill="#C0C0C0">35</text>
+  <text x="2" y="405" fill="#C0C0C0">36</text>
+  <text x="2" y="393" fill="#C0C0C0">37</text>
+  <text x="2" y="381" fill="#C0C0C0">38</text>
+  <text x="2" y="369" fill="#C0C0C0">39</text>
+  <text x="2" y="357" fill="#C0C0C0">40</text>
+  <text x="2" y="345" fill="#C0C0C0">41</text>
+  <text x="2" y="333" fill="#C0C0C0">42</text>
+  <text x="2" y="321" fill="#C0C0C0">43</text>
+  <text x="2" y="309" fill="#C0C0C0">44</text>
+  <text x="2" y="297" fill="#C0C0C0">45</text>
+  <text x="2" y="285" fill="#C0C0C0">46</text>
+  <text x="2" y="273" fill="#C0C0C0">47</text>
+  <text x="2" y="261" fill="#C0C0C0">48</text>
+  <text x="2" y="249" fill="#C0C0C0">49</text>
+  <text x="2" y="237" fill="#C0C0C0">50</text>
+  <text x="2" y="225" fill="#C0C0C0">51</text>
+  <text x="2" y="213" fill="#C0C0C0">52</text>
+  <text x="2" y="201" fill="#C0C0C0">53</text>
+  <text x="2" y="189" fill="#C0C0C0">54</text>
+  <text x="2" y="177" fill="#C0C0C0">55</text>
+  <text x="2" y="165" fill="#C0C0C0">56</text>
+  <text x="2" y="153" fill="#C0C0C0">57</text>
+  <text x="2" y="141" fill="#C0C0C0">58</text>
+  <text x="2" y="129" fill="#C0C0C0">59</text>
+  <text x="2" y="117" fill="#C0C0C0">60</text>
+  <text x="2" y="105" fill="#C0C0C0">61</text>
+  <text x="2" y="93" fill="#C0C0C0">62</text>
+  <text x="2" y="81" fill="#C0C0C0">63</text>
+  <text x="2" y="69" fill="#C0C0C0">64</text>
+  <text x="2" y="57" fill="#C0C0C0">65</text>
+  <text x="2" y="45" fill="#C0C0C0">66</text>
+  <text x="2" y="33" fill="#C0C0C0">67</text>
+  <text x="2" y="21" fill="#C0C0C0">68</text>
+  <rect x="26" y="514" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="26" y="478" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="26" y="58" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="90" y="514" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="90" y="478" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="154" y="430" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="282" y="466" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="282" y="442" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="282" y="106" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="282" y="10" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="410" y="466" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
+  <rect x="410" y="442" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
 </svg>
 `);
     });
