@@ -328,6 +328,7 @@ export type CanvasArg = {
  * A type representing available options for standard canvases
  */
 export type CanvasArgOpts = {
+    id?: string,         // ID for the canvas or svg element
     px_horiz?: number,   // Number of pixels per MIDI quarter note horizontally
     px_vert?: number,    // Number of pixels per unit value vertically
     height?: number,     // Exact height of canvas; overrides px_vert

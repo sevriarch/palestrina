@@ -198,8 +198,12 @@ export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg
     });
 }
 
-function getSVGHeader(ht: number, wd: number, beatstyle = '#404040'): string {
-    return `<svg viewbox="0,0,${wd},${ht}" width="${wd}" height="${ht}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+function getSVGHeader(ht: number, wd: number, id = 'notes_svg', beatstyle = '#404040'): string {
+    if (typeof id !== 'string') {
+        throw new Error(`visualizations.render2DSVG(): canvas name should be a string, was ${dumpOneLine(id)}`);
+    }
+
+    return `<svg id="${id}" viewbox="0,0,${wd},${ht}" width="${wd}" height="${ht}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
     text {
       font-family: "Arial";
@@ -226,25 +230,9 @@ function getSVGFooter(): string {
  * data: An array of values corresponding to the timeline.
  * options: A list of options for rendering the canvas.
  */
-export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): string {
-    if (typeof name !== 'string') {
-        throw new Error(`visualizations.render2DSVG(): canvas name should be a string, was ${dumpOneLine(name)}`);
-    }
-
-    if (!Array.isArray(timeline)) {
-        throw new Error(`visualizations.render2DSVG(): timeline was not an array, was ${dumpOneLine(timeline)}`);
-    }
-
-    if (!Array.isArray(data)) {
-        throw new Error(`visualizations.render2DSVG(): data was not an array, was ${dumpOneLine(data)}`);
-    }
-
-    if (timeline.length !== data.length) {
-        throw new Error(`visualizations.render2DSVG(): timeline length ${timeline.length} is not the same as data length ${data.length}`);
-    }
-
+function render2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts): string {
     if (timeline.length === 0) {
-        return getSVGHeader(0, 0) + getSVGFooter();
+        return getSVGHeader(0, 0, options.id, options.beatstyle) + getSVGFooter();
     }
 
     const flattened = data.flat();
@@ -278,7 +266,7 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
     const offbeatstyle = options.offbeatstyle || '#202020';
     const beats = options.beats ?? 0;
 
-    let str = getSVGHeader(height, width, beatstyle);
+    let str = getSVGHeader(height, width, options.id, beatstyle);
 
     // Horizontal alternation of background color by octave
     for (let i = 11; i < 128; i += 24) {
@@ -343,15 +331,10 @@ export function render2DSVG({ name, timeline, data, options = {} }: CanvasArg): 
 /**
  * Given a Score, create an SVG showing the notes in the Score.
  */
-export function scoreToNotesSVG(score: Score, opts: CanvasArgOpts = {}, name = 'notes' ): string {
+export function scoreToNotesSVG(score: Score, opts: CanvasArgOpts = {}): string {
     const [ timeline, data ] = transformations.scoreToNotes(score);
 
-    return render2DSVG({
-        name,
-        timeline,
-        data,
-        options: { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts }
-    });
+    return render2DSVG(timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
 }
 
 /**

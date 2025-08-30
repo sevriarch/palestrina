@@ -1,7 +1,6 @@
-import * as visualizations from './visualizations';
-
 import * as crypto from 'crypto';
 
+import * as visualizations from './visualizations';
 import * as factory from '../factory';
 
 function getHash(str: string): string {
@@ -88,12 +87,12 @@ const SAMPLE_SCORE = factory.score([
 ]).withTicksPerQuarter(128);
 
 describe('visualizations.scoreToNotesSVG()', () => {
-    test('fails with non-string name', () => {
-        expect(() => visualizations.scoreToNotesSVG(EMPTY_SCORE, {}, 123 as unknown as string)).toThrow();
+    test('fails with non-string ID', () => {
+        expect(() => visualizations.scoreToNotesSVG(EMPTY_SCORE, { id: 123 as unknown as string })).toThrow();
     });
 
     test('generates appropriate canvas with empty score', () => {
-        expect(visualizations.scoreToNotesSVG(EMPTY_SCORE)).toStrictEqual(`<svg viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+        expect(visualizations.scoreToNotesSVG(EMPTY_SCORE)).toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
       font-family: \"Arial\";
@@ -110,7 +109,7 @@ describe('visualizations.scoreToNotesSVG()', () => {
     });
 
     test('generates SVG with non-empty score', () => {
-        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE)).toStrictEqual(`<svg viewbox=\"0,0,29,440\" width=\"29\" height=\"440\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE)).toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,29,440\" width=\"29\" height=\"440\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
       font-family: \"Arial\";
@@ -193,7 +192,7 @@ describe('visualizations.scoreToNotesSVG()', () => {
     });
 
     test('generates SVG with fallback rules', () => {
-        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE, { value_rule: 'default', color_rule: 'default' })).toStrictEqual(`<svg viewbox=\"0,0,29,440\" width=\"29\" height=\"440\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE, { value_rule: 'default', color_rule: 'default' })).toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,29,440\" width=\"29\" height=\"440\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
       font-family: \"Arial\";
@@ -277,8 +276,8 @@ describe('visualizations.scoreToNotesSVG()', () => {
 
     test('generates appropriate canvas with various options included', () => {
         expect(
-            visualizations.scoreToNotesSVG(SAMPLE_SCORE, { width: 640, height: 215, barlines: 80, beats: 2, value_rule: 'pitch' })
-        ).toStrictEqual(`<svg viewbox=\"0,0,664,235\" width=\"664\" height=\"235\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+            visualizations.scoreToNotesSVG(SAMPLE_SCORE, { width: 640, height: 215, barlines: 80, beats: 2, value_rule: 'pitch', id: 'this1' })
+        ).toStrictEqual(`<svg id="this1" viewbox=\"0,0,664,235\" width=\"664\" height=\"235\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
       font-family: \"Arial\";
