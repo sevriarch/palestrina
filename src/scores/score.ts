@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import type { MetadataData, ScoreCanvasOpts } from '../types';
+import type { MetadataData, ScoreCanvasOpts, CanvasArgOpts } from '../types';
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
@@ -13,7 +13,7 @@ import { numberToFixedBytes } from '../midi/conversions';
 import { MIDI } from '../constants';
 
 import { min, max } from '../helpers/calculations';
-import { scoreToScoreCanvas } from '../visualizations/visualizations';
+import { scoreToNotesSVG, scoreToScoreCanvas } from '../visualizations/visualizations';
 import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
 
@@ -108,6 +108,52 @@ export default class Score extends CollectionWithMetadata<Melody> {
      */
     toCanvas(opts: ScoreCanvasOpts = {}): string {
         return scoreToScoreCanvas(this, opts);
+    }
+
+    /**
+     * Returns an SVG of all notes in the Score.
+     * 
+     * Option fiels are:
+     * 
+     * opts.maxval: Maximum pitch to display on the SVG
+     * 
+     * opts.minval: Minimum pitch to display on the SVG
+     * 
+     * opts.height: Height of the SVG. Overrides opts.px_vert
+     * 
+     * opts.width: Width of the SVG. Overrides opts.px_horiz
+     * 
+     * opts.px_vert: Number of pixels to use per semitone. Overridden by opts.height
+     * 
+     * opts.px_horiz: Number of pixels to use per beat. Overridden by opts.width
+     * 
+     * opts.barlines: Show a vertical line every X beats
+     * 
+     * opts.beats: If set, show (X - 1) additional vertical lines between the above lines
+     * 
+     * opts.value_bars: Display list of notes every X vertical lines
+     * 
+     * opts.leftpad: Pad display to left (defaults to 16)
+     * 
+     * opts.rightpad: Pad display to right (defaults to 8)
+     * 
+     * opts.color_rule: Determine how to color pitches: "mod12" gives a different color
+     * for each pitch of the scale.
+     * 
+     * opts.value_rule: Determine how to display pitches in text. "note" displays pitch
+     * with octave; "pitch" displays pitch without octave, anything else displays MIDI
+     * pitch value
+     * 
+     * opts.textstyle: color for basic text (default: #C0C0C0)
+     * 
+     * opts.beatstyle: color for vertical lines (default: #404040)
+     * 
+     * opts.offbeatstyle: color for vertical sublines (default: #202020)
+     * 
+     * opts.header: a short piece of text to display at the top left of the SVG
+     */
+    toNotesSVG(opts: CanvasArgOpts): string {
+        return scoreToNotesSVG(this, opts);
     }
 
     /**
