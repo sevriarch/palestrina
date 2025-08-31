@@ -191,9 +191,10 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
 
     // Annotate SVG with pitches
     const pxgap = Math.max(Math.ceil(10 / vertPx), 1);
+    const pitchOffset = vertPx / 2 + 5;
     for (let i = minval; i <= maxval; i += pxgap) {
         for (let j = 2; j < width; j += noteRepeatPx) {
-            str += `  <text x="${j}" y="${vposRule(i) + vertPx / 2 + 5}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
+            str += `  <text x="${j}" y="${vposRule(i) + pitchOffset}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
         }
     }
 
@@ -215,7 +216,7 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
                 for (let j = 1; j < beats; j++) {
                     const xpos = i + j + beatPx;
 
-                    str += `  <line x1="${xpos}" y1="0" x2="${xpos}" y2=${height} style="stroke:${offbeatstyle}" />\n`;
+                    str += `  <line x1="${xpos}" y1="0" x2="${xpos}" y2="${height}" style="stroke:${offbeatstyle}" />\n`;
                 }
             }
         }
