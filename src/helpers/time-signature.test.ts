@@ -42,3 +42,19 @@ describe('timeSignature.toMidiBytes(), timeSignature.fromMidiBytes()', () => {
         expect(timeSignature.fromMidiBytes(bytes.slice(3))).toStrictEqual(ts);
     });
 });
+
+describe('timeSignature.toQuarterNotes()', () => {
+    test('expect invalid time signature to throw error', () => {
+        expect(() => timeSignature.toQuarterNotes('')).toThrow();
+    });
+
+    const table: [ string, number ][] = [
+        [ '2/1', 8 ],
+        [ '4/4', 4 ],
+        [ '31/16', 7.75 ],
+    ];
+
+    test.each(table)('%s', (ts, notes) => {
+        expect(timeSignature.toQuarterNotes(ts)).toStrictEqual(notes);
+    });
+});
