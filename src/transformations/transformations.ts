@@ -3,6 +3,7 @@ import type MetaEvent from '../meta-events/meta-event';
 import type NumericValidator from '../validation/numeric';
 
 import Melody from '../sequences/melody';
+import * as timeSignature from '../helpers/time-signature';
 
 import { PITCH_CLASS_MAP } from '../constants';
 
@@ -234,6 +235,51 @@ export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent) =>
 
     // as score.withAllTicksExact() has been called, at should always have a value
     return ret.sort((a, b) => (a.at as number) - (b.at as number));
+}
+
+/**
+ * Given a Score, return an array of the ticks each bar begins at.
+ */
+export function scoreToBarTimeline(score: Score): number[] {
+    const ret: number[] = [];
+    const lasttick = score.lastTick() ?? 0;
+    const tpq = score.metadata.ticks_per_quarter;
+    const sigs: [ number, number ][] = scoreToMatchingTimedEvents(score, e => e.event === 'time-signature')
+        .map(e => [ e.at as number, timeSignature.toQuarterNotes(e.value as string) ]);
+
+    if (!score.length) {
+        return [];
+    }
+
+    if (score.metadata.time_signature) {
+        sigs.unshift([ 0, timeSignature.toQuarterNotes(score.metadata.time_signature) ]);
+    }
+
+    score.each(mel => {
+        if (mel.metadata.time_signature) {
+            sigs.unshift([ 0, timeSignature.toQuarterNotes(mel.metadata.time_signature) ]);
+        }
+    });
+
+    const numix = sigs.length;
+
+    // MIDI defaults to 4/4 as a time signature
+    let currsig = numix > 0 && sigs[0][0] === 0 ? sigs[0][1] : 4;
+    let currix = 0;
+    let currtick = 0;
+
+    while (currtick < lasttick) {
+        ret.push(currtick);
+
+        while (currix < numix && sigs[currix][0] <= currtick) {
+            currsig = sigs[currix][1];
+            currix++;
+        }
+
+        currtick += currsig * tpq;
+    }
+
+    return ret;
 }
 
 /**

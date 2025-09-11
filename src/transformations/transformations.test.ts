@@ -478,6 +478,67 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
     });
 });
 
+describe('transformations.scoreToBarTimeline', () => {
+    test('empty score', () => {
+        expect(transformations.scoreToBarTimeline(factory.score([]))).toStrictEqual([]);
+    });
+
+    test('empty score with adjusted last tick', () => {
+        expect(transformations.scoreToBarTimeline(
+            factory.score([
+                factory.melody([]).withNewEvent('sustain', 0, { at: 4096 })
+            ])
+        )).toStrictEqual([ 0, 768, 1536, 2304, 3072, 3840 ]);
+    });
+
+    test('empty score with adjusted ticks per quarter and last tick', () => {
+        expect(transformations.scoreToBarTimeline(
+            factory.score([
+                factory.melody([]).withNewEvent('sustain', 0, { at: 4096 })
+            ]).withTicksPerQuarter(256)
+        )).toStrictEqual([ 0, 1024, 2048, 3072 ]);
+    });
+
+    test('empty score with time signature and adjusted last tick', () => {
+        expect(transformations.scoreToBarTimeline(
+            factory.score([
+                factory.melody([]).withNewEvent('sustain', 0, { at: 4096 })
+            ]).withTimeSignature('3/4')
+        )).toStrictEqual([ 0, 576, 1152, 1728, 2304, 2880, 3456, 4032 ]);
+    });
+
+    test('empty score with time signatures in score and melody and adjusted last tick', () => {
+        expect(transformations.scoreToBarTimeline(
+            factory.score([
+                factory.melody([]).withNewEvent('sustain', 0, { at: 4096 }).withTimeSignature('3/4')
+            ]).withTimeSignature('3/2')
+        )).toStrictEqual([ 0, 1152, 2304, 3456 ]);
+    });
+
+    test('score with no initial time signature but adjusted time signature later on', () => {
+        expect(transformations.scoreToBarTimeline(
+            factory.score([
+                factory.melody([ 60, 61, 62, { pitch: [ 63 ], after: [ { event: 'time-signature', value: '3/4' } ] }, 64, 65, 66, 67, 68, 69, 70 ]).withDuration(192)
+            ])
+        )).toStrictEqual([ 0, 768, 1344, 1920 ]);
+    });
+
+    test('score with no initial time signature but multiple adjusted time signatures later on', () => {
+        expect(transformations.scoreToBarTimeline(
+            factory.score([
+                factory.melody([
+                    60, 61, 62,
+                    { pitch: [ 63 ], after: [ { event: 'time-signature', value: '3/4' } ] }, 
+                    { pitch: [ 64 ], before: [ { event: 'time-signature', value: '2/4' } ] },
+                    65, 66,
+                    { pitch: [ 67 ], before: [ { event: 'time-signature', value: '1/4' } ] },
+                    68, 69, 70
+                ]).withDuration(192)
+            ])
+        )).toStrictEqual([ 0, 768, 1152, 1536, 1728, 1920 ]);
+    });
+});
+
 describe('transformations.melodyFromTimeline()', () => {
     const TIMELINE = [ 0, 64, 96, 160 ];
     const NOTES = [ [ 60.5 ], [], [ 58, 62 ], [ 63.5 ]];
