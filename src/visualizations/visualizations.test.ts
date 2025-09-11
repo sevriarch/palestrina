@@ -121,16 +121,10 @@ describe('visualizations.scoreToNotesSVG()', () => {
       stroke: #404040;
     }
   </style>
-  <rect x="0" y="580" width="29" height="120" fill="#101010" />
-  <rect x="0" y="700" width="29" height="120" fill="#000000" />
   <rect x="0" y="340" width="29" height="120" fill="#101010" />
   <rect x="0" y="460" width="29" height="120" fill="#000000" />
   <rect x="0" y="100" width="29" height="120" fill="#101010" />
   <rect x="0" y="220" width="29" height="120" fill="#000000" />
-  <rect x="0" y="-140" width="29" height="120" fill="#101010" />
-  <rect x="0" y="-20" width="29" height="120" fill="#000000" />
-  <rect x="0" y="-380" width="29" height="120" fill="#101010" />
-  <rect x="0" y="-260" width="29" height="120" fill="#000000" />
   <text x="2" y="440" fill="#8080E0">D₁</text>
   <text x="2" y="430" fill="#E0E080">D#₁</text>
   <text x="2" y="420" fill="#E080E0">E₁</text>
@@ -205,16 +199,10 @@ describe('visualizations.scoreToNotesSVG()', () => {
       stroke: #404040;
     }
   </style>
-  <rect x="0" y="694" width="492" height="144" fill="#101010" />
-  <rect x="0" y="838" width="492" height="144" fill="#000000" />
   <rect x="0" y="406" width="492" height="144" fill="#101010" />
   <rect x="0" y="550" width="492" height="144" fill="#000000" />
   <rect x="0" y="118" width="492" height="144" fill="#101010" />
   <rect x="0" y="262" width="492" height="144" fill="#000000" />
-  <rect x="0" y="-170" width="492" height="144" fill="#101010" />
-  <rect x="0" y="-26" width="492" height="144" fill="#000000" />
-  <rect x="0" y="-458" width="492" height="144" fill="#101010" />
-  <rect x="0" y="-314" width="492" height="144" fill="#000000" />
   <text x="2" y="525" fill="#C0C0C0">26</text>
   <text x="2" y="513" fill="#C0C0C0">27</text>
   <text x="2" y="501" fill="#C0C0C0">28</text>
@@ -290,16 +278,10 @@ describe('visualizations.scoreToNotesSVG()', () => {
       stroke: #404040;
     }
   </style>
-  <rect x="0" y="295" width="664" height="60" fill="#101010" />
-  <rect x="0" y="355" width="664" height="60" fill="#000000" />
   <rect x="0" y="175" width="664" height="60" fill="#101010" />
   <rect x="0" y="235" width="664" height="60" fill="#000000" />
   <rect x="0" y="55" width="664" height="60" fill="#101010" />
   <rect x="0" y="115" width="664" height="60" fill="#000000" />
-  <rect x="0" y="-65" width="664" height="60" fill="#101010" />
-  <rect x="0" y="-5" width="664" height="60" fill="#000000" />
-  <rect x="0" y="-185" width="664" height="60" fill="#101010" />
-  <rect x="0" y="-125" width="664" height="60" fill="#000000" />
   <text x="2" y="227.5" fill="#8080E0">D</text>
   <text x="642" y="227.5" fill="#8080E0">D</text>
   <text x="2" y="217.5" fill="#E080E0">E</text>

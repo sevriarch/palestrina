@@ -170,11 +170,11 @@ function build2DSVG(score: Score, timeline: number[], data: number[][], options:
     let str = getSVGHeader(height, width, options.id, beatstyle);
 
     // Horizontal alternation of background color by octave
-    for (let i = 11; i < 128; i += 24) {
-        const band = vertPx * 12;
+    const bandPx = vertPx * 12;
+    for (let i = minval - minval % 12 + 11; i < maxval; i += 24) {
 
-        str += `  <rect x="0" y="${vposRule(i)}" width="${width}" height="${band}" fill="#101010" />
-  <rect x="0" y="${vposRule(i) + band}" width="${width}" height="${band}" fill="#000000" />
+        str += `  <rect x="0" y="${vposRule(i)}" width="${width}" height="${bandPx}" fill="#101010" />
+  <rect x="0" y="${vposRule(i) + bandPx}" width="${width}" height="${bandPx}" fill="#000000" />
 `;
     }
 

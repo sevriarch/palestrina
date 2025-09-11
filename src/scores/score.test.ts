@@ -556,7 +556,8 @@ describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() 
 });
 
 describe('Score.toNotesSVG() tests', () => {
-    expect(score([ T2 ]).toNotesSVG({ px_horiz: 24, px_vert: 12 })).toStrictEqual(`<svg id="notes_svg" viewbox="0,0,240,166" width="240" height="166" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+    test('expect correctly generated SVG', () => {
+        expect(score([ T2 ]).toNotesSVG({ px_horiz: 24, px_vert: 12 })).toStrictEqual(`<svg id="notes_svg" viewbox="0,0,240,166" width="240" height="166" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
     text {
       font-family: "Arial";
@@ -568,16 +569,8 @@ describe('Score.toNotesSVG() tests', () => {
       stroke: #404040;
     }
   </style>
-  <rect x="0" y="646" width="240" height="144" fill="#101010" />
-  <rect x="0" y="790" width="240" height="144" fill="#000000" />
-  <rect x="0" y="358" width="240" height="144" fill="#101010" />
-  <rect x="0" y="502" width="240" height="144" fill="#000000" />
   <rect x="0" y="70" width="240" height="144" fill="#101010" />
   <rect x="0" y="214" width="240" height="144" fill="#000000" />
-  <rect x="0" y="-218" width="240" height="144" fill="#101010" />
-  <rect x="0" y="-74" width="240" height="144" fill="#000000" />
-  <rect x="0" y="-506" width="240" height="144" fill="#101010" />
-  <rect x="0" y="-362" width="240" height="144" fill="#000000" />
   <text x="2" y="165" fill="#E080E0">E₃</text>
   <text x="2" y="153" fill="#80E0E0">F₃</text>
   <text x="2" y="141" fill="#E02020">F#₃</text>
@@ -596,6 +589,7 @@ describe('Score.toNotesSVG() tests', () => {
   <rect x="112" y="154" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
 </svg>
 `);
+    });
 });
 
 describe('Score.writeNotesSVG() tests', () => {

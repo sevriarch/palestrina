@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import type { MetadataData, ScoreCanvasOpts, CanvasArgOpts } from '../types';
+import type { MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
@@ -127,11 +127,11 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.px_horiz: Number of pixels to use per beat. Overridden by opts.width
      * 
-     * opts.barlines: Show a vertical line every X beats
+     * opts.px_lines: Show a vertical line every X beats, with corresponding bar number
+     *
+     * opts.sublines: If set, show (X - 1) additional vertical lines between the above lines
      * 
-     * opts.beats: If set, show (X - 1) additional vertical lines between the above lines
-     * 
-     * opts.value_bars: Display list of notes every X vertical lines
+     * opts.note_lines: Display list of pitches every X vertical lines
      * 
      * opts.leftpad: Number of pixels to pad on left by (defaults to 16)
      * 
@@ -152,7 +152,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.header: a short piece of text to display at the top left of the SVG
      */
-    toNotesSVG(opts: CanvasArgOpts): string {
+    toNotesSVG(opts: SVGOpts): string {
         return scoreToNotesSVG(this, opts);
     }
 
@@ -161,7 +161,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
      */
-    writeNotesSVG(file: string, opts: CanvasArgOpts): this {
+    writeNotesSVG(file: string, opts: SVGOpts): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
