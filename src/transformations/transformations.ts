@@ -1,4 +1,5 @@
 import type Score from '../scores/score';
+import type MetaEvent from '../meta-events/meta-event';
 import type NumericValidator from '../validation/numeric';
 
 import Melody from '../sequences/melody';
@@ -201,6 +202,38 @@ export function scoreToPitchClasses(score: Score): [ number[], string[] ] {
     const [ timeline, notes ] = scoreToNotes(score);
 
     return [ timeline, notes.map(n => notesToPitchClass(n)) ];
+}
+
+/**
+ * Given a score, extract specific matching events from it.
+ */
+export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent) => boolean): MetaEvent[] {
+    const timed = score.withAllTicksExact();
+    const ret = timed.metadata.before.contents.filter(fn);
+
+    timed.each(mel => {
+        const meta = mel.metadata.before.contents.filter(fn);
+        if (meta) {
+            ret.push(...meta);
+        }
+
+        mel.each(mm => {
+            const before = mm.before.contents.filter(fn);
+
+            if (before.length) {
+                ret.push(...before);
+            }
+
+            const after = mm.after.contents.filter(fn);
+
+            if (after.length) {
+                ret.push(...after);
+            }
+        });
+    });
+
+    // as score.withAllTicksExact() has been called, at should always have a value
+    return ret.sort((a, b) => (a.at as number) - (b.at as number));
 }
 
 /**

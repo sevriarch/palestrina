@@ -1,6 +1,9 @@
 import type Score from '../scores/score';
 
 import NumericValidator from '../validation/numeric';
+import Metadata from '../metadata/metadata';
+import MetaList from '../meta-events/meta-list';
+import MetaEvent from '../meta-events/meta-event';
 
 import * as transformations from './transformations';
 import * as factory from '../factory';
@@ -294,7 +297,188 @@ describe('transformations.scoreToNoteCount()', () => {
     });
 });
 
-describe('factory.melodyFromTimeline()', () => {
+describe('transformations.scoreToMatchingTimedEvents()', () => {
+    test('no events if no tracks', () => {
+        expect(transformations.scoreToMatchingTimedEvents(factory.score([]), () => true)).toStrictEqual([]);
+    });
+
+    test('extracts from score metadata', () => {
+        expect(transformations.scoreToMatchingTimedEvents(factory.score([],
+            Metadata.from({
+                before: MetaList.from([
+                    {
+                        event: 'time-signature',
+                        value: '4/4',
+                        at: 0
+                    },
+                    {
+                        event: 'time-signature',
+                        value: '3/4',
+                        at: 1024 
+                    },
+                ])
+            })
+        ), () => true)).toStrictEqual([
+            MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
+        ]);
+    });
+
+    test('filters from score metadata', () => {
+        expect(transformations.scoreToMatchingTimedEvents(factory.score([],
+            Metadata.from({
+                before: MetaList.from([
+                    {
+                        event: 'time-signature',
+                        value: '4/4',
+                        at: 0
+                    },
+                    {
+                        event: 'time-signature',
+                        value: '3/4',
+                        at: 1024 
+                    },
+                ])
+            })
+        ), (ev) => ev.value !== '4/4')).toStrictEqual([
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
+        ]);
+    });
+
+    test('extracts from notes and metadata', () => {
+        expect(transformations.scoreToMatchingTimedEvents(factory.score([
+            factory.melody([
+                {
+                    pitch: [ 60 ],
+                    duration: 32,
+                    before: [ { event: 'time-signature', value: '4/4' } ]
+                },
+                {
+                    pitch: [ 62 ],
+                    duration: 32,
+                    after: [ { event: 'time-signature', value: '2/4' } ]
+                },
+                {
+                    pitch: [ 64 ],
+                    duration: 32,
+                    before: [ { event: 'time-signature', value: '7/8', offset: 48 } ]
+                },
+                {
+                    pitch: [ 66 ],
+                    duration: 32,
+                    after: [ { event: 'time-signature', value: '3/4', offset: -48 } ]
+                },
+                {
+                    pitch: [ 68 ],
+                    duration: 32,
+                    before: [ { event: 'time-signature', value: '5/8', at: 180 } ]
+                },
+                {
+                    pitch: [ 72 ],
+                    duration: 32,
+                    after: [ { event: 'time-signature', value: '3/8', at: 120 } ]
+                },
+            ]),
+            factory.melody([], 
+                Metadata.from({
+                    before: MetaList.from([
+                        {
+                            event: 'key-signature',
+                            value: 'F',
+                            at: 0
+                        },
+                        {
+                            event: 'key-signature',
+                            value: 'F#',
+                            at: 512 
+                        },
+                    ])
+                })
+            )
+        ],
+        Metadata.from({
+            before: MetaList.from([
+                { event: 'copyright', value: 'this test suite' },
+            ])
+        })), () => true)).toStrictEqual([
+            MetaEvent.from({ event: 'copyright', value: 'this test suite', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
+            MetaEvent.from({ event: 'key-signature', value: 'F', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '2/4', at: 64 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 80 }),
+            MetaEvent.from({ event: 'time-signature', value: '7/8', at: 112 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/8', at: 120 }),
+            MetaEvent.from({ event: 'time-signature', value: '5/8', at: 180 }),
+            MetaEvent.from({ event: 'key-signature', value: 'F#', at: 512 }),
+        ]);
+    });
+
+    test('filters from notes and metadata', () => {
+        expect(transformations.scoreToMatchingTimedEvents(factory.score([
+            factory.melody([
+                {
+                    pitch: [ 60 ],
+                    duration: 32,
+                    before: [ { event: 'time-signature', value: '4/4' } ]
+                },
+                {
+                    pitch: [ 62 ],
+                    duration: 32,
+                    after: [ { event: 'time-signature', value: '2/4' } ]
+                },
+                {
+                    pitch: [ 64 ],
+                    duration: 32,
+                    before: [ { event: 'time-signature', value: '7/8', offset: 48 } ]
+                },
+                {
+                    pitch: [ 66 ],
+                    duration: 32,
+                    after: [ { event: 'time-signature', value: '3/4', offset: -48 } ]
+                },
+                {
+                    pitch: [ 68 ],
+                    duration: 32,
+                    before: [ { event: 'time-signature', value: '5/8', at: 180 } ]
+                },
+                {
+                    pitch: [ 72 ],
+                    duration: 32,
+                    after: [ { event: 'time-signature', value: '3/8', at: 120 } ]
+                },
+            ]),
+            factory.melody([], 
+                Metadata.from({
+                    before: MetaList.from([
+                        {
+                            event: 'key-signature',
+                            value: 'F',
+                            at: 0
+                        },
+                        {
+                            event: 'key-signature',
+                            value: 'F#',
+                            at: 512 
+                        },
+                    ])
+                })
+            )
+        ],
+        Metadata.from({
+            before: MetaList.from([
+                { event: 'copyright', value: 'this test suite' },
+            ])
+        })), e => e.at as number < 96)).toStrictEqual([
+            MetaEvent.from({ event: 'copyright', value: 'this test suite', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
+            MetaEvent.from({ event: 'key-signature', value: 'F', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '2/4', at: 64 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 80 }),
+        ]);
+    });
+});
+
+describe('transformations.melodyFromTimeline()', () => {
     const TIMELINE = [ 0, 64, 96, 160 ];
     const NOTES = [ [ 60.5 ], [], [ 58, 62 ], [ 63.5 ]];
 

@@ -49,9 +49,6 @@ export function toQuarterNotes(t: string): number {
         throw new Error(`invalid time signature: ${dumpOneLine(t)}`);
     }
 
-    const num = Number(match[1]);
-    const log = Math.log2(Number(match[2]));
-
     return 4 * Number(match[1]) / Number(match[2]);
 }
 
