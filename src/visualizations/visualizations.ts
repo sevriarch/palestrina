@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { JSONValue, CanvasArg, CanvasArgOpts, ScoreCanvasOpts, Score } from '../types';
+import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score } from '../types';
 
 import * as transformations from '../transformations/transformations';
 
@@ -35,6 +35,45 @@ export function JSONTemplate(template: string, substitutions: { [k: string]: JSO
     return str;
 }
 
+function getColorRule(rule?: string): (n: number) => string {
+    switch (rule) {
+    case 'mod12':
+        return n => {
+            switch (n % 12) {
+            case 0: return '#E08080';
+            case 1: return '#80E080';
+            case 2: return '#8080E0';
+            case 3: return '#E0E080';
+            case 4: return '#E080E0';
+            case 5: return '#80E0E0';
+            case 6: return '#E02020';
+            case 7: return '#20E080';
+            case 8: return '#2080E0';
+            case 9: return '#E0E020';
+            case 10: return '#E020E0';
+            default: return '#20E0E0';
+            }
+        };
+
+    default:
+        return () => '#C0C0C0';
+    }
+}
+
+function getValueRule(rule?: string): (n: number) => string {
+    switch (rule) {
+    case 'note':
+        return n => {
+            return [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12]
+                + String.fromCharCode(0x2080 + (Math.floor(n / 12) - 1));
+        };
+    case 'pitch':
+        return n => [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12];
+    default:
+        return n => n.toString();
+    }
+}
+
 /**
  * Return HTML and Javascript for rendering a 2D canvas.
  * Fields within the argument passed are:
@@ -66,6 +105,139 @@ export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg
         __CANVAS_DATA__: data,
         __CANVAS_OPTS__: options
     });
+}
+
+function getSVGHeader(ht: number, wd: number, id = 'notes_svg', beatstyle = '#404040'): string {
+    if (typeof id !== 'string') {
+        throw new Error(`visualizations.render2DSVG(): canvas name should be a string, was ${dumpOneLine(id)}`);
+    }
+
+    return `<svg id="${id}" viewbox="0,0,${wd},${ht}" width="${wd}" height="${ht}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+  <style>
+    text {
+      font-family: "Arial";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: ${beatstyle};
+    }
+  </style>
+`;
+}
+
+function getSVGFooter(): string {
+    return '</svg>\n';
+}
+
+function build2DSVG(score: Score, timeline: number[], data: number[][], options: SVGOpts): string {
+    if (timeline.length === 0) {
+        return getSVGHeader(0, 0, options.id, options.beatstyle) + getSVGFooter();
+    }
+
+    const flattened = data.flat();
+    const maxval = options.maxval || Math.max(...flattened);
+    const minval = options.minval || Math.min(...flattened);
+    const timerange = 1 + timeline[timeline.length - 1];
+    const pitchrange = 1 + maxval - minval;
+
+    // Pixel scale
+    const horizPx = options.width ? (options.width / timerange) : options.px_horiz ?? (1 / 40);
+    const vertPx = options.height ? (options.height / pitchrange) : options.px_vert ?? 10;
+    const lineRepeatPx = options.px_lines;
+    const noteRepeatPx = lineRepeatPx ? lineRepeatPx * (options.note_lines || 8) : 1e9;
+
+    // Padding
+    const LEFTPAD  = options.leftpad ?? 16;
+    const RIGHTPAD = options.rightpad ?? 8;
+    const TOPPAD   = 10;
+    const BTMPAD   = options.px_lines ? 10 : 0;
+
+    // SVG size and positioning within it
+    const vposRule: (v: number) => number = v => TOPPAD + vertPx * (maxval - v);
+    const height = Math.floor(TOPPAD + (options.height || (pitchrange * vertPx))) + BTMPAD;
+    const width  = Math.floor(LEFTPAD + (options.width || (timerange * horizPx)) + RIGHTPAD);
+
+    // Styling
+    const colorRule = getColorRule(options.color_rule);
+    const valueRule = getValueRule(options.value_rule);
+    const textstyle = options.textstyle || '#C0C0C0';
+    const beatstyle = options.beatstyle || '#404040';
+    const offbeatstyle = options.offbeatstyle || '#202020';
+    const beats = options.sub_lines ?? 0;
+
+    let str = getSVGHeader(height, width, options.id, beatstyle);
+
+    // Horizontal alternation of background color by octave
+    const bandPx = vertPx * 12;
+    for (let i = minval - minval % 12 + 11; i < maxval; i += 24) {
+
+        str += `  <rect x="0" y="${vposRule(i)}" width="${width}" height="${bandPx}" fill="#101010" />
+  <rect x="0" y="${vposRule(i) + bandPx}" width="${width}" height="${bandPx}" fill="#000000" />
+`;
+    }
+
+    // Annotate SVG with pitches
+    const pxgap = Math.max(Math.ceil(10 / vertPx), 1);
+    const pitchOffset = vertPx / 2 + 5;
+    for (let i = minval; i <= maxval; i += pxgap) {
+        for (let j = 2; j < width; j += noteRepeatPx) {
+            str += `  <text x="${j}" y="${vposRule(i) + pitchOffset}" fill="${colorRule(i)}">${valueRule(i)}</text>\n`;
+        }
+    }
+
+    // Annotate with barlines and sub-bar-lines
+    if (lineRepeatPx) {
+        const beatPx = lineRepeatPx / beats;
+        const bartimeline = transformations.scoreToBarTimeline(score);
+
+        for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
+            const tick = (i - LEFTPAD) / horizPx;
+            const ix = bartimeline.findIndex(v => tick < v);
+            const bar = ix === -1 ? '' : ix;
+
+            if (beats) {
+                for (let j = 1; j < beats; j++) {
+                    const xpos = i + j + beatPx;
+
+                    str += `  <line x1="${xpos}" y1="0" x2="${xpos}" y2="${height}" style="stroke:${offbeatstyle}" />\n`;
+                }
+            }
+
+            str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />
+  <text x="${i}" y="${height}" fill="${textstyle}">${bar}</text>
+`;
+            if (i !== LEFTPAD) {
+                str += `  <text x="${i}" y="10" fill="${textstyle}">${bar}</text>\n`;
+            }
+        }
+    }
+
+    // Brief text header for the SVG
+    str += `  <text x="0" y="10" fill="${textstyle}">${options.header}</text>\n`;
+
+    // Add notes to SVG
+    for (let i = 0; i < timeline.length; i++) {
+        const x = LEFTPAD + Math.floor(timeline[i] * horizPx);
+        const wd = Math.max(Math.ceil((timeline[i + 1] - timeline[i]) * horizPx), 1);
+
+        data[i].forEach(v => {
+            const clr = colorRule(v);
+            str += `  <rect x="${x}" y="${vposRule(v)}" width="${wd}" height="${vertPx}" fill="${clr}" stroke="${clr}" stroke-width="0" />\n`;
+        });
+    }
+
+    return str + getSVGFooter();
+}
+
+/**
+ * Given a Score, create an SVG showing the notes in the Score.
+ */
+export function scoreToNotesSVG(score: Score, opts: SVGOpts = {}): string {
+    const [ timeline, data ] = transformations.scoreToNotes(score);
+
+    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
 }
 
 /**

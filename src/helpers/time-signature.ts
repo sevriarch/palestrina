@@ -40,6 +40,19 @@ export function toMidiBytes(t: string): number[] {
 }
 
 /**
+ * Given a time signature, return the number of quarter notes in a bar.
+ */
+export function toQuarterNotes(t: string): number {
+    const match = t.match(/^(\d+)\/(\d+)$/);
+
+    if (!match) {
+        throw new Error(`invalid time signature: ${dumpOneLine(t)}`);
+    }
+
+    return 4 * Number(match[1]) / Number(match[2]);
+}
+
+/**
  * Given the last four MIDI bytes representing a time signature, return that time signature.
  */
 export function fromMidiBytes(bytes: number[]): string {

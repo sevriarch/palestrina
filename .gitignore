@@ -59,11 +59,14 @@ typings/
 # next.js build output
 .next
 
-# midi files generated while running tools
+# midi files
 *.midi
 *.mid
 
-# html files generated while running tools
+# svg files
+*.svg
+
+# html files
 *.html
 
 # swap files from editor

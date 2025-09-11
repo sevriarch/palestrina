@@ -614,6 +614,64 @@ describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() 
     });
 });
 
+describe('Score.toNotesSVG() tests', () => {
+    test('expect correctly generated SVG', () => {
+        expect(score([ T2 ]).toNotesSVG({ px_horiz: 24, px_vert: 12 })).toStrictEqual(`<svg id="notes_svg" viewbox="0,0,240,166" width="240" height="166" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+  <style>
+    text {
+      font-family: "Arial";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+  <rect x="0" y="70" width="240" height="144" fill="#101010" />
+  <rect x="0" y="214" width="240" height="144" fill="#000000" />
+  <text x="2" y="165" fill="#E080E0">E₃</text>
+  <text x="2" y="153" fill="#80E0E0">F₃</text>
+  <text x="2" y="141" fill="#E02020">F#₃</text>
+  <text x="2" y="129" fill="#20E080">G₃</text>
+  <text x="2" y="117" fill="#2080E0">G#₃</text>
+  <text x="2" y="105" fill="#E0E020">A₃</text>
+  <text x="2" y="93" fill="#E020E0">A#₃</text>
+  <text x="2" y="81" fill="#20E0E0">B₃</text>
+  <text x="2" y="69" fill="#E08080">C₄</text>
+  <text x="2" y="57" fill="#80E080">C#₄</text>
+  <text x="2" y="45" fill="#8080E0">D₄</text>
+  <text x="2" y="33" fill="#E0E080">D#₄</text>
+  <text x="2" y="21" fill="#E080E0">E₄</text>
+  <text x="0" y="10" fill="#C0C0C0">Notes</text>
+  <rect x="16" y="10" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
+  <rect x="112" y="154" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
+</svg>
+`);
+    });
+});
+
+describe('Score.writeNotesSVG() tests', () => {
+    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    afterAll(() => jest.restoreAllMocks());
+
+    const s = score([ T2 ]);
+    const opts = { px_horiz: 24, px_vert: 12 };
+    test('writeNotesSVG() fails with invalid argument', () => {
+        expect(() => s.writeNotesSVG(60 as unknown as string, opts)).toThrow();
+    });
+
+
+    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.svg';
+        const content = s.toNotesSVG(opts);
+
+        expect(s.writeNotesSVG(base, opts)).toBe(s);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, content);
+    });
+});
+
 describe('Score.toCanvas()/.writeCanvas() tests', () => {
     const RENDER_T1 = 'tracks = [[{"tick":0,"pitch":[60],"duration":8,"velocity":50}]];';
     const RENDER_T2 = 'tracks = [[{"tick":0,"pitch":[64],"duration":4,"velocity":45},{"tick":4,"pitch":[52],"duration":4,"velocity":40}]];';
