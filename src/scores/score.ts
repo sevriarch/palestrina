@@ -157,6 +157,21 @@ export default class Score extends CollectionWithMetadata<Melody> {
     }
 
     /**
+     * Write an SVG file containing the notes in this Score.
+     * 
+     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
+     */
+    writeNotesSVG(file: string, opts: CanvasArgOpts): this {
+        if (typeof file !== 'string') {
+            throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
+        }
+
+        fs.writeFileSync(file + '.svg', this.toNotesSVG(opts));
+
+        return this;
+    }
+
+    /**
      * Returns the MIDI bytes for this Score.
      */
     toMidiBytes(): number[] {

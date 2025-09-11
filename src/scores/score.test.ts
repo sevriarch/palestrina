@@ -598,6 +598,27 @@ describe('Score.toNotesSVG() tests', () => {
 `);
 });
 
+describe('Score.writeNotesSVG() tests', () => {
+    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    afterAll(() => jest.restoreAllMocks());
+
+    const s = score([ T2 ]);
+    const opts = { px_horiz: 24, px_vert: 12 };
+    test('writeNotesSVG() fails with invalid argument', () => {
+        expect(() => s.writeNotesSVG(60 as unknown as string, opts)).toThrow();
+    });
+
+
+    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.svg';
+        const content = s.toNotesSVG(opts);
+
+        expect(s.writeNotesSVG(base, opts)).toBe(s);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, content);
+    });
+});
+
 describe('Score.toCanvas()/.writeCanvas() tests', () => {
     const RENDER_T1 = 'tracks = [[{"tick":0,"pitch":[60],"duration":8,"velocity":50}]];';
     const RENDER_T2 = 'tracks = [[{"tick":0,"pitch":[64],"duration":4,"velocity":45},{"tick":4,"pitch":[52],"duration":4,"velocity":40}]];';
