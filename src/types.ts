@@ -311,8 +311,42 @@ export type CtrlTypeFn<T> = (me: T) => T;
 export type CtrlBoolFn<T> = (me: T) => boolean;
 
 /*
- * CANVAS TYPES
+ * SVG/CANVAS TYPES
  */
+
+/**
+ * A type representing arguments for standard SVGs
+ */
+export type SVGArg = {
+    name: string,              // Name of the canvas
+    timeline: number[],        // A timeline of events, in midi-ticks
+    data: number[][],          // Array of same length as timeline, containing data points
+    options?: SVGOpts, // Options for canvas rendering
+};
+
+/**
+ * A type representing available options for standard canvases
+ */
+export type SVGOpts = {
+    id?: string,         // ID for the SVG element
+    px_horiz?: number,   // Number of pixels per MIDI quarter note horizontally
+    px_vert?: number,    // Number of pixels per unit value vertically
+    height?: number,     // Exact height of SVG; overrides px_vert
+    width?: number,      // Exact width of SVG; overrides px_horiz
+    leftpad?: number,    // Pad canvas this many pixels on the left
+    rightpad?: number,   // Pad canvas this many pixels on the right
+    header?: string,     // A text header to display at the top left of the canvas
+    textstyle?: string,  // RGB colour for displaying text
+    color_rule?: string, // Rule for determining what colour to display items as
+    value_rule?: string, // Rule for determining how values are displayed on the Y axis
+    maxval?: number,     // Maximum value to show on Y axis
+    minval?: number,     // Minimum value to show on Y axis
+    px_lines?: number,   // Show vertical lines every n bars, if passed
+    note_lines?: number, // Show pitches every X bars, if passed
+    sub_lines?: number,  // Show paler vertical lines between the main ones, if passed
+    beatstyle?: string,  // RGB colour for displaying first beat of a bar
+    offbeatstyle?: string, // RGB colour for displaying other beats of the bar
+};
 
 /**
  * A type representing arguments for standard canvases
@@ -343,9 +377,8 @@ export type CanvasArgOpts = {
     minval?: number,     // Minimum value to show on Y axis
     barlines?: number,   // Show vertical lines every n bars, if passed
     value_bars?: number, // Show pitches every X bars, if passed
-    beats?: number,      // Number of beats per bar
+    beats?: number,      // Show paler vertical lines between the main ones, if passed
     beatstyle?: string,  // RGB colour for displaying first beat of a bar
-    offbeatstyle?: string, // RGB colour for displaying other beats of the bar
 };
 
 /**

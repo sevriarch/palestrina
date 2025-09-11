@@ -113,7 +113,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
     /**
      * Returns an SVG of all notes in the Score.
      * 
-     * Option fiels are:
+     * Option fields are:
      * 
      * opts.maxval: Maximum pitch to display on the SVG
      * 
@@ -133,9 +133,9 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.value_bars: Display list of notes every X vertical lines
      * 
-     * opts.leftpad: Pad display to left (defaults to 16)
+     * opts.leftpad: Number of pixels to pad on left by (defaults to 16)
      * 
-     * opts.rightpad: Pad display to right (defaults to 8)
+     * opts.rightpad: Number of pixels to pad on right by (defaults to 8)
      * 
      * opts.color_rule: Determine how to color pitches: "mod12" gives a different color
      * for each pitch of the scale.

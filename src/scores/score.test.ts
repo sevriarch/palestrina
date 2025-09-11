@@ -578,7 +578,6 @@ describe('Score.toNotesSVG() tests', () => {
   <rect x="0" y="-74" width="240" height="144" fill="#000000" />
   <rect x="0" y="-506" width="240" height="144" fill="#101010" />
   <rect x="0" y="-362" width="240" height="144" fill="#000000" />
-  <text x="16" y="10" fill="#C0C0C0">Notes</text>
   <text x="2" y="165" fill="#E080E0">E₃</text>
   <text x="2" y="153" fill="#80E0E0">F₃</text>
   <text x="2" y="141" fill="#E02020">F#₃</text>
@@ -592,6 +591,7 @@ describe('Score.toNotesSVG() tests', () => {
   <text x="2" y="45" fill="#8080E0">D₄</text>
   <text x="2" y="33" fill="#E0E080">D#₄</text>
   <text x="2" y="21" fill="#E080E0">E₄</text>
+  <text x="0" y="10" fill="#C0C0C0">Notes</text>
   <rect x="16" y="10" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
   <rect x="112" y="154" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
 </svg>

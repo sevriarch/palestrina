@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { JSONValue, CanvasArg, CanvasArgOpts, ScoreCanvasOpts, Score } from '../types';
+import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score } from '../types';
 
 import * as transformations from '../transformations/transformations';
 
@@ -131,15 +131,7 @@ function getSVGFooter(): string {
     return '</svg>\n';
 }
 
-/**
- * Return HTML for a 2D SVG.
- * Fields within the argument passed are:
- * name: A name for the SVG.
- * timeline: A timeline of events in MIDI ticks.
- * data: An array of values corresponding to the timeline.
- * options: A list of options for rendering the canvas.
- */
-function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts): string {
+function build2DSVG(score: Score, timeline: number[], data: number[][], options: SVGOpts): string {
     if (timeline.length === 0) {
         return getSVGHeader(0, 0, options.id, options.beatstyle) + getSVGFooter();
     }
@@ -153,14 +145,14 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
     // Pixel scale
     const horizPx = options.width ? (options.width / timerange) : options.px_horiz ?? (1 / 40);
     const vertPx = options.height ? (options.height / pitchrange) : options.px_vert ?? 10;
-    const lineRepeatPx = options.barlines;
-    const noteRepeatPx = lineRepeatPx ? lineRepeatPx * (options.value_bars || 8) : 1e9;
+    const lineRepeatPx = options.px_lines;
+    const noteRepeatPx = lineRepeatPx ? lineRepeatPx * (options.note_lines || 8) : 1e9;
 
     // Padding
     const LEFTPAD  = options.leftpad ?? 16;
     const RIGHTPAD = options.rightpad ?? 8;
     const TOPPAD   = 10;
-    const BTMPAD   = options.barlines ? 10 : 0;
+    const BTMPAD   = options.px_lines ? 10 : 0;
 
     // SVG size and positioning within it
     const vposRule: (v: number) => number = v => TOPPAD + vertPx * (maxval - v);
@@ -173,7 +165,7 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
     const textstyle = options.textstyle || '#C0C0C0';
     const beatstyle = options.beatstyle || '#404040';
     const offbeatstyle = options.offbeatstyle || '#202020';
-    const beats = options.beats ?? 0;
+    const beats = options.sub_lines ?? 0;
 
     let str = getSVGHeader(height, width, options.id, beatstyle);
 
@@ -185,9 +177,6 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
   <rect x="0" y="${vposRule(i) + band}" width="${width}" height="${band}" fill="#000000" />
 `;
     }
-
-    // Brief text header for the SVG
-    str += `  <text x="${LEFTPAD}" y="10" fill="${textstyle}">${options.header}</text>\n`;
 
     // Annotate SVG with pitches
     const pxgap = Math.max(Math.ceil(10 / vertPx), 1);
@@ -201,16 +190,12 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
     // Annotate with barlines and sub-bar-lines
     if (lineRepeatPx) {
         const beatPx = lineRepeatPx / beats;
+        const bartimeline = transformations.scoreToBarTimeline(score);
 
-        let bar = 1;
         for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
-            const val = i + lineRepeatPx / 2 - 8;
-
-            str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />
-  <text x="${val}" y="${height}" fill="${textstyle}">${bar}</text>
-  <text x="${val}" y="10" fill="${textstyle}">${bar}</text>
-`;
-            bar++;
+            const tick = (i - LEFTPAD) / horizPx;
+            const ix = bartimeline.findIndex(v => tick < v);
+            const bar = ix === -1 ? '' : ix;
 
             if (beats) {
                 for (let j = 1; j < beats; j++) {
@@ -219,8 +204,18 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
                     str += `  <line x1="${xpos}" y1="0" x2="${xpos}" y2="${height}" style="stroke:${offbeatstyle}" />\n`;
                 }
             }
+
+            str += `  <line x1="${i}" y1="0" x2="${i}" y2="${height}" />
+  <text x="${i}" y="${height}" fill="${textstyle}">${bar}</text>
+`;
+            if (i !== LEFTPAD) {
+                str += `  <text x="${i}" y="10" fill="${textstyle}">${bar}</text>\n`;
+            }
         }
     }
+
+    // Brief text header for the SVG
+    str += `  <text x="0" y="10" fill="${textstyle}">${options.header}</text>\n`;
 
     // Add notes to SVG
     for (let i = 0; i < timeline.length; i++) {
@@ -239,10 +234,10 @@ function build2DSVG(timeline: number[], data: number[][], options: CanvasArgOpts
 /**
  * Given a Score, create an SVG showing the notes in the Score.
  */
-export function scoreToNotesSVG(score: Score, opts: CanvasArgOpts = {}): string {
+export function scoreToNotesSVG(score: Score, opts: SVGOpts = {}): string {
     const [ timeline, data ] = transformations.scoreToNotes(score);
 
-    return build2DSVG(timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
+    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
 }
 
 /**

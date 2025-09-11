@@ -131,7 +131,6 @@ describe('visualizations.scoreToNotesSVG()', () => {
   <rect x="0" y="-20" width="29" height="120" fill="#000000" />
   <rect x="0" y="-380" width="29" height="120" fill="#101010" />
   <rect x="0" y="-260" width="29" height="120" fill="#000000" />
-  <text x="16" y="10" fill="#C0C0C0">Notes</text>
   <text x="2" y="440" fill="#8080E0">D₁</text>
   <text x="2" y="430" fill="#E0E080">D#₁</text>
   <text x="2" y="420" fill="#E080E0">E₁</text>
@@ -175,6 +174,7 @@ describe('visualizations.scoreToNotesSVG()', () => {
   <text x="2" y="40" fill="#E02020">F#₄</text>
   <text x="2" y="30" fill="#20E080">G₄</text>
   <text x="2" y="20" fill="#2080E0">G#₄</text>
+  <text x="0" y="10" fill="#C0C0C0">Notes</text>
   <rect x="16" y="430" width="1" height="10" fill="#8080E0" stroke="#8080E0" stroke-width="0" />
   <rect x="16" y="400" width="1" height="10" fill="#80E0E0" stroke="#80E0E0" stroke-width="0" />
   <rect x="16" y="50" width="1" height="10" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
@@ -215,7 +215,6 @@ describe('visualizations.scoreToNotesSVG()', () => {
   <rect x="0" y="-26" width="492" height="144" fill="#000000" />
   <rect x="0" y="-458" width="492" height="144" fill="#101010" />
   <rect x="0" y="-314" width="492" height="144" fill="#000000" />
-  <text x="26" y="10" fill="#C0C0C0">fallback</text>
   <text x="2" y="525" fill="#C0C0C0">26</text>
   <text x="2" y="513" fill="#C0C0C0">27</text>
   <text x="2" y="501" fill="#C0C0C0">28</text>
@@ -259,6 +258,7 @@ describe('visualizations.scoreToNotesSVG()', () => {
   <text x="2" y="45" fill="#C0C0C0">66</text>
   <text x="2" y="33" fill="#C0C0C0">67</text>
   <text x="2" y="21" fill="#C0C0C0">68</text>
+  <text x="0" y="10" fill="#C0C0C0">fallback</text>
   <rect x="26" y="514" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
   <rect x="26" y="478" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
   <rect x="26" y="58" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
@@ -277,7 +277,7 @@ describe('visualizations.scoreToNotesSVG()', () => {
 
     test('generates appropriate canvas with various options included', () => {
         expect(
-            visualizations.scoreToNotesSVG(SAMPLE_SCORE, { width: 640, height: 215, barlines: 80, beats: 2, value_rule: 'pitch', id: 'this1' })
+            visualizations.scoreToNotesSVG(SAMPLE_SCORE.withTicksPerQuarter(32).withTimeSignature('1/4'), { width: 640, height: 215, px_lines: 80, sub_lines: 2, value_rule: 'pitch', id: 'this1' })
         ).toStrictEqual(`<svg id="this1" viewbox=\"0,0,664,235\" width=\"664\" height=\"235\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
@@ -300,7 +300,6 @@ describe('visualizations.scoreToNotesSVG()', () => {
   <rect x="0" y="-5" width="664" height="60" fill="#000000" />
   <rect x="0" y="-185" width="664" height="60" fill="#101010" />
   <rect x="0" y="-125" width="664" height="60" fill="#000000" />
-  <text x="16" y="10" fill="#C0C0C0">Notes</text>
   <text x="2" y="227.5" fill="#8080E0">D</text>
   <text x="642" y="227.5" fill="#8080E0">D</text>
   <text x="2" y="217.5" fill="#E080E0">E</text>
@@ -345,42 +344,42 @@ describe('visualizations.scoreToNotesSVG()', () => {
   <text x="642" y="27.5" fill="#E02020">F#</text>
   <text x="2" y="17.5" fill="#2080E0">G#</text>
   <text x="642" y="17.5" fill="#2080E0">G#</text>
-  <line x1="16" y1="0" x2="16" y2="235" />
-  <text x="48" y="235" fill="#C0C0C0">1</text>
-  <text x="48" y="10" fill="#C0C0C0">1</text>
   <line x1="57" y1="0" x2="57" y2="235" style="stroke:#202020" />
-  <line x1="96" y1="0" x2="96" y2="235" />
-  <text x="128" y="235" fill="#C0C0C0">2</text>
-  <text x="128" y="10" fill="#C0C0C0">2</text>
+  <line x1="16" y1="0" x2="16" y2="235" />
+  <text x="16" y="235" fill="#C0C0C0">1</text>
   <line x1="137" y1="0" x2="137" y2="235" style="stroke:#202020" />
-  <line x1="176" y1="0" x2="176" y2="235" />
-  <text x="208" y="235" fill="#C0C0C0">3</text>
-  <text x="208" y="10" fill="#C0C0C0">3</text>
+  <line x1="96" y1="0" x2="96" y2="235" />
+  <text x="96" y="235" fill="#C0C0C0">1</text>
+  <text x="96" y="10" fill="#C0C0C0">1</text>
   <line x1="217" y1="0" x2="217" y2="235" style="stroke:#202020" />
-  <line x1="256" y1="0" x2="256" y2="235" />
-  <text x="288" y="235" fill="#C0C0C0">4</text>
-  <text x="288" y="10" fill="#C0C0C0">4</text>
+  <line x1="176" y1="0" x2="176" y2="235" />
+  <text x="176" y="235" fill="#C0C0C0">2</text>
+  <text x="176" y="10" fill="#C0C0C0">2</text>
   <line x1="297" y1="0" x2="297" y2="235" style="stroke:#202020" />
-  <line x1="336" y1="0" x2="336" y2="235" />
-  <text x="368" y="235" fill="#C0C0C0">5</text>
-  <text x="368" y="10" fill="#C0C0C0">5</text>
+  <line x1="256" y1="0" x2="256" y2="235" />
+  <text x="256" y="235" fill="#C0C0C0">3</text>
+  <text x="256" y="10" fill="#C0C0C0">3</text>
   <line x1="377" y1="0" x2="377" y2="235" style="stroke:#202020" />
-  <line x1="416" y1="0" x2="416" y2="235" />
-  <text x="448" y="235" fill="#C0C0C0">6</text>
-  <text x="448" y="10" fill="#C0C0C0">6</text>
+  <line x1="336" y1="0" x2="336" y2="235" />
+  <text x="336" y="235" fill="#C0C0C0">4</text>
+  <text x="336" y="10" fill="#C0C0C0">4</text>
   <line x1="457" y1="0" x2="457" y2="235" style="stroke:#202020" />
-  <line x1="496" y1="0" x2="496" y2="235" />
-  <text x="528" y="235" fill="#C0C0C0">7</text>
-  <text x="528" y="10" fill="#C0C0C0">7</text>
+  <line x1="416" y1="0" x2="416" y2="235" />
+  <text x="416" y="235" fill="#C0C0C0">5</text>
+  <text x="416" y="10" fill="#C0C0C0">5</text>
   <line x1="537" y1="0" x2="537" y2="235" style="stroke:#202020" />
-  <line x1="576" y1="0" x2="576" y2="235" />
-  <text x="608" y="235" fill="#C0C0C0">8</text>
-  <text x="608" y="10" fill="#C0C0C0">8</text>
+  <line x1="496" y1="0" x2="496" y2="235" />
+  <text x="496" y="235" fill="#C0C0C0">6</text>
+  <text x="496" y="10" fill="#C0C0C0">6</text>
   <line x1="617" y1="0" x2="617" y2="235" style="stroke:#202020" />
-  <line x1="656" y1="0" x2="656" y2="235" />
-  <text x="688" y="235" fill="#C0C0C0">9</text>
-  <text x="688" y="10" fill="#C0C0C0">9</text>
+  <line x1="576" y1="0" x2="576" y2="235" />
+  <text x="576" y="235" fill="#C0C0C0"></text>
+  <text x="576" y="10" fill="#C0C0C0"></text>
   <line x1="697" y1="0" x2="697" y2="235" style="stroke:#202020" />
+  <line x1="656" y1="0" x2="656" y2="235" />
+  <text x="656" y="235" fill="#C0C0C0"></text>
+  <text x="656" y="10" fill="#C0C0C0"></text>
+  <text x="0" y="10" fill="#C0C0C0">Notes</text>
   <rect x="16" y="220" width="92" height="5" fill="#8080E0" stroke="#8080E0" stroke-width="0" />
   <rect x="16" y="205" width="92" height="5" fill="#80E0E0" stroke="#80E0E0" stroke-width="0" />
   <rect x="16" y="30" width="92" height="5" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
