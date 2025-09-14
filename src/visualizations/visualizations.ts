@@ -60,6 +60,23 @@ function getColorRule(rule?: string): (n: number) => string {
     }
 }
 
+function getInterval(n: number): [ number, string ] {
+    switch (n) {
+    case 0: return [ 1, 'P' ];
+    case 1: return [ 2, 'm' ];
+    case 2: return [ 2, 'M' ];
+    case 3: return [ 3, 'm' ];
+    case 4: return [ 3, 'M' ];
+    case 5: return [ 4, 'P' ];
+    case 6: return [ 4, 'A' ];
+    case 7: return [ 5, 'P' ];
+    case 8: return [ 6, 'm' ];
+    case 9: return [ 6, 'M' ];
+    case 10: return [ 7, 'm' ];
+    default: return [ 7, 'M' ];
+    }
+}
+
 function getValueRule(rule?: string): (n: number) => string {
     switch (rule) {
     case 'note':
@@ -67,8 +84,17 @@ function getValueRule(rule?: string): (n: number) => string {
             return [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12]
                 + String.fromCharCode(0x2080 + (Math.floor(n / 12) - 1));
         };
-    case 'pitch':
+    case 'gamut':
         return n => [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12];
+    case 'interval':
+        return n => {
+            const inoctave = n % 12;
+            const interval = getInterval(inoctave);
+
+            interval[0] += 7 * (n - inoctave) / 12;
+
+            return `<tspan font-size="8">${interval[1]}</tspan>${interval[0]}`;
+        };
     default:
         return n => n.toString();
     }
@@ -238,6 +264,24 @@ export function scoreToNotesSVG(score: Score, opts: SVGOpts = {}): string {
     const [ timeline, data ] = transformations.scoreToNotes(score);
 
     return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
+}
+
+/**
+ * Given a Score, create an SVG showing the gamut used in the Score.
+ */
+export function scoreToGamutSVG(score: Score, opts: SVGOpts = {}): string {
+    const [ timeline, data ] = transformations.scoreToGamut(score);
+
+    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'gamut', header: 'Gamut', ...opts });
+}
+
+/**
+ * Given a Score, create an SVG showing the intervals appearing in the Score.
+ */
+export function scoreToIntervalsSVG(score: Score, opts: SVGOpts = {}): string {
+    const [ timeline, data ] = transformations.scoreToIntervals(score);
+
+    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'interval', leftpad: 24, header: 'Intervals', ...opts });
 }
 
 /**

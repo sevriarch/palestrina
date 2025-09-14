@@ -13,7 +13,7 @@ import { numberToFixedBytes } from '../midi/conversions';
 import { MIDI } from '../constants';
 
 import { min, max } from '../helpers/calculations';
-import { scoreToNotesSVG, scoreToScoreCanvas } from '../visualizations/visualizations';
+import { scoreToNotesSVG, scoreToGamutSVG, scoreToIntervalsSVG, scoreToScoreCanvas } from '../visualizations/visualizations';
 import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
 
@@ -194,10 +194,41 @@ export default class Score extends CollectionWithMetadata<Melody> {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
 
-        fs.writeFileSync(file + '.svg', this.toNotesSVG(opts));
+        fs.writeFileSync(file + '.svg', scoreToNotesSVG(this, opts));
 
         return this;
     }
+
+    /**
+     * Write an SVG file containing the gamut used in this Score.
+     * 
+     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
+     */
+    writeGamutSVG(file: string, opts: SVGOpts): this {
+        if (typeof file !== 'string') {
+            throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
+        }
+
+        fs.writeFileSync(file + '.gamut.svg', scoreToGamutSVG(this, opts));
+
+        return this;
+    }
+
+    /**
+     * Write an SVG file containing the intervals used in this Score.
+     * 
+     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
+     */
+    writeIntervalsSVG(file: string, opts: SVGOpts): this {
+        if (typeof file !== 'string') {
+            throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
+        }
+
+        fs.writeFileSync(file + '.intervals.svg', scoreToIntervalsSVG(this, opts));
+
+        return this;
+    }
+
 
     /**
      * Returns the MIDI bytes for this Score.

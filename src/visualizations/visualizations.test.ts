@@ -265,7 +265,7 @@ describe('visualizations.scoreToNotesSVG()', () => {
 
     test('generates appropriate canvas with various options included', () => {
         expect(
-            visualizations.scoreToNotesSVG(SAMPLE_SCORE.withTicksPerQuarter(32).withTimeSignature('1/4'), { width: 640, height: 215, px_lines: 80, sub_lines: 2, value_rule: 'pitch', id: 'this1' })
+            visualizations.scoreToNotesSVG(SAMPLE_SCORE.withTicksPerQuarter(32).withTimeSignature('1/4'), { width: 640, height: 215, px_lines: 80, sub_lines: 2, value_rule: 'gamut', id: 'this1' })
         ).toStrictEqual(`<svg id="this1" viewbox=\"0,0,664,235\" width=\"664\" height=\"235\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
