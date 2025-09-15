@@ -139,7 +139,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
     }
 
     /**
-     * Returns an SVG of all notes in the Score.
+     * Write an SVG file containing the notes in this Score.
      * 
      * Option fields are:
      * 
@@ -180,15 +180,6 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.header: a short piece of text to display at the top left of the SVG
      */
-    toNotesSVG(opts: SVGOpts): string {
-        return scoreToNotesSVG(this, opts);
-    }
-
-    /**
-     * Write an SVG file containing the notes in this Score.
-     * 
-     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
-     */
     writeNotesSVG(file: string, opts: SVGOpts): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
@@ -228,7 +219,6 @@ export default class Score extends CollectionWithMetadata<Melody> {
 
         return this;
     }
-
 
     /**
      * Returns the MIDI bytes for this Score.

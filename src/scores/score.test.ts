@@ -614,9 +614,23 @@ describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() 
     });
 });
 
-describe('Score.toNotesSVG() tests', () => {
-    test('expect correctly generated SVG', () => {
-        expect(score([ T2 ]).toNotesSVG({ px_horiz: 24, px_vert: 12 })).toStrictEqual(`<svg id="notes_svg" viewbox="0,0,240,166" width="240" height="166" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+describe('Score.writeNotesSVG() tests', () => {
+    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    afterAll(() => jest.restoreAllMocks());
+
+    const s = score([ T2 ]);
+    const opts = { px_horiz: 24, px_vert: 12 };
+    test('writeNotesSVG() fails with invalid argument', () => {
+        expect(() => s.writeNotesSVG(60 as unknown as string, opts)).toThrow();
+    });
+
+
+    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.svg';
+
+        expect(s.writeNotesSVG(base, opts)).toBe(s);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="notes_svg" viewbox="0,0,240,166" width="240" height="166" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
     text {
       font-family: "Arial";
@@ -648,27 +662,6 @@ describe('Score.toNotesSVG() tests', () => {
   <rect x="112" y="154" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
 </svg>
 `);
-    });
-});
-
-describe('Score.writeNotesSVG() tests', () => {
-    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
-    afterAll(() => jest.restoreAllMocks());
-
-    const s = score([ T2 ]);
-    const opts = { px_horiz: 24, px_vert: 12 };
-    test('writeNotesSVG() fails with invalid argument', () => {
-        expect(() => s.writeNotesSVG(60 as unknown as string, opts)).toThrow();
-    });
-
-
-    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
-        const base = __filename + Date.now();
-        const filename = base + '.svg';
-        const content = s.toNotesSVG(opts);
-
-        expect(s.writeNotesSVG(base, opts)).toBe(s);
-        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, content);
     });
 });
 
