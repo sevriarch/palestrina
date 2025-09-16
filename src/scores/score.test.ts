@@ -625,16 +625,15 @@ describe('Score.writeNotesSVG() tests', () => {
         melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
     ]).withTicksPerQuarter(128);
 
-    const opts = { px_horiz: 24, px_vert: 12 };
-    test('writeNotesSVG() fails with invalid argument', () => {
-        expect(() => S0.writeNotesSVG(60 as unknown as string, opts)).toThrow();
+    test('fails with invalid argument', () => {
+        expect(() => S0.writeNotesSVG(60 as unknown as string)).toThrow();
     });
 
     test('generates appropriate canvas with empty score', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
 
-        expect(S0.writeNotesSVG(base, opts)).toBe(S0);
+        expect(S0.writeNotesSVG(base)).toBe(S0);
         expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="notes_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
@@ -651,12 +650,12 @@ describe('Score.writeNotesSVG() tests', () => {
 `);
     });
 
-    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
+    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments when no options are provided', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
 
-        expect(S1.writeNotesSVG(base, opts)).toBe(S1);
-        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="notes_svg" viewbox="0,0,240,166" width="240" height="166" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+        expect(S1.writeNotesSVG(base)).toBe(S1);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="notes_svg" viewbox="0,0,24,140" width="24" height="140" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
     text {
       font-family: "Arial";
@@ -668,24 +667,24 @@ describe('Score.writeNotesSVG() tests', () => {
       stroke: #404040;
     }
   </style>
-  <rect x="0" y="70" width="240" height="144" fill="#101010" />
-  <rect x="0" y="214" width="240" height="144" fill="#000000" />
-  <text x="2" y="165" fill="#E080E0">E₃</text>
-  <text x="2" y="153" fill="#80E0E0">F₃</text>
-  <text x="2" y="141" fill="#E02020">F#₃</text>
-  <text x="2" y="129" fill="#20E080">G₃</text>
-  <text x="2" y="117" fill="#2080E0">G#₃</text>
-  <text x="2" y="105" fill="#E0E020">A₃</text>
-  <text x="2" y="93" fill="#E020E0">A#₃</text>
-  <text x="2" y="81" fill="#20E0E0">B₃</text>
-  <text x="2" y="69" fill="#E08080">C₄</text>
-  <text x="2" y="57" fill="#80E080">C#₄</text>
-  <text x="2" y="45" fill="#8080E0">D₄</text>
-  <text x="2" y="33" fill="#E0E080">D#₄</text>
-  <text x="2" y="21" fill="#E080E0">E₄</text>
+  <rect x="0" y="60" width="24" height="120" fill="#101010" />
+  <rect x="0" y="180" width="24" height="120" fill="#000000" />
+  <text x="2" y="140" fill="#E080E0">E₃</text>
+  <text x="2" y="130" fill="#80E0E0">F₃</text>
+  <text x="2" y="120" fill="#E02020">F#₃</text>
+  <text x="2" y="110" fill="#20E080">G₃</text>
+  <text x="2" y="100" fill="#2080E0">G#₃</text>
+  <text x="2" y="90" fill="#E0E020">A₃</text>
+  <text x="2" y="80" fill="#E020E0">A#₃</text>
+  <text x="2" y="70" fill="#20E0E0">B₃</text>
+  <text x="2" y="60" fill="#E08080">C₄</text>
+  <text x="2" y="50" fill="#80E080">C#₄</text>
+  <text x="2" y="40" fill="#8080E0">D₄</text>
+  <text x="2" y="30" fill="#E0E080">D#₄</text>
+  <text x="2" y="20" fill="#E080E0">E₄</text>
   <text x="0" y="10" fill="#C0C0C0">Notes</text>
-  <rect x="16" y="10" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
-  <rect x="112" y="154" width="96" height="12" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
+  <rect x="16" y="10" width="1" height="10" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
+  <rect x="16" y="130" width="1" height="10" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
 </svg>
 `);
     });
@@ -771,7 +770,7 @@ describe('Score.writeNotesSVG() tests', () => {
 `);
     });
 
-    test('generates appropriate canvas with various options included', () => {
+    test('generates appropriate SVG with various options included', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
         const modified = S2.withTicksPerQuarter(32).withTimeSignature('1/4');
@@ -885,6 +884,117 @@ describe('Score.writeNotesSVG() tests', () => {
   <rect x="380" y="10" width="183" height="5" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
   <rect x="562" y="200" width="92" height="5" fill="#E02020" stroke="#E02020" stroke-width="0" />
   <rect x="562" y="190" width="92" height="5" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
+</svg>
+`);
+    });
+});
+
+describe('Score.toIntervalSVG() tests', () => {
+    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    afterAll(() => jest.restoreAllMocks());
+
+    const S1 = score([]);
+    const S2 = score([
+        melody([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
+        melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
+    ]).withTicksPerQuarter(128);
+
+    test('fails with invalid argument', () => {
+        expect(() => S1.writeIntervalsSVG(60 as unknown as string)).toThrow();
+    });
+
+    test('generates appropriate SVG with various options included', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.intervals.svg';
+        const modified = S1.withTicksPerQuarter(32).withTimeSignature('1/4');
+
+        expect(modified.writeIntervalsSVG(base, { width: 640, height: 215, px_lines: 80, sub_lines: 2, value_rule: 'gamut', id: 'this1' })).toBe(modified);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id=\"this1\" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+  <style>
+    text {
+      font-family: \"Arial\";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+</svg>
+`);
+    });
+
+    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.intervals.svg';
+
+        expect(S2.writeIntervalsSVG(base, { px_horiz: 24, px_vert: 12 })).toBe(S2);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id=\"notes_svg\" viewbox=\"0,0,5432,454\" width=\"5432\" height=\"454\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+  <style>
+    text {
+      font-family: \"Arial\";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+  <rect x=\"0\" y=\"334\" width=\"5432\" height=\"144\" fill=\"#101010\" />
+  <rect x=\"0\" y=\"478\" width=\"5432\" height=\"144\" fill=\"#000000\" />
+  <rect x=\"0\" y=\"46\" width=\"5432\" height=\"144\" fill=\"#101010\" />
+  <rect x=\"0\" y=\"190\" width=\"5432\" height=\"144\" fill=\"#000000\" />
+  <text x=\"2\" y=\"453\" fill=\"#8080E0\"><tspan font-size=\"8\">M</tspan>2</text>
+  <text x=\"2\" y=\"441\" fill=\"#E0E080\"><tspan font-size=\"8\">m</tspan>3</text>
+  <text x=\"2\" y=\"429\" fill=\"#E080E0\"><tspan font-size=\"8\">M</tspan>3</text>
+  <text x=\"2\" y=\"417\" fill=\"#80E0E0\"><tspan font-size=\"8\">P</tspan>4</text>
+  <text x=\"2\" y=\"405\" fill=\"#E02020\"><tspan font-size=\"8\">A</tspan>4</text>
+  <text x=\"2\" y=\"393\" fill=\"#20E080\"><tspan font-size=\"8\">P</tspan>5</text>
+  <text x=\"2\" y=\"381\" fill=\"#2080E0\"><tspan font-size=\"8\">m</tspan>6</text>
+  <text x=\"2\" y=\"369\" fill=\"#E0E020\"><tspan font-size=\"8\">M</tspan>6</text>
+  <text x=\"2\" y=\"357\" fill=\"#E020E0\"><tspan font-size=\"8\">m</tspan>7</text>
+  <text x=\"2\" y=\"345\" fill=\"#20E0E0\"><tspan font-size=\"8\">M</tspan>7</text>
+  <text x=\"2\" y=\"333\" fill=\"#E08080\"><tspan font-size=\"8\">P</tspan>8</text>
+  <text x=\"2\" y=\"321\" fill=\"#80E080\"><tspan font-size=\"8\">m</tspan>9</text>
+  <text x=\"2\" y=\"309\" fill=\"#8080E0\"><tspan font-size=\"8\">M</tspan>9</text>
+  <text x=\"2\" y=\"297\" fill=\"#E0E080\"><tspan font-size=\"8\">m</tspan>10</text>
+  <text x=\"2\" y=\"285\" fill=\"#E080E0\"><tspan font-size=\"8\">M</tspan>10</text>
+  <text x=\"2\" y=\"273\" fill=\"#80E0E0\"><tspan font-size=\"8\">P</tspan>11</text>
+  <text x=\"2\" y=\"261\" fill=\"#E02020\"><tspan font-size=\"8\">A</tspan>11</text>
+  <text x=\"2\" y=\"249\" fill=\"#20E080\"><tspan font-size=\"8\">P</tspan>12</text>
+  <text x=\"2\" y=\"237\" fill=\"#2080E0\"><tspan font-size=\"8\">m</tspan>13</text>
+  <text x=\"2\" y=\"225\" fill=\"#E0E020\"><tspan font-size=\"8\">M</tspan>13</text>
+  <text x=\"2\" y=\"213\" fill=\"#E020E0\"><tspan font-size=\"8\">m</tspan>14</text>
+  <text x=\"2\" y=\"201\" fill=\"#20E0E0\"><tspan font-size=\"8\">M</tspan>14</text>
+  <text x=\"2\" y=\"189\" fill=\"#E08080\"><tspan font-size=\"8\">P</tspan>15</text>
+  <text x=\"2\" y=\"177\" fill=\"#80E080\"><tspan font-size=\"8\">m</tspan>16</text>
+  <text x=\"2\" y=\"165\" fill=\"#8080E0\"><tspan font-size=\"8\">M</tspan>16</text>
+  <text x=\"2\" y=\"153\" fill=\"#E0E080\"><tspan font-size=\"8\">m</tspan>17</text>
+  <text x=\"2\" y=\"141\" fill=\"#E080E0\"><tspan font-size=\"8\">M</tspan>17</text>
+  <text x=\"2\" y=\"129\" fill=\"#80E0E0\"><tspan font-size=\"8\">P</tspan>18</text>
+  <text x=\"2\" y=\"117\" fill=\"#E02020\"><tspan font-size=\"8\">A</tspan>18</text>
+  <text x=\"2\" y=\"105\" fill=\"#20E080\"><tspan font-size=\"8\">P</tspan>19</text>
+  <text x=\"2\" y=\"93\" fill=\"#2080E0\"><tspan font-size=\"8\">m</tspan>20</text>
+  <text x=\"2\" y=\"81\" fill=\"#E0E020\"><tspan font-size=\"8\">M</tspan>20</text>
+  <text x=\"2\" y=\"69\" fill=\"#E020E0\"><tspan font-size=\"8\">m</tspan>21</text>
+  <text x=\"2\" y=\"57\" fill=\"#20E0E0\"><tspan font-size=\"8\">M</tspan>21</text>
+  <text x=\"2\" y=\"45\" fill=\"#E08080\"><tspan font-size=\"8\">P</tspan>22</text>
+  <text x=\"2\" y=\"33\" fill=\"#80E080\"><tspan font-size=\"8\">m</tspan>23</text>
+  <text x=\"2\" y=\"21\" fill=\"#8080E0\"><tspan font-size=\"8\">M</tspan>23</text>
+  <text x=\"0\" y=\"10\" fill=\"#C0C0C0\">Intervals</text>
+  <rect x=\"24\" y=\"430\" width=\"768\" height=\"12\" fill=\"#E0E080\" stroke=\"#E0E080\" stroke-width=\"0\" />
+  <rect x=\"24\" y=\"46\" width=\"768\" height=\"12\" fill=\"#20E0E0\" stroke=\"#20E0E0\" stroke-width=\"0\" />
+  <rect x=\"24\" y=\"10\" width=\"768\" height=\"12\" fill=\"#8080E0\" stroke=\"#8080E0\" stroke-width=\"0\" />
+  <rect x=\"792\" y=\"430\" width=\"768\" height=\"12\" fill=\"#E0E080\" stroke=\"#E0E080\" stroke-width=\"0\" />
+  <rect x=\"3096\" y=\"442\" width=\"1536\" height=\"12\" fill=\"#8080E0\" stroke=\"#8080E0\" stroke-width=\"0\" />
+  <rect x=\"3096\" y=\"370\" width=\"1536\" height=\"12\" fill=\"#2080E0\" stroke=\"#2080E0\" stroke-width=\"0\" />
+  <rect x=\"3096\" y=\"130\" width=\"1536\" height=\"12\" fill=\"#E080E0\" stroke=\"#E080E0\" stroke-width=\"0\" />
+  <rect x=\"3096\" y=\"106\" width=\"1536\" height=\"12\" fill=\"#E02020\" stroke=\"#E02020\" stroke-width=\"0\" />
+  <rect x=\"3096\" y=\"34\" width=\"1536\" height=\"12\" fill=\"#E08080\" stroke=\"#E08080\" stroke-width=\"0\" />
+  <rect x=\"3096\" y=\"10\" width=\"1536\" height=\"12\" fill=\"#8080E0\" stroke=\"#8080E0\" stroke-width=\"0\" />
+  <rect x=\"4632\" y=\"442\" width=\"768\" height=\"12\" fill=\"#8080E0\" stroke=\"#8080E0\" stroke-width=\"0\" />
 </svg>
 `);
     });

@@ -181,7 +181,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.header: a short piece of text to display at the top left of the SVG
      */
-    writeNotesSVG(file: string, opts: SVGOpts): this {
+    writeNotesSVG(file: string, opts: SVGOpts = {}): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
@@ -200,7 +200,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
      */
-    writeGamutSVG(file: string, opts: SVGOpts): this {
+    writeGamutSVG(file: string, opts: SVGOpts = {}): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
@@ -219,7 +219,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
      */
-    writeIntervalsSVG(file: string, opts: SVGOpts): this {
+    writeIntervalsSVG(file: string, opts: SVGOpts = {}): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
