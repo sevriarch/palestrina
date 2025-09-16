@@ -6,6 +6,8 @@ import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
 import CollectionWithMetadata from '../collections/with-metadata';
 
+import * as transformations from '../transformations/transformations';
+import * as visualizations from '../visualizations/visualizations';
 import * as midiWriter from '../midi/writer';
 import MidiReader from '../midi/reader';
 import { numberToFixedBytes } from '../midi/conversions';
@@ -13,7 +15,6 @@ import { numberToFixedBytes } from '../midi/conversions';
 import { MIDI } from '../constants';
 
 import { min, max } from '../helpers/calculations';
-import { scoreToNotesSVG, scoreToGamutSVG, scoreToIntervalsSVG, scoreToScoreCanvas } from '../visualizations/visualizations';
 import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
 
@@ -135,7 +136,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * opts.wd_min - Minimum width in pixels for any note (default 2)
      */
     toCanvas(opts: ScoreCanvasOpts = {}): string {
-        return scoreToScoreCanvas(this, opts);
+        return visualizations.scoreToScoreCanvas(this, opts);
     }
 
     /**
@@ -184,8 +185,12 @@ export default class Score extends CollectionWithMetadata<Melody> {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
-
-        fs.writeFileSync(file + '.svg', scoreToNotesSVG(this, opts));
+    
+        fs.writeFileSync(file + '.svg',
+            visualizations.build2DSVG(this, transformations.scoreToNotes,
+                { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts }
+            )
+        );
 
         return this;
     }
@@ -199,8 +204,12 @@ export default class Score extends CollectionWithMetadata<Melody> {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
-
-        fs.writeFileSync(file + '.gamut.svg', scoreToGamutSVG(this, opts));
+    
+        fs.writeFileSync(file + '.gamut.svg',
+            visualizations.build2DSVG(this, transformations.scoreToGamut,
+                { color_rule: 'mod12', value_rule: 'gamut', header: 'Gamut', ...opts }
+            )
+        );
 
         return this;
     }
@@ -214,8 +223,12 @@ export default class Score extends CollectionWithMetadata<Melody> {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
-
-        fs.writeFileSync(file + '.intervals.svg', scoreToIntervalsSVG(this, opts));
+    
+        fs.writeFileSync(file + '.intervals.svg',
+            visualizations.build2DSVG(this, transformations.scoreToIntervals,
+                { color_rule: 'mod12', value_rule: 'interval', leftpad: 24, header: 'Intervals', ...opts }
+            )
+        );
 
         return this;
     }

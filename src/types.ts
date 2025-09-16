@@ -310,6 +310,9 @@ export type PitchMapperFn = (p: number[], i: number) => PitchArgument;
 export type CtrlTypeFn<T> = (me: T) => T;
 export type CtrlBoolFn<T> = (me: T) => boolean;
 
+// Functions that can be used to transform a score for SVG/canvas creation
+export type ScoreTimelineFn = (s: Score) => [ number[], number[][] ];
+
 /*
  * SVG/CANVAS TYPES
  */
@@ -318,10 +321,10 @@ export type CtrlBoolFn<T> = (me: T) => boolean;
  * A type representing arguments for standard SVGs
  */
 export type SVGArg = {
-    name: string,              // Name of the canvas
-    timeline: number[],        // A timeline of events, in midi-ticks
-    data: number[][],          // Array of same length as timeline, containing data points
-    options?: SVGOpts, // Options for canvas rendering
+    name: string,       // Name of the canvas
+    timeline: number[], // A timeline of events, in midi-ticks
+    data: number[][],   // Array of same length as timeline, containing data points
+    options?: SVGOpts,  // Options for canvas rendering
 };
 
 /**

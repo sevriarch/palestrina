@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score } from '../types';
+import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score, ScoreTimelineFn } from '../types';
 
 import * as transformations from '../transformations/transformations';
 
@@ -157,7 +157,13 @@ function getSVGFooter(): string {
     return '</svg>\n';
 }
 
-function build2DSVG(score: Score, timeline: number[], data: number[][], options: SVGOpts): string {
+export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts): string {
+    const [ timeline, data ] = fn(score);
+
+    if (timeline.length !== data.length) {
+        throw new Error(`visualizations.build2DSVG(): timeline generator returned unequal lengths (${timeline.length} v ${data.length})`);
+    }
+
     if (timeline.length === 0) {
         return getSVGHeader(0, 0, options.id, options.beatstyle) + getSVGFooter();
     }
@@ -255,33 +261,6 @@ function build2DSVG(score: Score, timeline: number[], data: number[][], options:
     }
 
     return str + getSVGFooter();
-}
-
-/**
- * Given a Score, create an SVG showing the notes in the Score.
- */
-export function scoreToNotesSVG(score: Score, opts: SVGOpts = {}): string {
-    const [ timeline, data ] = transformations.scoreToNotes(score);
-
-    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
-}
-
-/**
- * Given a Score, create an SVG showing the gamut used in the Score.
- */
-export function scoreToGamutSVG(score: Score, opts: SVGOpts = {}): string {
-    const [ timeline, data ] = transformations.scoreToGamut(score);
-
-    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'gamut', header: 'Gamut', ...opts });
-}
-
-/**
- * Given a Score, create an SVG showing the intervals appearing in the Score.
- */
-export function scoreToIntervalsSVG(score: Score, opts: SVGOpts = {}): string {
-    const [ timeline, data ] = transformations.scoreToIntervals(score);
-
-    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'interval', leftpad: 24, header: 'Intervals', ...opts });
 }
 
 /**
