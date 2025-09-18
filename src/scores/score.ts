@@ -142,6 +142,8 @@ export default class Score extends CollectionWithMetadata<Melody> {
     /**
      * Write an SVG file containing the notes in this Score.
      * 
+     * If filename does not end in `.svg`, this will be appended.
+     * 
      * Option fields are:
      * 
      * opts.maxval: Maximum pitch to display on the SVG
@@ -152,9 +154,11 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.width: Width of the SVG. Overrides opts.px_horiz
      * 
-     * opts.px_vert: Number of pixels to use per semitone. Overridden by opts.height
+     * opts.px_vert: Number of pixels to use per semitone. Defaults to 10,
+     * overridden by opts.height
      * 
-     * opts.px_horiz: Number of pixels to use per beat. Overridden by opts.width
+     * opts.px_horiz: Number of pixels to use per beat. Defaults to 0.025,
+     * overridden by opts.width
      * 
      * opts.px_lines: Show a vertical line every X beats, with corresponding bar number
      *
@@ -185,10 +189,12 @@ export default class Score extends CollectionWithMetadata<Melody> {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
-    
-        fs.writeFileSync(file + '.svg',
+
+        const filename = file.endsWith('.svg') ? file : `${file}.svg`;
+
+        fs.writeFileSync(filename,
             visualizations.build2DSVG(this, transformations.scoreToNotes,
-                { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts }
+                { color_rule: 'mod12', value_rule: 'note', id: 'notes_svg', header: 'Notes', ...opts }
             )
         );
 
@@ -198,16 +204,20 @@ export default class Score extends CollectionWithMetadata<Melody> {
     /**
      * Write an SVG file containing the gamut used in this Score.
      * 
-     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
+     * If filename does not end in `.svg`, `.gamut.svg` will be appended to it.
+     * 
+     * Options are as in Score.toNotesSVG().
      */
     writeGamutSVG(file: string, opts: SVGOpts = {}): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
+
+        const filename = file.endsWith('.svg') ? file : `${file}.gamut.svg`;
     
-        fs.writeFileSync(file + '.gamut.svg',
+        fs.writeFileSync(filename,
             visualizations.build2DSVG(this, transformations.scoreToGamut,
-                { color_rule: 'mod12', value_rule: 'gamut', header: 'Gamut', ...opts }
+                { color_rule: 'mod12', value_rule: 'gamut', id: 'gamut_svg', header: 'Gamut', ...opts }
             )
         );
 
@@ -217,16 +227,20 @@ export default class Score extends CollectionWithMetadata<Melody> {
     /**
      * Write an SVG file containing the intervals used in this Score.
      * 
-     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
+     * If filename does not end in `.svg`, `.intervals.svg` will be appended to it.
+     * 
+     * Options are as in Score.toNotesSVG().
      */
     writeIntervalsSVG(file: string, opts: SVGOpts = {}): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
+
+        const filename = file.endsWith('.svg') ? file : `${file}.intervals.svg`;
     
-        fs.writeFileSync(file + '.intervals.svg',
+        fs.writeFileSync(filename,
             visualizations.build2DSVG(this, transformations.scoreToIntervals,
-                { color_rule: 'mod12', value_rule: 'interval', leftpad: 24, header: 'Intervals', ...opts }
+                { color_rule: 'mod12', value_rule: 'interval', id: 'intervals_svg', leftpad: 24, header: 'Intervals', ...opts }
             )
         );
 

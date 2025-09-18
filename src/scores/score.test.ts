@@ -629,11 +629,11 @@ describe('Score.writeNotesSVG() tests', () => {
         expect(() => S0.writeNotesSVG(60 as unknown as string)).toThrow();
     });
 
-    test('generates appropriate canvas with empty score', () => {
+    test('empty score returns self, calls fs.writeFileSync() with correct filename and writes empty SVG when filename suffix provided', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
 
-        expect(S0.writeNotesSVG(base)).toBe(S0);
+        expect(S0.writeNotesSVG(filename)).toBe(S0);
         expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="notes_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
@@ -650,7 +650,7 @@ describe('Score.writeNotesSVG() tests', () => {
 `);
     });
 
-    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments when no options are provided', () => {
+    test('score returns self and calls fs.writeFileSync() with expected arguments when no options are provided', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
 
@@ -689,7 +689,7 @@ describe('Score.writeNotesSVG() tests', () => {
 `);
     });
 
-    test('generates SVG with fallback rules, defined pixels and padding', () => {
+    test('score returns self, writes SVG with fallback rules, defined pixels and padding', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
 
@@ -770,7 +770,28 @@ describe('Score.writeNotesSVG() tests', () => {
 `);
     });
 
-    test('generates appropriate SVG with various options included', () => {
+    test('empty score returns self, calls fs.writeFileSync() with correct filename and writes empty SVG when filename suffix provided', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.gamut.svg';
+
+        expect(S0.writeNotesSVG(filename)).toBe(S0);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="notes_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+  <style>
+    text {
+      font-family: \"Arial\";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+</svg>
+`);
+    });
+
+    test('score returns self, writes appropriate SVG with various options included', () => {
         const base = __filename + Date.now();
         const filename = base + '.svg';
         const modified = S2.withTicksPerQuarter(32).withTimeSignature('1/4');
@@ -889,6 +910,85 @@ describe('Score.writeNotesSVG() tests', () => {
     });
 });
 
+describe('Score.toGamutSVG() tests', () => {
+    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    afterAll(() => jest.restoreAllMocks());
+
+    const S1 = score([]);
+    const S2 = score([
+        melody([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
+        melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
+    ]).withTicksPerQuarter(128);
+
+    test('fails with invalid argument', () => {
+        expect(() => S1.writeGamutSVG(60 as unknown as string)).toThrow();
+    });
+
+    test('empty score returns self, calls fs.writeFileSync() with correct filename and writes empty SVG when filename suffix provided', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.gamut.svg';
+
+        expect(S1.writeGamutSVG(filename)).toBe(S1);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="gamut_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+  <style>
+    text {
+      font-family: \"Arial\";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+</svg>
+`);
+    });
+
+    test('returns self, writes appropriate SVG', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.gamut.svg';
+
+        expect(S2.writeGamutSVG(base, { px_horiz: 24, px_vert: 12 })).toBe(S2);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id=\"gamut_svg\" viewbox=\"0,0,5424,130\" width=\"5424\" height=\"130\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+  <style>
+    text {
+      font-family: \"Arial\";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+  <text x=\"2\" y=\"129\" fill=\"#E08080\">C</text>
+  <text x=\"2\" y=\"117\" fill=\"#80E080\">C#</text>
+  <text x=\"2\" y=\"105\" fill=\"#8080E0\">D</text>
+  <text x=\"2\" y=\"93\" fill=\"#E0E080\">D#</text>
+  <text x=\"2\" y=\"81\" fill=\"#E080E0\">E</text>
+  <text x=\"2\" y=\"69\" fill=\"#80E0E0\">F</text>
+  <text x=\"2\" y=\"57\" fill=\"#E02020\">F#</text>
+  <text x=\"2\" y=\"45\" fill=\"#20E080\">G</text>
+  <text x=\"2\" y=\"33\" fill=\"#2080E0\">G#</text>
+  <text x=\"2\" y=\"21\" fill=\"#E0E020\">A</text>
+  <text x=\"0\" y=\"10\" fill=\"#C0C0C0\">Gamut</text>
+  <rect x=\"16\" y=\"94\" width=\"768\" height=\"12\" fill=\"#8080E0\" stroke=\"#8080E0\" stroke-width=\"0\" />
+  <rect x=\"16\" y=\"70\" width=\"768\" height=\"12\" fill=\"#E080E0\" stroke=\"#E080E0\" stroke-width=\"0\" />
+  <rect x=\"16\" y=\"58\" width=\"768\" height=\"12\" fill=\"#80E0E0\" stroke=\"#80E0E0\" stroke-width=\"0\" />
+  <rect x=\"784\" y=\"94\" width=\"768\" height=\"12\" fill=\"#8080E0\" stroke=\"#8080E0\" stroke-width=\"0\" />
+  <rect x=\"784\" y=\"58\" width=\"768\" height=\"12\" fill=\"#80E0E0\" stroke=\"#80E0E0\" stroke-width=\"0\" />
+  <rect x=\"1552\" y=\"10\" width=\"1536\" height=\"12\" fill=\"#E0E020\" stroke=\"#E0E020\" stroke-width=\"0\" />
+  <rect x=\"3088\" y=\"118\" width=\"1536\" height=\"12\" fill=\"#E08080\" stroke=\"#E08080\" stroke-width=\"0\" />
+  <rect x=\"3088\" y=\"46\" width=\"1536\" height=\"12\" fill=\"#E02020\" stroke=\"#E02020\" stroke-width=\"0\" />
+  <rect x=\"3088\" y=\"22\" width=\"1536\" height=\"12\" fill=\"#2080E0\" stroke=\"#2080E0\" stroke-width=\"0\" />
+  <rect x=\"4624\" y=\"46\" width=\"768\" height=\"12\" fill=\"#E02020\" stroke=\"#E02020\" stroke-width=\"0\" />
+  <rect x=\"4624\" y=\"22\" width=\"768\" height=\"12\" fill=\"#2080E0\" stroke=\"#2080E0\" stroke-width=\"0\" />
+</svg>
+`);
+    });
+});
+
 describe('Score.toIntervalSVG() tests', () => {
     beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
     afterAll(() => jest.restoreAllMocks());
@@ -903,7 +1003,28 @@ describe('Score.toIntervalSVG() tests', () => {
         expect(() => S1.writeIntervalsSVG(60 as unknown as string)).toThrow();
     });
 
-    test('generates appropriate SVG with various options included', () => {
+    test('empty score returns self, calls fs.writeFileSync() with correct filename and writes empty SVG when filename suffix provided', () => {
+        const base = __filename + Date.now();
+        const filename = base + '.intervals.svg';
+
+        expect(S1.writeIntervalsSVG(filename)).toBe(S1);
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id="intervals_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+  <style>
+    text {
+      font-family: \"Arial\";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+</svg>
+`);
+    });
+
+    test('returns self, writes appropriate SVG', () => {
         const base = __filename + Date.now();
         const filename = base + '.intervals.svg';
         const modified = S1.withTicksPerQuarter(32).withTimeSignature('1/4');
@@ -925,12 +1046,12 @@ describe('Score.toIntervalSVG() tests', () => {
 `);
     });
 
-    test('writeNotesSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
+    test('writeIntervalsSVG() returns score and calls fs.writeFileSync() with expected arguments', () => {
         const base = __filename + Date.now();
         const filename = base + '.intervals.svg';
 
         expect(S2.writeIntervalsSVG(base, { px_horiz: 24, px_vert: 12 })).toBe(S2);
-        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id=\"notes_svg\" viewbox=\"0,0,5432,454\" width=\"5432\" height=\"454\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+        expect(fs.writeFileSync).toHaveBeenLastCalledWith(filename, `<svg id=\"intervals_svg\" viewbox=\"0,0,5432,454\" width=\"5432\" height=\"454\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
   <style>
     text {
       font-family: \"Arial\";
