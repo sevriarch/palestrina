@@ -19,7 +19,10 @@ import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
 
 /** hidden */
-type ScoreCache = { midiBytes?: number[] };
+type TransientScoreMetadata = {
+    midiBytes?: number[],    // midi bytes generated as part of MIDI file creation
+    ticksAreExact?: boolean, // does this Score have all ticks exact?
+};
 
 /**
  * A container for zero or more Melodies.
@@ -49,7 +52,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         return new Score(arg.slice(), Metadata.from(metadata));
     }
 
-    private readonly cache: ScoreCache = {};
+    readonly #transientMetadata: TransientScoreMetadata = {};
 
     constructor(tracks: Melody[], metadata: Metadata) {
         super(tracks, metadata);
@@ -88,7 +91,15 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Return a new Score where all ticks of everything within it are exact.
      */
     withAllTicksExact(): this {
-        return this.map(m => m.withAllTicksExact()).withMetadataTicksExact();
+        if (this.#transientMetadata.ticksAreExact) {
+            return this;
+        }
+
+        const ret = this.map(m => m.withAllTicksExact()).withMetadataTicksExact();
+
+        ret.#transientMetadata.ticksAreExact = true;
+
+        return ret;
     }
 
     /**
@@ -251,10 +262,10 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Returns the MIDI bytes for this Score.
      */
     toMidiBytes(): number[] {
-        // We cache because of the possibility that we will do multiple operations calling this
+        // We #transientMetadata because of the possibility that we will do multiple operations calling this
         // expensive method (both hash testing and writing to a file).
-        if (this.cache.midiBytes) {
-            return this.cache.midiBytes;
+        if (this.#transientMetadata.midiBytes) {
+            return this.#transientMetadata.midiBytes;
         }
 
         // Must copy as metadata in score needs to be applied to the first track
@@ -263,7 +274,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             tracks[0] = tracks[0].mergeMetadataFrom(this);
         }
 
-        this.cache.midiBytes = [
+        this.#transientMetadata.midiBytes = [
             ...MIDI.HEADER_CHUNK,
             ...MIDI.HEADER_LENGTH,
             ...MIDI.HEADER_FORMAT,
@@ -272,7 +283,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             ...tracks.flatMap(t => t.toMidiTrack())
         ];
 
-        return this.cache.midiBytes;
+        return this.#transientMetadata.midiBytes;
     }
     
     /**

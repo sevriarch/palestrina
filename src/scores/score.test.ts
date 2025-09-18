@@ -406,32 +406,54 @@ describe('Score.lastTick() tests', () => {
 // This test makes the assumption that melody.withAllTicksExact() works correctly and only 
 // tests the most basic cases (simple melody data and metadata, score metadata)
 describe('Score.withAllTicksExact() tests', () => {
+    const S0 = Score.from([]);
+    const S1 = Score.from([
+        T0,
+        melody([
+            { pitch: [ 64 ], duration: 4, velocity: 45 },
+            { pitch: [ 52 ], duration: 4, velocity: 40 },
+        ], {
+            before: MetaList.from([ { event: 'text', value: 'test', offset: 64 } ])
+        })
+    ], {
+        before: MetaList.from([ { event: 'tempo', value: 144, offset: 512 } ])
+    });
+    const S1RET = Score.from([
+        T0,
+        melody([
+            { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
+            { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
+        ], {
+            before: MetaList.from([ { event: 'text', value: 'test', at: 64 } ])
+        })
+    ], {
+        before: MetaList.from([ { event: 'tempo', value: 144, at: 512 } ])
+    });
+
     test('test that this does not create additional entities for an empty Score', () => {
-        expect(Score.from([]).withAllTicksExact()).toStrictEqual(Score.from([]));
+        expect(S0.withAllTicksExact()).toStrictEqual(Score.from([]));
     });
 
     test('applies to metadata and all melodies', () => {
-        expect(score([
-            T0,
-            melody([
-                { pitch: [ 64 ], duration: 4, velocity: 45 },
-                { pitch: [ 52 ], duration: 4, velocity: 40 },
-            ], {
-                before: MetaList.from([ { event: 'text', value: 'test', offset: 64 } ])
-            })
-        ], {
-            before: MetaList.from([ { event: 'tempo', value: 144, offset: 512 } ])
-        }).withAllTicksExact()).toStrictEqual(score([
-            T0,
-            melody([
+        expect(S1.withAllTicksExact()).toStrictEqual(S1RET);
+    });
+
+    test('does not recalculate but returns self when called twice', () => {
+        const s = S1.withAllTicksExact();
+
+        expect(s.withAllTicksExact()).toBe(s);
+    });
+
+    test('does recalculate if any operations have changed it in the interim', () => {
+        expect(S1.withAllTicksExact().appendItems(melody([
+            { pitch: [ 64 ], duration: 4, velocity: 45 },
+            { pitch: [ 52 ], duration: 4, velocity: 40 },
+        ])).withAllTicksExact()).toStrictEqual(
+            S1RET.appendItems(melody([
                 { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
                 { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
-            ], {
-                before: MetaList.from([ { event: 'text', value: 'test', at: 64 } ])
-            })
-        ], {
-            before: MetaList.from([ { event: 'tempo', value: 144, at: 512 } ])
-        }));
+            ]))
+        );
     });
 });
 
