@@ -287,7 +287,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * Returns the MIDI bytes for this Score.
      */
     toMidiBytes(): number[] {
-        // We #transientMetadata because of the possibility that we will do multiple operations calling this
+        // We cache because of the possibility that we will do multiple operations calling this
         // expensive method (both hash testing and writing to a file).
         if (this.#transientMetadata.midiBytes) {
             return this.#transientMetadata.midiBytes;
