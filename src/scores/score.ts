@@ -2,10 +2,14 @@ import * as fs from 'fs';
 
 import type { MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
+import type MetaEvent from '../meta-events/meta-event';
+
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
 import CollectionWithMetadata from '../collections/with-metadata';
 
+import * as transformations from '../transformations/transformations';
+import * as visualizations from '../visualizations/visualizations';
 import * as midiWriter from '../midi/writer';
 import MidiReader from '../midi/reader';
 import { numberToFixedBytes } from '../midi/conversions';
@@ -13,12 +17,14 @@ import { numberToFixedBytes } from '../midi/conversions';
 import { MIDI } from '../constants';
 
 import { min, max } from '../helpers/calculations';
-import { scoreToNotesSVG, scoreToScoreCanvas } from '../visualizations/visualizations';
 import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
 
 /** hidden */
-type ScoreCache = { midiBytes?: number[] };
+type TransientScoreMetadata = {
+    midiBytes?: number[],    // midi bytes generated as part of MIDI file creation
+    ticksAreExact?: boolean, // does this Score have all ticks exact?
+};
 
 /**
  * A container for zero or more Melodies.
@@ -48,7 +54,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         return new Score(arg.slice(), Metadata.from(metadata));
     }
 
-    private readonly cache: ScoreCache = {};
+    readonly #transientMetadata: TransientScoreMetadata = {};
 
     constructor(tracks: Melody[], metadata: Metadata) {
         super(tracks, metadata);
@@ -78,16 +84,47 @@ export default class Score extends CollectionWithMetadata<Melody> {
 
     /**
      * Returns the last MIDI tick in the Score.
+     * If there are no events in the Score, this will be 0.
      */
-    lastTick(): number | null {
-        return max(this.contents.map(t => t.lastTick()));
+    lastTick(): number {
+        function updateLastTick(event: MetaEvent) {
+            if (event.at as number > last) { last = event.at as number; }
+        }
+
+        const fixed = this.withAllTicksExact();
+
+        let last = 0;
+
+        fixed.metadata.before.each(updateLastTick);
+
+        fixed.each(m => {
+            m.metadata.before.each(updateLastTick);
+
+            m.each(note => {
+                note.before.each(updateLastTick);
+                if ((note.at as number + note.duration) > last) {
+                    last = note.at as number + note.duration;
+                }
+                note.after.each(updateLastTick);
+            });
+        });
+
+        return last;
     }
 
     /**
      * Return a new Score where all ticks of everything within it are exact.
      */
     withAllTicksExact(): this {
-        return this.map(m => m.withAllTicksExact()).withMetadataTicksExact();
+        if (this.#transientMetadata.ticksAreExact) {
+            return this;
+        }
+
+        const ret = this.map(m => m.withAllTicksExact()).withMetadataTicksExact();
+
+        ret.#transientMetadata.ticksAreExact = true;
+
+        return ret;
     }
 
     /**
@@ -135,11 +172,13 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * opts.wd_min - Minimum width in pixels for any note (default 2)
      */
     toCanvas(opts: ScoreCanvasOpts = {}): string {
-        return scoreToScoreCanvas(this, opts);
+        return visualizations.scoreToScoreCanvas(this, opts);
     }
 
     /**
-     * Returns an SVG of all notes in the Score.
+     * Write an SVG file containing the notes in this Score.
+     * 
+     * If filename does not end in `.svg`, this will be appended.
      * 
      * Option fields are:
      * 
@@ -151,9 +190,11 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.width: Width of the SVG. Overrides opts.px_horiz
      * 
-     * opts.px_vert: Number of pixels to use per semitone. Overridden by opts.height
+     * opts.px_vert: Number of pixels to use per semitone. Defaults to 10,
+     * overridden by opts.height
      * 
-     * opts.px_horiz: Number of pixels to use per beat. Overridden by opts.width
+     * opts.px_horiz: Number of pixels to use per beat. Defaults to 0.025,
+     * overridden by opts.width
      * 
      * opts.px_lines: Show a vertical line every X beats, with corresponding bar number
      *
@@ -180,21 +221,64 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * opts.header: a short piece of text to display at the top left of the SVG
      */
-    toNotesSVG(opts: SVGOpts): string {
-        return scoreToNotesSVG(this, opts);
-    }
-
-    /**
-     * Write an SVG file containing the notes in this Score.
-     * 
-     * Options are as in Score.toNotesSVG(). Filename will have '.svg' appended to it.
-     */
-    writeNotesSVG(file: string, opts: SVGOpts): this {
+    writeNotesSVG(file: string, opts: SVGOpts = {}): this {
         if (typeof file !== 'string') {
             throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
         }
 
-        fs.writeFileSync(file + '.svg', this.toNotesSVG(opts));
+        const filename = file.endsWith('.svg') ? file : `${file}.svg`;
+
+        fs.writeFileSync(filename,
+            visualizations.build2DSVG(this, transformations.scoreToNotes,
+                { color_rule: 'mod12', value_rule: 'note', id: 'notes_svg', header: 'Notes', ...opts }
+            )
+        );
+
+        return this;
+    }
+
+    /**
+     * Write an SVG file containing the gamut used in this Score.
+     * 
+     * If filename does not end in `.svg`, `.gamut.svg` will be appended to it.
+     * 
+     * Options are as in Score.toNotesSVG().
+     */
+    writeGamutSVG(file: string, opts: SVGOpts = {}): this {
+        if (typeof file !== 'string') {
+            throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
+        }
+
+        const filename = file.endsWith('.svg') ? file : `${file}.gamut.svg`;
+    
+        fs.writeFileSync(filename,
+            visualizations.build2DSVG(this, transformations.scoreToGamut,
+                { color_rule: 'mod12', value_rule: 'gamut', id: 'gamut_svg', header: 'Gamut', ...opts }
+            )
+        );
+
+        return this;
+    }
+
+    /**
+     * Write an SVG file containing the intervals used in this Score.
+     * 
+     * If filename does not end in `.svg`, `.intervals.svg` will be appended to it.
+     * 
+     * Options are as in Score.toNotesSVG().
+     */
+    writeIntervalsSVG(file: string, opts: SVGOpts = {}): this {
+        if (typeof file !== 'string') {
+            throw new Error(`${this.constructor.name}.writeCanvas(): requires a string argument; was ${dumpOneLine(file)}`);
+        }
+
+        const filename = file.endsWith('.svg') ? file : `${file}.intervals.svg`;
+    
+        fs.writeFileSync(filename,
+            visualizations.build2DSVG(this, transformations.scoreToIntervals,
+                { color_rule: 'mod12', value_rule: 'interval', id: 'intervals_svg', leftpad: 24, header: 'Intervals', ...opts }
+            )
+        );
 
         return this;
     }
@@ -205,8 +289,8 @@ export default class Score extends CollectionWithMetadata<Melody> {
     toMidiBytes(): number[] {
         // We cache because of the possibility that we will do multiple operations calling this
         // expensive method (both hash testing and writing to a file).
-        if (this.cache.midiBytes) {
-            return this.cache.midiBytes;
+        if (this.#transientMetadata.midiBytes) {
+            return this.#transientMetadata.midiBytes;
         }
 
         // Must copy as metadata in score needs to be applied to the first track
@@ -215,7 +299,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             tracks[0] = tracks[0].mergeMetadataFrom(this);
         }
 
-        this.cache.midiBytes = [
+        this.#transientMetadata.midiBytes = [
             ...MIDI.HEADER_CHUNK,
             ...MIDI.HEADER_LENGTH,
             ...MIDI.HEADER_FORMAT,
@@ -224,7 +308,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             ...tracks.flatMap(t => t.toMidiTrack())
         ];
 
-        return this.cache.midiBytes;
+        return this.#transientMetadata.midiBytes;
     }
     
     /**

@@ -242,7 +242,7 @@ export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent) =>
  */
 export function scoreToBarTimeline(score: Score): number[] {
     const ret: number[] = [];
-    const lasttick = score.lastTick() ?? 0;
+    const lasttick = score.lastTick();
     const tpq = score.metadata.ticks_per_quarter;
     const sigs: [ number, number ][] = scoreToMatchingTimedEvents(score, e => e.event === 'time-signature')
         .map(e => [ e.at as number, timeSignature.toQuarterNotes(e.value as string) ]);

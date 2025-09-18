@@ -86,16 +86,22 @@ const SAMPLE_SCORE = factory.score([
     factory.melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
 ]).withTicksPerQuarter(128);
 
-describe('visualizations.scoreToNotesSVG()', () => {
-    test('fails with non-string ID', () => {
-        expect(() => visualizations.scoreToNotesSVG(EMPTY_SCORE, { id: 123 as unknown as string })).toThrow();
+// This section only tests some limited error handling as functionality is
+// tested through Score features that generate SVGs by calling this method.
+describe('visualizations.build2DSVG', () => {
+    test('throws if id is not a string', () => {
+        expect(() => visualizations.build2DSVG(EMPTY_SCORE, () => [ [], [] ], { id: 0 as unknown as string})).toThrow();
     });
 
-    test('generates appropriate canvas with empty score', () => {
-        expect(visualizations.scoreToNotesSVG(EMPTY_SCORE)).toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,0,0\" width=\"0\" height=\"0\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
+    test('throws if timeline generator returns an tuple containing different lengths', () => {
+        expect(() => visualizations.build2DSVG(EMPTY_SCORE, (() => [ [ 1 ], [] ]), {})).toThrow();
+    });
+
+    test('applies defaults if none are present', () => {
+        expect(visualizations.build2DSVG(EMPTY_SCORE, () => [ [], [] ] )).toStrictEqual(`<svg id="unknown_svg" viewbox="0,0,0,0" width="0" height="0" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
     text {
-      font-family: \"Arial\";
+      font-family: "Arial";
       font-size: 12px;
     }
 
@@ -104,276 +110,6 @@ describe('visualizations.scoreToNotesSVG()', () => {
       stroke: #404040;
     }
   </style>
-</svg>
-`);
-    });
-
-    test('generates SVG with non-empty score', () => {
-        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE)).toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,29,440\" width=\"29\" height=\"440\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
-  <style>
-    text {
-      font-family: \"Arial\";
-      font-size: 12px;
-    }
-
-    line {
-      stroke-width: 1;
-      stroke: #404040;
-    }
-  </style>
-  <rect x="0" y="340" width="29" height="120" fill="#101010" />
-  <rect x="0" y="460" width="29" height="120" fill="#000000" />
-  <rect x="0" y="100" width="29" height="120" fill="#101010" />
-  <rect x="0" y="220" width="29" height="120" fill="#000000" />
-  <text x="2" y="440" fill="#8080E0">D₁</text>
-  <text x="2" y="430" fill="#E0E080">D#₁</text>
-  <text x="2" y="420" fill="#E080E0">E₁</text>
-  <text x="2" y="410" fill="#80E0E0">F₁</text>
-  <text x="2" y="400" fill="#E02020">F#₁</text>
-  <text x="2" y="390" fill="#20E080">G₁</text>
-  <text x="2" y="380" fill="#2080E0">G#₁</text>
-  <text x="2" y="370" fill="#E0E020">A₁</text>
-  <text x="2" y="360" fill="#E020E0">A#₁</text>
-  <text x="2" y="350" fill="#20E0E0">B₁</text>
-  <text x="2" y="340" fill="#E08080">C₂</text>
-  <text x="2" y="330" fill="#80E080">C#₂</text>
-  <text x="2" y="320" fill="#8080E0">D₂</text>
-  <text x="2" y="310" fill="#E0E080">D#₂</text>
-  <text x="2" y="300" fill="#E080E0">E₂</text>
-  <text x="2" y="290" fill="#80E0E0">F₂</text>
-  <text x="2" y="280" fill="#E02020">F#₂</text>
-  <text x="2" y="270" fill="#20E080">G₂</text>
-  <text x="2" y="260" fill="#2080E0">G#₂</text>
-  <text x="2" y="250" fill="#E0E020">A₂</text>
-  <text x="2" y="240" fill="#E020E0">A#₂</text>
-  <text x="2" y="230" fill="#20E0E0">B₂</text>
-  <text x="2" y="220" fill="#E08080">C₃</text>
-  <text x="2" y="210" fill="#80E080">C#₃</text>
-  <text x="2" y="200" fill="#8080E0">D₃</text>
-  <text x="2" y="190" fill="#E0E080">D#₃</text>
-  <text x="2" y="180" fill="#E080E0">E₃</text>
-  <text x="2" y="170" fill="#80E0E0">F₃</text>
-  <text x="2" y="160" fill="#E02020">F#₃</text>
-  <text x="2" y="150" fill="#20E080">G₃</text>
-  <text x="2" y="140" fill="#2080E0">G#₃</text>
-  <text x="2" y="130" fill="#E0E020">A₃</text>
-  <text x="2" y="120" fill="#E020E0">A#₃</text>
-  <text x="2" y="110" fill="#20E0E0">B₃</text>
-  <text x="2" y="100" fill="#E08080">C₄</text>
-  <text x="2" y="90" fill="#80E080">C#₄</text>
-  <text x="2" y="80" fill="#8080E0">D₄</text>
-  <text x="2" y="70" fill="#E0E080">D#₄</text>
-  <text x="2" y="60" fill="#E080E0">E₄</text>
-  <text x="2" y="50" fill="#80E0E0">F₄</text>
-  <text x="2" y="40" fill="#E02020">F#₄</text>
-  <text x="2" y="30" fill="#20E080">G₄</text>
-  <text x="2" y="20" fill="#2080E0">G#₄</text>
-  <text x="0" y="10" fill="#C0C0C0">Notes</text>
-  <rect x="16" y="430" width="1" height="10" fill="#8080E0" stroke="#8080E0" stroke-width="0" />
-  <rect x="16" y="400" width="1" height="10" fill="#80E0E0" stroke="#80E0E0" stroke-width="0" />
-  <rect x="16" y="50" width="1" height="10" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
-  <rect x="16" y="430" width="1" height="10" fill="#8080E0" stroke="#8080E0" stroke-width="0" />
-  <rect x="16" y="400" width="1" height="10" fill="#80E0E0" stroke="#80E0E0" stroke-width="0" />
-  <rect x="17" y="360" width="2" height="10" fill="#E0E020" stroke="#E0E020" stroke-width="0" />
-  <rect x="19" y="390" width="2" height="10" fill="#E02020" stroke="#E02020" stroke-width="0" />
-  <rect x="19" y="370" width="2" height="10" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
-  <rect x="19" y="90" width="2" height="10" fill="#E08080" stroke="#E08080" stroke-width="0" />
-  <rect x="19" y="10" width="2" height="10" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
-  <rect x="20" y="390" width="1" height="10" fill="#E02020" stroke="#E02020" stroke-width="0" />
-  <rect x="20" y="370" width="1" height="10" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
-</svg>
-`);
-    });
-
-    test('generates SVG with fallback rules, defined pixels and padding', () => {
-        expect(visualizations.scoreToNotesSVG(SAMPLE_SCORE, { value_rule: 'default', color_rule: 'default', px_horiz: 2, px_vert: 12, leftpad: 26, rightpad: 16, header: 'fallback' }))
-            .toStrictEqual(`<svg id="notes_svg" viewbox=\"0,0,492,526\" width=\"492\" height=\"526\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
-  <style>
-    text {
-      font-family: \"Arial\";
-      font-size: 12px;
-    }
-
-    line {
-      stroke-width: 1;
-      stroke: #404040;
-    }
-  </style>
-  <rect x="0" y="406" width="492" height="144" fill="#101010" />
-  <rect x="0" y="550" width="492" height="144" fill="#000000" />
-  <rect x="0" y="118" width="492" height="144" fill="#101010" />
-  <rect x="0" y="262" width="492" height="144" fill="#000000" />
-  <text x="2" y="525" fill="#C0C0C0">26</text>
-  <text x="2" y="513" fill="#C0C0C0">27</text>
-  <text x="2" y="501" fill="#C0C0C0">28</text>
-  <text x="2" y="489" fill="#C0C0C0">29</text>
-  <text x="2" y="477" fill="#C0C0C0">30</text>
-  <text x="2" y="465" fill="#C0C0C0">31</text>
-  <text x="2" y="453" fill="#C0C0C0">32</text>
-  <text x="2" y="441" fill="#C0C0C0">33</text>
-  <text x="2" y="429" fill="#C0C0C0">34</text>
-  <text x="2" y="417" fill="#C0C0C0">35</text>
-  <text x="2" y="405" fill="#C0C0C0">36</text>
-  <text x="2" y="393" fill="#C0C0C0">37</text>
-  <text x="2" y="381" fill="#C0C0C0">38</text>
-  <text x="2" y="369" fill="#C0C0C0">39</text>
-  <text x="2" y="357" fill="#C0C0C0">40</text>
-  <text x="2" y="345" fill="#C0C0C0">41</text>
-  <text x="2" y="333" fill="#C0C0C0">42</text>
-  <text x="2" y="321" fill="#C0C0C0">43</text>
-  <text x="2" y="309" fill="#C0C0C0">44</text>
-  <text x="2" y="297" fill="#C0C0C0">45</text>
-  <text x="2" y="285" fill="#C0C0C0">46</text>
-  <text x="2" y="273" fill="#C0C0C0">47</text>
-  <text x="2" y="261" fill="#C0C0C0">48</text>
-  <text x="2" y="249" fill="#C0C0C0">49</text>
-  <text x="2" y="237" fill="#C0C0C0">50</text>
-  <text x="2" y="225" fill="#C0C0C0">51</text>
-  <text x="2" y="213" fill="#C0C0C0">52</text>
-  <text x="2" y="201" fill="#C0C0C0">53</text>
-  <text x="2" y="189" fill="#C0C0C0">54</text>
-  <text x="2" y="177" fill="#C0C0C0">55</text>
-  <text x="2" y="165" fill="#C0C0C0">56</text>
-  <text x="2" y="153" fill="#C0C0C0">57</text>
-  <text x="2" y="141" fill="#C0C0C0">58</text>
-  <text x="2" y="129" fill="#C0C0C0">59</text>
-  <text x="2" y="117" fill="#C0C0C0">60</text>
-  <text x="2" y="105" fill="#C0C0C0">61</text>
-  <text x="2" y="93" fill="#C0C0C0">62</text>
-  <text x="2" y="81" fill="#C0C0C0">63</text>
-  <text x="2" y="69" fill="#C0C0C0">64</text>
-  <text x="2" y="57" fill="#C0C0C0">65</text>
-  <text x="2" y="45" fill="#C0C0C0">66</text>
-  <text x="2" y="33" fill="#C0C0C0">67</text>
-  <text x="2" y="21" fill="#C0C0C0">68</text>
-  <text x="0" y="10" fill="#C0C0C0">fallback</text>
-  <rect x="26" y="514" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="26" y="478" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="26" y="58" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="90" y="514" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="90" y="478" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="154" y="430" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="282" y="466" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="282" y="442" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="282" y="106" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="282" y="10" width="128" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="410" y="466" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-  <rect x="410" y="442" width="64" height="12" fill="#C0C0C0" stroke="#C0C0C0" stroke-width="0" />
-</svg>
-`);
-    });
-
-    test('generates appropriate canvas with various options included', () => {
-        expect(
-            visualizations.scoreToNotesSVG(SAMPLE_SCORE.withTicksPerQuarter(32).withTimeSignature('1/4'), { width: 640, height: 215, px_lines: 80, sub_lines: 2, value_rule: 'pitch', id: 'this1' })
-        ).toStrictEqual(`<svg id="this1" viewbox=\"0,0,664,235\" width=\"664\" height=\"235\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border:1px solid black; background: black\">
-  <style>
-    text {
-      font-family: \"Arial\";
-      font-size: 12px;
-    }
-
-    line {
-      stroke-width: 1;
-      stroke: #404040;
-    }
-  </style>
-  <rect x="0" y="175" width="664" height="60" fill="#101010" />
-  <rect x="0" y="235" width="664" height="60" fill="#000000" />
-  <rect x="0" y="55" width="664" height="60" fill="#101010" />
-  <rect x="0" y="115" width="664" height="60" fill="#000000" />
-  <text x="2" y="227.5" fill="#8080E0">D</text>
-  <text x="642" y="227.5" fill="#8080E0">D</text>
-  <text x="2" y="217.5" fill="#E080E0">E</text>
-  <text x="642" y="217.5" fill="#E080E0">E</text>
-  <text x="2" y="207.5" fill="#E02020">F#</text>
-  <text x="642" y="207.5" fill="#E02020">F#</text>
-  <text x="2" y="197.5" fill="#2080E0">G#</text>
-  <text x="642" y="197.5" fill="#2080E0">G#</text>
-  <text x="2" y="187.5" fill="#E020E0">A#</text>
-  <text x="642" y="187.5" fill="#E020E0">A#</text>
-  <text x="2" y="177.5" fill="#E08080">C</text>
-  <text x="642" y="177.5" fill="#E08080">C</text>
-  <text x="2" y="167.5" fill="#8080E0">D</text>
-  <text x="642" y="167.5" fill="#8080E0">D</text>
-  <text x="2" y="157.5" fill="#E080E0">E</text>
-  <text x="642" y="157.5" fill="#E080E0">E</text>
-  <text x="2" y="147.5" fill="#E02020">F#</text>
-  <text x="642" y="147.5" fill="#E02020">F#</text>
-  <text x="2" y="137.5" fill="#2080E0">G#</text>
-  <text x="642" y="137.5" fill="#2080E0">G#</text>
-  <text x="2" y="127.5" fill="#E020E0">A#</text>
-  <text x="642" y="127.5" fill="#E020E0">A#</text>
-  <text x="2" y="117.5" fill="#E08080">C</text>
-  <text x="642" y="117.5" fill="#E08080">C</text>
-  <text x="2" y="107.5" fill="#8080E0">D</text>
-  <text x="642" y="107.5" fill="#8080E0">D</text>
-  <text x="2" y="97.5" fill="#E080E0">E</text>
-  <text x="642" y="97.5" fill="#E080E0">E</text>
-  <text x="2" y="87.5" fill="#E02020">F#</text>
-  <text x="642" y="87.5" fill="#E02020">F#</text>
-  <text x="2" y="77.5" fill="#2080E0">G#</text>
-  <text x="642" y="77.5" fill="#2080E0">G#</text>
-  <text x="2" y="67.5" fill="#E020E0">A#</text>
-  <text x="642" y="67.5" fill="#E020E0">A#</text>
-  <text x="2" y="57.5" fill="#E08080">C</text>
-  <text x="642" y="57.5" fill="#E08080">C</text>
-  <text x="2" y="47.5" fill="#8080E0">D</text>
-  <text x="642" y="47.5" fill="#8080E0">D</text>
-  <text x="2" y="37.5" fill="#E080E0">E</text>
-  <text x="642" y="37.5" fill="#E080E0">E</text>
-  <text x="2" y="27.5" fill="#E02020">F#</text>
-  <text x="642" y="27.5" fill="#E02020">F#</text>
-  <text x="2" y="17.5" fill="#2080E0">G#</text>
-  <text x="642" y="17.5" fill="#2080E0">G#</text>
-  <line x1="57" y1="0" x2="57" y2="235" style="stroke:#202020" />
-  <line x1="16" y1="0" x2="16" y2="235" />
-  <text x="16" y="235" fill="#C0C0C0">1</text>
-  <line x1="137" y1="0" x2="137" y2="235" style="stroke:#202020" />
-  <line x1="96" y1="0" x2="96" y2="235" />
-  <text x="96" y="235" fill="#C0C0C0">1</text>
-  <text x="96" y="10" fill="#C0C0C0">1</text>
-  <line x1="217" y1="0" x2="217" y2="235" style="stroke:#202020" />
-  <line x1="176" y1="0" x2="176" y2="235" />
-  <text x="176" y="235" fill="#C0C0C0">2</text>
-  <text x="176" y="10" fill="#C0C0C0">2</text>
-  <line x1="297" y1="0" x2="297" y2="235" style="stroke:#202020" />
-  <line x1="256" y1="0" x2="256" y2="235" />
-  <text x="256" y="235" fill="#C0C0C0">3</text>
-  <text x="256" y="10" fill="#C0C0C0">3</text>
-  <line x1="377" y1="0" x2="377" y2="235" style="stroke:#202020" />
-  <line x1="336" y1="0" x2="336" y2="235" />
-  <text x="336" y="235" fill="#C0C0C0">4</text>
-  <text x="336" y="10" fill="#C0C0C0">4</text>
-  <line x1="457" y1="0" x2="457" y2="235" style="stroke:#202020" />
-  <line x1="416" y1="0" x2="416" y2="235" />
-  <text x="416" y="235" fill="#C0C0C0">5</text>
-  <text x="416" y="10" fill="#C0C0C0">5</text>
-  <line x1="537" y1="0" x2="537" y2="235" style="stroke:#202020" />
-  <line x1="496" y1="0" x2="496" y2="235" />
-  <text x="496" y="235" fill="#C0C0C0">6</text>
-  <text x="496" y="10" fill="#C0C0C0">6</text>
-  <line x1="617" y1="0" x2="617" y2="235" style="stroke:#202020" />
-  <line x1="576" y1="0" x2="576" y2="235" />
-  <text x="576" y="235" fill="#C0C0C0"></text>
-  <text x="576" y="10" fill="#C0C0C0"></text>
-  <line x1="697" y1="0" x2="697" y2="235" style="stroke:#202020" />
-  <line x1="656" y1="0" x2="656" y2="235" />
-  <text x="656" y="235" fill="#C0C0C0"></text>
-  <text x="656" y="10" fill="#C0C0C0"></text>
-  <text x="0" y="10" fill="#C0C0C0">Notes</text>
-  <rect x="16" y="220" width="92" height="5" fill="#8080E0" stroke="#8080E0" stroke-width="0" />
-  <rect x="16" y="205" width="92" height="5" fill="#80E0E0" stroke="#80E0E0" stroke-width="0" />
-  <rect x="16" y="30" width="92" height="5" fill="#E080E0" stroke="#E080E0" stroke-width="0" />
-  <rect x="107" y="220" width="92" height="5" fill="#8080E0" stroke="#8080E0" stroke-width="0" />
-  <rect x="107" y="205" width="92" height="5" fill="#80E0E0" stroke="#80E0E0" stroke-width="0" />
-  <rect x="198" y="185" width="183" height="5" fill="#E0E020" stroke="#E0E020" stroke-width="0" />
-  <rect x="380" y="200" width="183" height="5" fill="#E02020" stroke="#E02020" stroke-width="0" />
-  <rect x="380" y="190" width="183" height="5" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
-  <rect x="380" y="50" width="183" height="5" fill="#E08080" stroke="#E08080" stroke-width="0" />
-  <rect x="380" y="10" width="183" height="5" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
-  <rect x="562" y="200" width="92" height="5" fill="#E02020" stroke="#E02020" stroke-width="0" />
-  <rect x="562" y="190" width="92" height="5" fill="#2080E0" stroke="#2080E0" stroke-width="0" />
 </svg>
 `);
     });
@@ -491,7 +227,7 @@ describe('visualizations.scoreToScoreCanvas()', () => {
             'var tracks = [];',
             'var min_p = null;',
             'var max_p = null;',
-            'var end = null;',
+            'var end = 0;',
             'var tgt_ht = 750',
             'var tgt_wd = 2500',
             'var min_wd = 2',

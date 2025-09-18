@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score } from '../types';
+import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score, ScoreTimelineFn } from '../types';
 
 import * as transformations from '../transformations/transformations';
 
@@ -60,6 +60,23 @@ function getColorRule(rule?: string): (n: number) => string {
     }
 }
 
+function getInterval(n: number): [ number, string ] {
+    switch (n) {
+    case 0: return [ 1, 'P' ];
+    case 1: return [ 2, 'm' ];
+    case 2: return [ 2, 'M' ];
+    case 3: return [ 3, 'm' ];
+    case 4: return [ 3, 'M' ];
+    case 5: return [ 4, 'P' ];
+    case 6: return [ 4, 'A' ];
+    case 7: return [ 5, 'P' ];
+    case 8: return [ 6, 'm' ];
+    case 9: return [ 6, 'M' ];
+    case 10: return [ 7, 'm' ];
+    default: return [ 7, 'M' ];
+    }
+}
+
 function getValueRule(rule?: string): (n: number) => string {
     switch (rule) {
     case 'note':
@@ -67,8 +84,17 @@ function getValueRule(rule?: string): (n: number) => string {
             return [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12]
                 + String.fromCharCode(0x2080 + (Math.floor(n / 12) - 1));
         };
-    case 'pitch':
+    case 'gamut':
         return n => [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ][n % 12];
+    case 'interval':
+        return n => {
+            const inoctave = n % 12;
+            const interval = getInterval(inoctave);
+
+            interval[0] += 7 * (n - inoctave) / 12;
+
+            return `<tspan font-size="8">${interval[1]}</tspan>${interval[0]}`;
+        };
     default:
         return n => n.toString();
     }
@@ -107,7 +133,7 @@ export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg
     });
 }
 
-function getSVGHeader(ht: number, wd: number, id = 'notes_svg', beatstyle = '#404040'): string {
+function getSVGHeader(ht: number, wd: number, id = 'unknown_svg', beatstyle = '#404040'): string {
     if (typeof id !== 'string') {
         throw new Error(`visualizations.render2DSVG(): canvas name should be a string, was ${dumpOneLine(id)}`);
     }
@@ -131,7 +157,15 @@ function getSVGFooter(): string {
     return '</svg>\n';
 }
 
-function build2DSVG(score: Score, timeline: number[], data: number[][], options: SVGOpts): string {
+export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts = {}): string {
+    const fixedscore = score.withAllTicksExact();
+
+    const [ timeline, data ] = fn(fixedscore);
+
+    if (timeline.length !== data.length) {
+        throw new Error(`visualizations.build2DSVG(): timeline generator returned unequal lengths (${timeline.length} v ${data.length})`);
+    }
+
     if (timeline.length === 0) {
         return getSVGHeader(0, 0, options.id, options.beatstyle) + getSVGFooter();
     }
@@ -190,7 +224,7 @@ function build2DSVG(score: Score, timeline: number[], data: number[][], options:
     // Annotate with barlines and sub-bar-lines
     if (lineRepeatPx) {
         const beatPx = lineRepeatPx / beats;
-        const bartimeline = transformations.scoreToBarTimeline(score);
+        const bartimeline = transformations.scoreToBarTimeline(fixedscore);
 
         for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
             const tick = (i - LEFTPAD) / horizPx;
@@ -229,15 +263,6 @@ function build2DSVG(score: Score, timeline: number[], data: number[][], options:
     }
 
     return str + getSVGFooter();
-}
-
-/**
- * Given a Score, create an SVG showing the notes in the Score.
- */
-export function scoreToNotesSVG(score: Score, opts: SVGOpts = {}): string {
-    const [ timeline, data ] = transformations.scoreToNotes(score);
-
-    return build2DSVG(score, timeline, data, { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts });
 }
 
 /**
