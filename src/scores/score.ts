@@ -2,6 +2,8 @@ import * as fs from 'fs';
 
 import type { MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
+import type MetaEvent from '../meta-events/meta-event';
+
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
 import CollectionWithMetadata from '../collections/with-metadata';
@@ -82,9 +84,32 @@ export default class Score extends CollectionWithMetadata<Melody> {
 
     /**
      * Returns the last MIDI tick in the Score.
+     * If there are no events in the Score, this will be 0.
      */
-    lastTick(): number | null {
-        return max(this.contents.map(t => t.lastTick()));
+    lastTick(): number {
+        function updateLastTick(event: MetaEvent) {
+            if (event.at as number > last) { last = event.at as number; }
+        }
+
+        const fixed = this.withAllTicksExact();
+
+        let last = 0;
+
+        fixed.metadata.before.each(updateLastTick);
+
+        fixed.each(m => {
+            m.metadata.before.each(updateLastTick);
+
+            m.each(note => {
+                note.before.each(updateLastTick);
+                if ((note.at as number + note.duration) > last) {
+                    last = note.at as number + note.duration;
+                }
+                note.after.each(updateLastTick);
+            });
+        });
+
+        return last;
     }
 
     /**

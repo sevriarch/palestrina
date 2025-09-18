@@ -387,19 +387,40 @@ describe('Score.volumeRange() tests', () => {
 });
 
 describe('Score.lastTick() tests', () => {
-    const table: [ Melody[], number ][] = [
-        [ [ T1 ], 8 ],
-        [ [ T2 ], 8 ],
-        [ [ T3 ], 52 ],
-        [ [ T4 ], 24 ],
-        [ [ T1, T2 ], 8 ],
-        [ [ T1, T2, T3 ], 52 ],
-        [ [ T4, T1 ], 24 ],
-        [ [ T0, T1 ], 8 ],
+    const table: [ Score, number ][] = [
+        [ Score.from([ T1 ]), 8 ],
+        [ Score.from([ T3 ]), 52 ],
+        [ Score.from([ T4 ]), 24 ],
+        [ Score.from([ T4, T1 ]), 24 ],
+        [ Score.from([ T0, T1 ]), 8 ],
+        [
+            Score.from([ T1 ])
+                .withNewEvent({ event: 'time-signature', value: '3/4', at: 64 })
+                .withNewEvent({ event: 'time-signature', value: '4/4', at: 192 }),
+            192
+        ],
+        [
+            Score.from([ T1.withEventBefore(0, { event: 'time-signature', value: '3/4', offset: 1024 }) ]),
+            1024
+        ],
+        [
+            Score.from([
+                T1.withEventAfter(0, { event: 'time-signature', value: '3/4', offset: 1024 }),
+                T2.withEventAfter(0, { event: 'time-signature', value: '3/4', offset: 1024 })
+            ]),
+            1032
+        ],
+        [
+            Score.from([
+                T1.withNewEvent({ event: 'time-signature', value: '3/4', at: 512 }),
+                T2.withNewEvent({ event: 'time-signature', value: '3/4', at: 768 }),
+            ]),
+            768
+        ],
     ];
 
-    test.each(table)('lastTick() %# is %p', (trax, ret) => {
-        expect(score(trax).lastTick()).toStrictEqual(ret);
+    test.each(table)('lastTick() %# is %p', (sc, ret) => {
+        expect(sc.lastTick()).toStrictEqual(ret);
     });
 });
 
