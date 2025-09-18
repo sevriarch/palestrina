@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.1
+
+### Features
+* score.writeGamutSVG() and score.writeIntervalsSVG() have been added; these have similar functionality to score.writeNotesSVG().
+
+### Enhancements
+* Score.lastTick() is significantly more performant in many cases.
+* Score.withAllTicksExact() has been adjusted to be a noop in cases where no change has been made to the Score since the last call. This should improve performance in some rendering cases.
+
+### Bugfixes
+* Score.lastTick() no longer returns the wrong result when the chronologically last event in the Score appears in the Score metadata.
+
 ## 0.9.0
 
 ### Features
