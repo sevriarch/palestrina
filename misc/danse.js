@@ -1,6 +1,6 @@
 'use strict'
 
-const { helpers, noteseq, score } = require('../built')
+const { helpers, noteseq, score, visualizations } = require('../built')
 
 const SCALE = 'octatonic12'
 const MAX   = 1024
@@ -222,7 +222,9 @@ addTrack(newtrax[2], { instrument: 'cello' });
 const TRACKS = [ /*42, 43, 45,*/ 46, 47, 48, 16, 18, 20, 24, 25, 44, 28, 32, 37 ]
 const BASE   = { tempo: 92, timeSignature: [ 2, 4 ] }
 
-let s = score()
+let s = score().withTicksPerQuarter(64)
+    .withTimeSignature('2/4')
+    .withTempo(92)
 
 function melodify(seq) {
     return seq.toMelody()
@@ -253,9 +255,8 @@ if (process.argv[2] === 'piano') {
     }
 }
     
-s.withTicksPerQuarter(64)
-    .withTimeSignature('2/4')
-    .withTempo(92)
-    .writeCanvas(__filename, { wd_quarter: 10 })
-    .writeMidi(__filename)
+s.writeMidi(__filename)
+    .writeNotesSVG(__filename, { px_lines: 32, sub_lines: 2, beats_per_bar: 2 })
+    .writeGamutSVG(__filename, { px_lines: 32, sub_lines: 2, beats_per_bar: 2 })
+    .writeIntervalsSVG(__filename, { px_lines: 32, sub_lines: 2, beats_per_bar: 2 })
     .expectHash(HASH)
