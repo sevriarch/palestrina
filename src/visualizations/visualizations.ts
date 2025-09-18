@@ -158,7 +158,9 @@ function getSVGFooter(): string {
 }
 
 export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts): string {
-    const [ timeline, data ] = fn(score);
+    const fixedscore = score.withAllTicksExact();
+
+    const [ timeline, data ] = fn(fixedscore);
 
     if (timeline.length !== data.length) {
         throw new Error(`visualizations.build2DSVG(): timeline generator returned unequal lengths (${timeline.length} v ${data.length})`);
@@ -222,7 +224,7 @@ export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts):
     // Annotate with barlines and sub-bar-lines
     if (lineRepeatPx) {
         const beatPx = lineRepeatPx / beats;
-        const bartimeline = transformations.scoreToBarTimeline(score);
+        const bartimeline = transformations.scoreToBarTimeline(fixedscore);
 
         for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
             const tick = (i - LEFTPAD) / horizPx;
