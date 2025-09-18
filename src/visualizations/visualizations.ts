@@ -133,7 +133,7 @@ export function render2DCanvas({ name, timeline, data, options = {} }: CanvasArg
     });
 }
 
-function getSVGHeader(ht: number, wd: number, id = 'notes_svg', beatstyle = '#404040'): string {
+function getSVGHeader(ht: number, wd: number, id = 'unknown_svg', beatstyle = '#404040'): string {
     if (typeof id !== 'string') {
         throw new Error(`visualizations.render2DSVG(): canvas name should be a string, was ${dumpOneLine(id)}`);
     }
@@ -157,7 +157,7 @@ function getSVGFooter(): string {
     return '</svg>\n';
 }
 
-export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts): string {
+export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts = {}): string {
     const fixedscore = score.withAllTicksExact();
 
     const [ timeline, data ] = fn(fixedscore);

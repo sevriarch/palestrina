@@ -96,6 +96,23 @@ describe('visualizations.build2DSVG', () => {
     test('throws if timeline generator returns an tuple containing different lengths', () => {
         expect(() => visualizations.build2DSVG(EMPTY_SCORE, (() => [ [ 1 ], [] ]), {})).toThrow();
     });
+
+    test('applies defaults if none are present', () => {
+        expect(visualizations.build2DSVG(EMPTY_SCORE, () => [ [], [] ] )).toStrictEqual(`<svg id="unknown_svg" viewbox="0,0,0,0" width="0" height="0" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+  <style>
+    text {
+      font-family: "Arial";
+      font-size: 12px;
+    }
+
+    line {
+      stroke-width: 1;
+      stroke: #404040;
+    }
+  </style>
+</svg>
+`);
+    });
 });
 
 describe('visualizations.scoreToNotesCanvas()', () => {
