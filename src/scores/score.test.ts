@@ -127,6 +127,25 @@ describe('Score construction tests', () => {
     });
 });
 
+describe('Score.clone()', () => {
+    const sc = score([ T1, T2, T3, T4 ]);
+
+    test('clone() makes a copy with identical values', () => {
+        const copy = sc.clone();
+
+        expect(copy).toStrictEqual(sc);
+        expect(copy).not.toBe(sc);
+    });
+
+    test('clone() retains transient metadata', () => {
+        // this is a slightly awkward way to test as it relies on implementation
+        // details of Score.withAllTicksExact(), but should give accurate results.
+        const sc = score([]).withAllTicksExact().clone();
+
+        expect(sc.withAllTicksExact()).toBe(sc);
+    });
+});
+
 describe('Score.withNewEvent()', () => {
     const S0 = score([ T0 ]);
 
