@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.2
+
+### Enhancements
+* Performance has been improved for some chained Score operations related to MIDI and SVG creation.
+
 ## 0.9.1
 
 ### Features

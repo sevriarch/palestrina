@@ -2,7 +2,6 @@ HIGH PRIORITY:
 
 FEATURES:
 - MusicXML import/export
-- SVG exports as an alternative to canvas
 
 DOCUMENTATION:
 - There should be more non-API documentation

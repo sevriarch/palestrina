@@ -19,7 +19,7 @@ const start = process.hrtime()
 // Set to true if silent notes should be a C#-1 to help with Sibelius tuplet imports
 const SIB_IMPORT = false
 
-const MAKE_VIZ = false
+const MAKE_VIZ = true
 
 const MAXGAP = 15
 
@@ -705,13 +705,14 @@ function makeScore() {
         .appendItems(makePlayOnStrings())
         .withTicksPerQuarter(TICKS)
         .withNewEvents(META)
+        .withAllTicksExact()
         .writeMidi(__filename)
+        .expectHash(HASH)
         .if(MAKE_VIZ)
             .then(s => s.writeCanvas(__filename, { wd_scale: 2 }))
             .then(s => s.writeNotesSVG(__filename, { width: 4000, px_lines: 40, sub_lines: 2, note_lines: 16 }))
             .then(s => s.writeGamutSVG(__filename, { width: 4000, px_lines: 40, sub_lines: 2, note_lines: 16 }))
             .then(s => s.writeIntervalsSVG(__filename, { width: 4000, px_lines: 40, sub_lines: 2, note_lines: 16 }))
-        .expectHash(HASH)
 
     log('#Bytes:  ', s.toMidiBytes().length)
     log('Hash was:', s.toHash())
