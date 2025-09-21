@@ -54,12 +54,20 @@ export default class Score extends CollectionWithMetadata<Melody> {
         return new Score(arg.slice(), Metadata.from(metadata));
     }
 
-    readonly #transientMetadata: TransientScoreMetadata = {};
+    #transientMetadata: TransientScoreMetadata = {};
 
     constructor(tracks: Melody[], metadata: Metadata) {
         super(tracks, metadata);
 
         Object.freeze(this);
+    }
+
+    override clone(): this {
+        const copy = this.construct(this.contents);
+
+        copy.#transientMetadata = this.#transientMetadata;
+
+        return copy;
     }
 
     /**

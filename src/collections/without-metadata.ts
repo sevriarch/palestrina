@@ -36,18 +36,12 @@ function index(i: number, len: number, max = len): number | undefined {
 export default class Collection<T> {
     readonly contents: T[];
     readonly length: number;
-    private readonly _control!: ControlFlow<this>;
+    readonly #control!: ControlFlow<this>;
 
     constructor(contents: T[]) {
         this.contents = contents;
         this.length = contents.length;
-
-        Object.defineProperty(this, '_control', {
-            value: {},
-            configurable: false,
-            enumerable: false,
-            writable: false
-        });
+        this.#control = {};
 
         Object.freeze(this.contents);
         Object.freeze(this.length);
@@ -1111,11 +1105,11 @@ export default class Collection<T> {
         const yes = typeof cond === 'function' ? cond(me) : cond;
 
         if (yes) {
-            me._control.then = fn => fn(me).if(yes);
-            me._control.else = () => me.if(yes);
+            me.#control.then = fn => fn(me).if(yes);
+            me.#control.else = () => me.if(yes);
         } else {
-            me._control.then = () => me.if(yes);
-            me._control.else = fn => fn(me).if(yes);
+            me.#control.then = () => me.if(yes);
+            me.#control.else = fn => fn(me).if(yes);
         }
 
         return me;
@@ -1134,11 +1128,11 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.then() requires a function`);
         }
 
-        if (!this._control.then) {
+        if (!this.#control.then) {
             throw new Error(`${this.constructor.name}.then() without an if condition`);
         }
 
-        return this._control.then(fn);
+        return this.#control.then(fn);
     }
 
     /**
@@ -1154,11 +1148,11 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.else() requires a function`);
         }
 
-        if (!this._control.else) {
+        if (!this.#control.else) {
             throw new Error(`${this.constructor.name}.else() without an if condition`);
         }
 
-        return this._control.else(fn);
+        return this.#control.else(fn);
     }
 
     /**
@@ -1193,16 +1187,16 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.while() requires a function`);
         }
 
-        if (this._control.while) {
-            return this._control.while(cond);
+        if (this.#control.while) {
+            return this.#control.while(cond);
         }
 
         const me = this.clone();
 
         if (cond(me)) {
-            me._control.do = fn => fn(me).while(cond).do(fn);
+            me.#control.do = fn => fn(me).while(cond).do(fn);
         } else {
-            me._control.do = () => me.clone();
+            me.#control.do = () => me.clone();
         }
 
         return me;
@@ -1239,13 +1233,13 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.do() requires a function`);
         }
 
-        if (this._control.do) {
-            return this._control.do(fn);
+        if (this.#control.do) {
+            return this.#control.do(fn);
         }
 
         const me = fn(this);
 
-        me._control.while = cond => cond(me) ? me.do(fn).while(cond) : me.clone();
+        me.#control.while = cond => cond(me) ? me.do(fn).while(cond) : me.clone();
 
         return me;
     }
