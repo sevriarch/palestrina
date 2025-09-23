@@ -39,6 +39,26 @@ describe('Melody creation', () => {
     });
 });
 
+describe('Melody.clone()', () => {describe('Score.clone()', () => {
+    const m = Melody.from([ 1, 2, 3, 4, 5 ]).withCopyright('test');
+
+    test('clone() makes a copy with identical values', () => {
+        const copy = m.clone();
+
+        expect(copy).toStrictEqual(m);
+        expect(copy).not.toBe(m);
+    });
+
+    test('clone() retains transient metadata', () => {
+        // this is a slightly awkward way to test as it relies on implementation
+        // details of Score.withAllTicksExact(), but should give accurate results.
+        const copy = m.withAllTicksExact().clone();
+
+        expect(copy.withAllTicksExact()).toBe(copy);
+    });
+});
+});
+
 describe('Melody.mapEachPitch()', () => {
     const is = melody([[1], [4, 0], [2], [3], [], [6, 7, 8]]);
     const fs = microtonalmelody([1, [4, 0], 2, 3, [], [6, 7, 8]]);
@@ -1035,8 +1055,14 @@ describe('Melody.withVolumeAt()', () => {
 });
 
 describe('MelodyMember.withAllTicksExact()', () => {
-    test('test that this does not create additional entities for an empty Melody', () => {
+    test('does not create additional entities for an empty Melody', () => {
         expect(Melody.from([]).withAllTicksExact()).toStrictEqual(Melody.from([]));
+    });
+
+    test('returns self if all ticks were already exact', () => {
+        const m = Melody.from([]).withAllTicksExact();
+
+        expect(m.withAllTicksExact()).toBe(m);
     });
 
     // this is a wildly complex test as it needs to confirm behaviour for various
@@ -1044,7 +1070,7 @@ describe('MelodyMember.withAllTicksExact()', () => {
     // also for the subsequent one
     // there may be value breaking it up into multiple tests to cover behaviour
     // one part at a time, at a cost of making the test for this method even longer
-    test('test for a Melody with all parts included', () => {
+    test('correctly assign exact ticks for a Melody with all logic employed', () => {
         expect(Melody.from([
             MelodyMember.from({ pitch: [ 60 ], duration: 8 }),
             MelodyMember.from({ pitch: [ 61 ], duration: 128, offset: 32, delay: 16 }),

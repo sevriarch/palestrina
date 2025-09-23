@@ -128,7 +128,7 @@ describe('Score construction tests', () => {
 });
 
 describe('Score.clone()', () => {
-    const sc = score([ T1, T2, T3, T4 ]);
+    const sc = score([ T1, T2, T3, T4 ]).withCopyright('test');
 
     test('clone() makes a copy with identical values', () => {
         const copy = sc.clone();
@@ -478,7 +478,7 @@ describe('Score.withAllTicksExact() tests', () => {
         expect(S1.withAllTicksExact()).toStrictEqual(S1RET);
     });
 
-    test('does not recalculate but returns self when called twice', () => {
+    test('returns self if all ticks were already exact', () => {
         const s = S1.withAllTicksExact();
 
         expect(s.withAllTicksExact()).toBe(s);

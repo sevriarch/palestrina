@@ -9,6 +9,11 @@ import { MIDI } from '../constants';
 import { melodyToTimedMidiBytes, melodyToMidiTrack, numberToFixedBytes } from '../midi/conversions';
 import * as midiWriter from '../midi/writer';
 
+/** hidden */
+type TransientMelodyMetadata = {
+    ticksAreExact?: boolean, // does this Score have all ticks exact?
+};
+
 /**
  * Class representing a Sequence of {@link MelodyMember}s, each of which contains an array of zero or more numbers
  * plus non-pitch timing information and metadata.
@@ -16,6 +21,16 @@ import * as midiWriter from '../midi/writer';
 export default class Melody extends Sequence<MelodyMember> implements ISequence<MelodyMember> {
     static from(v: SeqArgument, metadata?: MetadataData) {
         return Sequence.build(Melody, MelodyMember, v, metadata);
+    }
+
+    #transientMetadata: TransientMelodyMetadata = {};
+
+    override clone(): this {
+        const copy = this.construct(this.contents);
+
+        copy.#transientMetadata = this.#transientMetadata;
+
+        return copy;
     }
 
     protected constructMember(v: SeqMemberArgument): MelodyMember {
@@ -390,14 +405,21 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Return a new Melody where all ticks of everything within it are exact.
      */
     withAllTicksExact(): this {
+        if (this.#transientMetadata.ticksAreExact) {
+            return this;
+        }
+
         let curr = 0;
 
-        return this.map(m => {
+        const ret = this.map(m => {
             const ret = m.withAllTicksExact(curr);
             curr = m.timing.nextTick(curr);
 
             return ret;
         }).withMetadataTicksExact();
+
+        ret.#transientMetadata.ticksAreExact = true;
+        return ret;
     }
 
     /**
