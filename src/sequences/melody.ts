@@ -1,4 +1,4 @@
-import { type SeqArgument, type SeqMemberArgument, type MetadataData, type MelodySummary, type MapperFn, type SeqIndices, type MetaEventValue, type MetaEventOpts, type MetaEventArg, type ISequence } from '../types';
+import type { SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -472,6 +472,19 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     withTextAfter(pos: SeqIndices, val: string, typeOrOpts?: string | MetaEventOpts, opts?: MetaEventOpts) {
         return this.replaceIndices(pos, e => e.withTextAfter(val, typeOrOpts, opts));
+    }
+
+    /**
+     * Returns everything in this Melody, in an ordered array of events.
+     */
+    toOrderedEntities(): (MelodyMember | MetaEvent)[] {
+        const fixed = this.withAllTicksExact();
+
+        const entities: (MelodyMember | MetaEvent)[] = fixed.contents.flatMap(mm => [ ...mm.before.contents, mm, ...mm.after.contents ]);
+
+        entities.unshift(...fixed.metadata.toOrderedEntities());
+
+        return entities.sort((a, b) => (a.at as number) - (b.at as number));
     }
 
     /**

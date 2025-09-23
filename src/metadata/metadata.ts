@@ -1,5 +1,6 @@
 import type { MetadataData, TypeOrArray, MetaEventArg } from '../types';
 
+import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
 import NumericValidator from '../validation/numeric';
 
@@ -231,6 +232,43 @@ export default class Metadata {
         }
 
         return this.withValues({ before: this.metadata.before.withAllTicksExact(0) });
+    }
+
+    /**
+     * Return all entities contained within this Metadata.
+     */
+    toOrderedEntities(): MetaEvent[] {
+        const fixed = this.withAllTicksExact();
+
+        const ret: MetaEvent[] = [];
+
+        if (fixed.copyright) {
+            ret.push(MetaEvent.from({ event: 'copyright', value: fixed.copyright, at: 0 }));
+        }
+
+        if (fixed.trackname) {
+            ret.push(MetaEvent.from({ event: 'track-name', value: fixed.trackname, at: 0 }));
+        }
+
+        if (fixed.time_signature) {
+            ret.push(MetaEvent.from({ event: 'time-signature', value: fixed.time_signature, at: 0 }));
+        }
+
+        if (fixed.key_signature) {
+            ret.push(MetaEvent.from({ event: 'key-signature', value: fixed.key_signature, at: 0 }));
+        }
+
+        if (fixed.tempo) {
+            ret.push(MetaEvent.from({ event: 'tempo', value: fixed.tempo, at: 0 }));
+        }
+
+        if (fixed.instrument) {
+            ret.push(MetaEvent.from({ event: 'instrument', value: fixed.instrument, at: 0 }));
+        }
+
+        ret.push(...fixed.before.contents);
+
+        return ret.sort((a, b) => (a.at as number) - (b.at as number));
     }
 
     /**

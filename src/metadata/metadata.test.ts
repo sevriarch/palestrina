@@ -1,6 +1,7 @@
 import type { MetadataData, MetaEventArg } from '../types';
 
 import Metadata from './metadata';
+import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
 
 import NumericValidator from '../validation/numeric';
@@ -282,6 +283,39 @@ describe('Metadata.withAllTicksExact()', () => {
                 { event: 'text', value: 'test 3', at: 192 }
             ])
         }));
+    });
+});
+
+describe('Metadata.toOrderedEntities()', () => {
+    test('empty metadata', () => {
+        expect(new Metadata({}).toOrderedEntities()).toStrictEqual([]);
+    });
+
+    test('all metadata', () => {
+        expect(new Metadata({
+            midichannel: 10,
+            tempo: 144,
+            ticks_per_quarter: 480,
+            time_signature: '3/8',
+            key_signature: 'C',
+            copyright: 'test',
+            trackname: 'track',
+            instrument: 'violin',
+            before: MetaList.from([
+                MetaEvent.from({ event: 'key-signature', value: 'F#' }),
+                MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1440 }),
+            ]),
+            validator: NumericValidator.NOOP_VALIDATOR,
+        }).toOrderedEntities()).toStrictEqual([
+            MetaEvent.from({ event: 'copyright', value: 'test', at: 0 }),
+            MetaEvent.from({ event: 'track-name', value: 'track', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/8', at: 0 }),
+            MetaEvent.from({ event: 'key-signature', value: 'C', at: 0 }),
+            MetaEvent.from({ event: 'tempo', value: 144, at: 0 }),
+            MetaEvent.from({ event: 'instrument', value: 'violin', at: 0 }),
+            MetaEvent.from({ event: 'key-signature', value: 'F#', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1440 }),
+        ]);
     });
 });
 
