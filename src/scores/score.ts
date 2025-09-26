@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import type { MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
 import type MetaEvent from '../meta-events/meta-event';
+import type MelodyMember from '../sequences/members/melody';
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
@@ -291,6 +292,18 @@ export default class Score extends CollectionWithMetadata<Melody> {
         return this;
     }
 
+    toOrderedEntities(): (MetaEvent | MelodyMember)[][] {
+        const fixed = this.withAllTicksExact();
+
+        // Must copy as metadata in score needs to be applied to the first track
+        const tracks = fixed.contents.slice();
+        if (tracks.length) {
+            tracks[0] = tracks[0].mergeMetadataFrom(fixed);
+        }
+
+        return tracks.map(tr => tr.toOrderedEntities());
+    }
+
     /**
      * Returns the MIDI bytes for this Score.
      */
@@ -318,7 +331,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
 
         return this.#transientMetadata.midiBytes;
     }
-    
+
     /**
      * Returns a data URI containing the MIDI data for this score.
      */

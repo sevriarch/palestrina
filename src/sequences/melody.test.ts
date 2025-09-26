@@ -1389,6 +1389,7 @@ describe('Melody.toOrderedEntities()', () => {
         ])
             .withTempo(144)
             .withTimeSignature('3/4')
+            .withNewEvent({ event: 'text', value: 'test', at: 64 })
             .toOrderedEntities()
         ).toStrictEqual([
             MetaEvent.from({ event: 'time-signature', value: '3/4', at: 0 }),
@@ -1401,6 +1402,7 @@ describe('Melody.toOrderedEntities()', () => {
                 before: MetaList.from([{ event: 'sustain', value: 1, at: 0 }]),
                 at: 0,
             }),
+            MetaEvent.from({ event: 'text', value: 'test', at: 64 }),
             MelodyMember.from({
                 pitch: [ 64 ],
                 duration: 128,

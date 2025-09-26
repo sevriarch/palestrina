@@ -10,6 +10,7 @@ import { score, melody } from '../factory';
 
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
+import MelodyMember from '../sequences/members/melody';
 
 // Mocking fs is ugly but without it jest.spyOn(fs, 'writeFileSync') doesn't work
 // in TypeScript, throwing: TypeError: Cannot redefine property: writeFileSync
@@ -553,6 +554,88 @@ describe('Score.withChordsCombined()', () => {
                 { pitch: [ 58, 58 ], duration: 16, velocity: 64, at: 32 }
             ])
         ]));
+    });
+});
+
+describe('Score.toOrderedEntities()', () => {
+    test('converts empty track to zero entities even though there is metadata present', () => {
+        expect(score([]).withCopyright('test').toOrderedEntities()).toStrictEqual([]);
+    });
+
+    test('converts non-empty score to expected entities', () => {
+        expect(score([
+            melody([ 
+                {
+                    pitch: 60,
+                    duration: 64,
+                    velocity: 48,
+                    before: MetaList.from([{ event: 'sustain', value: 1 }])
+                },
+                {
+                    pitch: [ 64 ],
+                    duration: 128,
+                    velocity: 64
+                },
+                {
+                    pitch: [ 67, 72 ],
+                    duration: 192,
+                    velocity: 80,
+                    after: MetaList.from([{ event: 'sustain', value: 0, offset: -256 }])
+                }
+            ]).withInstrument('violin')
+                .withNewEvent({ event: 'text', value: 'second test', at: 64 }),
+            melody([
+                {
+                    pitch: 48,
+                    duration: 64,
+                    velocity: 384
+                }
+            ]).withInstrument('viola')
+        ]).withTempo(144)
+            .withTimeSignature('3/4')
+            .withNewEvent({ event: 'text', value: 'test', at: 32 })
+            .toOrderedEntities()
+        ).toStrictEqual([
+            [
+                MetaEvent.from({ event: 'time-signature', value: '3/4', at: 0 }),
+                MetaEvent.from({ event: 'tempo', value: 144, at: 0 }),
+                MetaEvent.from({ event: 'instrument', value: 'violin', at: 0 }),
+                MetaEvent.from({ event: 'sustain', value: 1, at: 0 }),
+                MelodyMember.from({
+                    pitch: 60,
+                    duration: 64,
+                    velocity: 48,
+                    before: MetaList.from([{ event: 'sustain', value: 1, at: 0 }]),
+                    at: 0,
+                }),
+                MetaEvent.from({ event: 'text', value: 'test', at: 32 }),
+                MetaEvent.from({ event: 'text', value: 'second test', at: 64 }),
+                MelodyMember.from({
+                    pitch: [ 64 ],
+                    duration: 128,
+                    velocity: 64,
+                    at: 64,
+                }),
+                MetaEvent.from({ event: 'sustain', value: 0, at: 128 }),
+                MelodyMember.from({
+                    pitch: [ 67, 72 ],
+                    duration: 192,
+                    velocity: 80,
+                    after: MetaList.from([{ event: 'sustain', value: 0, at: 128 }]),
+                    at: 192
+                }),
+            ],
+            [
+                MetaEvent.from({ event: 'instrument', value: 'viola', at: 0 }),
+                MelodyMember.from({
+                    pitch: 48,
+                    duration: 64,
+                    velocity: 384,
+                    at: 0
+                }),
+
+            ]
+        ]);
     });
 });
 
