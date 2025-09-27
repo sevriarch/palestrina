@@ -189,18 +189,12 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Used by the canvas-drawing feature of the Score class.
      */
     toSummary(): MelodySummary {
-        let curr = 0;
-
-        return this.contents.map(v => {
-            const tick = v.timing.startTick(curr);
-
-            curr = v.timing.endTick(curr);
-
+        return this.withAllTicksExact().contents.map(v => {
             return {
-                tick: tick,
+                tick: v.at as number,
                 pitch: v.pitches(),
                 duration: v.duration,
-                velocity: v.velocity
+                velocity: v.velocity,
             };
         });
     }
