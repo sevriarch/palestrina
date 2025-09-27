@@ -412,7 +412,8 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
             return ret;
         }).withMetadataTicksExact();
 
-        ret.#transientMetadata.ticksAreExact = true;
+        // Shallow copy instead of modifying in place as this is shared between clones
+        ret.#transientMetadata = { ...ret.#transientMetadata, ticksAreExact: true };
         return ret;
     }
 

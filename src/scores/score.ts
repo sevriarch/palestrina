@@ -131,7 +131,8 @@ export default class Score extends CollectionWithMetadata<Melody> {
 
         const ret = this.map(m => m.withAllTicksExact()).withMetadataTicksExact();
 
-        ret.#transientMetadata.ticksAreExact = true;
+        // Shallow copy instead of modifying in place as this is shared between clones
+        ret.#transientMetadata = { ...ret.#transientMetadata, ticksAreExact: true };
 
         return ret;
     }
@@ -320,7 +321,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             tracks[0] = tracks[0].mergeMetadataFrom(this);
         }
 
-        this.#transientMetadata.midiBytes = [
+        const bytes = [
             ...MIDI.HEADER_CHUNK,
             ...MIDI.HEADER_LENGTH,
             ...MIDI.HEADER_FORMAT,
@@ -329,7 +330,10 @@ export default class Score extends CollectionWithMetadata<Melody> {
             ...tracks.flatMap(t => t.toMidiTrack())
         ];
 
-        return this.#transientMetadata.midiBytes;
+        // Shallow copy instead of modifying in place as this is shared between clones
+        this.#transientMetadata = { ...this.#transientMetadata, midiBytes: bytes };
+
+        return bytes;
     }
 
     /**
