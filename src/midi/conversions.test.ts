@@ -1,4 +1,4 @@
-import type { MetaEventArg, MidiTickAndBytes, MetaListArg, MetadataData, SeqMemberArgument } from '../types';
+import type { MetaEventArg, MidiTickAndBytes, MetaListArg, MetadataData } from '../types';
 
 import MetaList from '../meta-events/meta-list';
 import Metadata from '../metadata/metadata';
@@ -285,75 +285,33 @@ describe('conversions.metaEventToMidiBytes()', () => {
 });
 
 describe('conversions.metaListToTimedMidiBytes()', () => {
-    const table: [ string, MetaListArg, number, number, MidiTickAndBytes[] ][] = [
+    const table: [ string, MetaListArg, number, MidiTickAndBytes[] ][] = [
         [
             'empty MetaList',
             [],
-            0,
             1,
             []
         ],
         [
-            'MetaList with one member (a)',
-            [ { event: 'instrument', value: 'violin' } ],
-            0,
-            1,
-            [ [ 0, [ 0xc0, 0x28 ] ] ]
-        ],
-        [
-            'MetaList with one member (b)',
-            [ { event: 'instrument', value: 'violin' } ],
-            64,
-            16,
-            [ [ 64, [ 0xcf, 0x28 ] ] ]
-        ],
-        [
-            'MetaList with one member with an offset (a)',
-            [ { event: 'sustain', value: 1, offset: 32 } ],
-            0,
-            1,
-            [ [ 32, [ 0xb0, 0x40, 0x7f ] ] ]
-        ],
-        [
-            'MetaList with one member with an offset (b)',
-            [ { event: 'sustain', value: 0, offset: 32 } ],
-            64,
-            16,
-            [ [ 96, [ 0xbf, 0x40, 0x00 ] ] ]
-        ],
-        [
-            'MetaList with one member with an exact tick',
-            [ { event: 'pitch-bend', value: 2048, at: 64 } ],
-            32,
-            1,
-            [ [ 64, [ 0xe0, 0x00, 0x50 ] ] ]
-        ],
-        [
-            'MetaList with one member with an exact tick and an offset',
-            [ { event: 'pitch-bend', value: 2048, at: 64, offset: 32 } ],
-            0,
-            1,
-            [ [ 96, [ 0xe0, 0x00, 0x50 ] ] ]
-        ],
-        [
-            'MetaList with all the other things (a)',
+            'MetaList with all the things, channel 1',
             [
-                { event: 'tempo', value: 144 },
+                { event: 'pitch-bend', value: 2048, at: 64 },
+                { event: 'tempo', value: 144, at: 0 },
                 { event: 'key-signature', value: 'Eb', at: 640 },
-                { event: 'time-signature', value: '5/4' },
-                { event: 'text', value: 'test text' },
-                { event: 'lyric', value: 'test lyric', offset: 64 },
+                { event: 'time-signature', value: '5/4', at: 0 },
+                { event: 'text', value: 'test text', at: 0 },
+                { event: 'lyric', value: 'test lyric', at: 64 },
                 { event: 'marker', value: 'test marker', at: 128 },
-                { event: 'cue-point', value: 'test cue point' },
-                { event: 'copyright', value: 'test copyright' },
-                { event: 'track-name', value: 'test track name' },
-                { event: 'volume', value: 100, offset: 128 },
-                { event: 'pan', value: 64 },
-                { event: 'balance', value: 64 }
+                { event: 'cue-point', value: 'test cue point', at: 0 },
+                { event: 'copyright', value: 'test copyright', at: 0 },
+                { event: 'track-name', value: 'test track name', at: 0 },
+                { event: 'volume', value: 100, at: 128 },
+                { event: 'pan', value: 64, at: 0 },
+                { event: 'balance', value: 64, at: 0 }
             ],
-            0,
             1,
             [
+                [ 64, [ 0xe0, 0x00, 0x50 ] ],
                 [ 0, [ 0xff, 0x51, 0x3, 0x6, 0x5b, 0x9b ] ],
                 [ 640, [ 0xff, 0x59, 0x2, 0xfd, 0x0 ] ],
                 [ 0, [ 0xff, 0x58, 0x4, 0x5, 0x2, 0x18, 0x8 ] ],
@@ -369,42 +327,43 @@ describe('conversions.metaListToTimedMidiBytes()', () => {
             ]
         ],
         [
-            'MetaList with all the other things (b)',
+            'MetaList with all the things, channel 16',
             [
-                { event: 'tempo', value: 144 },
+                { event: 'pitch-bend', value: 2048, at: 64 },
+                { event: 'tempo', value: 144, at: 0 },
                 { event: 'key-signature', value: 'Eb', at: 640 },
-                { event: 'time-signature', value: '5/4' },
-                { event: 'text', value: 'test text' },
-                { event: 'lyric', value: 'test lyric', offset: 64 },
+                { event: 'time-signature', value: '5/4', at: 0 },
+                { event: 'text', value: 'test text', at: 0 },
+                { event: 'lyric', value: 'test lyric', at: 64 },
                 { event: 'marker', value: 'test marker', at: 128 },
-                { event: 'cue-point', value: 'test cue point' },
-                { event: 'copyright', value: 'test copyright' },
-                { event: 'track-name', value: 'test track name' },
-                { event: 'volume', value: 100, offset: 128 },
-                { event: 'pan', value: 64 },
-                { event: 'balance', value: 64 }
+                { event: 'cue-point', value: 'test cue point', at: 0 },
+                { event: 'copyright', value: 'test copyright', at: 0 },
+                { event: 'track-name', value: 'test track name', at: 0 },
+                { event: 'volume', value: 100, at: 128 },
+                { event: 'pan', value: 64, at: 0 },
+                { event: 'balance', value: 64, at: 0 }
             ],
-            64,
             16,
             [
-                [ 64, [ 0xff, 0x51, 0x3, 0x6, 0x5b, 0x9b ] ],
+                [ 64, [ 0xef, 0x00, 0x50 ] ],
+                [ 0, [ 0xff, 0x51, 0x3, 0x6, 0x5b, 0x9b ] ],
                 [ 640, [ 0xff, 0x59, 0x2, 0xfd, 0x0 ] ],
-                [ 64, [ 0xff, 0x58, 0x4, 0x5, 0x2, 0x18, 0x8 ] ],
-                [ 64, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 128, [ 0xff, 0x5, 0xa, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6c, 0x79, 0x72, 0x69, 0x63 ] ],
+                [ 0, [ 0xff, 0x58, 0x4, 0x5, 0x2, 0x18, 0x8 ] ],
+                [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
+                [ 64, [ 0xff, 0x5, 0xa, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6c, 0x79, 0x72, 0x69, 0x63 ] ],
                 [ 128, [ 0xff, 0x6, 0xb, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x72 ] ],
-                [ 64, [ 0xff, 0x7, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x75, 0x65, 0x20, 0x70, 0x6f, 0x69, 0x6e, 0x74 ] ],
-                [ 64, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
-                [ 64, [ 0xff, 0x3, 0xf, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x20, 0x6e, 0x61, 0x6d, 0x65 ] ],
-                [ 192, [ 0xbf, 0x7, 0x64 ] ],
-                [ 64, [ 0xbf, 0xa, 0x40 ] ],
-                [ 64, [ 0xbf, 0x8, 0x40 ] ],
+                [ 0, [ 0xff, 0x7, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x75, 0x65, 0x20, 0x70, 0x6f, 0x69, 0x6e, 0x74 ] ],
+                [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
+                [ 0, [ 0xff, 0x3, 0xf, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x20, 0x6e, 0x61, 0x6d, 0x65 ] ],
+                [ 128, [ 0xbf, 0x7, 0x64 ] ],
+                [ 0, [ 0xbf, 0xa, 0x40 ] ],
+                [ 0, [ 0xbf, 0x8, 0x40 ] ],
             ]
         ],
     ];
 
-    test.each(table)('%s', (_, data, curr, channel, ret) => {
-        expect(conversions.metaListToTimedMidiBytes(MetaList.from(data), curr, channel)).toStrictEqual(ret);
+    test.each(table)('%s', (_, data, channel, ret) => {
+        expect(conversions.metaListToTimedMidiBytes(MetaList.from(data), channel)).toStrictEqual(ret);
     });
 });
 
@@ -426,7 +385,7 @@ describe('conversions.metadataToTimedMidiBytes()', () => {
                 instrument: 'oboe',
                 midichannel: 1,
                 ticks_per_quarter: 640,
-                before: MetaList.from([ { event: 'sustain', value: 1 }, { event: 'sustain', value: 0, offset: 1024 } ]),
+                before: MetaList.from([ { event: 'sustain', value: 1, at: 0 }, { event: 'sustain', value: 0, at: 1024 } ]),
             },
             [
                 [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
@@ -450,7 +409,7 @@ describe('conversions.metadataToTimedMidiBytes()', () => {
                 instrument: 'oboe',
                 midichannel: 16,
                 ticks_per_quarter: 240,
-                before: MetaList.from([ { event: 'sustain', value: 1 }, { event: 'sustain', value: 0, offset: 1024 } ]),
+                before: MetaList.from([ { event: 'sustain', value: 1, at: 0 }, { event: 'sustain', value: 0, at: 1024 } ]),
             },
             [
                 [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
@@ -474,142 +433,57 @@ describe('conversions.melodyMemberToTimedMidiBytes()', () => {
     test('throws if invalid pitch', () => {
         const mm = MelodyMember.from(-1);
 
-        expect(() => conversions.melodyMemberToTimedMidiBytes(mm, 0, 1)).toThrow();
+        expect(() => conversions.melodyMemberToTimedMidiBytes(mm, 1)).toThrow();
     });
 
-    const table: [ string, SeqMemberArgument, number, number, MidiTickAndBytes[] ][] = [
-        [
-            'curr 0, channel 1',
-            {
-                pitch: [ 60, 63.5, 67 ],
-                velocity: 64,
-                duration: 32,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text' } ]),
-                after: MetaList.from([ { event: 'sustain', value: 0, offset: 64 } ])
-            },
-            0,
-            1,
-            [
-                [ 32, [ 0xb0, 0x40, 0x7f ] ],
-                [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 0, [ 0x90, 0x3c, 0x40 ] ],
-                [ 32, [ 0x80, 0x3c, 0x40 ] ],
-                [ 0, [ 0xe0, 0x0, 0x50 ] ],
-                [ 30, [ 0xe0, 0x0, 0x40 ] ],
-                [ 0, [ 0x90, 0x3f, 0x40 ] ],
-                [ 32, [ 0x80, 0x3f, 0x40 ] ],
-                [ 0, [ 0x90, 0x43, 0x40 ] ],
-                [ 32, [ 0x80, 0x43, 0x40 ] ],
-                [ 96, [ 0xb0, 0x40, 0x0 ] ],
-            ],
-        ],
-        [
-            'curr 160, channel 16',
-            {
-                pitch: [ 60, 63.5, 67 ],
-                velocity: 80,
-                duration: 64,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text' } ]),
-                after: MetaList.from([ { event: 'sustain', value: 0, offset: 64 } ])
-            },
-            160,
-            16,
-            [
-                [ 32, [ 0xbf, 0x40, 0x7f ] ],
-                [ 160, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 160, [ 0x9f, 0x3c, 0x50 ] ],
-                [ 224, [ 0x8f, 0x3c, 0x50 ] ],
-                [ 160, [ 0xef, 0x0, 0x50 ] ],
-                [ 222, [ 0xef, 0x0, 0x40 ] ],
-                [ 160, [ 0x9f, 0x3f, 0x50 ] ],
-                [ 224, [ 0x8f, 0x3f, 0x50 ] ],
-                [ 160, [ 0x9f, 0x43, 0x50 ] ],
-                [ 224, [ 0x8f, 0x43, 0x50 ] ],
-                [ 288, [ 0xbf, 0x40, 0x0 ] ],
-            ],
-        ],
-        [
-            'exact tick supplied',
-            {
-                pitch: [ 60, 63.5, 67 ],
-                velocity: 64,
-                duration: 32,
-                at: 64,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text' } ]),
-                after: MetaList.from([ { event: 'sustain', value: 0, offset: 64 } ])
-            },
-            0,
-            1,
-            [
-                [ 32, [ 0xb0, 0x40, 0x7f ] ],
-                [ 64, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 64, [ 0x90, 0x3c, 0x40 ] ],
-                [ 96, [ 0x80, 0x3c, 0x40 ] ],
-                [ 64, [ 0xe0, 0x0, 0x50 ] ],
-                [ 94, [ 0xe0, 0x0, 0x40 ] ],
-                [ 64, [ 0x90, 0x3f, 0x40 ] ],
-                [ 96, [ 0x80, 0x3f, 0x40 ] ],
-                [ 64, [ 0x90, 0x43, 0x40 ] ],
-                [ 96, [ 0x80, 0x43, 0x40 ] ],
-                [ 160, [ 0xb0, 0x40, 0x0 ] ],
-            ],
-        ],
-        [
-            'offset supplied',
-            {
-                pitch: [ 60, 63.5, 67 ],
-                velocity: 64,
-                duration: 32,
-                offset: 64,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text' } ]),
-                after: MetaList.from([ { event: 'sustain', value: 0, offset: 64 } ])
-            },
-            0,
-            1,
-            [
-                [ 32, [ 0xb0, 0x40, 0x7f ] ],
-                [ 64, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 64, [ 0x90, 0x3c, 0x40 ] ],
-                [ 96, [ 0x80, 0x3c, 0x40 ] ],
-                [ 64, [ 0xe0, 0x0, 0x50 ] ],
-                [ 94, [ 0xe0, 0x0, 0x40 ] ],
-                [ 64, [ 0x90, 0x3f, 0x40 ] ],
-                [ 96, [ 0x80, 0x3f, 0x40 ] ],
-                [ 64, [ 0x90, 0x43, 0x40 ] ],
-                [ 96, [ 0x80, 0x43, 0x40 ] ],
-                [ 160, [ 0xb0, 0x40, 0x0 ] ],
-            ],
-        ],
-        [
-            'delay supplied',
-            {
-                pitch: [ 60, 63.5, 67 ],
-                velocity: 64,
-                duration: 32,
-                delay: 64,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text' } ]),
-                after: MetaList.from([ { event: 'sustain', value: 0, offset: 64 } ])
-            },
-            0,
-            1,
-            [
-                [ 32, [ 0xb0, 0x40, 0x7f ] ],
-                [ 64, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 64, [ 0x90, 0x3c, 0x40 ] ],
-                [ 96, [ 0x80, 0x3c, 0x40 ] ],
-                [ 64, [ 0xe0, 0x0, 0x50 ] ],
-                [ 94, [ 0xe0, 0x0, 0x40 ] ],
-                [ 64, [ 0x90, 0x3f, 0x40 ] ],
-                [ 96, [ 0x80, 0x3f, 0x40 ] ],
-                [ 64, [ 0x90, 0x43, 0x40 ] ],
-                [ 96, [ 0x80, 0x43, 0x40 ] ],
-                [ 160, [ 0xb0, 0x40, 0x0 ] ],
-            ],
-        ],
-    ];
+    test('returns expected bytes on channel 1', () => {
+        const mm = MelodyMember.from({
+            pitch: [ 60, 63.5, 67 ],
+            velocity: 64,
+            at: 0,
+            duration: 32,
+            before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text', at: 0 } ]),
+            after: MetaList.from([ { event: 'sustain', value: 0, at: 96 } ])
+        });
 
-    test.each(table)('%s', (_, data, curr, channel, ret) => {
-        expect(conversions.melodyMemberToTimedMidiBytes(MelodyMember.from(data), curr, channel)).toStrictEqual(ret);
+        expect(conversions.melodyMemberToTimedMidiBytes(mm, 1)).toStrictEqual([
+            [ 32, [ 0xb0, 0x40, 0x7f ] ],
+            [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
+            [ 0, [ 0x90, 0x3c, 0x40 ] ],
+            [ 32, [ 0x80, 0x3c, 0x40 ] ],
+            [ 0, [ 0xe0, 0x0, 0x50 ] ],
+            [ 30, [ 0xe0, 0x0, 0x40 ] ],
+            [ 0, [ 0x90, 0x3f, 0x40 ] ],
+            [ 32, [ 0x80, 0x3f, 0x40 ] ],
+            [ 0, [ 0x90, 0x43, 0x40 ] ],
+            [ 32, [ 0x80, 0x43, 0x40 ] ],
+            [ 96, [ 0xb0, 0x40, 0x0 ] ],
+        ]);
+    });
+
+    test('returns expected bytes on channel 16', () => {
+        const mm = MelodyMember.from({
+            pitch: [ 60, 63.5, 67 ],
+            velocity: 64,
+            at: 0,
+            duration: 32,
+            before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text', at: 0 } ]),
+            after: MetaList.from([ { event: 'sustain', value: 0, at: 96 } ])
+        });
+
+        expect(conversions.melodyMemberToTimedMidiBytes(mm, 16)).toStrictEqual([
+            [ 32, [ 0xbf, 0x40, 0x7f ] ],
+            [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
+            [ 0, [ 0x9f, 0x3c, 0x40 ] ],
+            [ 32, [ 0x8f, 0x3c, 0x40 ] ],
+            [ 0, [ 0xef, 0x0, 0x50 ] ],
+            [ 30, [ 0xef, 0x0, 0x40 ] ],
+            [ 0, [ 0x9f, 0x3f, 0x40 ] ],
+            [ 32, [ 0x8f, 0x3f, 0x40 ] ],
+            [ 0, [ 0x9f, 0x43, 0x40 ] ],
+            [ 32, [ 0x8f, 0x43, 0x40 ] ],
+            [ 96, [ 0xbf, 0x40, 0x0 ] ],
+        ]);
     });
 });
 

@@ -219,9 +219,28 @@ export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[]
     }
 }
 
-export function metaListToTimedMidiBytes(ml: MetaList, curr: number, channel: number): MidiTickAndBytes[] {
+export function melodyToMidiTrack(m: Melody): number[] {
+    const events = melodyToTimedMidiBytes(m);
+
+    let curr = 0;
+    const ret = events.flatMap(([ tick, bytes ]) => {
+        const delta = tick - curr;
+
+        curr = tick;
+
+        return [ ...numberToVariableBytes(delta), ...bytes ];
+    }).concat(0, MIDI.END_TRACK_EVENT);
+
+    return [
+        ...MIDI.TRACK_HEADER_CHUNK,
+        ...numberToFixedBytes(ret.length, 4),
+        ...ret
+    ];
+}
+
+export function metaListToTimedMidiBytes(ml: MetaList, channel: number): MidiTickAndBytes[] {
     return ml.contents.map(e => [
-        e.timing.startTick(curr),
+        e.at as number,
         metaEventToMidiBytes(e as MetaEventArg, channel)
     ]);
 }
@@ -254,15 +273,15 @@ export function metadataToTimedMidiBytes(m: Metadata): MidiTickAndBytes[] {
     }
 
     if (m.before) {
-        ret.push(...metaListToTimedMidiBytes(m.before, 0, m.midichannel));
+        ret.push(...metaListToTimedMidiBytes(m.before, m.midichannel));
     }
 
     return ret;
 }
 
-export function melodyMemberToTimedMidiBytes(mm: MelodyMember, curr: number, channel: number, ix?: number): MidiTickAndBytes[] {
-    const tick = mm.timing.startTick(curr);
-    const ret = metaListToTimedMidiBytes(mm.before, tick, channel);
+export function melodyMemberToTimedMidiBytes(mm: MelodyMember, channel: number, ix?: number): MidiTickAndBytes[] {
+    const tick = mm.at as number;
+    const ret = metaListToTimedMidiBytes(mm.before, channel);
 
     mm.pitch.val().forEach(p => {
         if (p < 0 || p >= 256) {
@@ -302,39 +321,18 @@ export function melodyMemberToTimedMidiBytes(mm: MelodyMember, curr: number, cha
         }
     });
 
-    return [ ...ret, ...metaListToTimedMidiBytes(mm.after, mm.timing.endTick(curr), channel) ];
+    return [ ...ret, ...metaListToTimedMidiBytes(mm.after, channel) ];
 }
 
 export function melodyToTimedMidiBytes(m: Melody): MidiTickAndBytes[] {
-    const channel = m.metadata.midichannel;
-    const ret = metadataToTimedMidiBytes(m.metadata);
+    const fixed = m.withAllTicksExact();
 
-    let curr = 0;
+    const channel = fixed.metadata.midichannel;
+    const ret = metadataToTimedMidiBytes(fixed.metadata);
 
-    for (let i = 0; i < m.length; i++) {
-        ret.push(...melodyMemberToTimedMidiBytes(m.contents[i], curr, channel, i));
-
-        curr = m.contents[i].timing.nextTick(curr);
+    for (let i = 0; i < fixed.length; i++) {
+        ret.push(...melodyMemberToTimedMidiBytes(fixed.contents[i], channel, i));
     }
 
     return ret.sort((a, b) => a[0] - b[0]);
-}
-
-export function melodyToMidiTrack(m: Melody): number[] {
-    const events = melodyToTimedMidiBytes(m);
-
-    let curr = 0;
-    const ret = events.flatMap(([ tick, bytes ]) => {
-        const delta = tick - curr;
-
-        curr = tick;
-
-        return [ ...numberToVariableBytes(delta), ...bytes ];
-    }).concat(0, MIDI.END_TRACK_EVENT);
-
-    return [
-        ...MIDI.TRACK_HEADER_CHUNK,
-        ...numberToFixedBytes(ret.length, 4),
-        ...ret
-    ];
 }
