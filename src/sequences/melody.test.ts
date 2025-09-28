@@ -40,7 +40,7 @@ describe('Melody creation', () => {
     });
 });
 
-describe('Melody.clone()', () => {describe('Score.clone()', () => {
+describe('Melody.clone()', () => {
     const m = Melody.from([ 1, 2, 3, 4, 5 ]).withCopyright('test');
 
     test('clone() makes a copy with identical values', () => {
@@ -58,6 +58,30 @@ describe('Melody.clone()', () => {describe('Score.clone()', () => {
         expect(copy.withAllTicksExact()).toBe(copy);
     });
 });
+
+describe('Melody.mergeMetadataFrom()', () => {
+    const target = Melody.from([ 1, 2, 3, 4, 5 ]).withCopyright('test').withInstrument('piano').withNewEvent({ event: 'time-signature', value: '3/4' });
+    const source = Melody.from([ 5, 4, 3, 2, 1 ]).withCopyright('west').withKeySignature('C').withNewEvent({ event: 'time-signature', value: '4/4', at: 1024 });
+
+    const compare = Melody.from([ 1, 2, 3, 4, 5 ]).withCopyright('test').withInstrument('piano').withKeySignature('C')
+        .withNewEvents([
+            { event: 'time-signature', value: '4/4', at: 1024 },
+            { event: 'time-signature', value: '3/4' },
+        ]);
+
+    test('correctly merges metadata when ticks are not exact', () => {
+        const merged = target.mergeMetadataFrom(source);
+
+        expect(merged).toStrictEqual(compare);
+        expect(merged.withAllTicksExact()).not.toBe(merged);
+    });
+
+    test('correctly merges metadata when ticks are exact and identifies that ticks are still exact', () => {
+        const merged = target.withAllTicksExact().mergeMetadataFrom(source);
+
+        expect(merged).toStrictEqual(compare.withAllTicksExact());
+        expect(merged.withAllTicksExact()).toBe(merged);
+    });
 });
 
 describe('Melody.mapEachPitch()', () => {

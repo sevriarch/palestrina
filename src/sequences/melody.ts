@@ -1,4 +1,4 @@
-import type { SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import type { SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -31,6 +31,19 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
         copy.#transientMetadata = this.#transientMetadata;
 
         return copy;
+    }
+
+    override mergeMetadataFrom(source: { metadata: Metadata }): this {
+        // Optimisation to prevent reprocessing of contents when their ticks were already exact
+        if (this.#transientMetadata.ticksAreExact) {
+            const ret = this.withMetadata(this.metadata.mergeFrom(source.metadata).withAllTicksExact());
+
+            ret.#transientMetadata.ticksAreExact = true;
+
+            return ret;
+        }
+
+        return super.mergeMetadataFrom(source);
     }
 
     protected constructMember(v: SeqMemberArgument): MelodyMember {
@@ -406,10 +419,10 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
         let curr = 0;
 
         const ret = this.map(m => {
-            const ret = m.withAllTicksExact(curr);
+            const fixed = m.withAllTicksExact(curr);
             curr = m.timing.nextTick(curr);
 
-            return ret;
+            return fixed;
         }).withMetadataTicksExact();
 
         // Shallow copy instead of modifying in place as this is shared between clones
