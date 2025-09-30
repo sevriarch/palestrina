@@ -264,7 +264,7 @@ function chordToTimedMidiBytes(chord: MelodyMember, channel: number): MidiTickAn
     });
 }
 
-export function orderedEntitiesToTimedMidiBytes(entities: (MetaEvent | MelodyMember)[], channel: number): MidiTickAndBytes[] {
+function orderedEntitiesToTimedMidiBytes(entities: (MetaEvent | MelodyMember)[], channel: number): MidiTickAndBytes[] {
     const ret: MidiTickAndBytes[] = [];
 
     for (const e of entities) {
@@ -278,23 +278,22 @@ export function orderedEntitiesToTimedMidiBytes(entities: (MetaEvent | MelodyMem
     return ret.sort((a, b) => a[0] - b[0]);
 }
 
-function timedMidiBytesToMidiTrack(mtab: MidiTickAndBytes[]): number[] {
+export function orderedEntitiesToMidiTrack(entities: (MetaEvent | MelodyMember)[], channel: number): number[] {
     let curr = 0;
-    const ret = mtab.flatMap(([ tick, bytes ]) => {
+
+    const ret = orderedEntitiesToTimedMidiBytes(entities, channel).flatMap(([ tick, bytes ]) => {
         const delta = tick - curr;
 
         curr = tick;
 
-        return [ ...numberToVariableBytes(delta), ...bytes ];
-    }).concat(0, MIDI.END_TRACK_EVENT);
+        return [ numberToVariableBytes(delta), bytes ];
+    }).flat();
 
     return [
-        ...MIDI.TRACK_HEADER_CHUNK,
-        ...numberToFixedBytes(ret.length, 4),
-        ...ret
-    ];
-}
-
-export function orderedEntitiesToMidiTrack(entities: (MetaEvent | MelodyMember)[], channel: number): number[] {
-    return timedMidiBytesToMidiTrack(orderedEntitiesToTimedMidiBytes(entities, channel));
+        MIDI.TRACK_HEADER_CHUNK,
+        numberToFixedBytes(ret.length + 4, 4),
+        ret,
+        0x00,
+        MIDI.END_TRACK_EVENT
+    ].flat();
 }
