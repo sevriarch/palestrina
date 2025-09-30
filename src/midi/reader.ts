@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventNumericEvent, MetaEventStringEvent, MetadataData, MelodyMemberArg } from '../types';
+import type { Timed, MetaEventArg, MetaEventNumericEvent, MetaEventStringEvent, MetadataData, MelodyMemberArg } from '../types';
 
 import * as fs from 'fs';
 
@@ -13,9 +13,6 @@ import { dumpOneLine, dumpHex } from '../dump/dump';
 import * as keySignature from '../helpers/key-signature';
 import * as timeSignature from '../helpers/time-signature';
 import { toInstrument, toPercussionInstrument } from '../helpers/instrument';
-
-// Used to flag types where we can be certain the 'at' field has been set
-type Timed<X> = X & { at: number };
 
 function compareBytes(arr1: number[], arr2: number[]) {
     for (let i = 0; i < arr1.length; i++) {

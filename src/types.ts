@@ -48,6 +48,11 @@ export type JSONValue = string | number | boolean | null | JSONValue[] | { [k: s
  */
 export type TypeOrArray<T> = T | T[];
 
+/**
+ * A type that has a guarantee that a field named 'at' is set to a number
+ */
+export type Timed<X> = X & { at: number };
+
 /*
  * METADATA
  */

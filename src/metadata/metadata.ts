@@ -1,4 +1,4 @@
-import type { MetadataData, TypeOrArray, MetaEventArg } from '../types';
+import type { Timed, MetadataData, TypeOrArray, MetaEventArg } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
@@ -237,7 +237,7 @@ export default class Metadata {
     /**
      * Return all entities contained within this Metadata.
      */
-    toOrderedEntities(): MetaEvent[] {
+    toOrderedEntities(): Timed<MetaEvent>[] {
         const fixed = this.withAllTicksExact();
 
         const ret: MetaEvent[] = [];
@@ -268,7 +268,7 @@ export default class Metadata {
 
         ret.push(...fixed.before.contents);
 
-        return ret.sort((a, b) => (a.at as number) - (b.at as number));
+        return (ret as Timed<MetaEvent>[]).sort((a, b) => a.at - b.at);
     }
 
     /**

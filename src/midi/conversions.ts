@@ -1,4 +1,4 @@
-import type { MetaEventArg, MidiTickAndBytes, MetaEvent, MelodyMember } from '../types';
+import type { Timed, MetaEventArg, MidiTickAndBytes, MetaEvent, MelodyMember } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -219,14 +219,14 @@ export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[]
     }
 }
 
-function chordToTimedMidiBytes(chord: MelodyMember, channel: number): MidiTickAndBytes[] {
+function chordToTimedMidiBytes(chord: Timed<MelodyMember>, channel: number): MidiTickAndBytes[] {
     const pitches = chord.pitch.val();
 
     if (pitches.some(p => p < 0 || p >= 256)) {
         throw new Error(`invalid pitch(es): ${chord.describe()}`);
     }
 
-    const start = chord.at as number;
+    const start = chord.at;
     const end = start + chord.duration;
 
     return pitches.flatMap(p => {
@@ -264,21 +264,21 @@ function chordToTimedMidiBytes(chord: MelodyMember, channel: number): MidiTickAn
     });
 }
 
-function orderedEntitiesToTimedMidiBytes(entities: (MetaEvent | MelodyMember)[], channel: number): MidiTickAndBytes[] {
+function orderedEntitiesToTimedMidiBytes(entities: Timed<(MetaEvent | MelodyMember)>[], channel: number): MidiTickAndBytes[] {
     const ret: MidiTickAndBytes[] = [];
 
     for (const e of entities) {
         if ('duration' in e) {
             ret.push(...chordToTimedMidiBytes(e, channel));
         } else {
-            ret.push([ e.at as number, metaEventToMidiBytes(e as MetaEventArg, channel) ]);
+            ret.push([ e.at, metaEventToMidiBytes(e as MetaEventArg, channel) ]);
         }
     }
 
     return ret.sort((a, b) => a[0] - b[0]);
 }
 
-export function orderedEntitiesToMidiTrack(entities: (MetaEvent | MelodyMember)[], channel: number): number[] {
+export function orderedEntitiesToMidiTrack(entities: Timed<(MetaEvent | MelodyMember)>[], channel: number): number[] {
     let curr = 0;
 
     const ret = orderedEntitiesToTimedMidiBytes(entities, channel).flatMap(([ tick, bytes ]) => {

@@ -1,4 +1,4 @@
-import type { SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import type { Timed, SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -169,7 +169,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     firstTick(): number {
         const entities = this.toOrderedEntities();
 
-        return entities.length ? entities[0].at as number : 0;
+        return entities.length ? entities[0].at : 0;
     }
 
     /**
@@ -184,14 +184,14 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
             return 0;
         }
 
-        let max = entities[curr].at as number;
+        let max = entities[curr].at;
 
         while (curr >= 0) {
             const ent = entities[curr];
 
             // only actual notes can increase the value of max so ignore meta-events
-            if ('duration' in ent && max < (ent.at as number + ent.duration)) {
-                max = ent.at as number + ent.duration;
+            if ('duration' in ent && max < (ent.at + ent.duration)) {
+                max = ent.at + ent.duration;
             }
 
             curr--;
@@ -487,14 +487,14 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     /**
      * Returns everything in this Melody, in an ordered array of events.
      */
-    toOrderedEntities(): (MelodyMember | MetaEvent)[] {
+    toOrderedEntities(): Timed<(MelodyMember | MetaEvent)>[] {
         const fixed = this.withAllTicksExact();
 
         const entities: (MelodyMember | MetaEvent)[] = fixed.contents.flatMap(mm => [ ...mm.before.contents, mm, ...mm.after.contents ]);
 
         entities.unshift(...fixed.metadata.toOrderedEntities());
 
-        return entities.sort((a, b) => (a.at as number) - (b.at as number));
+        return (entities as Timed<(MelodyMember | MetaEvent)>[]).sort((a, b) => a.at - b.at);
     }
 
     /**

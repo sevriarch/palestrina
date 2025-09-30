@@ -1,4 +1,4 @@
-import type { MetaEventArg } from '../types';
+import type { Timed, MetaEventArg } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MelodyMember from '../sequences/members/melody';
@@ -292,14 +292,14 @@ describe('orderedEntitiesToMidiTrack()', () => {
 
     test('invalid pitch should throw', () => {
         expect(() => conversions.orderedEntitiesToMidiTrack([
-            MelodyMember.from({ pitch: [ 4, 256 ], at: 0, duration: 128, velocity: 96 })
+            MelodyMember.from({ pitch: [ 4, 256 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>
         ], 1)).toThrow();
     });
 
     test('note and meta-event succeed on channel 1', () => {
         expect(conversions.orderedEntitiesToMidiTrack([
-            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }),
-            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }),
+            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>,
+            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent>,
         ], 1)).toStrictEqual([
             0x4d, 0x54, 0x72, 0x6b, // track header
             0x00, 0x00, 0x00, 0x10, // track length
@@ -312,8 +312,8 @@ describe('orderedEntitiesToMidiTrack()', () => {
 
     test('note and meta-event succeed on channel 1', () => {
         expect(conversions.orderedEntitiesToMidiTrack([
-            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }),
-            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }),
+            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>,
+            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent>,
         ], 16)).toStrictEqual([
             0x4d, 0x54, 0x72, 0x6b, // track header
             0x00, 0x00, 0x00, 0x10, // track length

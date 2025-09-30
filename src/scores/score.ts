@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import type { MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
+import type { Timed, MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
 import type MetaEvent from '../meta-events/meta-event';
 import type MelodyMember from '../sequences/members/melody';
@@ -300,7 +300,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * MetaEvents that are generated from Score metadata appear in the first Melody.
      */
-    toOrderedEntities(): (MetaEvent | MelodyMember)[][] {
+    toOrderedEntities(): Timed<(MetaEvent | MelodyMember)>[][] {
         const fixed = this.withAllTicksExact();
 
         // Must copy as metadata in score needs to be applied to the first track
