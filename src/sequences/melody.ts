@@ -6,12 +6,12 @@ import MetaList from '../meta-events/meta-list';
 
 import { MIDI } from '../constants';
 
-import { melodyToTimedMidiBytes, melodyToMidiTrack, numberToFixedBytes } from '../midi/conversions';
+import { numberToFixedBytes, orderedEntitiesToMidiTrack } from '../midi/conversions';
 import * as midiWriter from '../midi/writer';
 
 /** hidden */
 type TransientMelodyMetadata = {
-    ticksAreExact?: boolean, // does this Score have all ticks exact?
+    ticksAreExact?: boolean, // does this Melody have all ticks exact?
 };
 
 /**
@@ -167,33 +167,44 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Returns the first Midi tick of this Melody.
      */
     firstTick(): number {
-        const events = melodyToTimedMidiBytes(this);
+        const entities = this.toOrderedEntities();
 
-        return events.length ? events[0][0] : 0;
+        return entities.length ? entities[0].at as number : 0;
     }
 
     /**
      * Returns the last Midi tick of this Melody.
      */
     lastTick(): number {
-        const events = melodyToTimedMidiBytes(this);
+        const entities = this.toOrderedEntities();
 
-        return events.length ? events[events.length - 1][0] : 0;
+        let curr = entities.length - 1;
+
+        if (curr < 0) {
+            return 0;
+        }
+
+        let max = entities[curr].at as number;
+
+        while (curr >= 0) {
+            const ent = entities[curr];
+
+            // only actual notes can increase the value of max so ignore meta-events
+            if ('duration' in ent && max < (ent.at as number + ent.duration)) {
+                max = ent.at as number + ent.duration;
+            }
+
+            curr--;
+        }
+
+        return max;
     }
 
     /**
-     * Returns the MIDI tick of the note on events for the Melody.
+     * Returns the MIDI tick of the beginning of each note/chord in this Melody.
      */
     toTicks(): number[] {
-        let curr = 0;
-
-        return this.contents.map(v => {
-            const tick = v.timing.startTick(curr);
-
-            curr = v.timing.endTick(curr);
-
-            return tick;
-        });
+        return this.withAllTicksExact().contents.map(v => v.at as number);
     }
 
     /**
@@ -202,21 +213,12 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Used by the canvas-drawing feature of the Score class.
      */
     toSummary(): MelodySummary {
-        return this.withAllTicksExact().contents.map(v => {
-            return {
-                tick: v.at as number,
-                pitch: v.pitches(),
-                duration: v.duration,
-                velocity: v.velocity,
-            };
-        });
-    }
-
-    /**
-     * Return the contents of this Melody as the bytes of a MIDI track.
-     */
-    toMidiTrack(): number[] {
-        return melodyToMidiTrack(this);
+        return this.withAllTicksExact().contents.map(v => ({
+            tick: v.at as number,
+            pitch: v.pitches(),
+            duration: v.duration,
+            velocity: v.velocity,
+        }));
     }
 
     /**
@@ -264,7 +266,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     augmentRhythm(n: number): this {
         return this.map(e => e.augmentRhythm(n))
-            .if(this.metadata.before != MetaList.EMPTY_META_LIST)
+            .if(this.metadata.before !== MetaList.EMPTY_META_LIST)
             .then(m => m.withMetadataValues({ before: this.metadata.before.augmentRhythm(n) }));
     }
 
@@ -273,7 +275,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     diminishRhythm(n: number): this {
         return this.map(e => e.diminishRhythm(n))
-            .if(this.metadata.before != MetaList.EMPTY_META_LIST)
+            .if(this.metadata.before !== MetaList.EMPTY_META_LIST)
             .then(m => m.withMetadataValues({ before: this.metadata.before.diminishRhythm(n) }));
     }
 
@@ -500,13 +502,13 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     toMidiBytes(): number[] {
         return [
-            ...MIDI.HEADER_CHUNK,
-            ...MIDI.HEADER_LENGTH,
-            ...MIDI.HEADER_FORMAT,
-            ...numberToFixedBytes(1, 2),
-            ...numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
-            ...this.toMidiTrack(),
-        ];
+            MIDI.HEADER_CHUNK,
+            MIDI.HEADER_LENGTH,
+            MIDI.HEADER_FORMAT,
+            numberToFixedBytes(1, 2),
+            numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
+            orderedEntitiesToMidiTrack(this.toOrderedEntities(), this.metadata.midichannel)
+        ].flat();
     }
     
     /**
@@ -533,7 +535,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
-     * Writes a MIDI file containing the Score. Returns the Score.
+     * Writes a MIDI file containing the Melody. Returns the Melody.
      */
     writeMidi(file: string): this {
         midiWriter.writeToFile(file, this);

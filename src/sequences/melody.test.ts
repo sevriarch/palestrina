@@ -532,21 +532,27 @@ describe('Melody.toSummary()', () => {
     });
 });
 
-describe('Melody.toMidiTrack()', () => {
+describe('Melody.toMidiBytes()', () => {
     const table: [string, Melody, number[]][] = [
         [
             'an empty melody',
             melody([]),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
                 0x00, 0x00, 0x00, 0x04, // length
                 0x00, 0xff, 0x2f, 0x00 // end track
             ]
         ],
         [
-            'a single note',
-            melody([{ pitch: [64], duration: 128, velocity: 64 }]),
+            'a single note with a different ticks per quarter',
+            melody([{ pitch: [64], duration: 128, velocity: 64 }]).withTicksPerQuarter(256),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x01, 0x00, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
                 0x00, 0x00, 0x00, 0x0d, // length
                 0x00, 0x90, 0x40, 0x40, // note on
@@ -555,20 +561,27 @@ describe('Melody.toMidiTrack()', () => {
             ]
         ],
         [
-            'a single note with two events before it',
+            'a single note with an event before it, plus some metadata',
             melody([
                 {
                     pitch: [64],
                     duration: 128,
                     velocity: 64,
-                    before: [{ event: 'tempo', value: 60 }, { event: 'time-signature', value: '2/4' }]
+                    before: [ { event: 'time-signature', value: '2/4' } ]
                 }
-            ]),
+            ]).withKeySignature('F#')
+                .withCopyright('test')
+                .withNewEvent({ event: 'tempo', value: 60 }),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
-                0x00, 0x00, 0x00, 0x1c, // length
-                0x00, 0xff, 0x51, 0x03, 0x0f, 0x42, 0x40, // time signature
-                0x00, 0xff, 0x58, 0x04, 0x02, 0x02, 0x18, 0x08, // tempo
+                0x00, 0x00, 0x00, 0x2a, // length
+                0x00, 0xff, 0x02, 0x04, 0x74, 0x65, 0x73, 0x74, // copyright
+                0x00, 0xff, 0x59, 0x02, 0x06, 0x00, // key signature
+                0x00, 0xff, 0x51, 0x03, 0x0f, 0x42, 0x40, // tempo
+                0x00, 0xff, 0x58, 0x04, 0x02, 0x02, 0x18, 0x08, // time signature
                 0x00, 0x90, 0x40, 0x40, // note on
                 0x81, 0x00, 0x80, 0x40, 0x40, // note off
                 0x00, 0xff, 0x2f, 0x00 // end track
@@ -578,6 +591,9 @@ describe('Melody.toMidiTrack()', () => {
             'a single note with an event after it',
             melody([{ pitch: [64], duration: 128, velocity: 64, after: [{ event: 'tempo', value: 60 }] }]),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
                 0x00, 0x00, 0x00, 0x14, // length
                 0x00, 0x90, 0x40, 0x40, // note on
@@ -598,6 +614,9 @@ describe('Melody.toMidiTrack()', () => {
                 }
             ]),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
                 0x00, 0x00, 0x00, 0x2b, // length
                 0x00, 0xff, 0x51, 0x03, 0x06, 0x5b, 0x9b, // tempo
@@ -619,6 +638,9 @@ describe('Melody.toMidiTrack()', () => {
                 { pitch: [66], duration: 64, velocity: 62, after: [{ event: 'sustain', value: 0, offset: -32 }] },
             ]),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
                 0x00, 0x00, 0x00, 0x24, // length
                 0x00, 0x90, 0x40, 0x40, // note on
@@ -636,6 +658,9 @@ describe('Melody.toMidiTrack()', () => {
             'four notes, three of them microtonal',
             microtonalmelody([60.5, 59.75, 59, 58.25]),
             [
+                0x4d, 0x54, 0x68, 0x64, // file header
+                0x00, 0x00, 0x00, 0x06, // header data length
+                0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // header data
                 0x4d, 0x54, 0x72, 0x6b, // header
                 0x00, 0x00, 0x00, 0x3c, // length
                 0x00, 0xe0, 0x00, 0x50, // pitch-bend
@@ -658,7 +683,7 @@ describe('Melody.toMidiTrack()', () => {
     ];
 
     test.each(table)('%s', (_, m, ret) => {
-        expect(m.toMidiTrack()).toStrictEqual(ret);
+        expect(m.toMidiBytes()).toStrictEqual(ret);
     });
 });
 
@@ -1414,10 +1439,12 @@ describe('Melody.toOrderedEntities()', () => {
             .withTempo(144)
             .withTimeSignature('3/4')
             .withNewEvent({ event: 'text', value: 'test', at: 64 })
+            .withNewEvent({ event: 'copyright', value: 'text' })
             .toOrderedEntities()
         ).toStrictEqual([
             MetaEvent.from({ event: 'time-signature', value: '3/4', at: 0 }),
             MetaEvent.from({ event: 'tempo', value: 144, at: 0 }),
+            MetaEvent.from({ event: 'copyright', value: 'text', at: 0 }),
             MetaEvent.from({ event: 'sustain', value: 1, at: 0 }),
             MelodyMember.from({
                 pitch: 60,
@@ -1441,64 +1468,6 @@ describe('Melody.toOrderedEntities()', () => {
                 after: MetaList.from([{ event: 'sustain', value: 0, at: 128 }]),
                 at: 192
             }),
-        ]);
-    });
-});
-
-describe('Melody.toMidiBytes()', () => {
-    test('converts empty track to expected midi bytes', () => {
-        expect(melody([]).withTicksPerQuarter(384).toMidiBytes()).toStrictEqual([
-            0x4d, 0x54, 0x68, 0x64, // MIDI file header
-            0x00, 0x00, 0x00, 0x06, // Header data length
-            0x00, 0x01, 0x00, 0x01, 0x01, 0x80, // Header data
-            0x4d, 0x54, 0x72, 0x6b, // MIDI track header
-            0x00, 0x00, 0x00, 0x04, // MIDI track length
-            0x00, 0xff, 0x2f, 0x00, // end track
-        ]);
-    });
-
-    test('converts non-empty track to expected midi bytes', () => {
-        expect(melody([ 
-            {
-                pitch: 60,
-                duration: 64,
-                velocity: 48,
-                before: MetaList.from([{ event: 'sustain', value: 1 }])
-            },
-            {
-                pitch: [ 64 ],
-                duration: 128,
-                velocity: 64
-            },
-            {
-                pitch: [ 67, 72 ],
-                duration: 192,
-                velocity: 80,
-                after: MetaList.from([{ event: 'sustain', value: 0, offset: 64 }])
-            }
-        ])
-            .withTempo(144)
-            .withTimeSignature('3/4')
-            .toMidiBytes()
-        ).toStrictEqual([
-            0x4d, 0x54, 0x68, 0x64, // MIDI file header
-            0x00, 0x00, 0x00, 0x06, // Header data length
-            0x00, 0x01, 0x00, 0x01, 0x00, 0xc0, // Header data
-            0x4d, 0x54, 0x72, 0x6b, // MIDI track header
-            0x00, 0x00, 0x00, 0x3d, // MIDI track length
-            0x00, 0xff, 0x58, 0x04, 0x03, 0x02, 0x18, 0x08, // time signature
-            0x00, 0xff, 0x51, 0x03, 0x06, 0x5b, 0x9b, // tempo
-            0x00, 0xb0, 0x40, 0x7f, // sustain on
-            0x00, 0x90, 0x3c, 0x30, // note on (pitch 60)
-            0x40, 0x80, 0x3c, 0x30, // note off (pitch 60)
-            0x00, 0x90, 0x40, 0x40, // note on (pitch 64)
-            0x81, 0x00, 0x80, 0x40, 0x40, // note off (pitch 64)
-            0x00, 0x90, 0x43, 0x50, // note on (pitch 67)
-            0x00, 0x90, 0x48, 0x50, // note on (pitch 72)
-            0x81, 0x40, 0x80, 0x43, 0x50, // note off (pitch 67)
-            0x00, 0x80, 0x48, 0x50, // note off (pitch 72)
-            0x40, 0xb0, 0x40, 0x00, // sustain off
-            0x00, 0xff, 0x2f, 0x00, // end track
         ]);
     });
 });

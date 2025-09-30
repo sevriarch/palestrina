@@ -1,10 +1,7 @@
-import type { MetaEventArg, MidiTickAndBytes, MetaListArg, MetadataData } from '../types';
+import type { MetaEventArg } from '../types';
 
-import MetaList from '../meta-events/meta-list';
-import Metadata from '../metadata/metadata';
+import MetaEvent from '../meta-events/meta-event';
 import MelodyMember from '../sequences/members/melody';
-import Melody from '../sequences/melody';
-import NumericValidator from '../validation/numeric';
 
 import * as conversions from './conversions';
 
@@ -284,336 +281,36 @@ describe('conversions.metaEventToMidiBytes()', () => {
     });
 });
 
-describe('conversions.metaListToTimedMidiBytes()', () => {
-    const table: [ string, MetaListArg, number, MidiTickAndBytes[] ][] = [
-        [
-            'empty MetaList',
-            [],
-            1,
-            []
-        ],
-        [
-            'MetaList with all the things, channel 1',
-            [
-                { event: 'pitch-bend', value: 2048, at: 64 },
-                { event: 'tempo', value: 144, at: 0 },
-                { event: 'key-signature', value: 'Eb', at: 640 },
-                { event: 'time-signature', value: '5/4', at: 0 },
-                { event: 'text', value: 'test text', at: 0 },
-                { event: 'lyric', value: 'test lyric', at: 64 },
-                { event: 'marker', value: 'test marker', at: 128 },
-                { event: 'cue-point', value: 'test cue point', at: 0 },
-                { event: 'copyright', value: 'test copyright', at: 0 },
-                { event: 'track-name', value: 'test track name', at: 0 },
-                { event: 'volume', value: 100, at: 128 },
-                { event: 'pan', value: 64, at: 0 },
-                { event: 'balance', value: 64, at: 0 }
-            ],
-            1,
-            [
-                [ 64, [ 0xe0, 0x00, 0x50 ] ],
-                [ 0, [ 0xff, 0x51, 0x3, 0x6, 0x5b, 0x9b ] ],
-                [ 640, [ 0xff, 0x59, 0x2, 0xfd, 0x0 ] ],
-                [ 0, [ 0xff, 0x58, 0x4, 0x5, 0x2, 0x18, 0x8 ] ],
-                [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 64, [ 0xff, 0x5, 0xa, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6c, 0x79, 0x72, 0x69, 0x63 ] ],
-                [ 128, [ 0xff, 0x6, 0xb, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x72 ] ],
-                [ 0, [ 0xff, 0x7, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x75, 0x65, 0x20, 0x70, 0x6f, 0x69, 0x6e, 0x74 ] ],
-                [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
-                [ 0, [ 0xff, 0x3, 0xf, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x20, 0x6e, 0x61, 0x6d, 0x65 ] ],
-                [ 128, [ 0xb0, 0x7, 0x64 ] ],
-                [ 0, [ 0xb0, 0xa, 0x40 ] ],
-                [ 0, [ 0xb0, 0x8, 0x40 ] ],
-            ]
-        ],
-        [
-            'MetaList with all the things, channel 16',
-            [
-                { event: 'pitch-bend', value: 2048, at: 64 },
-                { event: 'tempo', value: 144, at: 0 },
-                { event: 'key-signature', value: 'Eb', at: 640 },
-                { event: 'time-signature', value: '5/4', at: 0 },
-                { event: 'text', value: 'test text', at: 0 },
-                { event: 'lyric', value: 'test lyric', at: 64 },
-                { event: 'marker', value: 'test marker', at: 128 },
-                { event: 'cue-point', value: 'test cue point', at: 0 },
-                { event: 'copyright', value: 'test copyright', at: 0 },
-                { event: 'track-name', value: 'test track name', at: 0 },
-                { event: 'volume', value: 100, at: 128 },
-                { event: 'pan', value: 64, at: 0 },
-                { event: 'balance', value: 64, at: 0 }
-            ],
-            16,
-            [
-                [ 64, [ 0xef, 0x00, 0x50 ] ],
-                [ 0, [ 0xff, 0x51, 0x3, 0x6, 0x5b, 0x9b ] ],
-                [ 640, [ 0xff, 0x59, 0x2, 0xfd, 0x0 ] ],
-                [ 0, [ 0xff, 0x58, 0x4, 0x5, 0x2, 0x18, 0x8 ] ],
-                [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-                [ 64, [ 0xff, 0x5, 0xa, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6c, 0x79, 0x72, 0x69, 0x63 ] ],
-                [ 128, [ 0xff, 0x6, 0xb, 0x74, 0x65, 0x73, 0x74, 0x20, 0x6d, 0x61, 0x72, 0x6b, 0x65, 0x72 ] ],
-                [ 0, [ 0xff, 0x7, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x75, 0x65, 0x20, 0x70, 0x6f, 0x69, 0x6e, 0x74 ] ],
-                [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
-                [ 0, [ 0xff, 0x3, 0xf, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x20, 0x6e, 0x61, 0x6d, 0x65 ] ],
-                [ 128, [ 0xbf, 0x7, 0x64 ] ],
-                [ 0, [ 0xbf, 0xa, 0x40 ] ],
-                [ 0, [ 0xbf, 0x8, 0x40 ] ],
-            ]
-        ],
-    ];
-
-    test.each(table)('%s', (_, data, channel, ret) => {
-        expect(conversions.metaListToTimedMidiBytes(MetaList.from(data), channel)).toStrictEqual(ret);
-    });
-});
-
-describe('conversions.metadataToTimedMidiBytes()', () => {
-    const table: [ string, MetadataData, MidiTickAndBytes[] ][] = [
-        [
-            'empty metadata',
-            {},
-            [],
-        ],
-        [
-            'all metadata fields, channel 1',
-            {
-                copyright: 'test copyright',
-                trackname: 'test trackname',
-                time_signature: '5/16',
-                key_signature: 'f',
-                tempo: 100,
-                instrument: 'oboe',
-                midichannel: 1,
-                ticks_per_quarter: 640,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 0 }, { event: 'sustain', value: 0, at: 1024 } ]),
-            },
-            [
-                [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
-                [ 0, [ 0xff, 0x3, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65 ] ],
-                [ 0, [ 0xff, 0x58, 0x4, 0x5, 0x4, 0x18, 0x8 ] ],
-                [ 0, [ 0xff, 0x59, 0x2, 0xfc, 0x1 ] ],
-                [ 0, [ 0xff, 0x51, 0x3, 0x9, 0x27, 0xc0 ] ],
-                [ 0, [ 0xc0, 0x44 ] ],
-                [ 0, [ 0xb0, 0x40, 0x7f ] ],
-                [ 1024, [ 0xb0, 0x40, 0x0 ] ],
-            ],
-        ],
-        [
-            'all metadata fields, channel 16',
-            {
-                copyright: 'test copyright',
-                trackname: 'test trackname',
-                time_signature: '5/16',
-                key_signature: 'f',
-                tempo: 100,
-                instrument: 'oboe',
-                midichannel: 16,
-                ticks_per_quarter: 240,
-                before: MetaList.from([ { event: 'sustain', value: 1, at: 0 }, { event: 'sustain', value: 0, at: 1024 } ]),
-            },
-            [
-                [ 0, [ 0xff, 0x2, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74 ] ],
-                [ 0, [ 0xff, 0x3, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x6e, 0x61, 0x6d, 0x65 ] ],
-                [ 0, [ 0xff, 0x58, 0x4, 0x5, 0x4, 0x18, 0x8 ] ],
-                [ 0, [ 0xff, 0x59, 0x2, 0xfc, 0x1 ] ],
-                [ 0, [ 0xff, 0x51, 0x3, 0x9, 0x27, 0xc0 ] ],
-                [ 0, [ 0xcf, 0x44 ] ],
-                [ 0, [ 0xbf, 0x40, 0x7f ] ],
-                [ 1024, [ 0xbf, 0x40, 0x0 ] ],
-            ],
-        ],
-    ];
-
-    test.each(table)('%s', (_, data, ret) => {
-        expect(conversions.metadataToTimedMidiBytes(Metadata.from(data))).toStrictEqual(ret);
-    });
-});
-
-describe('conversions.melodyMemberToTimedMidiBytes()', () => {
-    test('throws if invalid pitch', () => {
-        const mm = MelodyMember.from(-1);
-
-        expect(() => conversions.melodyMemberToTimedMidiBytes(mm, 1)).toThrow();
+describe('orderedEntitiesToTimedMidiBytes()', () => {
+    test('empty array should return empty array', () => {
+        expect(conversions.orderedEntitiesToTimedMidiBytes([], 1)).toStrictEqual([]);
     });
 
-    test('returns expected bytes on channel 1', () => {
-        const mm = MelodyMember.from({
-            pitch: [ 60, 63.5, 67 ],
-            velocity: 64,
-            at: 0,
-            duration: 32,
-            before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text', at: 0 } ]),
-            after: MetaList.from([ { event: 'sustain', value: 0, at: 96 } ])
-        });
+    test('invalid pitch should throw', () => {
+        expect(() => conversions.orderedEntitiesToTimedMidiBytes([
+            MelodyMember.from({ pitch: [ 4, 256 ], at: 0, duration: 128, velocity: 96 })
+        ], 1)).toThrow();
+    });
 
-        expect(conversions.melodyMemberToTimedMidiBytes(mm, 1)).toStrictEqual([
-            [ 32, [ 0xb0, 0x40, 0x7f ] ],
-            [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-            [ 0, [ 0x90, 0x3c, 0x40 ] ],
-            [ 32, [ 0x80, 0x3c, 0x40 ] ],
-            [ 0, [ 0xe0, 0x0, 0x50 ] ],
-            [ 30, [ 0xe0, 0x0, 0x40 ] ],
-            [ 0, [ 0x90, 0x3f, 0x40 ] ],
-            [ 32, [ 0x80, 0x3f, 0x40 ] ],
-            [ 0, [ 0x90, 0x43, 0x40 ] ],
-            [ 32, [ 0x80, 0x43, 0x40 ] ],
-            [ 96, [ 0xb0, 0x40, 0x0 ] ],
+    test('note and meta-event succeed on channel 1', () => {
+        expect(conversions.orderedEntitiesToTimedMidiBytes([
+            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }),
+            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }),
+        ], 1)).toStrictEqual([
+            [ 0, [ 0x90, 0x40, 0x60 ] ],
+            [ 0, [ 0xc0, 0x00 ] ],
+            [ 128, [ 0x80, 0x40, 0x60 ] ],
         ]);
     });
 
-    test('returns expected bytes on channel 16', () => {
-        const mm = MelodyMember.from({
-            pitch: [ 60, 63.5, 67 ],
-            velocity: 64,
-            at: 0,
-            duration: 32,
-            before: MetaList.from([ { event: 'sustain', value: 1, at: 32 }, { event: 'text', value: 'test text', at: 0 } ]),
-            after: MetaList.from([ { event: 'sustain', value: 0, at: 96 } ])
-        });
-
-        expect(conversions.melodyMemberToTimedMidiBytes(mm, 16)).toStrictEqual([
-            [ 32, [ 0xbf, 0x40, 0x7f ] ],
-            [ 0, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-            [ 0, [ 0x9f, 0x3c, 0x40 ] ],
-            [ 32, [ 0x8f, 0x3c, 0x40 ] ],
-            [ 0, [ 0xef, 0x0, 0x50 ] ],
-            [ 30, [ 0xef, 0x0, 0x40 ] ],
-            [ 0, [ 0x9f, 0x3f, 0x40 ] ],
-            [ 32, [ 0x8f, 0x3f, 0x40 ] ],
-            [ 0, [ 0x9f, 0x43, 0x40 ] ],
-            [ 32, [ 0x8f, 0x43, 0x40 ] ],
-            [ 96, [ 0xbf, 0x40, 0x0 ] ],
-        ]);
-    });
-});
-
-describe('melodyToTimedMidiBytes()', () => {
-    test('fails when invalid pitches', () => {
-        expect(() => conversions.melodyToTimedMidiBytes(Melody.from([ 1, 2, 3, -1, 0 ]))).toThrow();
-    });
-
-    test('testing complete Melody, midichannel 1', () => {
-        const m = Melody.from([
-            {
-                pitch: [ 60 ],
-                velocity: 42,
-                duration: 64,
-                before: MetaList.from([ { event: 'sustain', value: 1 }, { event: 'text', value: 'test text', at: 64 }]),
-            },
-            {
-                pitch: [ 64.5 ],
-                velocity: 46,
-                duration: 48,
-                at: 32,
-            },
-            {
-                pitch: [ 66, 67 ],
-                velocity: 50,
-                duration: 16,
-                delay: 24
-            },
-            {
-                pitch: [ 71 ],
-                velocity: 54,
-                duration: 32,
-            },
-            {
-                pitch: [ 72 ],
-                velocity: 58,
-                duration: 64,
-                offset: 32,
-                after: MetaList.from([ { event: 'cue-point', value: 'test cue point' }, { event: 'sustain', value: 0, offset: 32 } ])
-            }
-        ], {
-            time_signature: '3/4',
-            instrument: 'viola',
-            validator: NumericValidator.NOOP_VALIDATOR
-        });
-        
-        expect(conversions.melodyToTimedMidiBytes(m)).toStrictEqual([
-            [ 0, [ 0xff, 0x58, 0x4, 0x3, 0x2, 0x18, 0x8 ] ],
-            [ 0, [ 0xc0, 0x29 ] ],
-            [ 0, [ 0xb0, 0x40, 0x7f ] ],
-            [ 0, [ 0x90, 0x3c, 0x2a ] ],
-            [ 32, [ 0xe0, 0x0, 0x50 ] ],
-            [ 32, [ 0x90, 0x40, 0x2e ] ],
-            [ 64, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-            [ 64, [ 0x80, 0x3c, 0x2a ] ],
-            [ 78, [ 0xe0, 0x0, 0x40 ] ],
-            [ 80, [ 0x80, 0x40, 0x2e ] ],
-            [ 104, [ 0x90, 0x42, 0x32 ] ],
-            [ 104, [ 0x90, 0x43, 0x32 ] ],
-            [ 120, [ 0x80, 0x42, 0x32 ] ],
-            [ 120, [ 0x80, 0x43, 0x32 ] ],
-            [ 120, [ 0x90, 0x47, 0x36 ] ],
-            [ 152, [ 0x80, 0x47, 0x36 ] ],
-            [ 184, [ 0x90, 0x48, 0x3a ] ],
-            [ 248, [ 0x80, 0x48, 0x3a ] ],
-            [ 248, [ 0xff, 0x7, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x75, 0x65, 0x20, 0x70, 0x6f, 0x69, 0x6e, 0x74 ] ],
-            [ 280, [ 0xb0, 0x40, 0x0 ] ],
-        ]);
-    });
-
-    test('testing complete Melody, midichannel 16', () => {
-        const m = Melody.from([
-            {
-                pitch: [ 60 ],
-                velocity: 42,
-                duration: 64,
-                before: MetaList.from([ { event: 'sustain', value: 1 }, { event: 'text', value: 'test text', at: 64 }]),
-            },
-            {
-                pitch: [ 64.5 ],
-                velocity: 46,
-                duration: 48,
-                at: 32,
-            },
-            {
-                pitch: [ 66, 67 ],
-                velocity: 50,
-                duration: 16,
-                delay: 24
-            },
-            {
-                pitch: [ 71 ],
-                velocity: 54,
-                duration: 32,
-            },
-            {
-                pitch: [ 72 ],
-                velocity: 58,
-                duration: 64,
-                offset: 32,
-                after: MetaList.from([ { event: 'cue-point', value: 'test cue point' }, { event: 'sustain', value: 0, offset: 32 } ])
-            }
-        ], {
-            time_signature: '3/4',
-            instrument: 'viola',
-            midichannel: 16,
-            validator: NumericValidator.NOOP_VALIDATOR
-        });
-        
-        expect(conversions.melodyToTimedMidiBytes(m)).toStrictEqual([
-            [ 0, [ 0xff, 0x58, 0x4, 0x3, 0x2, 0x18, 0x8 ] ],
-            [ 0, [ 0xcf, 0x29 ] ],
-            [ 0, [ 0xbf, 0x40, 0x7f ] ],
-            [ 0, [ 0x9f, 0x3c, 0x2a ] ],
-            [ 32, [ 0xef, 0x0, 0x50 ] ],
-            [ 32, [ 0x9f, 0x40, 0x2e ] ],
-            [ 64, [ 0xff, 0x1, 0x9, 0x74, 0x65, 0x73, 0x74, 0x20, 0x74, 0x65, 0x78, 0x74 ] ],
-            [ 64, [ 0x8f, 0x3c, 0x2a ] ],
-            [ 78, [ 0xef, 0x0, 0x40 ] ],
-            [ 80, [ 0x8f, 0x40, 0x2e ] ],
-            [ 104, [ 0x9f, 0x42, 0x32 ] ],
-            [ 104, [ 0x9f, 0x43, 0x32 ] ],
-            [ 120, [ 0x8f, 0x42, 0x32 ] ],
-            [ 120, [ 0x8f, 0x43, 0x32 ] ],
-            [ 120, [ 0x9f, 0x47, 0x36 ] ],
-            [ 152, [ 0x8f, 0x47, 0x36 ] ],
-            [ 184, [ 0x9f, 0x48, 0x3a ] ],
-            [ 248, [ 0x8f, 0x48, 0x3a ] ],
-            [ 248, [ 0xff, 0x7, 0xe, 0x74, 0x65, 0x73, 0x74, 0x20, 0x63, 0x75, 0x65, 0x20, 0x70, 0x6f, 0x69, 0x6e, 0x74 ] ],
-            [ 280, [ 0xbf, 0x40, 0x0 ] ],
+    test('note and meta-event succeed on channel 1', () => {
+        expect(conversions.orderedEntitiesToTimedMidiBytes([
+            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }),
+            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }),
+        ], 16)).toStrictEqual([
+            [ 0, [ 0x9f, 0x40, 0x60 ] ],
+            [ 0, [ 0xcf, 0x00 ] ],
+            [ 128, [ 0x8f, 0x40, 0x60 ] ],
         ]);
     });
 });

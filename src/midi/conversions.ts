@@ -1,4 +1,4 @@
-import type { MetaEventArg, MidiTickAndBytes, Melody, MetaList, Metadata, MelodyMember } from '../types';
+import type { MetaEventArg, MidiTickAndBytes, MetaEvent, MelodyMember } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -219,11 +219,68 @@ export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[]
     }
 }
 
-export function melodyToMidiTrack(m: Melody): number[] {
-    const events = melodyToTimedMidiBytes(m);
+function chordToTimedMidiBytes(chord: MelodyMember, channel: number): MidiTickAndBytes[] {
+    const pitches = chord.pitch.val();
 
+    if (pitches.some(p => p < 0 || p >= 256)) {
+        throw new Error(`invalid pitch(es): ${chord.describe()}`);
+    }
+
+    const start = chord.at as number;
+    const end = start + chord.duration;
+
+    return pitches.flatMap(p => {
+        if (p % 1) {
+            return [
+                [
+                    start,
+                    pitchBendEventToMidiBytes(Math.round(4096 * (p % 1)), channel)
+                ],
+                [
+                    start,
+                    [ channel + 0x8f, Math.floor(p), chord.velocity ]
+                ],
+                [
+                    end - 2,
+                    pitchBendEventToMidiBytes(0, channel)
+                ],
+                [
+                    end,
+                    [ channel + 0x7f, Math.floor(p), chord.velocity ]
+                ]
+            ];
+        }
+
+        return [
+            [
+                start,
+                [ channel + 0x8f, p, chord.velocity ]
+            ],
+            [
+                end,
+                [ channel + 0x7f, p, chord.velocity ]
+            ]
+        ];
+    });
+}
+
+export function orderedEntitiesToTimedMidiBytes(entities: (MetaEvent | MelodyMember)[], channel: number): MidiTickAndBytes[] {
+    const ret: MidiTickAndBytes[] = [];
+
+    for (const e of entities) {
+        if ('duration' in e) {
+            ret.push(...chordToTimedMidiBytes(e, channel));
+        } else {
+            ret.push([ e.at as number, metaEventToMidiBytes(e as MetaEventArg, channel) ]);
+        }
+    }
+
+    return ret.sort((a, b) => a[0] - b[0]);
+}
+
+function timedMidiBytesToMidiTrack(mtab: MidiTickAndBytes[]): number[] {
     let curr = 0;
-    const ret = events.flatMap(([ tick, bytes ]) => {
+    const ret = mtab.flatMap(([ tick, bytes ]) => {
         const delta = tick - curr;
 
         curr = tick;
@@ -238,101 +295,6 @@ export function melodyToMidiTrack(m: Melody): number[] {
     ];
 }
 
-export function metaListToTimedMidiBytes(ml: MetaList, channel: number): MidiTickAndBytes[] {
-    return ml.contents.map(e => [
-        e.at as number,
-        metaEventToMidiBytes(e as MetaEventArg, channel)
-    ]);
-}
-
-export function metadataToTimedMidiBytes(m: Metadata): MidiTickAndBytes[] {
-    const ret: MidiTickAndBytes[] = [];
-
-    if (m.copyright) {
-        ret.push([ 0, copyrightEventToMidiBytes(m.copyright) ]);
-    }
-
-    if (m.trackname) {
-        ret.push([ 0, trackNameEventToMidiBytes(m.trackname) ]);
-    }
-
-    if (m.time_signature) {
-        ret.push([ 0, timeSignature.toMidiBytes(m.time_signature) ]);
-    }
-
-    if (m.key_signature) {
-        ret.push([ 0, keySignature.toMidiBytes(m.key_signature) ]);
-    }
-
-    if (m.tempo) {
-        ret.push([ 0, tempoEventToMidiBytes(m.tempo) ]);
-    }
-
-    if (m.instrument) {
-        ret.push([ 0, instrumentEventToMidiBytes(m.instrument, m.midichannel) ]);
-    }
-
-    if (m.before) {
-        ret.push(...metaListToTimedMidiBytes(m.before, m.midichannel));
-    }
-
-    return ret;
-}
-
-export function melodyMemberToTimedMidiBytes(mm: MelodyMember, channel: number, ix?: number): MidiTickAndBytes[] {
-    const tick = mm.at as number;
-    const ret = metaListToTimedMidiBytes(mm.before, channel);
-
-    mm.pitch.val().forEach(p => {
-        if (p < 0 || p >= 256) {
-            if (ix !== undefined) {
-                throw new Error(`invalid pitch(es) at melody index ${ix}: ${mm.describe()}`);
-            } else {
-                throw new Error(`invalid pitch(es): ${mm.describe()}`);
-            }
-        }
-
-        if (p % 1) {
-            ret.push([
-                tick,
-                pitchBendEventToMidiBytes(Math.round(4096 * (p % 1)), channel)
-            ],
-            [
-                tick + mm.duration - 2,
-                pitchBendEventToMidiBytes(0, channel)
-            ],
-            [
-                tick,
-                [ channel + 0x8f, Math.floor(p), mm.velocity ]
-            ],
-            [
-                tick + mm.duration,
-                [ channel + 0x7f, Math.floor(p), mm.velocity ]
-            ]);
-        } else {
-            ret.push([
-                tick,
-                [ channel + 0x8f, p, mm.velocity ]
-            ],
-            [
-                tick + mm.duration,
-                [ channel + 0x7f, p, mm.velocity ]
-            ]);
-        }
-    });
-
-    return [ ...ret, ...metaListToTimedMidiBytes(mm.after, channel) ];
-}
-
-export function melodyToTimedMidiBytes(m: Melody): MidiTickAndBytes[] {
-    const fixed = m.withAllTicksExact();
-
-    const channel = fixed.metadata.midichannel;
-    const ret = metadataToTimedMidiBytes(fixed.metadata);
-
-    for (let i = 0; i < fixed.length; i++) {
-        ret.push(...melodyMemberToTimedMidiBytes(fixed.contents[i], channel, i));
-    }
-
-    return ret.sort((a, b) => a[0] - b[0]);
+export function orderedEntitiesToMidiTrack(entities: (MetaEvent | MelodyMember)[], channel: number): number[] {
+    return timedMidiBytesToMidiTrack(orderedEntitiesToTimedMidiBytes(entities, channel));
 }

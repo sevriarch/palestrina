@@ -13,7 +13,7 @@ import * as transformations from '../transformations/transformations';
 import * as visualizations from '../visualizations/visualizations';
 import * as midiWriter from '../midi/writer';
 import MidiReader from '../midi/reader';
-import { numberToFixedBytes } from '../midi/conversions';
+import { numberToFixedBytes, orderedEntitiesToMidiTrack } from '../midi/conversions';
 
 import { MIDI } from '../constants';
 
@@ -293,6 +293,13 @@ export default class Score extends CollectionWithMetadata<Melody> {
         return this;
     }
 
+    /**
+     * Return an array with one member per each Melody within the score.
+     * Each of these members contains all MetaEvents or notes/chords in that Melody,
+     * ordered by exact tick, ascending.
+     * 
+     * MetaEvents that are generated from Score metadata appear in the first Melody.
+     */
     toOrderedEntities(): (MetaEvent | MelodyMember)[][] {
         const fixed = this.withAllTicksExact();
 
@@ -316,19 +323,20 @@ export default class Score extends CollectionWithMetadata<Melody> {
         }
 
         // Must copy as metadata in score needs to be applied to the first track
-        const tracks = this.contents.slice();
-        if (tracks.length) {
-            tracks[0] = tracks[0].mergeMetadataFrom(this);
+        const evts = this.toOrderedEntities();
+        const bytechunks = [
+            MIDI.HEADER_CHUNK,
+            MIDI.HEADER_LENGTH,
+            MIDI.HEADER_FORMAT,
+            numberToFixedBytes(evts.length, 2),
+            numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
+        ];
+
+        for (let i = 0; i < this.contents.length; i++) {
+            bytechunks.push(orderedEntitiesToMidiTrack(evts[i], this.contents[i].metadata.midichannel));
         }
 
-        const bytes = [
-            ...MIDI.HEADER_CHUNK,
-            ...MIDI.HEADER_LENGTH,
-            ...MIDI.HEADER_FORMAT,
-            ...numberToFixedBytes(tracks.length, 2),
-            ...numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
-            ...tracks.flatMap(t => t.toMidiTrack())
-        ];
+        const bytes = bytechunks.flat();
 
         // Shallow copy instead of modifying in place as this is shared between clones
         this.#transientMetadata = { ...this.#transientMetadata, midiBytes: bytes };
