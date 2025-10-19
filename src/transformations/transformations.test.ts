@@ -1,6 +1,5 @@
 import type Score from '../scores/score';
 
-import NumericValidator from '../validation/numeric';
 import Metadata from '../metadata/metadata';
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
@@ -536,37 +535,5 @@ describe('transformations.scoreToBarTimeline', () => {
                 ]).withDuration(192)
             ])
         )).toStrictEqual([ 0, 768, 1152, 1536, 1728, 1920 ]);
-    });
-});
-
-describe('transformations.melodyFromTimeline()', () => {
-    const TIMELINE = [ 0, 64, 96, 160 ];
-    const NOTES = [ [ 60.5 ], [], [ 58, 62 ], [ 63.5 ]];
-
-    test('generates an empty melody from an empty timeline', () => {
-        expect(transformations.melodyFromTimeline([], [])).toStrictEqual(factory.melody([]));
-    });
-
-    test('generates a non-microtonal melody from timeline and notes', () => {
-        expect(transformations.melodyFromTimeline([ 0, 64, 96 ], [ [ 60 ], [ 61, 62 ], [ 63 ] ]))
-            .toStrictEqual(factory.melody([
-                { pitch: [ 60 ], at: 0, duration: 64, velocity: 64 },
-                { pitch: [ 61, 62 ], at: 64, duration: 32, velocity: 64 },
-                { pitch: [ 63 ], at: 96, duration: 240, velocity: 64 },
-            ]));
-    });
-
-    test('throws when generating a microtonal melody with a non-microtonal validator', () => {
-        expect(() => transformations.melodyFromTimeline(TIMELINE, NOTES)).toThrow();
-    });
-
-    test('generates the correct melody when all parameters are valid', () => {
-        expect(transformations.melodyFromTimeline(TIMELINE, NOTES, NumericValidator.NOOP_VALIDATOR))
-            .toStrictEqual(factory.microtonalmelody([
-                { pitch: [ 60.5 ], at: 0, duration: 64, velocity: 64 },
-                { pitch: [], at: 64, duration: 32, velocity: 64 },
-                { pitch: [ 58, 62 ], at: 96, duration: 64, velocity: 64 },
-                { pitch: [ 63.5 ], at: 160, duration: 240, velocity: 64 },
-            ]));
     });
 });

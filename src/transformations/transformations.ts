@@ -1,6 +1,5 @@
 import type Score from '../scores/score';
 import type MetaEvent from '../meta-events/meta-event';
-import type NumericValidator from '../validation/numeric';
 
 import Melody from '../sequences/melody';
 import * as timeSignature from '../helpers/time-signature';
@@ -280,15 +279,4 @@ export function scoreToBarTimeline(score: Score): number[] {
     }
 
     return ret;
-}
-
-/**
- * Create a Melody from a timeline and an array containing the notes playing at specific times.
- */
-export function melodyFromTimeline(timeline: number[], notes: number[][], v?: NumericValidator): Melody {
-    const durations = timeline.map((v, i) => timeline[i + 1] - v);
-
-    durations[durations.length - 1] = 240; // TODO: This is arbitrary
-
-    return Melody.from(notes, v ? { validator: v } : {}).withExactTick(timeline).withDuration(durations);
 }
