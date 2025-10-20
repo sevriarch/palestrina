@@ -1,4 +1,4 @@
-import type { Timed, MetaEventArg, MidiTickAndBytes, MetaEvent, MelodyMember } from '../types';
+import type { Timed, TimedEntity, MetaEventArg, MidiTickAndBytes, MetaEvent, MelodyMember } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -144,7 +144,7 @@ function pitchBendEventToMidiBytes(val: number, channel: number) {
 }
 
 /**
- * Convert a MetaEventArg to the MIDI bytes representing it.
+ * Convert a MetaEvent to the MIDI bytes representing it.
  */
 export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[] {
     if (!isMidiChannel(channel)) {
@@ -264,7 +264,7 @@ function chordToTimedMidiBytes(chord: Timed<MelodyMember>, channel: number): Mid
     });
 }
 
-function orderedEntitiesToTimedMidiBytes(entities: Timed<(MetaEvent | MelodyMember)>[], channel: number): MidiTickAndBytes[] {
+function orderedEntitiesToTimedMidiBytes(entities: TimedEntity[], channel: number): MidiTickAndBytes[] {
     const ret: MidiTickAndBytes[] = [];
 
     for (const e of entities) {
@@ -278,7 +278,7 @@ function orderedEntitiesToTimedMidiBytes(entities: Timed<(MetaEvent | MelodyMemb
     return ret.sort((a, b) => a[0] - b[0]);
 }
 
-export function orderedEntitiesToMidiTrack(entities: Timed<(MetaEvent | MelodyMember)>[], channel: number): number[] {
+export function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: number): number[] {
     let curr = 0;
 
     const ret = orderedEntitiesToTimedMidiBytes(entities, channel).flatMap(([ tick, bytes ]) => {

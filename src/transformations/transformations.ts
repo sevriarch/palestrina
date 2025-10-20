@@ -18,7 +18,7 @@ function mapNotesToUnique(notes: number[], fn: (n: number) => number): number[] 
         throw new Error('notes is not an array');
     }
 
-    return dedupe(notes.map(fn).sort((a, b) => a - b));
+    return dedupe(notes.map(fn)).sort((a, b) => a - b);
 }
 
 /**
@@ -65,15 +65,15 @@ export function notesToIntervals(notes: number[]): number[] {
         return [];
     }
 
-    const ret = [];
+    const ret = new Set();
 
-    for (let i = 0; i < notes.length; i++) {
-        for (let j = i + 1; j < notes.length; j++) {
-            ret[Math.abs(notes[j] - notes[i])] = true;
+    for (let i = 0; i < len; i++) {
+        for (let j = i + 1; j < len; j++) {
+            ret.add(Math.abs(notes[j] - notes[i]));
         }
     }
 
-    return Object.keys(ret).map(n => Number(n)).sort((a, b) => a - b);
+    return Array.from(ret).map(Number).sort((a, b) => a - b);
 }
 
 /**
@@ -112,12 +112,12 @@ export function notesToPitchClass(notes: number[]): string {
 export function scoreToNotes(score: Score): [ number[], number[][] ] {
     const onoff = getOnOff(score.contents);
     const times = Object.keys(onoff).map(v => Number(v)).sort((a, b) => a - b);
-    const max = times.length;
-    const ret: number[][] = new Array(max);
+    const len = times.length;
+    const ret: number[][] = new Array(len);
 
     let curr: number[] = [];
 
-    for (let i = 0; i < max; i++) {
+    for (let i = 0; i < len; i++) {
         const [ on, off ] = onoff[times[i]];
 
         curr = arraySubtract(curr, off).concat(on).sort((a, b) => a - b);
