@@ -1,5 +1,4 @@
-import type Score from '../scores/score';
-import type MetaEvent from '../meta-events/meta-event';
+import type { Timed, Score, MetaEvent } from '../types';
 
 import Melody from '../sequences/melody';
 import * as timeSignature from '../helpers/time-signature';
@@ -25,7 +24,7 @@ function mapNotesToUnique(notes: number[], fn: (n: number) => number): number[] 
 /**
  * Return an object mapping midi ticks to tuples containing the notes that start and end during them.
  */
-export function getOnOff(mels: Melody[]): { [k: number]: [ number[], number[] ] } {
+function getOnOff(mels: Melody[]): { [k: number]: [ number[], number[] ] } {
     const onoff: { [k: number]: [ number[], number[] ] } = {};
 
     mels.forEach(m => {
@@ -114,16 +113,16 @@ export function scoreToNotes(score: Score): [ number[], number[][] ] {
     const onoff = getOnOff(score.contents);
     const times = Object.keys(onoff).map(v => Number(v)).sort((a, b) => a - b);
     const max = times.length;
-    const ret: number[][] = [];
+    const ret: number[][] = new Array(max);
 
     let curr: number[] = [];
 
     for (let i = 0; i < max; i++) {
         const [ on, off ] = onoff[times[i]];
 
-        curr = arraySubtract([ ...curr, ...on ], off).sort((a, b) => a - b);
+        curr = arraySubtract(curr, off).concat(on).sort((a, b) => a - b);
 
-        ret[i] = curr.slice();
+        ret[i] = curr;
     }
 
     return [ times, ret ];
@@ -233,7 +232,7 @@ export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent) =>
     });
 
     // as score.withAllTicksExact() has been called, at should always have a value
-    return ret.sort((a, b) => (a.at as number) - (b.at as number));
+    return (ret as Timed<MetaEvent>[]).sort((a, b) => a.at - b.at);
 }
 
 /**

@@ -53,6 +53,11 @@ export type TypeOrArray<T> = T | T[];
  */
 export type Timed<X> = X & { at: number };
 
+/**
+ * A type that represents a MelodyMember or MetaEvent that as has a defined tick
+ */
+export type TimedEntity = Timed<MetaEvent | MelodyMember>;
+
 /*
  * METADATA
  */

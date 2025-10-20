@@ -1,4 +1,4 @@
-import type { Timed, SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import type { TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -474,7 +474,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Return a new Melody with text events added before the specified locations.
      * 
      * @example
-     * // Add a generic text 64 ticks before notes 40, 80, 120 end
+     * // Add a generic text 64 ticks before the end of notes 40, 80, 120
      * myMelody.withTextAfter([ 40, 80, 120 ], 'emphasise melodic line', { offset: -64 })
      * 
      * // Add a lyric at the end of note 60
@@ -487,14 +487,14 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     /**
      * Returns everything in this Melody, in an ordered array of events.
      */
-    toOrderedEntities(): Timed<(MelodyMember | MetaEvent)>[] {
+    toOrderedEntities(): TimedEntity[] {
         const fixed = this.withAllTicksExact();
 
         const entities: (MelodyMember | MetaEvent)[] = fixed.contents.flatMap(mm => [ ...mm.before.contents, mm, ...mm.after.contents ]);
 
         entities.unshift(...fixed.metadata.toOrderedEntities());
 
-        return (entities as Timed<(MelodyMember | MetaEvent)>[]).sort((a, b) => a.at - b.at);
+        return (entities as TimedEntity[]).sort((a, b) => a.at - b.at);
     }
 
     /**
