@@ -88,17 +88,17 @@ const SAMPLE_SCORE = factory.score([
 
 // This section only tests some limited error handling as functionality is
 // tested through Score features that generate SVGs by calling this method.
-describe('visualizations.build2DSVG', () => {
+describe('visualizations.scoreTo2DSVG', () => {
     test('throws if id is not a string', () => {
-        expect(() => visualizations.build2DSVG(EMPTY_SCORE, () => [ [], [] ], { id: 0 as unknown as string})).toThrow();
+        expect(() => visualizations.scoreTo2DSVG(EMPTY_SCORE, () => [ [], [] ], { id: 0 as unknown as string})).toThrow();
     });
 
     test('throws if timeline generator returns an tuple containing different lengths', () => {
-        expect(() => visualizations.build2DSVG(EMPTY_SCORE, (() => [ [ 1 ], [] ]), {})).toThrow();
+        expect(() => visualizations.scoreTo2DSVG(EMPTY_SCORE, (() => [ [ 1 ], [] ]), {})).toThrow();
     });
 
     test('applies defaults if none are present', () => {
-        expect(visualizations.build2DSVG(EMPTY_SCORE, () => [ [], [] ] )).toStrictEqual(`<svg id="unknown_svg" viewbox="0,0,0,0" width="0" height="0" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
+        expect(visualizations.scoreTo2DSVG(EMPTY_SCORE, () => [ [], [] ] )).toStrictEqual(`<svg id="unknown_svg" viewbox="0,0,0,0" width="0" height="0" xmlns="http://www.w3.org/2000/svg" style="border:1px solid black; background: black">
   <style>
     text {
       font-family: "Arial";

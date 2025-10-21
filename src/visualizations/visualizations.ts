@@ -157,13 +157,13 @@ function getSVGFooter(): string {
     return '</svg>\n';
 }
 
-export function build2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts = {}): string {
+export function scoreTo2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts = {}): string {
     const fixedscore = score.withAllTicksExact();
 
     const [ timeline, data ] = fn(fixedscore);
 
     if (timeline.length !== data.length) {
-        throw new Error(`visualizations.build2DSVG(): timeline generator returned unequal lengths (${timeline.length} v ${data.length})`);
+        throw new Error(`visualizations.scoreTo2DSVG(): timeline generator returned unequal lengths (${timeline.length} v ${data.length})`);
     }
 
     if (timeline.length === 0) {

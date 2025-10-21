@@ -10,10 +10,8 @@ import * as transformations from '../transformations/transformations';
 import * as visualizations from '../visualizations/visualizations';
 import * as midiWriter from '../midi/writer';
 import MidiReader from '../midi/reader';
-import { numberToFixedBytes, orderedEntitiesToMidiTrack } from '../midi/conversions';
 
-import { MIDI } from '../constants';
-
+import { scoreToMidiBytes } from '../midi/conversions';
 import { min, max } from '../helpers/calculations';
 import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
@@ -236,7 +234,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         const filename = file.endsWith('.svg') ? file : `${file}.svg`;
 
         fs.writeFileSync(filename,
-            visualizations.build2DSVG(this, transformations.scoreToNotes,
+            visualizations.scoreTo2DSVG(this, transformations.scoreToNotes,
                 { color_rule: 'mod12', value_rule: 'note', id: 'notes_svg', header: 'Notes', ...opts }
             )
         );
@@ -259,7 +257,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         const filename = file.endsWith('.svg') ? file : `${file}.gamut.svg`;
     
         fs.writeFileSync(filename,
-            visualizations.build2DSVG(this, transformations.scoreToGamut,
+            visualizations.scoreTo2DSVG(this, transformations.scoreToGamut,
                 { color_rule: 'mod12', value_rule: 'gamut', id: 'gamut_svg', header: 'Gamut', ...opts }
             )
         );
@@ -282,7 +280,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         const filename = file.endsWith('.svg') ? file : `${file}.intervals.svg`;
     
         fs.writeFileSync(filename,
-            visualizations.build2DSVG(this, transformations.scoreToIntervals,
+            visualizations.scoreTo2DSVG(this, transformations.scoreToIntervals,
                 { color_rule: 'mod12', value_rule: 'interval', id: 'intervals_svg', leftpad: 24, header: 'Intervals', ...opts }
             )
         );
@@ -319,21 +317,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             return this.#transientMetadata.midiBytes;
         }
 
-        // Must copy as metadata in score needs to be applied to the first track
-        const evts = this.toOrderedEntities();
-        const bytechunks = [
-            MIDI.HEADER_CHUNK,
-            MIDI.HEADER_LENGTH,
-            MIDI.HEADER_FORMAT,
-            numberToFixedBytes(evts.length, 2),
-            numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
-        ];
-
-        for (let i = 0; i < this.contents.length; i++) {
-            bytechunks.push(orderedEntitiesToMidiTrack(evts[i], this.contents[i].metadata.midichannel));
-        }
-
-        const bytes = bytechunks.flat();
+        const bytes = scoreToMidiBytes(this);
 
         // Shallow copy instead of modifying in place as this is shared between clones
         this.#transientMetadata = { ...this.#transientMetadata, midiBytes: bytes };

@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, MetaEventArg, MidiTickAndBytes, MetaEvent, MelodyMember } from '../types';
+import type { Timed, TimedEntity, MetaEventArg, MidiTickAndBytes, MelodyMember, Melody, Score } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -147,6 +147,7 @@ function pitchBendEventToMidiBytes(val: number, channel: number) {
  * Convert a MetaEvent to the MIDI bytes representing it.
  */
 export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[] {
+    // TODO: Takes MetaEventArg because MetaEvent is less strictly typed than MetaEvent
     if (!isMidiChannel(channel)) {
         throw new Error(`channel should be a valid MIDI channel; was ${dumpOneLine(channel)}`);
     }
@@ -295,5 +296,40 @@ export function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: num
         ret,
         0x00,
         MIDI.END_TRACK_EVENT
+    ].flat();
+}
+
+/**
+ * Returns the bytes of a MIDI file representing this Score.
+ */
+export function scoreToMidiBytes(sc: Score): number[] {
+    // Must copy as metadata in score needs to be applied to the first track
+    const evts = sc.toOrderedEntities();
+    const bytechunks = [
+        MIDI.HEADER_CHUNK,
+        MIDI.HEADER_LENGTH,
+        MIDI.HEADER_FORMAT,
+        numberToFixedBytes(evts.length, 2),
+        numberToFixedBytes(sc.metadata.ticks_per_quarter, 2),
+    ];
+
+    for (let i = 0; i < sc.contents.length; i++) {
+        bytechunks.push(orderedEntitiesToMidiTrack(evts[i], sc.contents[i].metadata.midichannel));
+    }
+
+    return bytechunks.flat();
+}
+
+/**
+ * Returns the bytes of a MIDI file representing this Melody.
+ */
+export function melodyToMidiBytes(m: Melody): number[] {
+    return [
+        MIDI.HEADER_CHUNK,
+        MIDI.HEADER_LENGTH,
+        MIDI.HEADER_FORMAT,
+        numberToFixedBytes(1, 2),
+        numberToFixedBytes(m.metadata.ticks_per_quarter, 2),
+        orderedEntitiesToMidiTrack(m.toOrderedEntities(), m.metadata.midichannel)
     ].flat();
 }

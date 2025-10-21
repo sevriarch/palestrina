@@ -4,9 +4,7 @@ import Sequence from './generic';
 import MelodyMember from './members/melody';
 import MetaList from '../meta-events/meta-list';
 
-import { MIDI } from '../constants';
-
-import { numberToFixedBytes, orderedEntitiesToMidiTrack } from '../midi/conversions';
+import { melodyToMidiBytes } from '../midi/conversions';
 import * as midiWriter from '../midi/writer';
 
 /** hidden */
@@ -501,14 +499,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Returns this Melody, converted to the bytes of a MIDI file.
      */
     toMidiBytes(): number[] {
-        return [
-            MIDI.HEADER_CHUNK,
-            MIDI.HEADER_LENGTH,
-            MIDI.HEADER_FORMAT,
-            numberToFixedBytes(1, 2),
-            numberToFixedBytes(this.metadata.ticks_per_quarter, 2),
-            orderedEntitiesToMidiTrack(this.toOrderedEntities(), this.metadata.midichannel)
-        ].flat();
+        return melodyToMidiBytes(this);
     }
     
     /**
