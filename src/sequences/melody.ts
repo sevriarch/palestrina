@@ -4,7 +4,7 @@ import Sequence from './generic';
 import MelodyMember from './members/melody';
 import MetaList from '../meta-events/meta-list';
 
-import { melodyToMidiBytes } from '../midi/conversions';
+import { toMidiBytes } from '../midi/conversions';
 import * as midiWriter from '../midi/writer';
 
 /** hidden */
@@ -499,15 +499,15 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * Returns everything in this melody, contained within an array.
      * This is to provide a common interface with the behaviour of this method in Scores.
      */
-    toArrayOfOrderedEntities(): TimedEntity[][] {
-        return [ this.toOrderedEntities() ];
+    toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][] {
+        return [ [ this.toOrderedEntities(), this.metadata ] ];
     }
 
     /**
      * Returns this Melody, converted to the bytes of a MIDI file.
      */
     toMidiBytes(): number[] {
-        return melodyToMidiBytes(this);
+        return toMidiBytes(this);
     }
     
     /**

@@ -6,6 +6,7 @@ import MelodyMember from './members/melody';
 import Melody from './melody';
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
+import Metadata from '../metadata/metadata';
 
 import { melody, intseq, microtonalmelody } from '../factory';
 
@@ -1472,9 +1473,9 @@ describe('Melody.toOrderedEntities()', () => {
     });
 });
 
-describe('Melody.toArrayOfOrderedEntities()', () => {
+describe('Melody.toOrderedEntitiesWithMetadata()', () => {
     test('converts empty track to array containing an array of zero entities', () => {
-        expect(melody([]).toArrayOfOrderedEntities()).toStrictEqual([ [] ]);
+        expect(melody([]).toOrderedEntitiesWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
     });
 
     test('converts non-empty track to expected entities', () => {
@@ -1484,15 +1485,19 @@ describe('Melody.toArrayOfOrderedEntities()', () => {
                 duration: 64,
                 velocity: 48,
             }
-        ]).toArrayOfOrderedEntities()).toStrictEqual([
+        ]).withTempo(120).toOrderedEntitiesWithMetadata()).toStrictEqual([
             [
-                MelodyMember.from({
-                    pitch: 60,
-                    duration: 64,
-                    velocity: 48,
-                    at: 0,
-                }),
-            ]
+                [
+                    MetaEvent.from({ event: 'tempo', value: 120, at: 0 }),
+                    MelodyMember.from({
+                        pitch: 60,
+                        duration: 64,
+                        velocity: 48,
+                        at: 0,
+                    }),
+                ],
+                Metadata.from({ tempo: 120 })
+            ],
         ]);
     });
 });

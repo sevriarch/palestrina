@@ -11,7 +11,7 @@ import * as visualizations from '../visualizations/visualizations';
 import * as midiWriter from '../midi/writer';
 import MidiReader from '../midi/reader';
 
-import { scoreToMidiBytes } from '../midi/conversions';
+import { toMidiBytes } from '../midi/conversions';
 import { min, max } from '../helpers/calculations';
 import { validateArray } from '../helpers/validation';
 import { dumpOneLine } from '../dump/dump';
@@ -295,7 +295,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * MetaEvents that are generated from Score metadata appear in the first Melody.
      */
-    toArrayOfOrderedEntities(): TimedEntity[][] {
+    toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][] {
         const fixed = this.withAllTicksExact();
 
         // Must copy as metadata in score needs to be applied to the first track
@@ -304,7 +304,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             tracks[0] = tracks[0].mergeMetadataFrom(fixed);
         }
 
-        return tracks.map(tr => tr.toOrderedEntities());
+        return tracks.map(tr => [ tr.toOrderedEntities(), tr.metadata ]);
     }
 
     /**
@@ -317,7 +317,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
             return this.#transientMetadata.midiBytes;
         }
 
-        const bytes = scoreToMidiBytes(this);
+        const bytes = toMidiBytes(this);
 
         // Shallow copy instead of modifying in place as this is shared between clones
         this.#transientMetadata = { ...this.#transientMetadata, midiBytes: bytes };

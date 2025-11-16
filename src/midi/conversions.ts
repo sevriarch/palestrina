@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, MetaEventArg, MidiTickAndBytes, MelodyMember, Melody, Score } from '../types';
+import type { Timed, TimedEntity, MetaEventArg, MidiTickAndBytes, MelodyMember, Renderable } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -300,36 +300,22 @@ export function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: num
 }
 
 /**
- * Returns the bytes of a MIDI file representing this Score.
+ * Returns the bytes of a MIDI file representing this renderable entity.
  */
-export function scoreToMidiBytes(sc: Score): number[] {
+export function toMidiBytes(what: Renderable): number[] {
     // Must copy as metadata in score needs to be applied to the first track
-    const evts = sc.toArrayOfOrderedEntities();
+    const evts = what.toOrderedEntitiesWithMetadata();
     const bytechunks = [
         MIDI.HEADER_CHUNK,
         MIDI.HEADER_LENGTH,
         MIDI.HEADER_FORMAT,
         numberToFixedBytes(evts.length, 2),
-        numberToFixedBytes(sc.metadata.ticks_per_quarter, 2),
+        numberToFixedBytes(what.metadata.ticks_per_quarter, 2),
     ];
 
-    for (let i = 0; i < sc.contents.length; i++) {
-        bytechunks.push(orderedEntitiesToMidiTrack(evts[i], sc.contents[i].metadata.midichannel));
+    for (let i = 0; i < evts.length; i++) {
+        bytechunks.push(orderedEntitiesToMidiTrack(evts[i][0], evts[i][1].midichannel));
     }
 
     return bytechunks.flat();
-}
-
-/**
- * Returns the bytes of a MIDI file representing this Melody.
- */
-export function melodyToMidiBytes(m: Melody): number[] {
-    return [
-        MIDI.HEADER_CHUNK,
-        MIDI.HEADER_LENGTH,
-        MIDI.HEADER_FORMAT,
-        numberToFixedBytes(1, 2),
-        numberToFixedBytes(m.metadata.ticks_per_quarter, 2),
-        orderedEntitiesToMidiTrack(m.toOrderedEntities(), m.metadata.midichannel)
-    ].flat();
 }

@@ -141,6 +141,14 @@ export type MetaListArg = MetaList | (MetaEvent | MetaEventArg)[];
  */
 
 /**
+ * An entity that can be rendered as MIDI, SVG, MusicXML etc
+ */
+export type Renderable = {
+    metadata: Metadata,
+    toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][];
+}
+
+/**
  * An entity that can be converted to a string of MIDI bytes
  */
 export type Midifiable = { toMidiBytes(): number[] };
