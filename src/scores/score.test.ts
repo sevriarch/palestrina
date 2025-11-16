@@ -557,9 +557,9 @@ describe('Score.withChordsCombined()', () => {
     });
 });
 
-describe('Score.toOrderedEntities()', () => {
+describe('Score.toArrayOfOrderedEntities()', () => {
     test('converts empty track to zero entities even though there is metadata present', () => {
-        expect(score([]).withCopyright('test').toOrderedEntities()).toStrictEqual([]);
+        expect(score([]).withCopyright('test').toArrayOfOrderedEntities()).toStrictEqual([]);
     });
 
     test('converts non-empty score to expected entities', () => {
@@ -594,7 +594,7 @@ describe('Score.toOrderedEntities()', () => {
         ]).withTempo(144)
             .withTimeSignature('3/4')
             .withNewEvent({ event: 'text', value: 'test', at: 32 })
-            .toOrderedEntities()
+            .toArrayOfOrderedEntities()
         ).toStrictEqual([
             [
                 MetaEvent.from({ event: 'time-signature', value: '3/4', at: 0 }),

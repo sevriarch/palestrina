@@ -496,6 +496,14 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
+     * Returns everything in this melody, contained within an array.
+     * This is to provide a common interface with the behaviour of this method in Scores.
+     */
+    toArrayOfOrderedEntities(): TimedEntity[][] {
+        return [ this.toOrderedEntities() ];
+    }
+
+    /**
      * Returns this Melody, converted to the bytes of a MIDI file.
      */
     toMidiBytes(): number[] {

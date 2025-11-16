@@ -295,7 +295,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * 
      * MetaEvents that are generated from Score metadata appear in the first Melody.
      */
-    toOrderedEntities(): TimedEntity[][] {
+    toArrayOfOrderedEntities(): TimedEntity[][] {
         const fixed = this.withAllTicksExact();
 
         // Must copy as metadata in score needs to be applied to the first track

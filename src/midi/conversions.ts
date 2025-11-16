@@ -304,7 +304,7 @@ export function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: num
  */
 export function scoreToMidiBytes(sc: Score): number[] {
     // Must copy as metadata in score needs to be applied to the first track
-    const evts = sc.toOrderedEntities();
+    const evts = sc.toArrayOfOrderedEntities();
     const bytechunks = [
         MIDI.HEADER_CHUNK,
         MIDI.HEADER_LENGTH,

@@ -1472,6 +1472,31 @@ describe('Melody.toOrderedEntities()', () => {
     });
 });
 
+describe('Melody.toArrayOfOrderedEntities()', () => {
+    test('converts empty track to array containing an array of zero entities', () => {
+        expect(melody([]).toArrayOfOrderedEntities()).toStrictEqual([ [] ]);
+    });
+
+    test('converts non-empty track to expected entities', () => {
+        expect(melody([ 
+            {
+                pitch: 60,
+                duration: 64,
+                velocity: 48,
+            }
+        ]).toArrayOfOrderedEntities()).toStrictEqual([
+            [
+                MelodyMember.from({
+                    pitch: 60,
+                    duration: 64,
+                    velocity: 48,
+                    at: 0,
+                }),
+            ]
+        ]);
+    });
+});
+
 describe('Melody.toDataURI()', () => {
     test('Empty melody data URI as expected', () => {
         expect(melody([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
