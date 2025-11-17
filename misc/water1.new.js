@@ -4,7 +4,7 @@ const { imports, noteseq, NoteSeqMember, melody, MelodyMember, score, Melody } =
 
 const TICKS = 840
 const LEN   = 2816
-const HASH  = 'd0422047681ce6632afd75527f33c3ef'
+const HASH  = '718e7d8b17ac79798445fa65a0ceadfc'
 
 const META = [
     { event: 'text', value: 'Triptych I: Water' },

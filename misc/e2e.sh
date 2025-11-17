@@ -25,7 +25,7 @@ cd $(dirname $0)
 
 node ./midi-reader.js
 
-test_music_creation water1.new.js d0422047681ce6632afd75527f33c3ef
+test_music_creation water1.new.js 718e7d8b17ac79798445fa65a0ceadfc
 test_music_creation danse.js 1005ed2d433072460c5a43614009be90
 
 test_md5 danse.js.svg f9bbdccfd36bad5d064c0aba069d6250
