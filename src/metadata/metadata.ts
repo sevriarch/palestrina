@@ -1,4 +1,4 @@
-import type { Timed, MetadataData, TypeOrArray, MetaEventArg } from '../types';
+import type { Timed, MetadataData, TypeOrArray, MetaEventArg, MetaEventValueMap } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
@@ -97,19 +97,19 @@ export default class Metadata {
 
             switch (event.event) {
             case 'track-name':
-                metadata.trackname = event.value;
+                metadata.trackname = event.value as string;
                 return false;
             case 'copyright':
-                metadata.copyright = event.value;
+                metadata.copyright = event.value as string;
                 return false;
             case 'tempo':
-                metadata.tempo = event.value;
+                metadata.tempo = event.value as number;
                 return false;
             case 'key-signature':
-                metadata.key_signature = event.value;
+                metadata.key_signature = event.value as string;
                 return false;
             case 'time-signature':
-                metadata.time_signature = event.value;
+                metadata.time_signature = event.value as string;
                 return false;
             case 'instrument':
                 if (typeof event.value === 'number') {
@@ -237,10 +237,10 @@ export default class Metadata {
     /**
      * Return all entities contained within this Metadata.
      */
-    toOrderedEntities(): Timed<MetaEvent>[] {
+    toOrderedEntities(): Timed<MetaEvent<keyof MetaEventValueMap>>[] {
         const fixed = this.withAllTicksExact();
 
-        const ret: MetaEvent[] = [];
+        const ret: MetaEvent<keyof MetaEventValueMap>[] = [];
 
         if (fixed.copyright) {
             ret.push(MetaEvent.from({ event: 'copyright', value: fixed.copyright, at: 0 }));
@@ -268,7 +268,7 @@ export default class Metadata {
 
         ret.push(...fixed.before.contents);
 
-        return (ret as Timed<MetaEvent>[]).sort((a, b) => a.at - b.at);
+        return (ret as Timed<MetaEvent<keyof MetaEventValueMap>>[]).sort((a, b) => a.at - b.at);
     }
 
     /**

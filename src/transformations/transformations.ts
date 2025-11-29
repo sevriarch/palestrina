@@ -1,4 +1,4 @@
-import type { Timed, Score, MetaEvent } from '../types';
+import type { Timed, Score, MetaEvent, MetaEventValueMap } from '../types';
 
 import Melody from '../sequences/melody';
 import * as timeSignature from '../helpers/time-signature';
@@ -206,7 +206,7 @@ export function scoreToPitchClasses(score: Score): [ number[], string[] ] {
 /**
  * Given a score, extract specific matching events from it.
  */
-export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent) => boolean): MetaEvent[] {
+export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent<keyof MetaEventValueMap>) => boolean): Timed<MetaEvent<keyof MetaEventValueMap>>[] {
     const timed = score.withAllTicksExact();
     const ret = timed.metadata.before.contents.filter(fn);
 
@@ -232,7 +232,7 @@ export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent) =>
     });
 
     // as score.withAllTicksExact() has been called, at should always have a value
-    return (ret as Timed<MetaEvent>[]).sort((a, b) => a.at - b.at);
+    return (ret as Timed<MetaEvent<keyof MetaEventValueMap>>[]).sort((a, b) => a.at - b.at);
 }
 
 /**

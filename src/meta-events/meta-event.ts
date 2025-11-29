@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventValue, MetaEventData } from '../types';
+import type { MetaEventArg, MetaEventValueMap, MetaEventData } from '../types';
 
 import Timing from '../timing/timing';
 
@@ -21,12 +21,12 @@ const INVALID_KEYS = new Set([ 'event', 'value', 'offset', 'at' ]);
  * an array of events that occur at the start of the Melody, by Score for the same
  * reason, and is used during the creation and reading of MIDI files.
  */
-export default class MetaEvent {
-    readonly event: string;          // the type of event
-    readonly value?: MetaEventValue; // the value associated with the event, if any
-    readonly timing: Timing;        // timing information
+export default class MetaEvent<Event extends keyof MetaEventValueMap> {
+    readonly event: string;                    // the type of event
+    readonly value!: MetaEventValueMap[Event]; // the value associated with the event, if any
+    readonly timing: Timing;                   // timing information
 
-    static from(ob: MetaEventArg | MetaEvent): MetaEvent {
+    static from(ob: MetaEventArg | MetaEvent<keyof MetaEventValueMap>): MetaEvent<keyof MetaEventValueMap> {
         if (ob instanceof MetaEvent) {
             return ob;
         }
@@ -88,6 +88,7 @@ export default class MetaEvent {
             case 'cue-point':
             case 'copyright':
             case 'track-name':
+            case 'instrument-name':
                 if (typeof ob.value !== 'string') {
                     failed.push('value');
                 }
@@ -128,11 +129,11 @@ export default class MetaEvent {
      * @hidden
      */
     constructor(ob: MetaEventData) {
-        this.event = ob.event;
+        this.event = ob.event as keyof MetaEventValueMap;
         this.timing = ob.timing;
 
         if (ob.event !== 'end-track') {
-            this.value = ob.value;
+            this.value = ob.value as MetaEventValueMap[Event];
         }
 
         Object.freeze(this);
@@ -141,7 +142,7 @@ export default class MetaEvent {
     /**
      * Augment the timing values in this object
      */
-    augment(i: number): MetaEvent {
+    augment(i: number): MetaEvent<Event> {
         return new MetaEvent({
             event: this.event,
             value: this.value,
@@ -152,7 +153,7 @@ export default class MetaEvent {
     /**
      * Diminish the timing values in this object
      */
-    diminish(i: number): MetaEvent {
+    diminish(i: number): MetaEvent<Event> {
         return new MetaEvent({
             event: this.event,
             value: this.value,
@@ -163,7 +164,7 @@ export default class MetaEvent {
     /**
      * Return this object with a different offset
      */
-    withOffset(i: number): MetaEvent {
+    withOffset(i: number): MetaEvent<Event> {
         return new MetaEvent({ 
             event: this.event,
             value: this.value,
@@ -174,7 +175,7 @@ export default class MetaEvent {
     /**
      * Return this object with ticks converted to exact ticks
      */
-    withAllTicksExact(curr: number): MetaEvent {
+    withAllTicksExact(curr: number): MetaEvent<Event> {
         return new MetaEvent({
             event: this.event,
             value: this.value,
@@ -185,7 +186,7 @@ export default class MetaEvent {
     /**
      * Is this MetaEvent equal to the passed MetaEvent?
      */
-    equals(e: MetaEvent): boolean {
+    equals(e: MetaEvent<Event>): boolean {
         return e instanceof MetaEvent
             && this.event === e.event
             && this.value === e.value

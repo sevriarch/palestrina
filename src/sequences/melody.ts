@@ -1,4 +1,4 @@
-import type { TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEvent, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import type { TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEventValue, MetaEventOpts, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -488,7 +488,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     toOrderedEntities(): TimedEntity[] {
         const fixed = this.withAllTicksExact();
 
-        const entities: (MelodyMember | MetaEvent)[] = fixed.contents.flatMap(mm => [ ...mm.before.contents, mm, ...mm.after.contents ]);
+        const entities = fixed.contents.flatMap(mm => [ ...mm.before.contents, mm, ...mm.after.contents ] as TimedEntity[]);
 
         entities.unshift(...fixed.metadata.toOrderedEntities());
 

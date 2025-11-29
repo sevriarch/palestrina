@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, MetaEventArg, MidiTickAndBytes, MelodyMember, Renderable } from '../types';
+import type { Timed, TimedEntity, MetaEvent, MetaEventValueMap, MidiTickAndBytes, MelodyMember, Renderable } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -146,7 +146,7 @@ function pitchBendEventToMidiBytes(val: number, channel: number) {
 /**
  * Convert a MetaEvent to the MIDI bytes representing it.
  */
-export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[] {
+export function metaEventToMidiBytes(event: MetaEvent<keyof MetaEventValueMap>, channel = 1): number[] {
     // TODO: Takes MetaEventArg because MetaEvent is less strictly typed than MetaEvent
     if (!isMidiChannel(channel)) {
         throw new Error(`channel should be a valid MIDI channel; was ${dumpOneLine(channel)}`);
@@ -163,57 +163,57 @@ export function metaEventToMidiBytes(event: MetaEventArg, channel = 1): number[]
             throw new Error(`invalid value in event ${dumpOneLine(event)}`);
         }
 
-        return [ ch + 0xb0, MIDI.VOLUME_CONTROLLER, event.value ];
+        return [ ch + 0xb0, MIDI.VOLUME_CONTROLLER, event.value as number ];
 
     case 'pan':
         if (!is7BitInt(event.value)) {
             throw new Error(`invalid value in event ${dumpOneLine(event)}`);
         }
 
-        return [ ch + 0xb0, MIDI.PAN_CONTROLLER, event.value ];
+        return [ ch + 0xb0, MIDI.PAN_CONTROLLER, event.value as number ];
 
     case 'balance':
         if (!is7BitInt(event.value)) {
             throw new Error(`invalid value in event ${dumpOneLine(event)}`);
         }
 
-        return [ ch + 0xb0, MIDI.BALANCE_CONTROLLER, event.value ];
+        return [ ch + 0xb0, MIDI.BALANCE_CONTROLLER, event.value as number ];
 
     case 'tempo':
-        return tempoEventToMidiBytes(event.value);
+        return tempoEventToMidiBytes(event.value as number);
 
     case 'time-signature':
-        return timeSignature.toMidiBytes(event.value);
+        return timeSignature.toMidiBytes(event.value as string);
 
     case 'key-signature':
-        return keySignature.toMidiBytes(event.value);
+        return keySignature.toMidiBytes(event.value as string);
 
     case 'text':
-        return [ ...MIDI.TEXT_EVENT, ...stringToVariableBytes(event.value) ];
+        return [ ...MIDI.TEXT_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'copyright':
-        return copyrightEventToMidiBytes(event.value);
+        return copyrightEventToMidiBytes(event.value as string);
 
     case 'track-name':
-        return trackNameEventToMidiBytes(event.value);
+        return trackNameEventToMidiBytes(event.value as string);
 
     case 'instrument-name':
-        return [ ...MIDI.INSTRUMENT_NAME_EVENT, ...stringToVariableBytes(event.value) ];
+        return [ ...MIDI.INSTRUMENT_NAME_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'lyric':
-        return [ ...MIDI.LYRIC_EVENT, ...stringToVariableBytes(event.value) ];
+        return [ ...MIDI.LYRIC_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'marker':
-        return [ ...MIDI.MARKER_EVENT, ...stringToVariableBytes(event.value) ];
+        return [ ...MIDI.MARKER_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'cue-point':
-        return [ ...MIDI.CUE_POINT_EVENT, ...stringToVariableBytes(event.value) ];
+        return [ ...MIDI.CUE_POINT_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'instrument':
-        return instrumentEventToMidiBytes(event.value, channel);
+        return instrumentEventToMidiBytes(event.value as number | string, channel);
 
     case 'pitch-bend':
-        return pitchBendEventToMidiBytes(event.value, channel);
+        return pitchBendEventToMidiBytes(event.value as number, channel);
 
     default:
         throw new Error(`no such event: ${dumpOneLine(event)}`);
@@ -272,7 +272,7 @@ function orderedEntitiesToTimedMidiBytes(entities: TimedEntity[], channel: numbe
         if ('duration' in e) {
             ret.push(...chordToTimedMidiBytes(e, channel));
         } else {
-            ret.push([ e.at, metaEventToMidiBytes(e as MetaEventArg, channel) ]);
+            ret.push([ e.at, metaEventToMidiBytes(e, channel) ]);
         }
     }
 

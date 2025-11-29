@@ -56,7 +56,7 @@ export type Timed<X> = X & { at: number };
 /**
  * A type that represents a MelodyMember or MetaEvent that as has a defined tick
  */
-export type TimedEntity = Timed<MetaEvent | MelodyMember>;
+export type TimedEntity = Timed<MetaEvent<keyof MetaEventValueMap> | MelodyMember>;
 
 /*
  * METADATA
@@ -83,19 +83,34 @@ export type MetadataData = {
  */
 
 /**
+ * A type mapping MetaEvents to the type of value contained within them.
+ */
+export type MetaEventValueMap = {
+    'time-signature': string;
+    'key-signature': string;
+    'text': string;
+    'copyright': string;
+    'track-name': string,
+    'instrument-name': string;
+    'lyric': string;
+    'marker': string;
+    'cue-point': string;
+    'instrument': string | number;
+    'tempo': number;
+    'sustain': number;
+    'volume': number;
+    'pan': number;
+    'pitch-bend': number;
+    'balance': number;
+    'end-track': never;
+};
+
+/**
  * Required contents of a MetaEvent object
  */
-type MetaEventDef = {
-    event: 'end-track',
-} | {
-    event: MetaEventNumericEvent,
-    value: number,
-} | {
-    event: MetaEventStringEvent,
-    value: string,
-} | {
-    event: 'instrument',
-    value: number | string,
+type MetaEventDef<Event extends keyof MetaEventValueMap> = {
+    event: keyof MetaEventValueMap;
+    value: MetaEventValueMap[Event];
 };
 
 /**
@@ -124,17 +139,17 @@ export type MetaEventNumericEvent = 'tempo' | 'sustain' | 'volume' | 'pan' | 'pi
 /**
  * The type used to pass the contents of a MetaEvent before the event has been created
  */
-export type MetaEventArg = MetaEventDef & MetaEventOpts;
+export type MetaEventArg = (MetaEventDef<keyof MetaEventValueMap> | { event: 'end-track' }) & MetaEventOpts;
 
 /**
  * How a MetaEvent is stored internally
  */
-export type MetaEventData = MetaEventDef & { timing: Timing };
+export type MetaEventData = MetaEventDef<keyof MetaEventValueMap> & { timing: Timing };
 
 /**
  * The type used to pass multiple MetaEvents to Score, Melody, MelodyMember, Metadata and MetaList
  */
-export type MetaListArg = MetaList | (MetaEvent | MetaEventArg)[];
+export type MetaListArg = MetaList | (MetaEvent<keyof MetaEventValueMap> | MetaEventArg)[];
 
 /*
  * MIDI

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import type { TimedEntity, MetaEvent, MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
+import type { TimedEntity, MetaEvent, MetaEventValueMap, MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
@@ -91,7 +91,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * If there are no events in the Score, this will be 0.
      */
     lastTick(): number {
-        function updateLastTick(event: MetaEvent) {
+        function updateLastTick(event: MetaEvent<keyof MetaEventValueMap>) {
             if (event.at as number > last) { last = event.at as number; }
         }
 

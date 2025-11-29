@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventOpts, MetaListArg } from '../types';
+import type { MetaEventArg, MetaEventValueMap, MetaEventOpts, MetaListArg } from '../types';
 
 import MetaEvent from './meta-event';
 import MetaList from './meta-list';
@@ -22,7 +22,7 @@ describe('MetaList.from() static method tests', () => {
     ];
 
     test.each(errortable)('constructing MetaList from %s should fail', (_, val) => {
-        expect(() => MetaList.from(val as MetaEvent[])).toThrow();
+        expect(() => MetaList.from(val as MetaEvent<keyof MetaEventValueMap>[])).toThrow();
     });
 
     test('return shared empty metalist when constructing empty MetaList', () => {
@@ -44,7 +44,7 @@ describe('MetaList.from() static method tests', () => {
 });
 
 describe('MetaList.withNewEvent() tests', () => {
-    const table3arg: [ string, MetaList, string | MetaEventArg, number | undefined, MetaEventOpts | undefined, MetaEvent[] ][] = [
+    const table3arg: [ string, MetaList, string | MetaEventArg, number | undefined, MetaEventOpts | undefined, MetaEvent<keyof MetaEventValueMap>[] ][] = [
         [
             'adding event without metadata to empty MetaList',
             ML_NULL,
@@ -96,7 +96,7 @@ describe('MetaList.withNewEvents() tests', () => {
         expect(() => ml.withNewEvents(me)).toThrow();
     });
 
-    const table1arg: [ string, MetaList, MetaListArg, MetaEvent[] ][] = [
+    const table1arg: [ string, MetaList, MetaListArg, MetaEvent<keyof MetaEventValueMap>[] ][] = [
         [ 'adding no events to MetaList without events', ML_NULL, [], [] ],
         [ 'adding array of one event description to MetaList without events', ML_NULL, [ EVT_VAL1 ], [ EVT_OB1 ] ],
         [ 'adding array of one event to MetaList without events', ML_NULL, [ EVT_OB1 ], [ EVT_OB1 ] ],
@@ -164,7 +164,7 @@ describe('MetaList.augmentRhythm() tests', () => {
         expect(empty.augmentRhythm(4)).toBe(empty);
     });
 
-    const table: [ string, MetaEvent[], number, MetaEvent[] ][] = [
+    const table: [ string, MetaEvent<keyof MetaEventValueMap>[], number, MetaEvent<keyof MetaEventValueMap>[] ][] = [
         [
             'doubles all offsets',
             [
@@ -209,7 +209,7 @@ describe('MetaList.diminishRhythm() tests', () => {
         expect(empty.diminishRhythm(4)).toBe(empty);
     });
 
-    const table: [ string, MetaEvent[], number, MetaEvent[] ][] = [
+    const table: [ string, MetaEvent<keyof MetaEventValueMap>[], number, MetaEvent<keyof MetaEventValueMap>[] ][] = [
         [
             'halves all offsets',
             [

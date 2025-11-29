@@ -1,4 +1,4 @@
-import type { MetaEventArg } from '../types';
+import type { MetaEventArg, MetaEventValueMap } from '../types';
 
 import MetaEvent from './meta-event';
 
@@ -192,12 +192,12 @@ describe('MetaEvent.withAllTicksExact() tests', () => {
 describe('MetaEvent.equals() tests', () => {
     const DEF: MetaEventArg = { event: 'sustain', value: 0, offset: 0 };
 
-    function make(v: Record<string, unknown>): MetaEvent {
+    function make(v: Record<string, unknown>): MetaEvent<keyof MetaEventValueMap> {
         return MetaEvent.from({ ...DEF, ...v });
     }
 
-    const table: [ MetaEvent, boolean ][] = [
-        [ DEF as MetaEvent, false ],
+    const table: [ MetaEvent<keyof MetaEventValueMap>, boolean ][] = [
+        [ DEF as MetaEvent<keyof MetaEventValueMap>, false ],
         [ make({}), true ],
         [ make({ event: 'balance' }), false ],
         [ make({ value: 1 }), false ],

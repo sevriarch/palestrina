@@ -1,4 +1,4 @@
-import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, MetaEventValue, MetaEventOpts, MetaListArg } from '../../types';
+import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, MetaEventValue, MetaEventOpts, MetaListArg, MetaEventValueMap } from '../../types';
 
 import NumSeqMember from './number';
 import NoteSeqMember from './note';
@@ -114,8 +114,8 @@ describe('MelodyMember.from() static method tests', () => {
 });
 
 describe('MelodyMember constructor/.val() tests', () => {
-    const EVENT_GOOD: MetaEvent = MetaEvent.from({ event: 'sustain', value: 1, offset: 0 });
-    const EVENT_BAD = { event: 'sustain', value: 1, banana: true } as unknown as MetaEvent;
+    const EVENT_GOOD = MetaEvent.from({ event: 'sustain', value: 1, offset: 0 });
+    const EVENT_BAD = { event: 'sustain', value: 1, banana: true } as unknown as MetaEvent<keyof MetaEventValueMap>;
 
     const table: [ MelodyMemberArg, boolean ][] = [
         // Invalid argument format
@@ -171,21 +171,21 @@ describe('MelodyMember constructor/.val() tests', () => {
         [ { pitch: [ 60 ], duration: 34, velocity: 127, at: '50' as unknown as number }, false ],
 
         // Valid/invalid values for before
-        [ { pitch: [ 60 ], duration: 51, velocity: 127, before: EVENT_GOOD as unknown as MetaEvent[] }, false ],
+        [ { pitch: [ 60 ], duration: 51, velocity: 127, before: EVENT_GOOD as unknown as MetaListArg }, false ],
         [ { pitch: [ 60 ], duration: 52, velocity: 127, before: [] }, true ],
-        [ { pitch: [ 60 ], duration: 53, velocity: 127, before: [ 6 as unknown as MetaEvent ] }, false ],
-        [ { pitch: [ 60 ], duration: 54, velocity: 127, before: [ null as unknown as MetaEvent ] }, false ],
-        [ { pitch: [ 60 ], duration: 55, velocity: 127, before: [ {} as unknown as MetaEvent ] }, false ],
+        [ { pitch: [ 60 ], duration: 53, velocity: 127, before: [ 6 ] as unknown as MetaListArg }, false ],
+        [ { pitch: [ 60 ], duration: 54, velocity: 127, before: [ null ] as unknown as MetaListArg }, false ],
+        [ { pitch: [ 60 ], duration: 55, velocity: 127, before: [ {} ] as unknown as MetaListArg }, false ],
         [ { pitch: [ 60 ], duration: 56, velocity: 127, before: [ EVENT_GOOD ] }, true ],
         [ { pitch: [ 60 ], duration: 57, velocity: 127, before: [ EVENT_BAD ] }, false ],
         [ { pitch: [ 60 ], duration: 58, velocity: 127, before: [ EVENT_GOOD, EVENT_GOOD, EVENT_BAD ] }, false ],
 
         // Valid/invalid values for after
-        [ { pitch: [ 60 ], duration: 61, velocity: 127, after: EVENT_GOOD as unknown as MetaEvent[] }, false ],
+        [ { pitch: [ 60 ], duration: 61, velocity: 127, after: EVENT_GOOD as unknown as MetaListArg }, false ],
         [ { pitch: [ 60 ], duration: 62, velocity: 127, after: [] }, true ],
-        [ { pitch: [ 60 ], duration: 63, velocity: 127, after: [ 6 as unknown as MetaEvent ] }, false ],
-        [ { pitch: [ 60 ], duration: 64, velocity: 127, after: [ null as unknown as MetaEvent ] }, false ],
-        [ { pitch: [ 60 ], duration: 65, velocity: 127, after: [ {} as unknown as MetaEvent ] }, false ],
+        [ { pitch: [ 60 ], duration: 63, velocity: 127, after: [ 6 ] as unknown as MetaListArg }, false ],
+        [ { pitch: [ 60 ], duration: 64, velocity: 127, after: [ null ] as unknown as MetaListArg }, false ],
+        [ { pitch: [ 60 ], duration: 65, velocity: 127, after: [ {} ] as unknown as MetaListArg }, false ],
         [ { pitch: [ 60 ], duration: 66, velocity: 127, after: [ EVENT_GOOD ] }, true ],
         [ { pitch: [ 60 ], duration: 67, velocity: 127, after: [ EVENT_BAD ] }, false ],
         [ { pitch: [ 60 ], duration: 68, velocity: 127, after: [ EVENT_GOOD, EVENT_GOOD, EVENT_BAD] }, false ],
@@ -1135,7 +1135,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         });
     });
 
-    const table: [ string, MelodyMember, string | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined, MetaEvent[] ][] = [
+    const table: [ string, MelodyMember, string | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined, MetaListArg ][] = [
         [
             'adding one MetaEvent using three-argument form to an event without MetaEvents',
             e1,

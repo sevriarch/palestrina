@@ -192,7 +192,7 @@ describe('conversions.metaEventToMidiBytes()', () => {
     ];
 
     test.each(errortable)('%s', (e, chan) => {
-        expect(() => conversions.metaEventToMidiBytes(e, chan)).toThrow();
+        expect(() => conversions.metaEventToMidiBytes(MetaEvent.from(e), chan)).toThrow();
     });
 
     const table: [ MetaEventArg, number | undefined, number[] ][] = [
@@ -260,7 +260,7 @@ describe('conversions.metaEventToMidiBytes()', () => {
         [ { event: 'instrument', value: 0 }, undefined, [ 0xc0, 0x00 ] ],
         [ { event: 'instrument', value: 0 }, 1, [ 0xc0, 0x00 ] ],
         [ { event: 'instrument', value: 0 }, 16, [ 0xcf, 0x00 ] ],
-        [ { event: 'instrument', value: 255 }, 1, [ 0xC0, 0xFF ] ],
+        [ { event: 'instrument', value: 55 }, 1, [ 0xC0, 0x37 ] ],
         [ { event: 'instrument', value: 'piano' }, 1, [ 0xC0, 0x00 ] ],
         [ { event: 'instrument', value: 'violin' }, 1, [ 0xC0, 0x28 ] ],
         [ { event: 'pitch-bend', value: 0 }, undefined, [ 0xe0, 0x00, 0x40 ] ],
@@ -277,7 +277,7 @@ describe('conversions.metaEventToMidiBytes()', () => {
     ];
 
     test.each(table)('%j converts to correct midi bytes', (e, chan, ret) => {
-        expect(conversions.metaEventToMidiBytes(e, chan)).toStrictEqual(ret);
+        expect(conversions.metaEventToMidiBytes(MetaEvent.from(e), chan)).toStrictEqual(ret);
     });
 });
 
@@ -299,7 +299,7 @@ describe('orderedEntitiesToMidiTrack()', () => {
     test('note and meta-event succeed on channel 1', () => {
         expect(conversions.orderedEntitiesToMidiTrack([
             MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>,
-            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent>,
+            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent<'instrument'>>,
         ], 1)).toStrictEqual([
             0x4d, 0x54, 0x72, 0x6b, // track header
             0x00, 0x00, 0x00, 0x10, // track length
@@ -313,7 +313,7 @@ describe('orderedEntitiesToMidiTrack()', () => {
     test('note and meta-event succeed on channel 1', () => {
         expect(conversions.orderedEntitiesToMidiTrack([
             MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>,
-            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent>,
+            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent<'instrument'>>,
         ], 16)).toStrictEqual([
             0x4d, 0x54, 0x72, 0x6b, // track header
             0x00, 0x00, 0x00, 0x10, // track length
