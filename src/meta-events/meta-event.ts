@@ -22,7 +22,7 @@ const INVALID_KEYS = new Set([ 'event', 'value', 'offset', 'at' ]);
  * reason, and is used during the creation and reading of MIDI files.
  */
 export default class MetaEvent<Event extends keyof MetaEventValueMap> {
-    readonly event: string;                    // the type of event
+    readonly event: keyof MetaEventValueMap;   // the type of event
     readonly value!: MetaEventValueMap[Event]; // the value associated with the event, if any
     readonly timing: Timing;                   // timing information
 
@@ -50,64 +50,76 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
             failed.push('offset');
         }
 
-        let value;
-        if (ob.event !== 'end-track') {
-            value = ob.value;
+        const timing = new Timing(ob.at, ob.offset);
 
-            switch (ob.event) {
-            case 'sustain':
-                if (ob.value !== 0 && ob.value !== 1) {
-                    failed.push('value');
-                }
-                break;
-            case 'tempo':
-                if (!isNumber(ob.value) || ob.value as number <= 0) {
-                    failed.push('value');
-                }
-                break;
-            case 'key-signature':
-                if (typeof ob.value !== 'string' || !keySignature.validate(ob.value)) {
-                    failed.push('value');
-                }
-                break;
-            case 'time-signature':
-                if (typeof ob.value !== 'string' || !timeSignature.validate(ob.value)) {
-                    failed.push('value');
-                }
-                break;
-            case 'instrument':
-                value = instrument.toInstrument(ob.value);
-
-                if (value === undefined) {
-                    failed.push('value');
-                }
-                break;
-            case 'text':
-            case 'lyric':
-            case 'marker':
-            case 'cue-point':
-            case 'copyright':
-            case 'track-name':
-            case 'instrument-name':
-                if (typeof ob.value !== 'string') {
-                    failed.push('value');
-                }
-                break;
-            case 'volume':
-            case 'pan':
-            case 'balance':
-                if (!is7BitInt(ob.value)) {
-                    failed.push('value');
-                }
-                break;
-            case 'pitch-bend':
-                if (!isInt(ob.value) || ob.value as number >= 16384 || ob.value as number < -16384) {
-                    failed.push('value');
-                }
-                break;
-            default:
-                failed.push('event');
+        if (ob.event === 'end-track') {
+            if (failed.length) {
+                throw new Error(`invalid data in meta-event ${dumpOneLine(ob)}: fields ${dumpOneLine(failed)} failed validation`);
             }
+
+            return new MetaEvent({
+                event: ob.event,
+                timing
+            });
+        }
+
+        let value = ob.value;
+
+        switch (ob.event) {
+        case 'sustain':
+            if (value !== 0 && value !== 1) {
+                failed.push('value');
+            }
+            break;
+        case 'tempo':
+            if (!isNumber(value) || value as number <= 0) {
+                failed.push('value');
+            }
+            break;
+        case 'key-signature':
+            if (typeof value !== 'string' || !keySignature.validate(value)) {
+                failed.push('value');
+            }
+            break;
+        case 'time-signature':
+            if (typeof value !== 'string' || !timeSignature.validate(value)) {
+                failed.push('value');
+            }
+            break;
+        case 'instrument':
+            const inst = instrument.toInstrument(value);
+
+            if (inst === undefined) {
+                failed.push('value');
+            } else {
+                value = inst;
+            }
+            break;
+        case 'text':
+        case 'lyric':
+        case 'marker':
+        case 'cue-point':
+        case 'copyright':
+        case 'track-name':
+        case 'instrument-name':
+            if (typeof value !== 'string') {
+                failed.push('value');
+            }
+            break;
+        case 'volume':
+        case 'pan':
+        case 'balance':
+            if (!is7BitInt(value)) {
+                failed.push('value');
+            }
+            break;
+        case 'pitch-bend':
+            if (!isInt(value) || value as number >= 16384 || value as number < -16384) {
+                failed.push('value');
+            }
+            break;
+        default:
+            failed.push('event');
         }
 
         if (failed.length) {
@@ -116,9 +128,9 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
 
         return new MetaEvent({
             event: ob.event,
-            value: value,
-            timing: new Timing(ob.at, ob.offset)
-        } as MetaEventData);
+            value,
+            timing
+        });
     }
 
     get at() { return this.timing.exact; }
@@ -147,7 +159,7 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
             event: this.event,
             value: this.value,
             timing: this.timing.augment(i)
-        } as MetaEventData);
+        });
     }
 
     /**
@@ -158,7 +170,7 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
             event: this.event,
             value: this.value,
             timing: this.timing.diminish(i)
-        } as MetaEventData);
+        });
     }
 
     /**
@@ -169,7 +181,7 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
             event: this.event,
             value: this.value,
             timing: this.timing.withOffset(i)
-        } as MetaEventData);
+        });
     }
     
     /**
@@ -180,7 +192,7 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
             event: this.event,
             value: this.value,
             timing: this.timing.withAllTicksExact(curr)
-        } as MetaEventData);
+        });
     }
 
     /**

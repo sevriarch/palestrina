@@ -111,7 +111,7 @@ export type MetaEventValueMap = {
 type MetaEventDef<Event extends keyof MetaEventValueMap> = {
     event: keyof MetaEventValueMap;
     value: MetaEventValueMap[Event];
-};
+} | { event: 'end-track' };
 
 /**
  * Optional MetaEvent properties
@@ -139,7 +139,7 @@ export type MetaEventNumericEvent = 'tempo' | 'sustain' | 'volume' | 'pan' | 'pi
 /**
  * The type used to pass the contents of a MetaEvent before the event has been created
  */
-export type MetaEventArg = (MetaEventDef<keyof MetaEventValueMap> | { event: 'end-track' }) & MetaEventOpts;
+export type MetaEventArg = MetaEventDef<keyof MetaEventValueMap> & MetaEventOpts;
 
 /**
  * How a MetaEvent is stored internally
