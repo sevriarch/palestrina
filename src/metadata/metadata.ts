@@ -200,7 +200,7 @@ export default class Metadata {
     }
 
     /**
-     * Return a copy of this metadata fields set.
+     * Return a copy of this metadata with additional metadata fields set.
      */
     withValues(vals: MetadataData): this {
         return this.construct({ ...this.metadata, ...vals });
@@ -239,36 +239,24 @@ export default class Metadata {
      */
     toOrderedEntities(): Timed<MetaEvent<keyof MetaEventValueMap>>[] {
         const fixed = this.withAllTicksExact();
+        const ret: Timed<MetaEvent<keyof MetaEventValueMap>>[] = [];
 
-        const ret: MetaEvent<keyof MetaEventValueMap>[] = [];
-
-        if (fixed.copyright) {
-            ret.push(MetaEvent.from({ event: 'copyright', value: fixed.copyright, at: 0 }));
+        function maybePush<Event extends keyof MetaEventValueMap>(event: Event, value?: MetaEventValueMap[Event]) {
+            if (value !== undefined) {
+                ret.push(MetaEvent.from({ event, value, at: 0 }) as Timed<MetaEvent<Event>>);
+            }
         }
 
-        if (fixed.trackname) {
-            ret.push(MetaEvent.from({ event: 'track-name', value: fixed.trackname, at: 0 }));
-        }
+        maybePush('copyright', fixed.copyright);
+        maybePush('track-name', fixed.trackname);
+        maybePush('time-signature', fixed.time_signature);
+        maybePush('key-signature', fixed.key_signature);
+        maybePush('tempo', fixed.tempo);
+        maybePush('instrument', fixed.instrument);
 
-        if (fixed.time_signature) {
-            ret.push(MetaEvent.from({ event: 'time-signature', value: fixed.time_signature, at: 0 }));
-        }
+        ret.push(...fixed.before.contents as Timed<MetaEvent<keyof MetaEventValueMap>>[]);
 
-        if (fixed.key_signature) {
-            ret.push(MetaEvent.from({ event: 'key-signature', value: fixed.key_signature, at: 0 }));
-        }
-
-        if (fixed.tempo) {
-            ret.push(MetaEvent.from({ event: 'tempo', value: fixed.tempo, at: 0 }));
-        }
-
-        if (fixed.instrument) {
-            ret.push(MetaEvent.from({ event: 'instrument', value: fixed.instrument, at: 0 }));
-        }
-
-        ret.push(...fixed.before.contents);
-
-        return (ret as Timed<MetaEvent<keyof MetaEventValueMap>>[]).sort((a, b) => a.at - b.at);
+        return ret.sort((a, b) => a.at - b.at);
     }
 
     /**
