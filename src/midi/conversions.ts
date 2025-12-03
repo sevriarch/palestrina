@@ -113,26 +113,6 @@ export function fixedBytesToString(bytes: number[]): string {
     return bytes.map(c => String.fromCharCode(c)).join('');
 }
 
-function copyrightEventToMidiBytes(val: string) {
-    return [ ...MIDI.COPYRIGHT_EVENT, ...stringToVariableBytes(val) ];
-}
-
-function trackNameEventToMidiBytes(val: string) {
-    return [ ...MIDI.TRACK_NAME_EVENT, ...stringToVariableBytes(val) ];
-}
-
-function tempoEventToMidiBytes(val: number) {
-    if (!isNumber(val)) {
-        throw new Error(`tempo should be a number; was ${dumpOneLine(val)}`);
-    }
-
-    return [ ...MIDI.TEMPO_EVENT, ...numberToFixedBytes(Math.round(6e7 / val), 3) ];
-}
-
-function instrumentEventToMidiBytes(val: number | string, channel: number) {
-    return [ channel + 0xbf, instrument.toMidiByte(val) ];
-}
-
 function pitchBendEventToMidiBytes(val: number, channel: number) {
     if (!isInt(val) || val >= 8192 || val < -8192) {
         throw new Error(`invalid value in pitch bend event: ${val}`);
@@ -180,7 +160,11 @@ export function metaEventToMidiBytes(event: MetaEvent<keyof MetaEventValueMap>, 
         return [ ch + 0xb0, MIDI.BALANCE_CONTROLLER, event.value as number ];
 
     case 'tempo':
-        return tempoEventToMidiBytes(event.value as number);
+        if (!isNumber(event.value as number)) {
+            throw new Error(`tempo should be a number; was ${dumpOneLine(event.value)}`);
+        }
+
+        return [ ...MIDI.TEMPO_EVENT, ...numberToFixedBytes(Math.round(6e7 / (event.value as number)), 3) ];
 
     case 'time-signature':
         return timeSignature.toMidiBytes(event.value as string);
@@ -192,10 +176,10 @@ export function metaEventToMidiBytes(event: MetaEvent<keyof MetaEventValueMap>, 
         return [ ...MIDI.TEXT_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'copyright':
-        return copyrightEventToMidiBytes(event.value as string);
+        return [ ...MIDI.COPYRIGHT_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'track-name':
-        return trackNameEventToMidiBytes(event.value as string);
+        return [ ...MIDI.TRACK_NAME_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'instrument-name':
         return [ ...MIDI.INSTRUMENT_NAME_EVENT, ...stringToVariableBytes(event.value as string) ];
@@ -210,7 +194,7 @@ export function metaEventToMidiBytes(event: MetaEvent<keyof MetaEventValueMap>, 
         return [ ...MIDI.CUE_POINT_EVENT, ...stringToVariableBytes(event.value as string) ];
 
     case 'instrument':
-        return instrumentEventToMidiBytes(event.value as number | string, channel);
+        return [ channel + 0xbf, instrument.toMidiByte(event.value as string) ];
 
     case 'pitch-bend':
         return pitchBendEventToMidiBytes(event.value as number, channel);
