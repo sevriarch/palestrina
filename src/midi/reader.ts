@@ -1,4 +1,4 @@
-import type { Timed, MetaEventArg, MetaEventNumericEvent, MetaEventStringEvent, MetadataData, MelodyMemberArg } from '../types';
+import type { Timed, MetaEventArg, MetaEventValueMap, MetadataData, MelodyMemberArg } from '../types';
 
 import * as fs from 'fs';
 
@@ -209,7 +209,7 @@ class MidiReader {
         }
 
         if (byte >= 0x01 && byte <= 0x07) {
-            let evtype: MetaEventStringEvent;
+            let evtype: keyof MetaEventValueMap;
             
             switch (byte) {
             case 0x01:
@@ -289,7 +289,7 @@ class MidiReader {
 
         if (type === 0xb0) {
             const [ ctrl, val ] = this.slurp(2);
-            let event: MetaEventNumericEvent, value: number;
+            let event: keyof MetaEventValueMap, value: number;
 
             if (ctrl > 0x7f) {
                 throw new Error(`controller number out of range: ${dumpHex(ctrl, val)}`);

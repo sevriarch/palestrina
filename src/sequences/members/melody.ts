@@ -1,4 +1,4 @@
-import type { MetaEventValue, MetaEventValueMap, MetaEventOpts, MetaEventArg, MelodyMemberArg, MelodyMemberData, SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
+import type { MetaEventValueMap, MetaEventOpts, MetaEventArg, MelodyMemberArg, MelodyMemberData, SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
 
 import MetaList from '../../meta-events/meta-list';
 import Timing from '../../timing/timing';
@@ -367,7 +367,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
     /**
      * Returns a new MelodyMember copying this but with a meta event to execute before it.
      */
-    withEventBefore(event: keyof MetaEventValueMap | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+    withEventBefore<Event extends keyof MetaEventValueMap>(event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: MetaEventOpts): this {
         const newevent = typeof event === 'string' ? { event, value, ...opts } as MetaEventArg : event;
 
         return this.construct({ ...this._val, before: this._val.before.withNewEvent(newevent) });
@@ -376,7 +376,7 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
     /**
      * Returns a new MelodyMember copying this but with new meta events to execute after it.
      */
-    withEventAfter(event: keyof MetaEventValueMap | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+    withEventAfter<Event extends keyof MetaEventValueMap>(event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: MetaEventOpts): this {
         const newevent = typeof event === 'string' ? { event, value, ...opts } as MetaEventArg : event;
 
         return this.construct({ ...this._val, after: this._val.after.withNewEvent(newevent) });

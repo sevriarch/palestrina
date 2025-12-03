@@ -10,7 +10,7 @@ export type {
     PitchArgument, PitchMutatorFn, PitchMapperFn, GamutOpts,  // pitch-related types
     Metadata, MetadataData, // metadata-related types
     MetaList, MetaListArg, // meta-list-related types
-    MetaEvent, MetaEventArg, MetaEventValue, MetaEventOpts, // meta-event-related types
+    MetaEvent, MetaEventArg, MetaEventOpts, // meta-event-related types
     Replacer, ReplacerFn, // replacer-related types
     CtrlTypeFn, CtrlBoolFn, // control-flow function types
     FilterFn, FinderFn, ArrayFinderFn, GrouperFn, MapperFn, FlatMapperFn, ValidatorFn // general method types

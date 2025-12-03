@@ -1,4 +1,4 @@
-import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, MetaEventValue, MetaEventOpts, MetaListArg, MetaEventValueMap } from '../../types';
+import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, MetaEventOpts, MetaListArg, MetaEventValueMap } from '../../types';
 
 import NumSeqMember from './number';
 import NoteSeqMember from './note';
@@ -1106,7 +1106,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
     const e1 = makeEventWithDefaults({});
     const e2 = makeEventWithDefaults({ before: [ META_SUSTAIN_ON ], after: [ META_SUSTAIN_ON ] });
 
-    const errortable: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined ][] = [
+    const errortable: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, MetaEventOpts | undefined ][] = [
         [
             'adding an invalid MetaEvent',
             e1,
@@ -1135,7 +1135,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         });
     });
 
-    const table: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined, MetaListArg ][] = [
+    const table: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, MetaEventOpts | undefined, MetaListArg ][] = [
         [
             'adding one MetaEvent using three-argument form to an event without MetaEvents',
             e1,

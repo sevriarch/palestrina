@@ -121,21 +121,6 @@ export type MetaEventOpts = {
 };
 
 /**
- * Permissible types for MetaEvent values
- */
-export type MetaEventValue = number | string;
-
-/**
- * Types of MetaEvent that contain a string value
- */
-export type MetaEventStringEvent = 'time-signature' | 'key-signature' | 'text' | 'copyright' | 'track-name' | 'instrument-name' | 'lyric' | 'marker' | 'cue-point';
-
-/**
- * Types of MetaEvent that contain a numeric value
- */
-export type MetaEventNumericEvent = 'tempo' | 'sustain' | 'volume' | 'pan' | 'pitch-bend' | 'balance';
-
-/**
  * The type used to pass the contents of a MetaEvent before the event has been created
  */
 export type MetaEventArg = MetaEventDef<keyof MetaEventValueMap> & MetaEventOpts;
