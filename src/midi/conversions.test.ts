@@ -1,7 +1,6 @@
-import type { Timed, MetaEventArg, MetaEventData } from '../types';
+import type { MetaEventArg, MetaEventData } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
-import MelodyMember from '../sequences/members/melody';
 
 import * as conversions from './conversions';
 
@@ -280,49 +279,5 @@ describe('conversions.metaEventToMidiBytes()', () => {
 
     test.each(table)('%j converts to correct midi bytes', (e, chan, ret) => {
         expect(conversions.metaEventToMidiBytes(MetaEvent.from(e), chan)).toStrictEqual(ret);
-    });
-});
-
-describe('orderedEntitiesToMidiTrack()', () => {
-    test('empty array should return empty array', () => {
-        expect(conversions.orderedEntitiesToMidiTrack([], 1)).toStrictEqual([
-            0x4d, 0x54, 0x72, 0x6b, // track header
-            0x00, 0x00, 0x00, 0x04, // track length
-            0x00, 0xff, 0x2f, 0x00, // end track
-        ]);
-    });
-
-    test('invalid pitch should throw', () => {
-        expect(() => conversions.orderedEntitiesToMidiTrack([
-            MelodyMember.from({ pitch: [ 4, 256 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>
-        ], 1)).toThrow();
-    });
-
-    test('note and meta-event succeed on channel 1', () => {
-        expect(conversions.orderedEntitiesToMidiTrack([
-            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>,
-            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent<'instrument'>>,
-        ], 1)).toStrictEqual([
-            0x4d, 0x54, 0x72, 0x6b, // track header
-            0x00, 0x00, 0x00, 0x10, // track length
-            0x00, 0x90, 0x40, 0x60, // note on
-            0x00, 0xc0, 0x00, // instrument event
-            0x81, 0x00, 0x80, 0x40, 0x60, // note off
-            0x00, 0xff, 0x2f, 0x00, // end track
-        ]);
-    });
-
-    test('note and meta-event succeed on channel 1', () => {
-        expect(conversions.orderedEntitiesToMidiTrack([
-            MelodyMember.from({ pitch: [ 64 ], at: 0, duration: 128, velocity: 96 }) as Timed<MelodyMember>,
-            MetaEvent.from({ event: 'instrument', value: 'piano', at: 0 }) as Timed<MetaEvent<'instrument'>>,
-        ], 16)).toStrictEqual([
-            0x4d, 0x54, 0x72, 0x6b, // track header
-            0x00, 0x00, 0x00, 0x10, // track length
-            0x00, 0x9f, 0x40, 0x60, // note on
-            0x00, 0xcf, 0x00, // instrument event
-            0x81, 0x00, 0x8f, 0x40, 0x60, // note off
-            0x00, 0xff, 0x2f, 0x00, // end track
-        ]);
     });
 });

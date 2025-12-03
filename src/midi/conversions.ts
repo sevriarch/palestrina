@@ -263,7 +263,7 @@ function orderedEntitiesToTimedMidiBytes(entities: TimedEntity[], channel: numbe
     return ret.sort((a, b) => a[0] - b[0]);
 }
 
-export function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: number): number[] {
+function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: number): number[] {
     let curr = 0;
 
     const ret = orderedEntitiesToTimedMidiBytes(entities, channel).flatMap(([ tick, bytes ]) => {
@@ -287,7 +287,6 @@ export function orderedEntitiesToMidiTrack(entities: TimedEntity[], channel: num
  * Returns the bytes of a MIDI file representing this renderable entity.
  */
 export function toMidiBytes(what: Renderable): number[] {
-    // Must copy as metadata in score needs to be applied to the first track
     const evts = what.toOrderedEntitiesWithMetadata();
     const bytechunks = [
         MIDI.HEADER_CHUNK,

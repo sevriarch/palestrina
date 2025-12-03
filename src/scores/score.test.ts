@@ -658,6 +658,18 @@ describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() 
         expect(() => score([], { ticks_per_quarter: 65536 }).toMidiBytes()).toThrow();
     });
 
+    describe('should throw if a pitch is too low', () => {
+        expect(() => score([ 
+            melody([ 1, 2, 3, [ 4, 25 ], -1 ])
+        ]).toMidiBytes()).toThrow();
+    });
+
+    describe('should throw if a pitch is too high', () => {
+        expect(() => score([ 
+            melody([ 1, 2, 3, [ 4, 256 ], 5 ])
+        ]).toMidiBytes()).toThrow();
+    });
+
     const table: [ string, Score, string, number[], string ][] = [
         [
             'a score with no tracks',
