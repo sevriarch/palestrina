@@ -191,8 +191,6 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
     }
 
     describe(): string {
-        const val = this.value === undefined ? 'undefined' : dumpOneLine(this.value);
-
-        return `${this.constructor.name}({event:"${this.event}",value:${val},at:${this.at},offset:${this.offset}})`;
+        return `${this.constructor.name}({event:"${this.event}",value:${dumpOneLine(this.value)},at:${this.at},offset:${this.offset}})`;
     }
 }

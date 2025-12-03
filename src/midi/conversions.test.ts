@@ -1,4 +1,4 @@
-import type { Timed, MetaEventArg } from '../types';
+import type { Timed, MetaEventArg, MetaEventData } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MelodyMember from '../sequences/members/melody';
@@ -188,11 +188,13 @@ describe('conversions.metaEventToMidiBytes()', () => {
         [ { event: 'pitch-bend', value: 0 }, 17 ],
         [ { event: 'pitch-bend', value: 8192 }, 1 ],
         [ { event: 'pitch-bend', value: -8193 }, 1 ],
-        [ { event: 'does-not-exist', value: 16 } as unknown as MetaEventArg, 1 ],
+        [ { event: 'does-not-exist', value: 16 } as unknown as MetaEventData, 1 ],
     ];
 
     test.each(errortable)('%s', (e, chan) => {
-        expect(() => conversions.metaEventToMidiBytes(MetaEvent.from(e), chan)).toThrow();
+        // using new MetaEvent() to bypass value checking in MetaEvent.from(),
+        // allowing values of invalid types to be tested against.
+        expect(() => conversions.metaEventToMidiBytes(new MetaEvent(e as MetaEventData), chan)).toThrow();
     });
 
     const table: [ MetaEventArg, number | undefined, number[] ][] = [
