@@ -98,7 +98,6 @@ describe('MetaEvent constructor/.val() tests', () => {
         [ { event: 'pitch-bend', value: 16384 }, false ],
         [ { event: 'pitch-bend', value: -16384 }, true ],
         [ { event: 'pitch-bend', value: 16383 }, true ],
-        [ { event: 'end-track' }, true ],
 
         // Valid/invalid values for offset
         [ { event: 'sustain', value: 0, offset: 0 }, true ],
@@ -125,11 +124,8 @@ describe('MetaEvent constructor/.val() tests', () => {
             expect(() => MetaEvent.from(meta)).toThrow();
         } else {
             const m1 = MetaEvent.from(meta);
-
             const cmp = {
-                value: undefined,
                 offset: 0,
-                at: undefined,
                 ...meta
             };
 
@@ -214,9 +210,6 @@ describe('MetaEvent.equals() tests', () => {
 
 describe('MetaEvent.describe() tests', () => {
     test('describes correctly', () => {
-        expect(MetaEvent.from({ event: 'end-track' }).describe())
-            .toStrictEqual('MetaEvent({event:"end-track",value:undefined,at:undefined,offset:undefined})');
-
         expect(MetaEvent.from({ event: 'instrument', value: 'violin', offset: 64, at: 64 }).describe())
             .toStrictEqual('MetaEvent({event:"instrument",value:"violin",at:64,offset:64})');
 

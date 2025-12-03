@@ -1,17 +1,17 @@
-import type { MetaEventArg, MetaEventValueMap, MetaEventOpts, MetaListArg } from '../types';
+import type { MetaEventArg, MetaEventValueMap, MetaListArg } from '../types';
 
 import MetaEvent from './meta-event';
 import MetaList from './meta-list';
 
 const EVT_VAL1: MetaEventArg = { event: 'sustain', value: 0 };             // Definition for MetaEvent 1
 const EVT_VAL2: MetaEventArg = { event: 'sustain', value: 1, offset: 32 }; // Definition for MetaEvent 2
-const EVT_VAL3: MetaEventArg = { event: 'end-track' };                     // Definition for MetaEvent 3
-const EVT_OB1  = MetaEvent.from(EVT_VAL1);                    // MetaEvent 1
-const EVT_OB2  = MetaEvent.from(EVT_VAL2);                    // MetaEvent 2
-const EVT_OB3  = MetaEvent.from(EVT_VAL3);                    // MetaEvent 3
-const ML_NULL  = MetaList.from([]);                           // Empty MetaList
-const ML_1     = MetaList.from([ EVT_OB1 ]);                  // MetaList containing MetaEvent 1
-const ML_23    = MetaList.from([ EVT_OB2, EVT_OB3 ]);         // MetaList containing MetaEvent 2 & 3
+const EVT_VAL3: MetaEventArg = { event: 'text', value: 'test text' };      // Definition for MetaEvent 3
+const EVT_OB1  = MetaEvent.from(EVT_VAL1); // MetaEvent 1
+const EVT_OB2  = MetaEvent.from(EVT_VAL2); // MetaEvent 2
+const EVT_OB3  = MetaEvent.from(EVT_VAL3); // MetaEvent 3
+const ML_NULL  = MetaList.from([]);                   // Empty MetaList
+const ML_1     = MetaList.from([ EVT_OB1 ]);          // MetaList containing MetaEvent 1
+const ML_23    = MetaList.from([ EVT_OB2, EVT_OB3 ]); // MetaList containing MetaEvent 2 & 3
 
 describe('MetaList.from() static method tests', () => {
     const errortable: [ string, unknown ][] = [
@@ -44,43 +44,23 @@ describe('MetaList.from() static method tests', () => {
 });
 
 describe('MetaList.withNewEvent() tests', () => {
-    const table3arg: [ string, MetaList, string | MetaEventArg, number | undefined, MetaEventOpts | undefined, MetaEvent<keyof MetaEventValueMap>[] ][] = [
+    const table3arg: [ string, MetaList, MetaEventArg, MetaEvent<keyof MetaEventValueMap>[] ][] = [
         [
             'adding event without metadata to empty MetaList',
             ML_NULL,
-            'sustain',
-            1,
-            undefined,
+            { event: 'sustain', value: 1 },
             [ MetaEvent.from({ event: 'sustain', value: 1 }) ]
         ],
         [
-            'adding event with metadata to MetaList with one event',
-            ML_1,
-            'sustain',
-            0,
-            { offset: 64 },
-            [ EVT_OB1, MetaEvent.from({ event: 'sustain', value: 0, offset: 64 }) ],
-        ],
-        [
-            'adding event with no argument but with metadata to MetaList with two events',
-            ML_23,
-            'end-track',
-            undefined,
-            { at: 1024 },
-            [ EVT_OB2, EVT_OB3, MetaEvent.from({ event: 'end-track', at: 1024 }) ],
-        ],
-        [
-            'adding event with metadata in one-argument form',
+            'adding event with metadata to non-empty MetaList',
             ML_1,
             { event: 'sustain', value: 0, offset: 64 },
-            undefined,
-            undefined,
             [ EVT_OB1, MetaEvent.from({ event: 'sustain', value: 0, offset: 64 }) ],
         ]
     ];
 
-    test.each(table3arg)('withNewEvent() multiple argument: %s', (_, ml, me, val, meta, ret) => {
-        expect(ml.withNewEvent(me, val, meta)).toEqual(MetaList.from(ret));
+    test.each(table3arg)('withNewEvent() multiple argument: %s', (_, ml, me, ret) => {
+        expect(ml.withNewEvent(me)).toEqual(MetaList.from(ret));
     });
 });
 
@@ -278,8 +258,8 @@ describe('MetaList.describe()', () => {
     test('non-empty MetaList', () => {
         expect(MetaList.from([
             { event: 'instrument', value: 'violin', at: 64, offset: 32 },
-            { event: 'end-track' },
+            { event: 'sustain', value: 0 },
         ]).describe())
-            .toStrictEqual('MetaList(length=2)([0: MetaEvent({event:"instrument",value:"violin",at:64,offset:32}),1: MetaEvent({event:"end-track",value:undefined,at:undefined,offset:undefined}),])');
+            .toStrictEqual('MetaList(length=2)([0: MetaEvent({event:"instrument",value:"violin",at:64,offset:32}),1: MetaEvent({event:"sustain",value:0,at:undefined,offset:undefined}),])');
     });
 });

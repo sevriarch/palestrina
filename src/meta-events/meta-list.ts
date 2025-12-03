@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventOpts, MetaEventValue, MetaEventValueMap, MetaListArg } from '../types';
+import type { MetaEventArg, MetaEventValueMap, MetaListArg } from '../types';
 
 import CollectionWithoutMetadata from '../collections/without-metadata';
 import MetaEvent from './meta-event';
@@ -47,23 +47,11 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<keyof 
     }
 
     /**
-     * Return a copy of this MetaList with zero or more events added to it.
+     * Return a copy of this MetaList with an event added to it.
      * Argument is passed as an array of events.
      */
-    withNewEvent(event: string | MetaEventArg, value?: MetaEventValue, meta?: MetaEventOpts): this {
-        let metaevent: MetaEventArg;
-
-        if (typeof event === 'string') {
-            metaevent = { event, value } as MetaEventArg; // Invalid values will be handled in MetaEvent.from()
-
-            if (meta) {
-                metaevent = { ...metaevent, ...meta };
-            }
-        } else {
-            metaevent = event;
-        }
-
-        return this.appendItems(MetaEvent.from(metaevent));
+    withNewEvent(event: MetaEventArg): this {
+        return this.appendItems(MetaEvent.from(event));
     }
 
     /**

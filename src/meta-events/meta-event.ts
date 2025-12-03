@@ -50,19 +50,6 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
             failed.push('offset');
         }
 
-        const timing = new Timing(ob.at, ob.offset);
-
-        if (ob.event === 'end-track') {
-            if (failed.length) {
-                throw new Error(`invalid data in meta-event ${dumpOneLine(ob)}: fields ${dumpOneLine(failed)} failed validation`);
-            }
-
-            return new MetaEvent({
-                event: ob.event,
-                timing
-            });
-        }
-
         let value = ob.value;
 
         switch (ob.event) {
@@ -129,7 +116,7 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
         return new MetaEvent({
             event: ob.event,
             value,
-            timing
+            timing: new Timing(ob.at, ob.offset)
         });
     }
 
@@ -141,12 +128,9 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
      * @hidden
      */
     constructor(ob: MetaEventData) {
-        this.event = ob.event as keyof MetaEventValueMap;
+        this.event = ob.event;
         this.timing = ob.timing;
-
-        if (ob.event !== 'end-track') {
-            this.value = ob.value as MetaEventValueMap[Event];
-        }
+        this.value = ob.value as MetaEventValueMap[Event];
 
         Object.freeze(this);
     }

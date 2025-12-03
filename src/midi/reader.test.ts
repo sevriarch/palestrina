@@ -433,10 +433,10 @@ describe('extractMidiTrackEvents()', () => {
             1
         ],
         [
-            'an end track event',
+            'an end track event that will be discarded',
             [ 0x84, 0x40, 0xff, 0x2f, 0x00 ],
             [],
-            [ { event: 'end-track', at: 0x240 } ],
+            [],
             1
         ],
         [
@@ -603,17 +603,10 @@ describe('extractMidiTrackEvents()', () => {
             1
         ],
         [
-            'a track containing only an end track event at tick 64',
-            [ 0x40, 0xff, 0x2f, 0x00 ],
-            [],
-            [ { event: 'end-track', at: 0x40 } ],
-            1
-        ],
-        [
             'a track containing only an end track event at tick 192',
             [ 0x81, 0x40, 0xff, 0x2f, 0x00 ],
             [],
-            [ { event: 'end-track', at: 0xc0 } ],
+            [],
             1
         ],
         [
@@ -626,7 +619,7 @@ describe('extractMidiTrackEvents()', () => {
             [
                 { pitch: 0x40, velocity: 0x60, at: 0x00, duration: 0x40 },
             ],
-            [ { event: 'end-track', at: 0x50 } ],
+            [],
             1,
         ],
         [
@@ -645,7 +638,7 @@ describe('extractMidiTrackEvents()', () => {
                 { pitch: 0x50, velocity: 0x60, at: 0x00, duration: 0x40 },
                 { pitch: 0x60, velocity: 0x60, at: 0x00, duration: 0x40 },
             ],
-            [ { event: 'end-track', at: 0x50 } ],
+            [],
             1,
         ],
         [
@@ -663,7 +656,6 @@ describe('extractMidiTrackEvents()', () => {
             [
                 { event: 'copyright', value: 'Test', at: 0 },
                 { event: 'instrument', value: 'violin', at: 0 },
-                { event: 'end-track', at: 0x100 }
             ],
             5
         ],

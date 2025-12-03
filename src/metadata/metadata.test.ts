@@ -152,7 +152,8 @@ describe('Metadata getter tests', () => {
 
     test('before midichannel getter', () => {
         expect(new Metadata({}).before).toBe(MetaList.EMPTY_META_LIST);
-        expect(new Metadata({ before: MetaList.from([ { event: 'end-track'} ]) }).before).toStrictEqual(MetaList.from([ { event: 'end-track' } ]));
+        expect(new Metadata({ before: MetaList.from([ { event: 'text', value: 'test text' } ]) }).before)
+            .toStrictEqual(MetaList.from([ { event: 'text', value: 'test text' } ]));
     });
 
     test('test ticks_per_quarter getter', () => {
@@ -170,7 +171,11 @@ describe('Metadata.mergeFrom()', () => {
     const m_empty = new Metadata({});
     const m_channel = new Metadata({ tempo: 144, midichannel: 5 });
     const m_before_1 = new Metadata({ copyright: 'foobar', before: MetaList.from([ { event: 'sustain', value: 1 } ]) });
-    const m_before_2 = new Metadata({ tempo: 160, copyright: 'xxx', before: MetaList.from([ { event: 'sustain', value: 0, at: 768 }, { event: 'end-track', at: 1024 } ]) });
+    const m_before_2 = new Metadata({
+        tempo: 160,
+        copyright: 'xxx',
+        before: MetaList.from([ { event: 'sustain', value: 0, at: 768 }, { event: 'text', value: 'test text', at: 1024 } ])
+    });
 
     test('trying to merge from non-metadata throws an error', () => {
         expect(() => m_empty.mergeFrom({} as unknown as Metadata)).toThrow();
@@ -198,7 +203,7 @@ describe('Metadata.mergeFrom()', () => {
             tempo: 160, 
             midichannel: 5,
             copyright: 'xxx',
-            before: MetaList.from([ { event: 'sustain', value: 0, at: 768 }, { event: 'end-track', at: 1024 } ])
+            before: MetaList.from([ { event: 'sustain', value: 0, at: 768 }, { event: 'text', value: 'test text', at: 1024 } ])
         }));
     });
 
@@ -206,7 +211,7 @@ describe('Metadata.mergeFrom()', () => {
         expect(m_before_1.mergeFrom(m_before_2)).toStrictEqual(new Metadata({
             tempo: 160,
             copyright: 'foobar',
-            before: MetaList.from([ { event: 'sustain', value: 0, at: 768 }, { event: 'end-track', at: 1024 }, { event: 'sustain', value: 1 } ])
+            before: MetaList.from([ { event: 'sustain', value: 0, at: 768 }, { event: 'text', value: 'test text', at: 1024 }, { event: 'sustain', value: 1 } ])
         }));
     });
 });

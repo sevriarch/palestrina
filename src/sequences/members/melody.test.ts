@@ -31,8 +31,8 @@ const SUSTAIN_OFF: MetaEventArg = { event: 'sustain', value: 0 };
 const META_SUSTAIN_OFF = MetaEvent.from(SUSTAIN_OFF);
 const SUSTAIN_ON: MetaEventArg = { event: 'sustain', value: 1 };
 const META_SUSTAIN_ON = MetaEvent.from(SUSTAIN_ON);
-const END_TRACK: MetaEventArg = { event: 'end-track' };
-const META_END_TRACK = MetaEvent.from(END_TRACK);
+const TEXT_EVENT: MetaEventArg = { event: 'text', value: 'test text' };
+const META_TEXT_EVENT = MetaEvent.from(TEXT_EVENT);
 
 describe('MelodyMember.from() static method tests', () => {
     const errortable: [ string, SeqMemberArgument ][] = [
@@ -90,7 +90,7 @@ describe('MelodyMember.from() static method tests', () => {
             at: 45,
             delay: 40,
             before: [ META_SUSTAIN_ON ],
-            after: [ META_SUSTAIN_OFF, META_END_TRACK ]
+            after: [ META_SUSTAIN_OFF, META_TEXT_EVENT ]
         };
 
         const mm = MelodyMember.from(data);
@@ -101,14 +101,14 @@ describe('MelodyMember.from() static method tests', () => {
         expect(mm.at).toBe(45);
         expect(mm.delay).toBe(40);
         expect(mm.before).toStrictEqual(MetaList.from([ META_SUSTAIN_ON ]));
-        expect(mm.after).toStrictEqual(MetaList.from([ META_SUSTAIN_OFF, META_END_TRACK ]));
+        expect(mm.after).toStrictEqual(MetaList.from([ META_SUSTAIN_OFF, META_TEXT_EVENT ]));
 
         expect(mm.val()).toStrictEqual({
             pitch: ChordSeqMember.from([ 5, 6, 7 ]),
             timing: new Timing(45, 50, 40, 36),
             velocity: 24,
             before: MetaList.from([ META_SUSTAIN_ON ]),
-            after: MetaList.from([ META_SUSTAIN_OFF, META_END_TRACK ]),
+            after: MetaList.from([ META_SUSTAIN_OFF, META_TEXT_EVENT ]),
         });
     });
 });
@@ -267,7 +267,7 @@ describe('MelodyMember getter tests', () => {
         at: 64,
         offset: 32,
         before: MetaList.from([ META_SUSTAIN_ON ]),
-        after: MetaList.from([ META_SUSTAIN_OFF, META_END_TRACK ])
+        after: MetaList.from([ META_SUSTAIN_OFF, META_TEXT_EVENT ])
     });
 
     test('getter tests', () => {
@@ -278,7 +278,7 @@ describe('MelodyMember getter tests', () => {
         expect(e.at).toEqual(64);
         expect(e.offset).toEqual(32);
         expect(e.before).toStrictEqual(MetaList.from([ META_SUSTAIN_ON ]));
-        expect(e.after).toStrictEqual(MetaList.from([ META_SUSTAIN_OFF, META_END_TRACK ]));
+        expect(e.after).toStrictEqual(MetaList.from([ META_SUSTAIN_OFF, META_TEXT_EVENT ]));
     });
 });
 
@@ -1015,8 +1015,8 @@ describe('MelodyMember.withEventsBefore() tests', () => {
         [
             'adding two MetaEvents to a member without MetaEvents',
             e1,
-            [ { event: 'sustain', value: 0 }, { event: 'end-track' } ],
-            [ SUSTAIN_OFF, END_TRACK ],
+            [ { event: 'sustain', value: 0 }, { event: 'text', value: 'test text' } ],
+            [ SUSTAIN_OFF, TEXT_EVENT ],
         ],
         [
             'adding no MetaEvents to a member with one MetaEvent',
@@ -1027,8 +1027,8 @@ describe('MelodyMember.withEventsBefore() tests', () => {
         [
             'adding two MetaEvents to an event with one MetaEvent',
             e2,
-            [ { event: 'sustain', value: 0 }, { event: 'end-track' } ],
-            [ SUSTAIN_ON, SUSTAIN_OFF, END_TRACK ],
+            [ { event: 'sustain', value: 0 }, { event: 'text', value: 'test text' } ],
+            [ SUSTAIN_ON, SUSTAIN_OFF, TEXT_EVENT ],
         ],
     ];
 
@@ -1078,8 +1078,8 @@ describe('MelodyMember.withEventsAfter() tests', () => {
         [
             'adding two MetaEvents to a member without MetaEvents',
             e1,
-            [ { event: 'sustain', value: 0 }, { event: 'end-track' } ],
-            [ SUSTAIN_OFF, END_TRACK ],
+            [ SUSTAIN_OFF, TEXT_EVENT ],
+            [ SUSTAIN_OFF, TEXT_EVENT ],
         ],
         [
             'adding no MetaEvents to a member with one MetaEvent',
@@ -1090,8 +1090,8 @@ describe('MelodyMember.withEventsAfter() tests', () => {
         [
             'adding two MetaEvents to an event with one MetaEvent',
             e2,
-            [ { event: 'sustain', value: 0 }, { event: 'end-track' } ],
-            [ SUSTAIN_ON, SUSTAIN_OFF, END_TRACK ],
+            [ SUSTAIN_OFF, TEXT_EVENT ],
+            [ SUSTAIN_ON, SUSTAIN_OFF, TEXT_EVENT ],
         ],
     ];
 
@@ -1106,7 +1106,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
     const e1 = makeEventWithDefaults({});
     const e2 = makeEventWithDefaults({ before: [ META_SUSTAIN_ON ], after: [ META_SUSTAIN_ON ] });
 
-    const errortable: [ string, MelodyMember, string | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined ][] = [
+    const errortable: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined ][] = [
         [
             'adding an invalid MetaEvent',
             e1,
@@ -1117,7 +1117,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         [
             'adding a non-existent MetaEvent',
             e2,
-            'meow',
+            'meow' as keyof MetaEventValueMap,
             1,
             undefined,
         ],
@@ -1135,7 +1135,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         });
     });
 
-    const table: [ string, MelodyMember, string | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined, MetaListArg ][] = [
+    const table: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, MetaEventValue | undefined, MetaEventOpts | undefined, MetaListArg ][] = [
         [
             'adding one MetaEvent using three-argument form to an event without MetaEvents',
             e1,
@@ -1186,7 +1186,7 @@ describe('MelodyMember.augmentRhythm() tests', () => {
         velocity: 32,
         delay: 50,
         before: [ { event: 'sustain', value: 1, offset: 100 } ],
-        after: [ { event: 'end-track', offset: 200 } ],
+        after: [ { event: 'text', value: 'test text', offset: 200 } ],
     });
 
     test('augmenting rhythm by a value not a finite non-negative number fails', () => {
@@ -1209,7 +1209,7 @@ describe('MelodyMember.augmentRhythm() tests', () => {
             velocity: 32,
             delay: newDelay,
             before: [ { event: 'sustain', value: 1, offset: newBeforeOffset } ],
-            after: [ { event: 'end-track', offset: newAfterOffset } ],
+            after: [ { event: 'text', value: 'test text', offset: newAfterOffset } ],
         }));
     });
 });
@@ -1221,7 +1221,7 @@ describe('MelodyMember.diminishRhythm() tests', () => {
         velocity: 32,
         delay: 50,
         before: [ { event: 'sustain', value: 1, offset: 100 } ],
-        after: [ { event: 'end-track', offset: 200 } ],
+        after: [ { event: 'text', value: 'test text', offset: 200 } ],
     });
 
     test('diminishing rhythm by a value not a finite positive number fails', () => {
@@ -1244,7 +1244,7 @@ describe('MelodyMember.diminishRhythm() tests', () => {
             velocity: 32,
             delay: newDelay,
             before: [ { event: 'sustain', value: 1, offset: newBeforeOffset } ],
-            after: [ { event: 'end-track', offset: newAfterOffset } ],
+            after: [ { event: 'text', value: 'test text', offset: newAfterOffset } ],
         }));
     });
 });

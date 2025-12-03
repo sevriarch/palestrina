@@ -1,5 +1,3 @@
-import type { MetaEventValue } from '../types';
-
 import { isNBitInt } from './validation';
 import { dumpOneLine } from '../dump/dump';
 
@@ -174,7 +172,7 @@ Object.keys(PERCUSSION_INSTRUMENTS).forEach(inst => BYTE_TO_PERCUSSION_INSTRUMEN
 /**
  * Is this a valid MIDI instrument?
  */
-export function toInstrument(arg?: MetaEventValue): string | undefined {
+export function toInstrument(arg?: number | string): string | undefined {
     if (typeof arg === 'number') {
         return BYTE_TO_INSTRUMENT[arg];
     }
@@ -187,7 +185,7 @@ export function toInstrument(arg?: MetaEventValue): string | undefined {
 /**
  * Is this a valid MIDI instrument?
  */
-export function toPercussionInstrument(arg?: MetaEventValue): string | undefined {
+export function toPercussionInstrument(arg?: number | string): string | undefined {
     if (typeof arg === 'number') {
         return BYTE_TO_PERCUSSION_INSTRUMENT[arg];
     }

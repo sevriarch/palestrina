@@ -102,7 +102,6 @@ export type MetaEventValueMap = {
     'pan': number;
     'pitch-bend': number;
     'balance': number;
-    'end-track': never;
 };
 
 /**
@@ -111,7 +110,7 @@ export type MetaEventValueMap = {
 type MetaEventDef<Event extends keyof MetaEventValueMap> = {
     event: keyof MetaEventValueMap;
     value: MetaEventValueMap[Event];
-} | { event: 'end-track' };
+};
 
 /**
  * Optional MetaEvent properties

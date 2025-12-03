@@ -1,4 +1,4 @@
-import type { MetadataData, MetaEventValue, MetaListArg, MetaEventOpts, MetaEventArg } from '../types';
+import type { MetadataData, MetaEventValue, MetaEventValueMap, MetaListArg, MetaEventOpts, MetaEventArg } from '../types';
 
 import CollectionWithoutMetadata from './without-metadata';
 
@@ -113,8 +113,10 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
     /**
      * Return a copy of this Collection with a new meta-event pushed onto its start.
      */
-    withNewEvent(event: string | MetaEventArg, value?: MetaEventValue, meta?: MetaEventOpts): this {
-        return this.withMetadataValues({ before: this.metadata.before.withNewEvent(event, value, meta) });
+    withNewEvent(event: keyof MetaEventValueMap | MetaEventArg, value?: MetaEventValue, opts?: MetaEventOpts): this {
+        const newevent = typeof event === 'string' ? { event, value, ...opts } as MetaEventArg : event;
+
+        return this.withMetadataValues({ before: this.metadata.before.withNewEvent(newevent) });
     }
 
     /**

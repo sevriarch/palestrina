@@ -175,7 +175,7 @@ class MidiReader {
                 throw new Error(`end track event with ${this.contents.length - this.currentbyte} bytes remaining`);
             }
 
-            return { event: 'end-track', at: this.currenttick };
+            return; // we ignore this event as it has no meaning within a Melody
         }
 
         if (byte === 0x51) {
@@ -424,12 +424,6 @@ class MidiReader {
         this.extractMidiTrackEvents();
 
         const notes = Melody.from(this.notes.sort((a, b) => a.at - b.at));
-
-        // a track should always end with an end track event, but we will not throw an error if it does not
-        if (this.otherEvents.length && this.otherEvents[this.otherEvents.length - 1].event === 'end-track') {
-            this.otherEvents.pop();
-        }
-
         const trackmeta = Metadata.fromMetaEventArg(this.otherEvents).mergeFrom(Metadata.from(this.metadata));
 
         return Melody.from(notes, trackmeta)

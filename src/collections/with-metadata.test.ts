@@ -30,7 +30,7 @@ describe('Collection constructor tests', () => {
 
     const meta = {
         midichannel: 5,
-        before: MetaList.from([ { event: 'end-track' } ]),
+        before: MetaList.from([ { event: 'text', value: 'test text' } ]),
         ticks_per_quarter: 1200,
         tempo: 136,
         time_signature: '5/8',
@@ -45,7 +45,7 @@ describe('Collection constructor tests', () => {
         const m = new Collection([], Metadata.from(meta));
 
         expect(m.metadata.midichannel).toBe(5);
-        expect(m.metadata.before).toStrictEqual(MetaList.from([ { event: 'end-track' } ]));
+        expect(m.metadata.before).toStrictEqual(MetaList.from([ { event: 'text', value: 'test text' } ]));
         expect(m.metadata.ticks_per_quarter).toBe(1200);
         expect(m.metadata.validator).toBe(NumericValidator.NOOP_VALIDATOR);
         expect(m.metadata.tempo).toBe(136);
