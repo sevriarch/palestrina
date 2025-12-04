@@ -24,5 +24,4 @@ export { NumericValidator, Registry, CONSTANTS };
 export * as imports from './src/imports/imports';
 export * as helpers from './src/helpers/pitch';
 export * as transformations from './src/transformations/transformations';
-export * as visualizations from './src/visualizations/visualizations';
 export * from './src/factory';

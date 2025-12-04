@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.0
+
+This is a new major release and thus breaks back compatibility in a number of places.
+* The `end-track` meta-event has been removed as it is a MIDI-specific concept that does not make proper sense within the Sibelius Score/Melody concept. This has allowed a significant amount of simplification of the meta-event and meta-list objects. This probably will not affect any end user code, as the `end-track` meta-event should never have been used in user code, but is noted as the possibility of resulting errors exists.
+* MIDI file creation has been redesigned so as to be based on ordered lists of everything that happens during a Score (in a parallel flow to MusicXML file creation). This, in some cases, will result in small differences in the order of events that occur on the same MIDI tick in the same track. These should not affect any kind of audio rendering but will result in a change in the hash checksum generated for the file.
+* The `visualizations` module is no longer exported to the end user, as Score and Melody now provide access to all visualizations included in the module. Any code using this module directly can be rewritten to use the appropriate Score/Melody methods `writeCanvas()`, `writeNotesSVG()`, `writeGamutSVG()` and `writeIntervalsSVG()`.
+
+### Features
+
+### Deprecations
+
+### Enhancements
+* The MIDI creation flow has been cleaned up significantly.
+* Dependencies have been updated.
+
 ## 0.9.2
 
 ### Enhancements

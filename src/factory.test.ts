@@ -1,12 +1,9 @@
-import type { SeqArgument } from './types';
+import type { SeqArgument, ValidatorFn, NumSeqMember, NoteSeqMember, ChordSeqMember } from './types';
 
 import * as fs from 'fs';
 
 import * as factory from './factory';
 
-import type NumSeqMember from './sequences/members/number';
-import type NoteSeqMember from './sequences/members/note';
-import type ChordSeqMember from './sequences/members/chord';
 import MelodyMember from './sequences/members/melody';
 
 import NumSeq from './sequences/number';
@@ -27,6 +24,80 @@ jest.mock('fs', () => {
         ...rawfs,
         readFileSync: jest.fn()
     };
+});
+
+describe('factory.validator() tests', () => {
+    test('throws when invalid validator type is passed', () => {
+        expect(() => factory.validator('meow')).toThrow();
+    });
+
+    test('validates integers as expected when no argument is passed', () => {
+        const v = factory.validator();
+
+        expect(v.validate(55)).toBe(true);
+        expect(v.validate(55.5)).toBe(false);
+    });
+
+    test('validates integers when "semitone" is passed', () => {
+        const v = factory.validator('semitone');
+
+        expect(v.validate(55)).toBe(true);
+        expect(v.validate(55.5)).toBe(false);
+    });
+
+    test('validates factors of 1/2 when "quartertone" is passed', () => {
+        const v = factory.validator('quartertone');
+
+        expect(v.validate(55)).toBe(true);
+        expect(v.validate(55.5)).toBe(true);
+        expect(v.validate(55.25)).toBe(false);
+    });
+
+    test('validates factors of 1/3 when "sixthtone" is passed', () => {
+        const v = factory.validator('sixthtone');
+
+        expect(v.validate(55)).toBe(true);
+        expect(v.validate(55.333333)).toBe(true);
+        expect(v.validate(55.666667)).toBe(true);
+        expect(v.validate(55.5)).toBe(false);
+    });
+
+    test('validates as a noop when "none" is passed', () => {
+        const v = factory.validator('none');
+
+        expect(v.validate(55)).toBe(true);
+        expect(v.validate(55.556234)).toBe(true);
+    });
+
+    test('throws when a fractional validator is passed with an invalid argument', () => {
+        expect(() => factory.validator('fraction', '1' as unknown as number)).toThrow();
+        expect(() => factory.validator('fraction', Infinity)).toThrow();
+        expect(() => factory.validator('fraction', 0)).toThrow();
+    });
+
+    test('validates as expected when a fractional validator is used', () => {
+        const v = factory.validator('fraction', 5 / 2); // 0.4 of a semitone
+
+        expect(v.validate(0)).toBe(true);
+        expect(v.validate(0.4)).toBe(true);
+        expect(v.validate(-0.4)).toBe(true);
+        expect(v.validate(1.4)).toBe(false);
+        expect(v.validate(-1.4)).toBe(false);
+    });
+
+    test('throws when a custom validator is passed with a non-function argument', () => {
+        expect(() => factory.validator('custom', 5 as unknown as ValidatorFn)).toThrow();
+    });
+
+    test('validates as expected when a custom validator is used', () => {
+        const v = factory.validator('custom', (i: number) => i >= 48 && i <= 72 );
+
+        expect(v.validate(48)).toBe(true);
+        expect(v.validate(60)).toBe(true);
+        expect(v.validate(72)).toBe(true);
+        expect(v.validate(47)).toBe(false);
+        expect(v.validate(73)).toBe(false);
+    });
 });
 
 describe('factory.intseq() tests', () => {
