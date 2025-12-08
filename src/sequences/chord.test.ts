@@ -1,28 +1,24 @@
-import ChordSeq from './chord';
+import { ChordSeq, NumSeq } from './sequences';
 
-import { chordseq, microtonalchordseq, intseq } from '../factory';
+import NumericValidator from '../validation/numeric';
 
-describe('ChordSeq creation', () => {
-    const c = chordseq([ 1, 2, 3 ]);
+describe('ChordSeq.from()', () => {
+    const c = ChordSeq.from([ 1, 2, 3 ]);
 
     test('ChordSeq.from() with melody argument and same validator returns same object', () => {
         expect(ChordSeq.from(c)).toBe(c);
     });
 
     test('ChordSeq.from() with melody argument and different validator returns different object with same contents', () => {
-        const c2 = microtonalchordseq(c);
+        const c2 = ChordSeq.from(c, { validator: NumericValidator.NOOP_VALIDATOR });
 
         expect(c2).not.toBe(c);
         expect(c2.contents).toStrictEqual(c.contents);
     });
-
-    test('ChordSeq.from() taking contents from an intseq via factory', () => {
-        expect(chordseq(intseq([ 1, 2, 3 ]))).toStrictEqual(c);
-    });
 });
 
 describe('ChordSeq.keepTopPitches()', () => {
-    const s = chordseq([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ]]);
+    const s = ChordSeq.from([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ]]);
 
     test('throw if argument is not a non-negative integer', () => {
         expect(() => s.keepTopPitches(1.5)).toThrow();
@@ -31,10 +27,10 @@ describe('ChordSeq.keepTopPitches()', () => {
     });
 
     const table: [ string, ChordSeq, number, ChordSeq ][] = [
-        [ 'empty sequence', chordseq([]), 1, chordseq([]) ],
-        [ 'top zero pitches', s, 0, chordseq([ [], [], [], [], [] ]) ],
-        [ 'top one pitch', s, 1, chordseq([ [], [ 1 ], [ 3 ], [ 6 ], [ 10 ] ]) ],
-        [ 'top three pitches', s, 3, chordseq([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 8, 9, 10 ] ]) ],
+        [ 'empty sequence', ChordSeq.from([]), 1, ChordSeq.from([]) ],
+        [ 'top zero pitches', s, 0, ChordSeq.from([ [], [], [], [], [] ]) ],
+        [ 'top one pitch', s, 1, ChordSeq.from([ [], [ 1 ], [ 3 ], [ 6 ], [ 10 ] ]) ],
+        [ 'top three pitches', s, 3, ChordSeq.from([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 8, 9, 10 ] ]) ],
         [ 'top five pitches', s, 5, s ],
     ];
 
@@ -44,7 +40,7 @@ describe('ChordSeq.keepTopPitches()', () => {
 });
 
 describe('ChordSeq.keepBottomPitches()', () => {
-    const s = chordseq([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ]]);
+    const s = ChordSeq.from([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ]]);
 
     test('throw if argument is not a non-negative integer', () => {
         expect(() => s.keepBottomPitches(1.5)).toThrow();
@@ -53,10 +49,10 @@ describe('ChordSeq.keepBottomPitches()', () => {
     });
 
     const table: [ string, ChordSeq, number, ChordSeq ][] = [
-        [ 'empty sequence', chordseq([]), 1, chordseq([]) ],
-        [ 'bottom zero pitches', s, 0, chordseq([ [], [], [], [], [] ]) ],
-        [ 'bottom one pitch', s, 1, chordseq([ [], [ 1 ], [ 2 ], [ 4 ], [ 7 ] ]) ],
-        [ 'bottom three pitches', s, 3, chordseq([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]) ],
+        [ 'empty sequence', ChordSeq.from([]), 1, ChordSeq.from([]) ],
+        [ 'bottom zero pitches', s, 0, ChordSeq.from([ [], [], [], [], [] ]) ],
+        [ 'bottom one pitch', s, 1, ChordSeq.from([ [], [ 1 ], [ 2 ], [ 4 ], [ 7 ] ]) ],
+        [ 'bottom three pitches', s, 3, ChordSeq.from([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]) ],
         [ 'bottom five pitches', s, 5, s ],
     ];
 

@@ -1,16 +1,19 @@
-import type { AnySeq, SeqMember, SeqMemberArgument, SeqIndices, NumSeq, NoteSeq, PitchArgument, MapperFn, FilterFn, ArrayFinderFn, PitchMapperFn, GamutOpts } from '../types';
+import type { AnySeq, SeqMember, SeqMemberArgument, SeqIndices, PitchArgument, MapperFn, FilterFn, ArrayFinderFn, PitchMapperFn, GamutOpts } from '../types';
 
-import { intseq, floatseq, noteseq, chordseq, melody } from '../factory';
+import { NumSeq, NoteSeq, ChordSeq, Melody } from './sequences';
 
+import NumericValidator from '../validation/numeric';
 import NumSeqMember from './members/number';
 import NoteSeqMember from './members/note';
 import ChordSeqMember from './members/chord';
 
+const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
+
 describe('Sequence.appendItems()', () => {
     const table: [ string, AnySeq, SeqMemberArgument[], AnySeq ][] = [
-        [ 'appending NumSeqMembers to a NumSeq', intseq([ 1, 2, 3 ]), [ NumSeqMember.from(4), NumSeqMember.from(5) ], intseq([ 1, 2, 3, 4, 5 ]) ],
-        [ 'appending chords to a ChordSeq', chordseq([ 1, 2, 3 ]), [ [ 4, 5 ], [], [ 6 ] ], chordseq([ 1, 2, 3, [ 4, 5 ], [], 6 ]) ],
-        [ 'appending numbers to a Melody', melody([ 1, 2, 3 ]), [ 4, 5 ], melody([ 1, 2, 3, 4, 5 ]) ]
+        [ 'appending NumSeqMembers to a NumSeq', NumSeq.from([ 1, 2, 3 ]), [ NumSeqMember.from(4), NumSeqMember.from(5) ], NumSeq.from([ 1, 2, 3, 4, 5 ]) ],
+        [ 'appending chords to a ChordSeq', ChordSeq.from([ 1, 2, 3 ]), [ [ 4, 5 ], [], [ 6 ] ], ChordSeq.from([ 1, 2, 3, [ 4, 5 ], [], 6 ]) ],
+        [ 'appending numbers to a Melody', Melody.from([ 1, 2, 3 ]), [ 4, 5 ], Melody.from([ 1, 2, 3, 4, 5 ]) ]
     ];
 
     test.each(table)('returns as expected when %s', (_, s, items, ret) => {
@@ -20,9 +23,9 @@ describe('Sequence.appendItems()', () => {
 
 describe('Sequence.prependItems()', () => {
     const table: [ string, AnySeq, SeqMemberArgument[], AnySeq ][] = [
-        [ 'prepending NumSeqMembers to a NumSeq', intseq([ 1, 2, 3 ]), [ NumSeqMember.from(4), NumSeqMember.from(5) ], intseq([ 4, 5, 1, 2, 3 ]) ],
-        [ 'prepending chords to a ChordSeq', chordseq([ 1, 2, 3 ]), [ [ 4, 5 ], [], [ 6 ] ], chordseq([ [ 4, 5 ], [], 6, 1, 2, 3 ]) ],
-        [ 'prepending numbers to a Melody', melody([ 1, 2, 3 ]), [ 4, 5 ], melody([ 4, 5, 1, 2, 3 ]) ]
+        [ 'prepending NumSeqMembers to a NumSeq', NumSeq.from([ 1, 2, 3 ]), [ NumSeqMember.from(4), NumSeqMember.from(5) ], NumSeq.from([ 4, 5, 1, 2, 3 ]) ],
+        [ 'prepending chords to a ChordSeq', ChordSeq.from([ 1, 2, 3 ]), [ [ 4, 5 ], [], [ 6 ] ], ChordSeq.from([ [ 4, 5 ], [], 6, 1, 2, 3 ]) ],
+        [ 'prepending numbers to a Melody', Melody.from([ 1, 2, 3 ]), [ 4, 5 ], Melody.from([ 4, 5, 1, 2, 3 ]) ]
     ];
 
     test.each(table)('returns as expected when %s', (_, s, items, ret) => {
@@ -32,11 +35,11 @@ describe('Sequence.prependItems()', () => {
 
 describe('Sequence.toPitches()', () => {
     const table: [ string, AnySeq, number[][] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ [ 1.5 ], [ 3 ], [ -4.2 ] ] ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), [ [ 6 ], [ 7 ], [ 8 ], [ 1, ], [], [ 3 ] ] ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ [ 4 ], [ 7, 8 ], [], [ 6 ] ] ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ [ 4 ], [ 7, 8 ], [], [ 6 ] ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ [ 1.5 ], [ 3 ], [ -4.2 ] ] ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), [ [ 6 ], [ 7 ], [ 8 ], [ 1, ], [], [ 3 ] ] ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ [ 4 ], [ 7, 8 ], [], [ 6 ] ] ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ [ 4 ], [ 7, 8 ], [], [ 6 ] ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -46,11 +49,11 @@ describe('Sequence.toPitches()', () => {
 
 describe('Sequence.toFlatPitches()', () => {
     const table: [ string, AnySeq, number[] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ 1.5, 3, -4.2 ] ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, 3 ] ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, 8, 6 ] ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, 8, 6 ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ 1.5, 3, -4.2 ] ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, 3 ] ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, 8, 6 ] ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, 8, 6 ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -60,10 +63,10 @@ describe('Sequence.toFlatPitches()', () => {
 
 describe('Sequence.toNumericValues()', () => {
     const errortable: [ string, AnySeq ][] = [
-        [ 'nulls are present', noteseq([ 5, null, 4 ]) ],
-        [ 'chords are present', chordseq([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
-        [ 'empty chordseq members are present', chordseq([ [ 5 ], [], [ 3 ] ]) ],
-        [ 'chords are present in a melody', melody([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
+        [ 'nulls are present', NoteSeq.from([ 5, null, 4 ]) ],
+        [ 'chords are present', ChordSeq.from([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
+        [ 'empty chordseq members are present', ChordSeq.from([ [ 5 ], [], [ 3 ] ]) ],
+        [ 'chords are present in a melody', Melody.from([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
     ];
 
     test.each(errortable)('throws if %s', (_, s) => {
@@ -71,11 +74,11 @@ describe('Sequence.toNumericValues()', () => {
     });
 
     const table: [ string, AnySeq, number[] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ 1.5, 3, -4.2 ] ],
-        [ 'a noteseq without nulls', noteseq([ 6, 7, 8, 1, 2, 3 ]), [ 6, 7, 8, 1, 2, 3 ] ],
-        [ 'a chordseq with only single pitches', chordseq([ [ 4 ], [ 8 ], [ 6 ] ]), [ 4, 8, 6 ] ],
-        [ 'a melody with only single pitches', melody([ [ 4 ], [ 8 ], [ 6 ] ]), [ 4, 8, 6 ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ 1.5, 3, -4.2 ] ],
+        [ 'a noteseq without nulls', NoteSeq.from([ 6, 7, 8, 1, 2, 3 ]), [ 6, 7, 8, 1, 2, 3 ] ],
+        [ 'a chordseq with only single pitches', ChordSeq.from([ [ 4 ], [ 8 ], [ 6 ] ]), [ 4, 8, 6 ] ],
+        [ 'a melody with only single pitches', Melody.from([ [ 4 ], [ 8 ], [ 6 ] ]), [ 4, 8, 6 ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -85,8 +88,8 @@ describe('Sequence.toNumericValues()', () => {
 
 describe('Sequence.toNullableNumericValues()', () => {
     const errortable: [ string, AnySeq ][] = [
-        [ 'chords are present', chordseq([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
-        [ 'chords are present in a melody', melody([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
+        [ 'chords are present', ChordSeq.from([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
+        [ 'chords are present in a melody', Melody.from([ [ 5 ], [ 4 ], [ 6, 3 ] ]) ],
     ];
 
     test.each(errortable)('throws if %s', (_, s) => {
@@ -94,12 +97,12 @@ describe('Sequence.toNullableNumericValues()', () => {
     });
 
     const table: [ string, AnySeq, (null | number)[] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ 1.5, 3, -4.2 ] ],
-        [ 'a noteseq with nulls', noteseq([ 5, null, 4 ]), [ 5, null, 4 ] ],
-        [ 'a noteseq without nulls', noteseq([ 6, 7, 8, 1, 2, 3 ]), [ 6, 7, 8, 1, 2, 3 ] ],
-        [ 'a chordseq with only single pitches or silences', chordseq([ [ 4 ], [], [ 6 ] ]), [ 4, null, 6 ] ],
-        [ 'a melody with only single pitches or silences', melody([ [ 4 ], [], [ 6 ] ]), [ 4, null, 6 ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ 1.5, 3, -4.2 ] ],
+        [ 'a noteseq with nulls', NoteSeq.from([ 5, null, 4 ]), [ 5, null, 4 ] ],
+        [ 'a noteseq without nulls', NoteSeq.from([ 6, 7, 8, 1, 2, 3 ]), [ 6, 7, 8, 1, 2, 3 ] ],
+        [ 'a chordseq with only single pitches or silences', ChordSeq.from([ [ 4 ], [], [ 6 ] ]), [ 4, null, 6 ] ],
+        [ 'a melody with only single pitches or silences', Melody.from([ [ 4 ], [], [ 6 ] ]), [ 4, null, 6 ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -111,27 +114,27 @@ describe('Sequence.toPitchDistributionMap()', () => {
     const table: [ string, AnySeq, Map<number, number> ][] = [
         [
             'an empty intseq',
-            intseq([]),
+            NumSeq.from([]),
             new Map(),
         ],
         [
             'an intseq',
-            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
         [
             'a noteseq',
-            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            NoteSeq.from([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
             new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
         [
             'a chordseq',
-            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
         [
             'a melody',
-            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            Melody.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
     ];
@@ -145,27 +148,27 @@ describe('Sequence.toChordDistributionMap()', () => {
     const table: [ string, AnySeq, Map<number[], number> ][] = [
         [
             'an empty intseq',
-            intseq([]),
+            NumSeq.from([]),
             new Map(),
         ],
         [
             'an intseq',
-            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ [ 1 ], 2 ], [ [ 2 ], 2 ], [ [ 3 ], 1 ], [ [ 4 ], 2 ], [ [ 5 ], 2 ], [ [ 8 ], 1 ] ]),
         ],
         [
             'a noteseq',
-            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            NoteSeq.from([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
             new Map([ [ [ 1 ], 2 ], [ [ 2 ], 2 ], [ [ 3 ], 1 ], [ [ 4 ], 2 ], [ [ 5 ], 2 ], [ [ 8 ], 1 ], [ [], 2 ] ]),
         ],
         [
             'a chordseq',
-            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ [ 1, 2 ], 1 ], [ [ 1, 3, 4 ], 1 ], [ [ 5 ], 2 ], [ [ 2, 4, 8 ], 1 ], [ [], 2 ] ]),
         ],
         [
             'a melody',
-            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            Melody.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ [ 1, 2 ], 1 ], [ [ 1, 3, 4 ], 1 ], [ [ 5 ], 2 ], [ [ 2, 4, 8 ], 1 ], [ [], 2 ] ]),
         ],
     ];
@@ -179,27 +182,27 @@ describe('Sequence.toPitchLocationMap()', () => {
     const table: [ string, AnySeq, Map<number, number[]> ][] = [
         [
             'an empty intseq',
-            intseq([]),
+            NumSeq.from([]),
             new Map(),
         ],
         [
             'an intseq',
-            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ 1, [ 0, 4 ] ], [ 2, [ 1, 7 ] ], [ 3, [ 2 ] ], [ 4, [ 3, 6 ] ], [ 5, [ 5, 9 ] ], [ 8, [ 8 ] ] ]),
         ],
         [
             'a noteseq',
-            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            NoteSeq.from([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
             new Map([ [ 1, [ 0, 5 ] ], [ 2, [ 1, 9 ] ], [ 3, [ 3 ] ], [ 4, [ 4, 8 ] ], [ 5, [ 7, 11 ] ], [ 8, [ 10 ] ] ]),
         ],
         [
             'a chordseq',
-            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ 1, [ 0, 2 ] ], [ 2, [ 0, 5 ] ], [ 3, [ 2 ] ], [ 4, [ 2, 5]  ], [ 5, [ 4, 6 ] ], [ 8, [ 5 ] ] ]),
         ],
         [
             'a melody',
-            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            Melody.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ 1, [ 0, 2 ] ], [ 2, [ 0, 5 ] ], [ 3, [ 2 ] ], [ 4, [ 2, 5]  ], [ 5, [ 4, 6 ] ], [ 8, [ 5 ] ] ]),
         ],
     ];
@@ -213,27 +216,27 @@ describe('Sequence.toChordLocationMap()', () => {
     const table: [ string, AnySeq, Map<number[], number[]> ][] = [
         [
             'an empty intseq',
-            intseq([]),
+            NumSeq.from([]),
             new Map(),
         ],
         [
             'an intseq',
-            intseq([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
+            NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ [ 1 ], [ 0, 4 ] ], [ [ 2 ], [ 1, 7 ] ], [ [ 3 ], [ 2 ] ], [ [ 4 ], [ 3, 6 ] ], [ [ 5 ], [ 5, 9 ] ], [ [ 8 ], [ 8 ] ] ]),
         ],
         [
             'a noteseq',
-            noteseq([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
+            NoteSeq.from([ 1, 2, null, 3, 4, 1, null, 5, 4, 2, 8, 5]),
             new Map([ [ [ 1 ], [ 0, 5 ] ], [ [ 2 ], [ 1, 9 ] ], [ [ 3 ], [ 3 ] ], [ [ 4 ], [ 4, 8 ] ], [ [ 5 ], [ 7, 11 ] ], [ [ 8 ], [ 10 ] ], [ [], [ 2, 6 ] ] ]),
         ],
         [
             'a chordseq',
-            chordseq([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ [ 1, 2 ], [ 0 ] ], [ [ 1, 3, 4 ], [ 2 ] ], [ [ 5 ], [ 4, 6 ] ], [ [ 2, 4, 8 ], [ 5 ] ], [ [], [ 1, 3 ] ] ]),
         ],
         [
             'a melody',
-            melody([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
+            Melody.from([ [ 1, 2 ], [], [ 3, 4, 1 ], [], [ 5 ], [ 4, 2, 8 ], [ 5 ] ]),
             new Map([ [ [ 1, 2 ], [ 0 ] ], [ [ 1, 3, 4 ], [ 2 ] ], [ [ 5 ], [ 4, 6 ] ], [ [ 2, 4, 8 ], [ 5 ] ], [ [], [ 1, 3 ] ] ]),
         ],
     ];
@@ -245,11 +248,11 @@ describe('Sequence.toChordLocationMap()', () => {
 
 describe('Sequence.min()', () => {
     const table: [ string, AnySeq, null | number ][] = [
-        [ 'an empty sequence', intseq([]), null ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), -4.2 ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), 1 ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
+        [ 'an empty sequence', NumSeq.from([]), null ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), -4.2 ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), 1 ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -259,11 +262,11 @@ describe('Sequence.min()', () => {
 
 describe('Sequence.max()', () => {
     const table: [ string, AnySeq, null | number ][] = [
-        [ 'an empty sequence', intseq([]), null ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), 3 ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), 8 ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 8 ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 8 ],
+        [ 'an empty sequence', NumSeq.from([]), null ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), 3 ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), 8 ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 8 ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 8 ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -273,11 +276,11 @@ describe('Sequence.max()', () => {
 
 describe('Sequence.range()', () => {
     const table: [ string, AnySeq, number ][] = [
-        [ 'an empty sequence', intseq([]), 0 ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), 7.2 ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), 7 ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
+        [ 'an empty sequence', NumSeq.from([]), 0 ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), 7.2 ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), 7 ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 4 ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -287,11 +290,11 @@ describe('Sequence.range()', () => {
 
 describe('Sequence.total()', () => {
     const table: [ string, AnySeq, number ][] = [
-        [ 'an empty sequence', intseq([]), 0 ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), 0.3 ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), 25 ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 25 ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 25 ],
+        [ 'an empty sequence', NumSeq.from([]), 0 ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), 0.3 ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), 25 ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 25 ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 25 ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -301,11 +304,11 @@ describe('Sequence.total()', () => {
 
 describe('Sequence.mean()', () => {
     const table: [ string, AnySeq, number | null ][] = [
-        [ 'an empty sequence', intseq([]), null ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), 0.1 ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), 5 ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 6.25 ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 6.25 ],
+        [ 'an empty sequence', NumSeq.from([]), null ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), 0.1 ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), 5 ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 6.25 ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), 6.25 ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -319,11 +322,11 @@ describe('Sequence.mean()', () => {
 
 describe('Sequence.mins()', () => {
     const table: [ string, AnySeq, (number | null)[] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ 1.5, 3, -4.2 ] ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, null, 3 ] ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, null, 6 ] ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, null, 6 ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ 1.5, 3, -4.2 ] ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, null, 3 ] ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, null, 6 ] ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7, null, 6 ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -333,11 +336,11 @@ describe('Sequence.mins()', () => {
 
 describe('Sequence.maxes()', () => {
     const table: [ string, AnySeq, (number | null)[] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ 1.5, 3, -4.2 ] ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, null, 3 ] ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 8, null, 6 ] ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 8, null, 6 ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ 1.5, 3, -4.2 ] ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, null, 3 ] ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 8, null, 6 ] ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 8, null, 6 ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -347,11 +350,11 @@ describe('Sequence.maxes()', () => {
 
 describe('Sequence.means()', () => {
     const table: [ string, AnySeq, (number | null)[] ][] = [
-        [ 'an empty sequence', intseq([]), [] ],
-        [ 'a sequence of floats', floatseq([ 1.5, 3, -4.2 ]), [ 1.5, 3, -4.2 ] ],
-        [ 'a noteseq', noteseq([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, null, 3 ] ],
-        [ 'a chordseq', chordseq([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7.5, null, 6 ] ],
-        [ 'a melody', melody([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7.5, null, 6 ] ],
+        [ 'an empty sequence', NumSeq.from([]), [] ],
+        [ 'a sequence of floats', NumSeq.from([ 1.5, 3, -4.2 ], MICROTONAL), [ 1.5, 3, -4.2 ] ],
+        [ 'a noteseq', NoteSeq.from([ 6, 7, 8, 1, null, 3 ]), [ 6, 7, 8, 1, null, 3 ] ],
+        [ 'a chordseq', ChordSeq.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7.5, null, 6 ] ],
+        [ 'a melody', Melody.from([ [ 4 ], [ 7, 8 ], null, [ 6 ] ]), [ 4, 7.5, null, 6 ] ],
     ];
 
     test.each(table)('returns as expected for %s', (_, s, ret) => {
@@ -360,11 +363,11 @@ describe('Sequence.means()', () => {
 });
 
 describe('Collection.isSameClassAndLengthAs()', () => {
-    const c1 = intseq([ 1, 2, 3 ]);
-    const c2 = noteseq([ 1, 2, 3 ]);
-    const c3 = intseq([ 4 ]);
-    const c4 = floatseq([ 1, 2, 3 ]);
-    const c5 = intseq([ 3, 2, 1 ]);
+    const c1 = NumSeq.from([ 1, 2, 3 ]);
+    const c2 = NoteSeq.from([ 1, 2, 3 ]);
+    const c3 = NumSeq.from([ 4 ]);
+    const c4 = NumSeq.from([ 1, 2, 3 ], MICROTONAL);
+    const c5 = NumSeq.from([ 3, 2, 1 ]);
 
     test('Returns true when nothing is passed', () => {
         expect(c1.isSameClassAndLengthAs()).toBe(true);
@@ -404,11 +407,11 @@ describe('Collection.isSameClassAndLengthAs()', () => {
 });
 
 describe('Sequence.equals()', () => {
-    const c1 = intseq([ 1, 2, 3 ]);
-    const c2 = noteseq([ 1, 2, 3 ]);
-    const c3 = intseq([ 4 ]);
-    const c4 = floatseq([ 1, 2, 3 ]);
-    const c5 = intseq([ 1, 2, 1 ]);
+    const c1 = NumSeq.from([ 1, 2, 3 ]);
+    const c2 = NoteSeq.from([ 1, 2, 3 ]);
+    const c3 = NumSeq.from([ 4 ]);
+    const c4 = NumSeq.from([ 1, 2, 3 ], MICROTONAL);
+    const c5 = NumSeq.from([ 1, 2, 1 ]);
 
     test('Returns true when nothing is passed', () => {
         expect(c1.equals()).toBe(true);
@@ -444,12 +447,12 @@ describe('Sequence.equals()', () => {
 });
 
 describe('Sequence.isSubsetOf()', () => {
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 3 ]);
-    const c2 = intseq([ 0, 1, 2, 3, 4, 5 ]);
-    const c3 = intseq([ 1, 3, 2, 4 ]);
-    const c4 = floatseq([ 1, 2, 3 ]);
-    const c5 = noteseq([ 1, 2, 3 ]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 3 ]);
+    const c2 = NumSeq.from([ 0, 1, 2, 3, 4, 5 ]);
+    const c3 = NumSeq.from([ 1, 3, 2, 4 ]);
+    const c4 = NumSeq.from([ 1, 2, 3 ], MICROTONAL);
+    const c5 = NoteSeq.from([ 1, 2, 3 ]);
 
     test('Returns false when compared to non-sequence', () => {
         expect(c1.isSubsetOf([ 1, 2, 3 ] as unknown as NumSeq));
@@ -485,12 +488,12 @@ describe('Sequence.isSubsetOf()', () => {
 });
 
 describe('Sequence.isSupersetOf()', () => {
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 3 ]);
-    const c2 = intseq([ 0, 1, 2, 3, 4, 5 ]);
-    const c3 = intseq([ 1, 3, 2, 4 ]);
-    const c4 = floatseq([ 1, 2, 3 ]);
-    const c5 = noteseq([ 1, 2, 3 ]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 3 ]);
+    const c2 = NumSeq.from([ 0, 1, 2, 3, 4, 5 ]);
+    const c3 = NumSeq.from([ 1, 3, 2, 4 ]);
+    const c4 = NumSeq.from([ 1, 2, 3 ], MICROTONAL);
+    const c5 = NoteSeq.from([ 1, 2, 3 ]);
 
     test('Returns true when equal', () => {
         expect(c2.isSupersetOf(c1)).toBe(true);
@@ -527,9 +530,9 @@ describe('Sequence.isTransformationOf()', () => {
     const c_div  = (a: number, b: number) => a / b;
     const c_one  = () => 1;
 
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 4 ]);
-    const c2 = chordseq([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 4 ]);
+    const c2 = ChordSeq.from([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
 
     test('fails for invalid fn', () => {
         expect(() => c0.isTransformationOf(500 as unknown as (a: number, b: number) => number, c0)).toThrow();
@@ -548,7 +551,7 @@ describe('Sequence.isTransformationOf()', () => {
     });
 
     test('succeeds for augmentation despite zero values', () => {
-        expect(intseq([ 1, 2, 0, 4 ]).isTransformationOf(c_div, intseq([ 4, 8, 0, 16 ]))).toBe(true);
+        expect(NumSeq.from([ 1, 2, 0, 4 ]).isTransformationOf(c_div, NumSeq.from([ 4, 8, 0, 16 ]))).toBe(true);
     });
 
     test('correctly identifies transformation types for identical sequences', () => {
@@ -580,9 +583,9 @@ describe('Sequence.isTransformationOf()', () => {
 });
 
 describe('Sequence.isTranspositionOf()', () => {
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 4 ]);
-    const c2 = chordseq([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 4 ]);
+    const c2 = ChordSeq.from([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
 
     test('succeeds for zero length', () => {
         expect(c0.isTranspositionOf(c0)).toBe(true);
@@ -610,9 +613,9 @@ describe('Sequence.isTranspositionOf()', () => {
 });
 
 describe('Sequence.isInversionOf()', () => {
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 4 ]);
-    const c2 = chordseq([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 4 ]);
+    const c2 = ChordSeq.from([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
 
     test('succeeds for zero length', () => {
         expect(c0.isInversionOf(c0)).toBe(true);
@@ -640,9 +643,9 @@ describe('Sequence.isInversionOf()', () => {
 });
 
 describe('Sequence.isRetrogradeOf()', () => {
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 4 ]);
-    const c2 = chordseq([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 4 ]);
+    const c2 = ChordSeq.from([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
 
     test('succeeds for zero length', () => {
         expect(c0.isRetrogradeOf(c0)).toBe(true);
@@ -674,9 +677,9 @@ describe('Sequence.isRetrogradeOf()', () => {
 });
 
 describe('Sequence.isRetrogradeInversionOf()', () => {
-    const c0 = intseq([]);
-    const c1 = intseq([ 1, 2, 4 ]);
-    const c2 = chordseq([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
+    const c0 = NumSeq.from([]);
+    const c1 = NumSeq.from([ 1, 2, 4 ]);
+    const c2 = ChordSeq.from([ [ 1, 2 ], [ 3, 4], [ 5 ]]);
 
     test('succeeds for zero length', () => {
         expect(c0.isRetrogradeInversionOf(c0)).toBe(true);
@@ -708,9 +711,9 @@ describe('Sequence.isRetrogradeInversionOf()', () => {
 });
 
 describe('Sequence.hasPeriodicityOf()', () => {
-    const c0 = intseq([]);
-    const c1 = chordseq([ [ 5, 5 ], [ 5, 5 ], [ 5, 5 ], [ 5, 5 ] ]);
-    const c2 = intseq([ 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4 ]);
+    const c0 = NumSeq.from([]);
+    const c1 = ChordSeq.from([ [ 5, 5 ], [ 5, 5 ], [ 5, 5 ], [ 5, 5 ] ]);
+    const c2 = NumSeq.from([ 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4 ]);
 
     test('fails with zero length', () => {
         expect(c0.hasPeriodicityOf(1)).toBe(false);
@@ -732,9 +735,9 @@ describe('Sequence.hasPeriodicityOf()', () => {
 });
 
 describe('Sequence.hasPeriodicity()', () => {
-    const c0 = intseq([]);
-    const c1 = chordseq([ [ 5, 5 ], [ 5, 5 ], [ 5, 5 ], [ 5, 5 ] ]);
-    const c2 = intseq([ 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4 ]);
+    const c0 = NumSeq.from([]);
+    const c1 = ChordSeq.from([ [ 5, 5 ], [ 5, 5 ], [ 5, 5 ], [ 5, 5 ] ]);
+    const c2 = NumSeq.from([ 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4 ]);
 
     const table: [ string, AnySeq, number ][] = [
         [ 'zero length', c0, 0 ],
@@ -748,9 +751,9 @@ describe('Sequence.hasPeriodicity()', () => {
 });
 
 describe('Sequence.findIfWindow()', () => {
-    const c1 = intseq([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
-    const c2 = noteseq([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
-    const c3 = chordseq([ [], [ 1, 2 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]);
+    const c1 = NumSeq.from([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
+    const c2 = NoteSeq.from([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
+    const c3 = ChordSeq.from([ [], [ 1, 2 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]);
 
     test('throws if function is not a function', () => {
         expect(() => c1.findIfWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>)).toThrow();
@@ -770,9 +773,9 @@ describe('Sequence.findIfWindow()', () => {
 });
 
 describe('Sequence.findIfReverseWindow()', () => {
-    const c1 = intseq([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
-    const c2 = noteseq([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
-    const c3 = chordseq([ [], [ 1 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]);
+    const c1 = NumSeq.from([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
+    const c2 = NoteSeq.from([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
+    const c3 = ChordSeq.from([ [], [ 1 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]);
 
     test('throws if function is not a function', () => {
         expect(() => c1.findIfReverseWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>)).toThrow();
@@ -792,9 +795,9 @@ describe('Sequence.findIfReverseWindow()', () => {
 });
 
 describe('Sequence.replaceIfWindow()', () => {
-    const c1 = intseq([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
-    const c2 = noteseq([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
-    const c3 = chordseq([ [], [ 1, 2 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]);
+    const c1 = NumSeq.from([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
+    const c2 = NoteSeq.from([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
+    const c3 = ChordSeq.from([ [], [ 1, 2 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]);
 
     test('throws if function is not a function', () => {
         expect(() => c1.replaceIfWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>, e => e[0].transpose(1))).toThrow();
@@ -802,54 +805,54 @@ describe('Sequence.replaceIfWindow()', () => {
 
     test('returns expected value when size and step both one and replaced with a single value', () => {
         expect(c1.replaceIfWindow(1, 1, (e, i) => e[0].val() > i, e => e[0].transpose(1)))
-            .toStrictEqual(intseq([ 2, 5, 4, 2, 6, 7, 11, 10, 7, 8 ]));
+            .toStrictEqual(NumSeq.from([ 2, 5, 4, 2, 6, 7, 11, 10, 7, 8 ]));
     });
 
     test('returns expected value when size and step both one and replaced with a number', () => {
         expect(c1.replaceIfWindow(1, 1, e => e[0].val() % 2 === 0, 0))
-            .toStrictEqual(intseq([ 1, 0, 3, 0, 5, 0, 0, 9, 7, 0 ]));
+            .toStrictEqual(NumSeq.from([ 1, 0, 3, 0, 5, 0, 0, 9, 7, 0 ]));
     });
 
     test('returns expected value when size and step both one and replaced with the contents of the same kind of sequence', () => {
-        expect(c1.replaceIfWindow(1, 1, e => e[0].val() % 2 === 0, intseq([ 11, 10 ])))
-            .toStrictEqual(intseq([ 1, 11, 10, 3, 11, 10, 5, 11, 10, 11, 10, 9, 7, 11, 10 ]));
+        expect(c1.replaceIfWindow(1, 1, e => e[0].val() % 2 === 0, NumSeq.from([ 11, 10 ])))
+            .toStrictEqual(NumSeq.from([ 1, 11, 10, 3, 11, 10, 5, 11, 10, 11, 10, 9, 7, 11, 10 ]));
     });
 
     test('returns expected value when size and step both one and replaced with the contents of a different kind of sequence', () => {
-        expect(c3.replaceIfWindow(1, 1, e => e[0].len() === 0, noteseq([ 11, null, 10 ])))
-            .toStrictEqual(chordseq([ [ 11 ], [], [ 10 ], [ 1, 2 ], [ 3, 4 ], [ 5 ], [ 11 ], [], [ 10 ], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
+        expect(c3.replaceIfWindow(1, 1, e => e[0].len() === 0, NoteSeq.from([ 11, null, 10 ])))
+            .toStrictEqual(ChordSeq.from([ [ 11 ], [], [ 10 ], [ 1, 2 ], [ 3, 4 ], [ 5 ], [ 11 ], [], [ 10 ], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
     });
 
     test('returns expected value when size two and step one and replaced with no values', () => {
         expect(c2.replaceIfWindow(2, 1, e => e.some(m => m.val() === null), []))
-            .toStrictEqual(noteseq([ 1, 3, 2, 5, 10, 9, 7, 8 ])); // 3 and 10 appear because replace done before second find
+            .toStrictEqual(NoteSeq.from([ 1, 3, 2, 5, 10, 9, 7, 8 ])); // 3 and 10 appear because replace done before second find
     });
 
     // TODO: This behaviour seems anomalous
     test('handles when sequence truncated so much that the loop regresses before the start', () => {
-        expect(c1.replaceIfWindow(4, 1, (_, i) => i < 4, e => e.slice(1, 3))).toStrictEqual(intseq([ 10, 7 ]));
+        expect(c1.replaceIfWindow(4, 1, (_, i) => i < 4, e => e.slice(1, 3))).toStrictEqual(NumSeq.from([ 10, 7 ]));
     });
 
     test('returns expected value when size two and step two and replaced by duplicating first value', () => {
         expect(c3.replaceIfWindow(2, 2, e => e[1].len() > e[0].len(), e => [ e[0], e[1], e[0] ]))
-            .toStrictEqual(chordseq([ [], [ 1, 2 ], [], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
+            .toStrictEqual(ChordSeq.from([ [], [ 1, 2 ], [], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
     });
 
     test('adds multivalued members when size two and step two and replaced by number[]', () => {
         expect(c3.replaceIfWindow(3, 3, e => e[1].len() > e[0].len(), [ -1, -2, -3 ]))
-            .toStrictEqual(chordseq([ [ -1 ], [ -2 ], [ -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
+            .toStrictEqual(ChordSeq.from([ [ -1 ], [ -2 ], [ -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
     });
 
     test('adds multivalued members when size two and step two and replaced by number[][]', () => {
         expect(c3.replaceIfWindow(3, 3, e => e[1].len() > e[0].len(), [ [ -1, -2, -3 ] ]))
-            .toStrictEqual(chordseq([ [ -1, -2, -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
+            .toStrictEqual(ChordSeq.from([ [ -1, -2, -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
     });
 });
 
 describe('Sequence.replaceIfReverseWindow()', () => {
-    const c1 = intseq([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
-    const c2 = noteseq([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
-    const c3 = chordseq([ [], [ 1 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]);
+    const c1 = NumSeq.from([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
+    const c2 = NoteSeq.from([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
+    const c3 = ChordSeq.from([ [], [ 1 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]);
 
     test('throws if function is not a function', () => {
         expect(() => c1.replaceIfReverseWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>, e => e[0].transpose(1))).toThrow();
@@ -857,153 +860,153 @@ describe('Sequence.replaceIfReverseWindow()', () => {
 
     test('returns expected value when size and step both one and replaced with a single value', () => {
         expect(c1.replaceIfReverseWindow(1, 1, (e, i) => e[0].val() > i, e => e[0].transpose(1)))
-            .toStrictEqual(intseq([ 2, 5, 4, 2, 6, 7, 11, 10, 7, 8 ]));
+            .toStrictEqual(NumSeq.from([ 2, 5, 4, 2, 6, 7, 11, 10, 7, 8 ]));
     });
 
     test('returns expected value when size and step both one and replaced with a number', () => {
         expect(c1.replaceIfReverseWindow(1, 1, e => e[0].val() % 2 === 0, 0))
-            .toStrictEqual(intseq([ 1, 0, 3, 0, 5, 0, 0, 9, 7, 0 ]));
+            .toStrictEqual(NumSeq.from([ 1, 0, 3, 0, 5, 0, 0, 9, 7, 0 ]));
     });
 
     test('returns expected value when size and step both one and replaced with the contents of the same kind of sequence', () => {
-        expect(c1.replaceIfReverseWindow(1, 1, e => e[0].val() % 2 === 0, intseq([ 11, 10 ])))
-            .toStrictEqual(intseq([ 1, 11, 10, 3, 11, 10, 5, 11, 10, 11, 10, 9, 7, 11, 10 ]));
+        expect(c1.replaceIfReverseWindow(1, 1, e => e[0].val() % 2 === 0, NumSeq.from([ 11, 10 ])))
+            .toStrictEqual(NumSeq.from([ 1, 11, 10, 3, 11, 10, 5, 11, 10, 11, 10, 9, 7, 11, 10 ]));
     });
 
     test('returns expected value when size and step both one and replaced with the contents of a different kind of sequence', () => {
-        expect(c3.replaceIfReverseWindow(1, 1, e => e[0].len() === 0, noteseq([ 11, null, 10 ])))
-            .toStrictEqual(chordseq([ [ 11 ], [], [ 10 ], [ 1 ], [ 3, 4 ], [ 5 ], [ 11 ], [], [ 10 ], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]));
+        expect(c3.replaceIfReverseWindow(1, 1, e => e[0].len() === 0, NoteSeq.from([ 11, null, 10 ])))
+            .toStrictEqual(ChordSeq.from([ [ 11 ], [], [ 10 ], [ 1 ], [ 3, 4 ], [ 5 ], [ 11 ], [], [ 10 ], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]));
     });
 
     test('returns expected value when size two and step one and replaced with no values', () => {
         expect(c2.replaceIfWindow(2, 1, e => e.some(m => m.val() === null), []))
-            .toStrictEqual(noteseq([ 1, 3, 2, 5, 10, 9, 7, 8 ])); // 3 and 10 appear because replace done before second find
+            .toStrictEqual(NoteSeq.from([ 1, 3, 2, 5, 10, 9, 7, 8 ])); // 3 and 10 appear because replace done before second find
     });
 
     test('returns expected array value when size two and step one and replaced with no values', () => {
         expect(c2.replaceIfReverseWindow(2, 1, e => e.some(m => m.val() === null), []))
-            .toStrictEqual(noteseq([ 1, 4, 2, 5, 6, 9, 7, 8 ])); // 4 and 6 appear because replace done before second find
+            .toStrictEqual(NoteSeq.from([ 1, 4, 2, 5, 6, 9, 7, 8 ])); // 4 and 6 appear because replace done before second find
     });
 
     // TODO: This behaviour seems anomalous
     test('handles when sequence truncated so much that the loop regresses before the start', () => {
-        expect(c1.replaceIfReverseWindow(5, 1, (_, i) => i < 4, e => e.slice(1, 3))).toStrictEqual(intseq([ 1, 4, 5, 6 ]));
+        expect(c1.replaceIfReverseWindow(5, 1, (_, i) => i < 4, e => e.slice(1, 3))).toStrictEqual(NumSeq.from([ 1, 4, 5, 6 ]));
     });
 
     test('returns expected array value when size two and step two and replaced by duplicating first value', () => {
         expect(c3.replaceIfReverseWindow(2, 2, e => e[1].len() > e[0].len(), e => [ e[0], e[1], e[0] ]))
-            .toStrictEqual(chordseq([ [], [ 1 ], [ 3, 4 ], [ 1 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ], [ 12, 13 ] ]));
+            .toStrictEqual(ChordSeq.from([ [], [ 1 ], [ 3, 4 ], [ 1 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ], [ 12, 13 ] ]));
     });
 
     test('adds multivalued members when size two and step two and replaced by number[]', () => {
         expect(c3.replaceIfReverseWindow(3, 3, e => e[1].len() > e[0].len(), [ -1, -2, -3 ]))
-            .toStrictEqual(chordseq([ [ -1 ], [ -2 ], [ -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]));
+            .toStrictEqual(ChordSeq.from([ [ -1 ], [ -2 ], [ -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]));
     });
 
     test('adds multivalued members when size two and step two and replaced by number[][]', () => {
         expect(c3.replaceIfReverseWindow(3, 3, e => e[1].len() > e[0].len(), [ [ -1, -2, -3 ] ]))
-            .toStrictEqual(chordseq([ [ -1, -2, -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]));
+            .toStrictEqual(ChordSeq.from([ [ -1, -2, -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14, 15, 16 ] ]));
     });
 });
 
 describe('Sequence.setSlice()', () => {
     test('returns unchanged when slice length is 0', () => {
-        expect(intseq([ 1, 2, 3, 4, 5 ]).setSlice(2, 2, new NumSeqMember(6))).toStrictEqual(intseq([ 1, 2, 3, 4, 5 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4, 5 ]).setSlice(2, 2, new NumSeqMember(6))).toStrictEqual(NumSeq.from([ 1, 2, 3, 4, 5 ]));
     });
 
     test('returns changed value when slice length is defined in reverse order', () => {
-        expect(intseq([ 1, 2, 3, 4, 5 ]).setSlice(3, 1, 6)).toStrictEqual(intseq([ 1, 6, 6, 4, 5 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4, 5 ]).setSlice(3, 1, 6)).toStrictEqual(NumSeq.from([ 1, 6, 6, 4, 5 ]));
     });
 
     test('returns changed value when slice length is 1 with end defined using a negative index', () => {
-        expect(noteseq([ 1, 2, 3, 4, 5 ]).setSlice(2, -2, [])).toStrictEqual(noteseq([ 1, 2, null, 4, 5 ]));
+        expect(NoteSeq.from([ 1, 2, 3, 4, 5 ]).setSlice(2, -2, [])).toStrictEqual(NoteSeq.from([ 1, 2, null, 4, 5 ]));
     });
 
     test('replaces to end when start defined using negative index and end undefined', () => {
-        expect(chordseq([ 1, 2, 3, 4, 5, 6 ]).setSlice(-3, undefined, [ 4, 5 ])).toStrictEqual(chordseq([ [ 1 ], [ 2 ], [ 3 ], [ 4, 5 ], [ 4, 5 ], [ 4, 5 ]]));
+        expect(ChordSeq.from([ 1, 2, 3, 4, 5, 6 ]).setSlice(-3, undefined, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ [ 1 ], [ 2 ], [ 3 ], [ 4, 5 ], [ 4, 5 ], [ 4, 5 ]]));
     });
 
     test('replaces from start when start undefined and end defined', () => {
-        expect(melody([ 1, 2, 3, 4 ]).setSlice(undefined, 3, new NumSeqMember(6))).toStrictEqual(melody([ 6, 6, 6, 4 ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).setSlice(undefined, 3, new NumSeqMember(6))).toStrictEqual(Melody.from([ 6, 6, 6, 4 ]));
     });
 });
 
 describe('Sequence.loop()', () => {
     test('throws when looping a zero-length sequence', () => {
-        expect(() => intseq([]).loop(5)).toThrow();
+        expect(() => NumSeq.from([]).loop(5)).toThrow();
     });
 
     test('throws when trying to loop with an out-of-range starting index', () => {
-        expect(() => noteseq([ 1, 2, 3 ]).loop(8, 3)).toThrow();
+        expect(() => NoteSeq.from([ 1, 2, 3 ]).loop(8, 3)).toThrow();
     });
 
     test('loops a 1-length sequence correctly', () => {
-        expect(chordseq([ [ 1, 2 ] ]).loop(4)).toStrictEqual(chordseq([ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]));
+        expect(ChordSeq.from([ [ 1, 2 ] ]).loop(4)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 1, 2 ], [ 1, 2 ], [ 1, 2 ] ]));
     });
 
     test('loops a 3-length sequence correctly', () => {
-        expect(noteseq([ 1, 2, 3 ]).loop(8)).toStrictEqual(noteseq([ 1, 2, 3, 1, 2, 3, 1, 2 ]));
+        expect(NoteSeq.from([ 1, 2, 3 ]).loop(8)).toStrictEqual(NoteSeq.from([ 1, 2, 3, 1, 2, 3, 1, 2 ]));
     });
 
     test('loops a 3-length sequence correctly when using a positive starting index', () => {
-        expect(noteseq([ 1, 2, 3 ]).loop(8, 1)).toStrictEqual(noteseq([ 2, 3, 1, 2, 3, 1, 2, 3 ]));
+        expect(NoteSeq.from([ 1, 2, 3 ]).loop(8, 1)).toStrictEqual(NoteSeq.from([ 2, 3, 1, 2, 3, 1, 2, 3 ]));
     });
 
     test('loops a 3-length sequence correctly when using a negative starting index', () => {
-        expect(noteseq([ 1, 2, 3 ]).loop(8, -1)).toStrictEqual(noteseq([ 3, 1, 2, 3, 1, 2, 3, 1 ]));
+        expect(NoteSeq.from([ 1, 2, 3 ]).loop(8, -1)).toStrictEqual(NoteSeq.from([ 3, 1, 2, 3, 1, 2, 3, 1 ]));
     });
 });
 
 describe('Sequence.repeat()', () => {
     test('repeating a zero-length sequence returns a zero-length sequence', () => {
-        expect(intseq([]).repeat(250)).toStrictEqual(intseq([]));
+        expect(NumSeq.from([]).repeat(250)).toStrictEqual(NumSeq.from([]));
     });
 
     test('repeating a 1-length sequence works', () => {
-        expect(noteseq([ 5 ]).repeat(2)).toStrictEqual(noteseq([ 5, 5 ]));
+        expect(NoteSeq.from([ 5 ]).repeat(2)).toStrictEqual(NoteSeq.from([ 5, 5 ]));
     });
 
     test('repeating once by not passing an argument works', () => {
-        expect(chordseq([ 1, 2, 3 ]).repeat()).toStrictEqual(chordseq([ 1, 2, 3, 1, 2, 3 ]));
+        expect(ChordSeq.from([ 1, 2, 3 ]).repeat()).toStrictEqual(ChordSeq.from([ 1, 2, 3, 1, 2, 3 ]));
     });
 
     test('repeating five times works', () => {
-        expect(melody([ 1, 5, 9 ]).repeat(5)).toStrictEqual(melody([ 1, 5, 9, 1, 5, 9, 1, 5, 9, 1, 5, 9, 1, 5, 9 ]));
+        expect(Melody.from([ 1, 5, 9 ]).repeat(5)).toStrictEqual(Melody.from([ 1, 5, 9, 1, 5, 9, 1, 5, 9, 1, 5, 9, 1, 5, 9 ]));
     });
 });
 
 describe('Sequence.dupe()', () => {
     test('duplicating a zero-length sequence returns a zero-length sequence', () => {
-        expect(intseq([]).dupe(3)).toStrictEqual(intseq([]));
+        expect(NumSeq.from([]).dupe(3)).toStrictEqual(NumSeq.from([]));
     });
 
     test('duplicating a one-length sequence works', () => {
-        expect(noteseq([ 5 ]).dupe()).toStrictEqual(noteseq([ 5, 5 ]));
+        expect(NoteSeq.from([ 5 ]).dupe()).toStrictEqual(NoteSeq.from([ 5, 5 ]));
     });
 
     test('duplicating a longer sequence three times works', () => {
-        expect(chordseq([ 1, 3, 4 ]).dupe(4)).toStrictEqual(chordseq([ 1, 1, 1, 1, 3, 3, 3, 3, 4, 4, 4, 4 ]));
+        expect(ChordSeq.from([ 1, 3, 4 ]).dupe(4)).toStrictEqual(ChordSeq.from([ 1, 1, 1, 1, 3, 3, 3, 3, 4, 4, 4, 4 ]));
     });
 });
 
 describe('Sequence.dedupe()', () => {
     test('does nothing to a zero-length sequence', () => {
-        expect(intseq([]).dedupe()).toStrictEqual(intseq([]));
+        expect(NumSeq.from([]).dedupe()).toStrictEqual(NumSeq.from([]));
     });
 
     test('does nothing to a sequence without dupes', () => {
-        expect(chordseq([ 1, 2, 4, 1 ]).dedupe()).toStrictEqual(chordseq([ 1, 2, 4, 1 ]));
+        expect(ChordSeq.from([ 1, 2, 4, 1 ]).dedupe()).toStrictEqual(ChordSeq.from([ 1, 2, 4, 1 ]));
     });
 
     test('removes all dupes', () => {
-        expect(noteseq([ 1, 1, 2, null, null, null, 2, 3, 1, 1, 3, 3, 4, 1, 1, 1, 2, 2, null, null ]).dedupe())
-            .toStrictEqual(noteseq([ 1, 2, null, 2, 3, 1, 3, 4, 1, 2, null ]));
+        expect(NoteSeq.from([ 1, 1, 2, null, null, null, 2, 3, 1, 1, 3, 3, 4, 1, 1, 1, 2, 2, null, null ]).dedupe())
+            .toStrictEqual(NoteSeq.from([ 1, 2, null, 2, 3, 1, 3, 4, 1, 2, null ]));
     });
 });
 
 describe('Sequence.shuffle()', () => {
-    const s1 = intseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]);
-    const s2 = noteseq([ 1, 2, 3, 4, 1, 2, 3, 4, 5 ]);
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5, 6, 7, 8 ]);
+    const s2 = NoteSeq.from([ 1, 2, 3, 4, 1, 2, 3, 4, 5 ]);
     const errortable: [ string, AnySeq, number[] ][] = [
         [ 'shuffle parameter is an array of length 1', s1, [ 0 ] ],
         [ 'shuffle parameter has a missing value', s2, [ 0, 1, 3 ] ],
@@ -1015,19 +1018,19 @@ describe('Sequence.shuffle()', () => {
     });
 
     test('works when shuffle parameter is same length as sequence', () => {
-        expect(s1.shuffle([ 0, 7, 1, 6, 2, 5, 3, 4 ])).toStrictEqual(intseq([ 1, 8, 2, 7, 3, 6, 4, 5 ]));
+        expect(s1.shuffle([ 0, 7, 1, 6, 2, 5, 3, 4 ])).toStrictEqual(NumSeq.from([ 1, 8, 2, 7, 3, 6, 4, 5 ]));
     });
 
     test('works when shuffle parameter is a fraction of sequence length', () => {
-        expect(s2.shuffle([ 0, 2, 1 ])).toStrictEqual(noteseq([ 1, 3, 2, 4, 2, 1, 3, 5, 4 ]));
+        expect(s2.shuffle([ 0, 2, 1 ])).toStrictEqual(NoteSeq.from([ 1, 3, 2, 4, 2, 1, 3, 5, 4 ]));
     });
 });
 
 describe('Sequence.pad()', () => {
-    const s1 = intseq([ 1, 2, 3, 4, 5 ]);
-    const s2 = noteseq([ 3, 4 ]);
-    const s3 = chordseq([ [ 1, 2 ], [ 3 ], [] ]);
-    const s4 = melody([ 1, 2, 3, 4, 5 ]);
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5 ]);
+    const s2 = NoteSeq.from([ 3, 4 ]);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]);
+    const s4 = Melody.from([ 1, 2, 3, 4, 5 ]);
 
     test('pad with invalid pad argument throws', () => {
         expect(() => s1.pad('0' as unknown as NumSeqMember)).toThrow();
@@ -1038,7 +1041,7 @@ describe('Sequence.pad()', () => {
     });
 
     test('pad with one argument works', () => {
-        expect(s2.pad(new NoteSeqMember(null))).toStrictEqual(noteseq([ null, 3, 4 ]));
+        expect(s2.pad(new NoteSeqMember(null))).toStrictEqual(NoteSeq.from([ null, 3, 4 ]));
     });
 
     test('pad with zero length returns same object', () => {
@@ -1046,19 +1049,19 @@ describe('Sequence.pad()', () => {
     });
 
     test('pad with two arguments works', () => {
-        expect(s3.pad(new ChordSeqMember([]), 2)).toStrictEqual(chordseq([ [], [], [ 1, 2 ], [ 3 ], [] ]));
+        expect(s3.pad(new ChordSeqMember([]), 2)).toStrictEqual(ChordSeq.from([ [], [], [ 1, 2 ], [ 3 ], [] ]));
     });
 
     test('pad with event passed as event contents works', () => {
-        expect(s4.pad([ 6 ], 2)).toStrictEqual(melody([ 6, 6, 1, 2, 3, 4, 5 ]));
+        expect(s4.pad([ 6 ], 2)).toStrictEqual(Melody.from([ 6, 6, 1, 2, 3, 4, 5 ]));
     });
 });
 
 describe('Sequence.padTo()', () => {
-    const s1 = intseq([ 1, 2, 3, 4, 5 ]);
-    const s2 = noteseq([ 3, 4 ]);
-    const s3 = chordseq([ [ 1, 2 ], [ 3 ], [] ]);
-    const s4 = melody([ 1, 2, 3, 4, 5 ]);
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5 ]);
+    const s2 = NoteSeq.from([ 3, 4 ]);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]);
+    const s4 = Melody.from([ 1, 2, 3, 4, 5 ]);
 
     test('padding with invalid argument throws', () => {
         expect(() => s1.padTo('0' as unknown as NumSeqMember, 8)).toThrow();
@@ -1069,31 +1072,31 @@ describe('Sequence.padTo()', () => {
     });
 
     test('padTo works if now one longer than initial one argument works', () => {
-        expect(s2.padTo(new NoteSeqMember(null), 3)).toStrictEqual(noteseq([ null, 3, 4 ]));
+        expect(s2.padTo(new NoteSeqMember(null), 3)).toStrictEqual(NoteSeq.from([ null, 3, 4 ]));
     });
 
     test('padTo works if now one longer than initial one argument works', () => {
-        expect(s2.padTo(new NoteSeqMember(null), 4)).toStrictEqual(noteseq([ null, null, 3, 4 ]));
+        expect(s2.padTo(new NoteSeqMember(null), 4)).toStrictEqual(NoteSeq.from([ null, null, 3, 4 ]));
     });
 
     test('padTo does nothing if required length is same length as existing series', () => {
-        expect(s3.padTo(new ChordSeqMember([]), 3)).toStrictEqual(chordseq([ [ 1, 2 ], [ 3 ], [] ]));
+        expect(s3.padTo(new ChordSeqMember([]), 3)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]));
     });
 
     test('padTo does nothing if required length is shorter than existing series', () => {
-        expect(s3.padTo(new ChordSeqMember([]), 3)).toStrictEqual(chordseq([ [ 1, 2 ], [ 3 ], [] ]));
+        expect(s3.padTo(new ChordSeqMember([]), 3)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]));
     });
 
     test('padTo with event passed as event contents works', () => {
-        expect(s4.padTo([ 6 ], 7)).toStrictEqual(melody([ 6, 6, 1, 2, 3, 4, 5 ]));
+        expect(s4.padTo([ 6 ], 7)).toStrictEqual(Melody.from([ 6, 6, 1, 2, 3, 4, 5 ]));
     });
 });
 
 describe('Sequence.padRight()', () => {
-    const s1 = intseq([ 1, 2, 3, 4, 5 ]);
-    const s2 = noteseq([ 3, 4 ]);
-    const s3 = chordseq([ [ 1, 2 ], [ 3 ], [] ]);
-    const s4 = melody([ 1, 2, 3, 4, 5 ]);
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5 ]);
+    const s2 = NoteSeq.from([ 3, 4 ]);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]);
+    const s4 = Melody.from([ 1, 2, 3, 4, 5 ]);
 
     test('padRight with invalid argument throws', () => {
         expect(() => s1.padRight('0' as unknown as NumSeqMember)).toThrow();
@@ -1108,23 +1111,23 @@ describe('Sequence.padRight()', () => {
     });
 
     test('padRight with one argument works', () => {
-        expect(s2.padRight(new NoteSeqMember(null))).toStrictEqual(noteseq([ 3, 4, null ]));
+        expect(s2.padRight(new NoteSeqMember(null))).toStrictEqual(NoteSeq.from([ 3, 4, null ]));
     });
 
     test('padRight with two arguments works', () => {
-        expect(s3.padRight(new ChordSeqMember([]), 2)).toStrictEqual(chordseq([ [ 1, 2 ], [ 3 ], [], [], [] ]));
+        expect(s3.padRight(new ChordSeqMember([]), 2)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 3 ], [], [], [] ]));
     });
 
     test('pad with event passed as event contents works', () => {
-        expect(s4.padRight([ 6 ], 2)).toStrictEqual(melody([ 1, 2, 3, 4, 5, 6, 6 ]));
+        expect(s4.padRight([ 6 ], 2)).toStrictEqual(Melody.from([ 1, 2, 3, 4, 5, 6, 6 ]));
     });
 });
 
 describe('Sequence.padRightTo()', () => {
-    const s1 = intseq([ 1, 2, 3, 4, 5 ]);
-    const s2 = noteseq([ 3, 4 ]);
-    const s3 = chordseq([ [ 1, 2 ], [ 3 ], [] ]);
-    const s4 = melody([ 1, 2, 3, 4, 5 ]);
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5 ]);
+    const s2 = NoteSeq.from([ 3, 4 ]);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]);
+    const s4 = Melody.from([ 1, 2, 3, 4, 5 ]);
 
     test('padding with invalid argument throws', () => {
         expect(() => s1.padRightTo('0' as unknown as NumSeqMember, 8)).toThrow();
@@ -1135,32 +1138,32 @@ describe('Sequence.padRightTo()', () => {
     });
 
     test('padRightTo works if now one longer than initial one argument works', () => {
-        expect(s2.padRightTo(new NoteSeqMember(null), 3)).toStrictEqual(noteseq([ 3, 4, null ]));
+        expect(s2.padRightTo(new NoteSeqMember(null), 3)).toStrictEqual(NoteSeq.from([ 3, 4, null ]));
     });
 
     test('padRightTo works if now one longer than initial one argument works', () => {
-        expect(s2.padRightTo(new NoteSeqMember(null), 4)).toStrictEqual(noteseq([ 3, 4, null, null ]));
+        expect(s2.padRightTo(new NoteSeqMember(null), 4)).toStrictEqual(NoteSeq.from([ 3, 4, null, null ]));
     });
 
     test('padRightTo does nothing if required length is same length as existing series', () => {
-        expect(s3.padRightTo(new ChordSeqMember([]), 3)).toStrictEqual(chordseq([ [ 1, 2 ], [ 3 ], [] ]));
+        expect(s3.padRightTo(new ChordSeqMember([]), 3)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]));
     });
 
     test('padRightTo does nothing if required length is shorter than existing series', () => {
-        expect(s3.padRightTo(new ChordSeqMember([]), 3)).toStrictEqual(chordseq([ [ 1, 2 ], [ 3 ], [] ]));
+        expect(s3.padRightTo(new ChordSeqMember([]), 3)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 3 ], [] ]));
     });
 
     test('padRightTo with event passed as event contents works', () => {
-        expect(s4.padRightTo([ 6 ], 7)).toStrictEqual(melody([ 1, 2, 3, 4, 5, 6, 6 ]));
+        expect(s4.padRightTo([ 6 ], 7)).toStrictEqual(Melody.from([ 1, 2, 3, 4, 5, 6, 6 ]));
     });
 });
 
 describe('Sequence.withPitch()', () => {
-    const is = intseq([ 1, 4, 2 ]);
-    const fs = floatseq([ 1, 4, 2 ]);
-    const ns = noteseq([ 1, 4, 2 ]);
-    const cs = chordseq([ 1, 4, 2 ]);
-    const ms = melody([ 1, 4, 2 ]);
+    const is = NumSeq.from([ 1, 4, 2 ]);
+    const fs = NumSeq.from([ 1, 4, 2 ], MICROTONAL);
+    const ns = NoteSeq.from([ 1, 4, 2 ]);
+    const cs = ChordSeq.from([ 1, 4, 2 ]);
+    const ms = Melody.from([ 1, 4, 2 ]);
 
     const errortable: [ string, AnySeq, PitchArgument ][] = [
         [ 'null argument on NumSeq', is, null as unknown as number ],
@@ -1176,20 +1179,20 @@ describe('Sequence.withPitch()', () => {
     });
 
     const table: [ string, AnySeq, PitchArgument, AnySeq ][] = [
-        [ 'a number on integer NumSeq', is, 1, intseq([ 1, 1, 1 ]) ],
-        [ 'an array of length one on integer NumSeq', is, [ 1 ], intseq([ 1, 1, 1 ]) ],
-        [ 'a float argument on float NumSeq', fs, 1.5, floatseq([ 1.5, 1.5, 1.5 ]) ],
-        [ 'null argument on NoteSeq', ns, null, noteseq([ null, null, null ]) ],
-        [ 'an array of length zero on NoteSeq', ns, [], noteseq([ null, null, null ]) ],
-        [ 'an array of length one on NoteSeq', ns, [ 1 ], noteseq([ 1, 1, 1 ]) ],
-        [ 'null argument on ChordSeq', cs, null, chordseq([ null, null, null ]) ],
-        [ 'an array of length zero on ChordSeq', cs, [], chordseq([ null, null, null ]) ],
-        [ 'an array of length one on ChordSeq', cs, [ 1 ], chordseq([ 1, 1, 1 ]) ],
-        [ 'an array of length two on ChordSeq', cs, [ 1, 5 ], chordseq([ [ 1, 5 ], [ 1, 5 ], [ 1, 5 ] ]) ],
-        [ 'null argument on Melody', ms, null, melody([ null, null, null ]) ],
-        [ 'an array of length zero on Melody', ms, [], melody([ null, null, null ]) ],
-        [ 'an array of length one on Melody', ms, [ 1 ], melody([ 1, 1, 1 ]) ],
-        [ 'an array of length two on Melody', ms, [ 1, 5 ], melody([ [ 1, 5 ], [ 1, 5 ], [ 1, 5 ] ]) ],
+        [ 'a number on integer NumSeq', is, 1, NumSeq.from([ 1, 1, 1 ]) ],
+        [ 'an array of length one on integer NumSeq', is, [ 1 ], NumSeq.from([ 1, 1, 1 ]) ],
+        [ 'a float argument on float NumSeq', fs, 1.5, NumSeq.from([ 1.5, 1.5, 1.5 ], MICROTONAL) ],
+        [ 'null argument on NoteSeq', ns, null, NoteSeq.from([ null, null, null ]) ],
+        [ 'an array of length zero on NoteSeq', ns, [], NoteSeq.from([ null, null, null ]) ],
+        [ 'an array of length one on NoteSeq', ns, [ 1 ], NoteSeq.from([ 1, 1, 1 ]) ],
+        [ 'null argument on ChordSeq', cs, null, ChordSeq.from([ null, null, null ]) ],
+        [ 'an array of length zero on ChordSeq', cs, [], ChordSeq.from([ null, null, null ]) ],
+        [ 'an array of length one on ChordSeq', cs, [ 1 ], ChordSeq.from([ 1, 1, 1 ]) ],
+        [ 'an array of length two on ChordSeq', cs, [ 1, 5 ], ChordSeq.from([ [ 1, 5 ], [ 1, 5 ], [ 1, 5 ] ]) ],
+        [ 'null argument on Melody', ms, null, Melody.from([ null, null, null ]) ],
+        [ 'an array of length zero on Melody', ms, [], Melody.from([ null, null, null ]) ],
+        [ 'an array of length one on Melody', ms, [ 1 ], Melody.from([ 1, 1, 1 ]) ],
+        [ 'an array of length two on Melody', ms, [ 1, 5 ], Melody.from([ [ 1, 5 ], [ 1, 5 ], [ 1, 5 ] ]) ],
     ];
 
     test.each(table)('works with %s', (_, s, val, ret) => {
@@ -1198,23 +1201,23 @@ describe('Sequence.withPitch()', () => {
 });
 
 describe('Sequence.withPitches()', () => {
-    const is = intseq([ 1, 4, 2 ]);
-    const fs = floatseq([ 1, 4, 2 ]);
-    const ns = noteseq([ 1, 4, 2 ]);
-    const cs = chordseq([ 1, 4, 2 ]);
-    const ms = melody([ 1, 4, 2 ]);
+    const is = NumSeq.from([ 1, 4, 2 ]);
+    const fs = NumSeq.from([ 1, 4, 2 ], MICROTONAL);
+    const ns = NoteSeq.from([ 1, 4, 2 ]);
+    const cs = ChordSeq.from([ 1, 4, 2 ]);
+    const ms = Melody.from([ 1, 4, 2 ]);
 
     const errortable: [ string, AnySeq, PitchArgument[] | AnySeq ][] = [
         [ 'argument neither an array nor a Sequence', is, null as unknown as PitchArgument[] ],
         [ 'array is too short', is, [ 1, 4 ] ],
         [ 'array is too long', is, [ 1, 4, 2, 3 ] ],
         [ 'NumSeq and array contains nulls', is, [ 1, null as unknown as number, 5 ] ],
-        [ 'sequence is too short', ns, intseq([ 1, 4 ]) ],
-        [ 'sequence is too long', is, intseq([ 1, 4, 2, 3 ]) ],
-        [ 'NumSeq and sequence contains nulls', is, noteseq([ 3, null, 5 ]) ],
+        [ 'sequence is too short', ns, NumSeq.from([ 1, 4 ]) ],
+        [ 'sequence is too long', is, NumSeq.from([ 1, 4, 2, 3 ]) ],
+        [ 'NumSeq and sequence contains nulls', is, NoteSeq.from([ 3, null, 5 ]) ],
         [ 'integer NumSeq and array with a float member', is, [ 1, 1.5, 2 ] ],
-        [ 'NumSeq and sequence contains chords', is, chordseq([ [ 3 ], [ 5 ], [ 6, 7 ] ]) ],
-        [ 'NoteSeq and sequence contains chords', is, chordseq([ [ 3 ], [ 5 ], [ 6, 7 ] ]) ],
+        [ 'NumSeq and sequence contains chords', is, ChordSeq.from([ [ 3 ], [ 5 ], [ 6, 7 ] ]) ],
+        [ 'NoteSeq and sequence contains chords', is, ChordSeq.from([ [ 3 ], [ 5 ], [ 6, 7 ] ]) ],
     ];
 
     test.each(errortable)('throws when %s', (_, s, val) => {
@@ -1222,13 +1225,13 @@ describe('Sequence.withPitches()', () => {
     });
 
     const table: [ string, AnySeq, number[] | AnySeq, AnySeq ][] = [
-        [ 'a NumSeq taking an array', is, [ 1, 2, 3 ], intseq([ 1, 2, 3 ]) ],
-        [ 'a float NumSeq taking an array with floats', fs, [ 1.5, 3.5, 2 ], floatseq([ 1.5, 3.5, 2 ]) ],
-        [ 'a NumSeq taking another NumSeq', is, intseq([ 6, 5, 4 ]), intseq([ 6, 5, 4 ]) ],
-        [ 'a NumSeq taking a NoteSeq', is, noteseq([ 6, 5, 4 ]), intseq([ 6, 5, 4 ]) ],
-        [ 'a NoteSeq taking a ChordSeq', ns, chordseq([ [ 1 ], [], [ 3 ] ]), noteseq([ 1, null, 3 ]) ],
-        [ 'a ChordSeq taking a Melody', cs, melody([ [ 6, 5, 4 ], [ 3, 2 ], [ 1 ] ]), chordseq([ [ 6, 5, 4 ], [ 3, 2 ], [ 1 ] ]) ],
-        [ 'a Melody taking a NumSeq', ms, intseq([ 1, 5, 9 ]), melody([ 1, 5, 9 ]) ],
+        [ 'a NumSeq taking an array', is, [ 1, 2, 3 ], NumSeq.from([ 1, 2, 3 ]) ],
+        [ 'a float NumSeq taking an array with floats', fs, [ 1.5, 3.5, 2 ], NumSeq.from([ 1.5, 3.5, 2 ], MICROTONAL) ],
+        [ 'a NumSeq taking another NumSeq', is, NumSeq.from([ 6, 5, 4 ]), NumSeq.from([ 6, 5, 4 ]) ],
+        [ 'a NumSeq taking a NoteSeq', is, NoteSeq.from([ 6, 5, 4 ]), NumSeq.from([ 6, 5, 4 ]) ],
+        [ 'a NoteSeq taking a ChordSeq', ns, ChordSeq.from([ [ 1 ], [], [ 3 ] ]), NoteSeq.from([ 1, null, 3 ]) ],
+        [ 'a ChordSeq taking a Melody', cs, Melody.from([ [ 6, 5, 4 ], [ 3, 2 ], [ 1 ] ]), ChordSeq.from([ [ 6, 5, 4 ], [ 3, 2 ], [ 1 ] ]) ],
+        [ 'a Melody taking a NumSeq', ms, NumSeq.from([ 1, 5, 9 ]), Melody.from([ 1, 5, 9 ]) ],
     ];
 
     test.each(table)('works with %s', (_, s, val, ret) => {
@@ -1237,9 +1240,9 @@ describe('Sequence.withPitches()', () => {
 });
 
 describe('Sequence.withPitchesAt()', () => {
-    const is = intseq([ 1, 2, 3, 4, 5 ]);
-    const ns = noteseq([ 1, 2, 3, 4, 5 ]);
-    const cs = chordseq([ 1, 2, 3, 4, 5 ]);
+    const is = NumSeq.from([ 1, 2, 3, 4, 5 ]);
+    const ns = NoteSeq.from([ 1, 2, 3, 4, 5 ]);
+    const cs = ChordSeq.from([ 1, 2, 3, 4, 5 ]);
 
     const errortable: [ string, AnySeq, SeqIndices, PitchArgument | PitchMapperFn ][] = [
         [ 'replacing out of range', is, -7, 1 ],
@@ -1253,11 +1256,11 @@ describe('Sequence.withPitchesAt()', () => {
     });
 
     const table: [ string, AnySeq, SeqIndices, PitchArgument | PitchMapperFn, AnySeq ][] = [
-        [ 'replacing with single values', is, 1, -1, intseq([ 1, -1, 3, 4, 5 ]) ],
-        [ 'replacing with nulls', ns, [ 0, -2 ], null, noteseq([ null, 2, 3, null, 5 ]) ],
-        [ 'replacing with chords', cs, intseq([ 1, 2, 3 ]), [ 1, 2 ], chordseq([ 1, [ 1, 2 ], [ 1, 2 ], [ 1, 2 ], 5 ]) ],
-        [ 'replacing with single values via function', is, [ 1, 3 ], (p, i) => p[0] + i, intseq([ 1, 3, 3, 7, 5 ]) ],
-        [ 'replacing with multiple values via function', cs, [ -1, -2 ], (p, i) => [ ...p, i ], chordseq([ 1, 2, 3, [ 4, 3 ], [ 5, 4 ] ]) ],
+        [ 'replacing with single values', is, 1, -1, NumSeq.from([ 1, -1, 3, 4, 5 ]) ],
+        [ 'replacing with nulls', ns, [ 0, -2 ], null, NoteSeq.from([ null, 2, 3, null, 5 ]) ],
+        [ 'replacing with chords', cs, NumSeq.from([ 1, 2, 3 ]), [ 1, 2 ], ChordSeq.from([ 1, [ 1, 2 ], [ 1, 2 ], [ 1, 2 ], 5 ]) ],
+        [ 'replacing with single values via function', is, [ 1, 3 ], (p, i) => p[0] + i, NumSeq.from([ 1, 3, 3, 7, 5 ]) ],
+        [ 'replacing with multiple values via function', cs, [ -1, -2 ], (p, i) => [ ...p, i ], ChordSeq.from([ 1, 2, 3, [ 4, 3 ], [ 5, 4 ] ]) ],
     ];
 
     test.each(table)('%s', (_, s, ix, rep, ret) => {
@@ -1268,32 +1271,32 @@ describe('Sequence.withPitchesAt()', () => {
 // TODO: Sequence.mapPitches() [and possibly Sequence.mapPitch() etc as per discussion in notebook]
 describe('Sequence.mapPitches()', () => {
     test('mapPitches() using a non-function throws an error', () => {
-        expect(() => intseq([]).mapPitches(1 as unknown as MapperFn<number[]>)).toThrow();
+        expect(() => NumSeq.from([]).mapPitches(1 as unknown as MapperFn<number[]>)).toThrow();
     });
 
     test('throws when function returns non-numeric, non-null non-array value', () => {
-        expect(() => noteseq([ 1, null, 3 ]).mapPitches(((v: number[]) => v.length ? v : 'test') as unknown as MapperFn<number[]>)).toThrow();
+        expect(() => NoteSeq.from([ 1, null, 3 ]).mapPitches(((v: number[]) => v.length ? v : 'test') as unknown as MapperFn<number[]>)).toThrow();
     });
 
     test('throws when function returns non-numeric value in array', () => {
-        expect(() => chordseq([ 1, null, 3 ]).mapPitches(((v: number[]) => v.length ? v : [ null ]) as unknown as MapperFn<number[]>)).toThrow();
+        expect(() => ChordSeq.from([ 1, null, 3 ]).mapPitches(((v: number[]) => v.length ? v : [ null ]) as unknown as MapperFn<number[]>)).toThrow();
     });
 
     test('mapPitches() on intseq', () => {
-        expect(intseq([ 1, 4, 2, 3, 5 ]).mapPitches((p, i) => [ p[0] + i ])).toStrictEqual(intseq([ 1, 5, 4, 6, 9 ]));
+        expect(NumSeq.from([ 1, 4, 2, 3, 5 ]).mapPitches((p, i) => [ p[0] + i ])).toStrictEqual(NumSeq.from([ 1, 5, 4, 6, 9 ]));
     });
 
     test('mapPitches() on noteseq, returning nulls and numbers', () => {
-        expect(noteseq([ 1, 4, 2, 3, 5 ]).mapPitches((p, i) => p[0] > 3 ? null : p[0] + i)).toStrictEqual(noteseq([ 1, null, 4, 6, null ]));
+        expect(NoteSeq.from([ 1, 4, 2, 3, 5 ]).mapPitches((p, i) => p[0] > 3 ? null : p[0] + i)).toStrictEqual(NoteSeq.from([ 1, null, 4, 6, null ]));
     });
 
     test('mapPitches() on chordseq', () => {
-        expect(chordseq([ [ 1, 2 ], [ 3 ], [ 4, 5, 6 ] ]).mapPitches(p => p.slice().reverse())).toStrictEqual(chordseq([ [ 2, 1 ], [ 3 ], [ 6, 5, 4 ] ]));
+        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ], [ 4, 5, 6 ] ]).mapPitches(p => p.slice().reverse())).toStrictEqual(ChordSeq.from([ [ 2, 1 ], [ 3 ], [ 6, 5, 4 ] ]));
     });
 });
 
 describe('Sequence.mapPitch()', () => {
-    const ns = noteseq([ 1, null, 2, 3, null, 6 ]);
+    const ns = NoteSeq.from([ 1, null, 2, 3, null, 6 ]);
 
     test('throws when non-function passed', () => {
         expect(() => ns.mapPitch(555 as unknown as MapperFn<number | null>)).toThrow();
@@ -1304,20 +1307,20 @@ describe('Sequence.mapPitch()', () => {
     });
 
     test('maps pitches as expected', () => {
-        expect(intseq([ 1, 5, 3, 4, 2 ]).mapPitch((v, i) => (v as number) + i)).toStrictEqual(intseq([ 1, 6, 5, 7, 6 ]));
+        expect(NumSeq.from([ 1, 5, 3, 4, 2 ]).mapPitch((v, i) => (v as number) + i)).toStrictEqual(NumSeq.from([ 1, 6, 5, 7, 6 ]));
     });
 
     test('converts numbers and nulls appropriately', () => {
-        expect(ns.mapPitch((v, i) => v === null ? i : null)).toStrictEqual(noteseq([ null, 1, null, null, 4, null ]));
+        expect(ns.mapPitch((v, i) => v === null ? i : null)).toStrictEqual(NoteSeq.from([ null, 1, null, null, 4, null ]));
     });
 
     test('converts numbers and nulls appropriately even when multivalued', () => {
-        expect(ns.toMelody().mapPitch((v, i) => v === null ? i : null)).toStrictEqual(melody([ null, 1, null, null, 4, null ]));
+        expect(ns.toMelody().mapPitch((v, i) => v === null ? i : null)).toStrictEqual(Melody.from([ null, 1, null, null, 4, null ]));
     });
 });
 
 describe('Sequence.mapEachPitch()', () => {
-    const is = melody([ [ 1 ], [ 4, 0 ], [ 2 ], [ 3 ], [], [ 6, 7, 8 ] ]);
+    const is = Melody.from([ [ 1 ], [ 4, 0 ], [ 2 ], [ 3 ], [], [ 6, 7, 8 ] ]);
 
     test('throws when non-function passed', () => {
         expect(() => is.mapEachPitch(555 as unknown as (p: number, i: number) => number | null)).toThrow();
@@ -1328,38 +1331,38 @@ describe('Sequence.mapEachPitch()', () => {
     });
 
     test('maps a noteseq and removes notes when returning nulls', () => {
-        expect(noteseq([ 1, 2, 3, 4, 5 ]).mapEachPitch(p => p % 2 ? p + 1 : null))
-            .toStrictEqual(noteseq([ 2, null, 4, null, 6 ]));
+        expect(NoteSeq.from([ 1, 2, 3, 4, 5 ]).mapEachPitch(p => p % 2 ? p + 1 : null))
+            .toStrictEqual(NoteSeq.from([ 2, null, 4, null, 6 ]));
     });
 
     test('maps a melody as expected', () => {
         expect(is.mapEachPitch((p, i) => p as number * i))
-            .toStrictEqual(melody([ [ 0 ], [ 4, 0 ], [ 4 ], [ 9 ], [], [ 30, 35, 40 ] ]));
+            .toStrictEqual(Melody.from([ [ 0 ], [ 4, 0 ], [ 4 ], [ 9 ], [], [ 30, 35, 40 ] ]));
     });
 });
 
 describe('Sequence.filterPitches()', () => {
-    const s = chordseq([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ]]);
+    const s = ChordSeq.from([ [], [ 1 ], [ 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ]]);
 
     test('works on a noteseq', () => {
-        expect(noteseq([ 1, 2, 3, 4, 5 ]).filterPitches(p => !(p % 2))).toStrictEqual(noteseq([ null, 2, null, 4, null ]));
+        expect(NoteSeq.from([ 1, 2, 3, 4, 5 ]).filterPitches(p => !(p % 2))).toStrictEqual(NoteSeq.from([ null, 2, null, 4, null ]));
     });
 
     test('works on a chordseq', () => {
-        expect(s.filterPitches(p => !(p % 2))).toStrictEqual(chordseq([ [], [], [ 2 ], [ 4, 6 ], [ 8, 10 ] ]));
+        expect(s.filterPitches(p => !(p % 2))).toStrictEqual(ChordSeq.from([ [], [], [ 2 ], [ 4, 6 ], [ 8, 10 ] ]));
     });
 
     test('passes the correct second argument to the filter function', () => {
-        expect(s.toMelody().filterPitches((p, i) => p !== i)).toStrictEqual(melody([ [], [], [ 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]));
+        expect(s.toMelody().filterPitches((p, i) => p !== i)).toStrictEqual(Melody.from([ [], [], [ 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]));
     });
 });
 // TODO: Sequence.filterPitches() [for similar reasons]
 
 describe('Sequence.keepTopPitches()', () => {
     const errortable: [ string, AnySeq, number ][] = [
-        [ 'a non-integer number of pitches', noteseq([]), 1.5 ],
-        [ 'a negative number of pitches', chordseq([]), -1 ],
-        [ 'zero pitches on a numseq', floatseq([ 0.5, 1.5, 2.5 ]), 0 ],
+        [ 'a non-integer number of pitches', NoteSeq.from([]), 1.5 ],
+        [ 'a negative number of pitches', ChordSeq.from([]), -1 ],
+        [ 'zero pitches on a numseq', NumSeq.from([ 0.5, 1.5, 2.5 ], MICROTONAL), 0 ],
     ];
 
     test.each(errortable)('throws when %s', (_, s, num) => {
@@ -1367,15 +1370,15 @@ describe('Sequence.keepTopPitches()', () => {
     });
 
     const table: [ string, AnySeq, number, AnySeq ][] = [
-        [ 'top zero pitches in a noteseq', noteseq([ 1, 2, null, 3 ]), 0, noteseq([ null, null, null, null ]) ],
-        [ 'top zero pitches in a chordseq', chordseq([ [ 1, 2 ], [], [ 3 ] ]), 0, chordseq([ [], [], [] ])],
-        [ 'top pitch in a numseq', intseq([ 1, 2, 3 ]), 1, intseq([ 1, 2, 3 ]) ],
-        [ 'top pitch in a noteseq', noteseq([ 1, 2, null, 3 ]), 1, noteseq([ 1, 2, null, 3 ]) ],
-        [ 'top pitch in a chordseq', chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 1, chordseq([ [ 3 ], [], [ 6 ] ])],
-        [ 'top two pitches in a numseq', intseq([ 1, 2, 3 ]), 2, intseq([ 1, 2, 3 ]) ],
-        [ 'top two pitches in a noteseq', noteseq([ 1, 2, null, 3 ]), 2, noteseq([ 1, 2, null, 3 ]) ],
-        [ 'top two pitches in a chordseq', chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 2, chordseq([ [ 2, 3 ], [], [ 2, 6 ] ])],
-        [ 'top four pitches in a chordseq', chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 4, chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ])],
+        [ 'top zero pitches in a noteseq', NoteSeq.from([ 1, 2, null, 3 ]), 0, NoteSeq.from([ null, null, null, null ]) ],
+        [ 'top zero pitches in a chordseq', ChordSeq.from([ [ 1, 2 ], [], [ 3 ] ]), 0, ChordSeq.from([ [], [], [] ])],
+        [ 'top pitch in a numseq', NumSeq.from([ 1, 2, 3 ]), 1, NumSeq.from([ 1, 2, 3 ]) ],
+        [ 'top pitch in a noteseq', NoteSeq.from([ 1, 2, null, 3 ]), 1, NoteSeq.from([ 1, 2, null, 3 ]) ],
+        [ 'top pitch in a chordseq', ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 1, ChordSeq.from([ [ 3 ], [], [ 6 ] ])],
+        [ 'top two pitches in a numseq', NumSeq.from([ 1, 2, 3 ]), 2, NumSeq.from([ 1, 2, 3 ]) ],
+        [ 'top two pitches in a noteseq', NoteSeq.from([ 1, 2, null, 3 ]), 2, NoteSeq.from([ 1, 2, null, 3 ]) ],
+        [ 'top two pitches in a chordseq', ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 2, ChordSeq.from([ [ 2, 3 ], [], [ 2, 6 ] ])],
+        [ 'top four pitches in a chordseq', ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 4, ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ])],
     ];
 
     test.each(table)('get expected results with %s', (_, s, num, ret) => {
@@ -1385,9 +1388,9 @@ describe('Sequence.keepTopPitches()', () => {
 
 describe('Sequence.keepBottomPitches()', () => {
     const errortable: [ string, AnySeq, number ][] = [
-        [ 'a non-integer number of pitches', noteseq([]), 1.5 ],
-        [ 'a negative number of pitches', chordseq([]), -1 ],
-        [ 'zero pitches on a numseq', floatseq([ 0.5, 1.5, 2.5 ]), 0 ],
+        [ 'a non-integer number of pitches', NoteSeq.from([]), 1.5 ],
+        [ 'a negative number of pitches', ChordSeq.from([]), -1 ],
+        [ 'zero pitches on a numseq', NumSeq.from([ 0.5, 1.5, 2.5 ], MICROTONAL), 0 ],
     ];
 
     test.each(errortable)('throws when %s', (_, s, num) => {
@@ -1395,15 +1398,15 @@ describe('Sequence.keepBottomPitches()', () => {
     });
 
     const table: [ string, AnySeq, number, AnySeq ][] = [
-        [ 'top zero pitches in a noteseq', noteseq([ 1, 2, null, 3 ]), 0, noteseq([ null, null, null, null ]) ],
-        [ 'top zero pitches in a chordseq', chordseq([ [ 1, 2 ], [], [ 3 ] ]), 0, chordseq([ [], [], [] ])],
-        [ 'top pitch in a numseq', intseq([ 1, 2, 3 ]), 1, intseq([ 1, 2, 3 ]) ],
-        [ 'top pitch in a noteseq', noteseq([ 1, 2, null, 3 ]), 1, noteseq([ 1, 2, null, 3 ]) ],
-        [ 'top pitch in a chordseq', chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 1, chordseq([ [ 1 ], [], [ 2 ] ])],
-        [ 'top two pitches in a numseq', intseq([ 1, 2, 3 ]), 2, intseq([ 1, 2, 3 ]) ],
-        [ 'top two pitches in a noteseq', noteseq([ 1, 2, null, 3 ]), 2, noteseq([ 1, 2, null, 3 ]) ],
-        [ 'top two pitches in a chordseq', chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 2, chordseq([ [ 1, 2 ], [], [ 2, 6 ] ])],
-        [ 'top four pitches in a chordseq', chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 4, chordseq([ [ 1, 2, 3 ], [], [ 2, 6 ] ])],
+        [ 'top zero pitches in a noteseq', NoteSeq.from([ 1, 2, null, 3 ]), 0, NoteSeq.from([ null, null, null, null ]) ],
+        [ 'top zero pitches in a chordseq', ChordSeq.from([ [ 1, 2 ], [], [ 3 ] ]), 0, ChordSeq.from([ [], [], [] ])],
+        [ 'top pitch in a numseq', NumSeq.from([ 1, 2, 3 ]), 1, NumSeq.from([ 1, 2, 3 ]) ],
+        [ 'top pitch in a noteseq', NoteSeq.from([ 1, 2, null, 3 ]), 1, NoteSeq.from([ 1, 2, null, 3 ]) ],
+        [ 'top pitch in a chordseq', ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 1, ChordSeq.from([ [ 1 ], [], [ 2 ] ])],
+        [ 'top two pitches in a numseq', NumSeq.from([ 1, 2, 3 ]), 2, NumSeq.from([ 1, 2, 3 ]) ],
+        [ 'top two pitches in a noteseq', NoteSeq.from([ 1, 2, null, 3 ]), 2, NoteSeq.from([ 1, 2, null, 3 ]) ],
+        [ 'top two pitches in a chordseq', ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 2, ChordSeq.from([ [ 1, 2 ], [], [ 2, 6 ] ])],
+        [ 'top four pitches in a chordseq', ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ]), 4, ChordSeq.from([ [ 1, 2, 3 ], [], [ 2, 6 ] ])],
     ];
 
     test.each(table)('get expected results with %s', (_, s, num, ret) => {
@@ -1412,9 +1415,9 @@ describe('Sequence.keepBottomPitches()', () => {
 });
 
 describe('Sequence.transpose()', () => {
-    const s1 = intseq([ -1, 0, 3, 2, 6, 4 ]);
-    const s2 = floatseq([ 2.5, 3, 4.5 ]);
-    const s3 = chordseq([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -1, 0, 3, 2, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, 3, 4.5 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.transpose('1' as unknown as number)).toThrow();
@@ -1425,23 +1428,23 @@ describe('Sequence.transpose()', () => {
     });
 
     test('succeeds with positive transpostion', () => {
-        expect(s1.transpose(5)).toStrictEqual(intseq([ 4, 5, 8, 7, 11, 9 ]));
+        expect(s1.transpose(5)).toStrictEqual(NumSeq.from([ 4, 5, 8, 7, 11, 9 ]));
     });
 
     test('succeeds for float transposition', () => {
-        expect(s2.transpose(1.2)).toStrictEqual(floatseq([ 3.7, 4.2, 5.7 ]));
+        expect(s2.transpose(1.2)).toStrictEqual(NumSeq.from([ 3.7, 4.2, 5.7 ], MICROTONAL));
     });
 
     test('succeeds with negative transposition', () => {
-        expect(s3.transpose(-4)).toStrictEqual(chordseq([ [ -3, -2, ], [], [ -1, 0, 2 ] ]));
+        expect(s3.transpose(-4)).toStrictEqual(ChordSeq.from([ [ -3, -2, ], [], [ -1, 0, 2 ] ]));
     });
 });
 
 describe('Sequence.transposeToMax()', () => {
-    const s0 = noteseq([ null, null, null ]);
-    const s1 = intseq([ -1, 0, 3, 2, 6, 4 ]);
-    const s2 = floatseq([ 2.5, 3, 4.5 ]);
-    const s3 = chordseq([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
+    const s0 = NoteSeq.from([ null, null, null ]);
+    const s1 = NumSeq.from([ -1, 0, 3, 2, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, 3, 4.5 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.transposeToMax('1' as unknown as number)).toThrow();
@@ -1456,23 +1459,23 @@ describe('Sequence.transposeToMax()', () => {
     });
 
     test('succeeds with positive transpostion', () => {
-        expect(s1.transposeToMax(11)).toStrictEqual(intseq([ 4, 5, 8, 7, 11, 9 ]));
+        expect(s1.transposeToMax(11)).toStrictEqual(NumSeq.from([ 4, 5, 8, 7, 11, 9 ]));
     });
 
     test('succeeds for float transposition', () => {
-        expect(s2.transposeToMax(5.7)).toStrictEqual(floatseq([ 3.7, 4.2, 5.7 ]));
+        expect(s2.transposeToMax(5.7)).toStrictEqual(NumSeq.from([ 3.7, 4.2, 5.7 ], MICROTONAL));
     });
 
     test('succeeds with negative transposition', () => {
-        expect(s3.transposeToMax(2)).toStrictEqual(chordseq([ [ -3, -2, ], [], [ -1, 0, 2 ] ]));
+        expect(s3.transposeToMax(2)).toStrictEqual(ChordSeq.from([ [ -3, -2, ], [], [ -1, 0, 2 ] ]));
     });
 });
 
 describe('Sequence.transposeToMin()', () => {
-    const s0 = noteseq([ null, null, null ]);
-    const s1 = intseq([ -1, 0, 3, 2, 6, 4 ]);
-    const s2 = floatseq([ 2.5, 3, 4.5 ]);
-    const s3 = chordseq([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
+    const s0 = NoteSeq.from([ null, null, null ]);
+    const s1 = NumSeq.from([ -1, 0, 3, 2, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, 3, 4.5 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.transposeToMin('1' as unknown as number)).toThrow();
@@ -1487,22 +1490,22 @@ describe('Sequence.transposeToMin()', () => {
     });
 
     test('succeeds with positive transpostion', () => {
-        expect(s1.transposeToMin(4)).toStrictEqual(intseq([ 4, 5, 8, 7, 11, 9 ]));
+        expect(s1.transposeToMin(4)).toStrictEqual(NumSeq.from([ 4, 5, 8, 7, 11, 9 ]));
     });
 
     test('succeeds for float transposition', () => {
-        expect(s2.transposeToMin(3.7)).toStrictEqual(floatseq([ 3.7, 4.2, 5.7 ]));
+        expect(s2.transposeToMin(3.7)).toStrictEqual(NumSeq.from([ 3.7, 4.2, 5.7 ], MICROTONAL));
     });
 
     test('succeeds with negative transposition', () => {
-        expect(s3.transposeToMin(-3)).toStrictEqual(chordseq([ [ -3, -2, ], [], [ -1, 0, 2 ] ]));
+        expect(s3.transposeToMin(-3)).toStrictEqual(ChordSeq.from([ [ -3, -2, ], [], [ -1, 0, 2 ] ]));
     });
 });
 
 describe('Sequence.invert()', () => {
-    const s1 = intseq([ -2, 0, 3, 2, 6, 4 ]);
-    const s2 = floatseq([ 2.5, 3, 4.2 ]);
-    const s3 = chordseq([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -2, 0, 3, 2, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, 3, 4.2 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.invert('1' as unknown as number)).toThrow();
@@ -1513,22 +1516,22 @@ describe('Sequence.invert()', () => {
     });
 
     test('succeeds with int inversion', () => {
-        expect(s1.invert(-0.5)).toStrictEqual(intseq([ 1, -1, -4, -3, -7, -5 ]));
+        expect(s1.invert(-0.5)).toStrictEqual(NumSeq.from([ 1, -1, -4, -3, -7, -5 ]));
     });
 
     test('succeeds for float inversion', () => {
-        expect(s2.invert(3.7)).toStrictEqual(floatseq([ 4.9, 4.4, 3.2 ]));
+        expect(s2.invert(3.7)).toStrictEqual(NumSeq.from([ 4.9, 4.4, 3.2 ], MICROTONAL));
     });
 
     test('succeeds with chord inversion', () => {
-        expect(s3.invert(2)).toStrictEqual(chordseq([ [ 3, 2 ], [], [ 1, 0, -2 ] ]));
+        expect(s3.invert(2)).toStrictEqual(ChordSeq.from([ [ 3, 2 ], [], [ 1, 0, -2 ] ]));
     });
 });
 
 describe('Sequence.augment()', () => {
-    const s1 = intseq([ -2, 0, 2, 2, 6, 4 ]);
-    const s2 = floatseq([ 2.5, 3, 4.5 ]);
-    const s3 = chordseq([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -2, 0, 2, 2, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, 3, 4.5 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.augment('1' as unknown as number)).toThrow();
@@ -1539,22 +1542,22 @@ describe('Sequence.augment()', () => {
     });
 
     test('succeeds with int augmentation', () => {
-        expect(s1.augment(-0.5)).toStrictEqual(intseq([ 1, -0, -1, -1, -3, -2 ]));
+        expect(s1.augment(-0.5)).toStrictEqual(NumSeq.from([ 1, -0, -1, -1, -3, -2 ]));
     });
 
     test('succeeds for float augmentation', () => {
-        expect(s2.augment(1.5)).toStrictEqual(floatseq([ 3.75, 4.5, 6.75 ]));
+        expect(s2.augment(1.5)).toStrictEqual(NumSeq.from([ 3.75, 4.5, 6.75 ], MICROTONAL));
     });
 
     test('succeeds with chord augmentation', () => {
-        expect(s3.augment(2)).toStrictEqual(chordseq([ [ 2, 4 ], [], [ 6, 8, 12 ] ]));
+        expect(s3.augment(2)).toStrictEqual(ChordSeq.from([ [ 2, 4 ], [], [ 6, 8, 12 ] ]));
     });
 });
 
 describe('Sequence.diminish()', () => {
-    const s1 = intseq([ -2, 0, 2, 2, 6, 4 ]);
-    const s2 = floatseq([ 2.5, 3, 4.5 ]);
-    const s3 = chordseq([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -2, 0, 2, 2, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, 3, 4.5 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 2 ], [], [ 3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.diminish('1' as unknown as number)).toThrow();
@@ -1565,44 +1568,44 @@ describe('Sequence.diminish()', () => {
     });
 
     test('succeeds with int diminish', () => {
-        expect(s1.diminish(-2)).toStrictEqual(intseq([ 1, -0, -1, -1, -3, -2 ]));
+        expect(s1.diminish(-2)).toStrictEqual(NumSeq.from([ 1, -0, -1, -1, -3, -2 ]));
     });
 
     test('succeeds for float diminish', () => {
-        expect(s2.diminish(2 / 3)).toStrictEqual(floatseq([ 3.75, 4.5, 6.75 ]));
+        expect(s2.diminish(2 / 3)).toStrictEqual(NumSeq.from([ 3.75, 4.5, 6.75 ], MICROTONAL));
     });
 
     test('succeeds with chord diminish', () => {
-        expect(s3.diminish(0.5)).toStrictEqual(chordseq([ [ 2, 4 ], [], [ 6, 8, 12 ] ]));
+        expect(s3.diminish(0.5)).toStrictEqual(ChordSeq.from([ [ 2, 4 ], [], [ 6, 8, 12 ] ]));
     });
 });
 
 describe('Sequence.mod()', () => {
-    const s1 = intseq([ -14, -12, -7, -1, 0, 2, 3, 6, 4 ]);
-    const s2 = floatseq([ 2.5, -3, 4.5 ]);
-    const s3 = chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -14, -12, -7, -1, 0, 2, 3, 6, 4 ]);
+    const s2 = NumSeq.from([ 2.5, -3, 4.5 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
 
     test('fails when non-numeric value passed', () => {
         expect(() => s3.mod('1' as unknown as number)).toThrow();
     });
 
     test('succeeds with int mod', () => {
-        expect(s1.mod(4)).toStrictEqual(intseq([ 2, -0, 1, 3, 0, 2, 3, 2, 0 ]));
+        expect(s1.mod(4)).toStrictEqual(NumSeq.from([ 2, -0, 1, 3, 0, 2, 3, 2, 0 ]));
     });
 
     test('succeeds for float mod', () => {
-        expect(s2.mod(2.5)).toStrictEqual(floatseq([ 0, 2, 2 ]));
+        expect(s2.mod(2.5)).toStrictEqual(NumSeq.from([ 0, 2, 2 ], MICROTONAL));
     });
 
     test('succeeds with chord mod', () => {
-        expect(s3.mod(10)).toStrictEqual(chordseq([ [ 1, 2 ], [], [ 7, 4, 6 ] ]));
+        expect(s3.mod(10)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [], [ 7, 4, 6 ] ]));
     });
 });
 
 describe('Sequence.trim()', () => {
-    const s1 = intseq([ -10, 10, 0, 4, 18 ]);
-    const s2 = floatseq([ 2.2, 3.3, -1.1 ]);
-    const s3 = chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -10, 10, 0, 4, 18 ]);
+    const s2 = NumSeq.from([ 2.2, 3.3, -1.1 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
 
     test('fails when non-numeric value passed as first argument', () => {
         expect(() => s1.trim('1' as unknown as number, 10)).toThrow();
@@ -1617,30 +1620,30 @@ describe('Sequence.trim()', () => {
     });
 
     test('succeeds as expected for ints', () => {
-        expect(s1.trim(-5, 5)).toStrictEqual(intseq([ -5, 5, 0, 4, 5 ]));
+        expect(s1.trim(-5, 5)).toStrictEqual(NumSeq.from([ -5, 5, 0, 4, 5 ]));
     });
 
     test('succeeds with first value null', () => {
-        expect(s1.trim(null, 5)).toStrictEqual(intseq([ -10, 5, 0, 4, 5 ]));
+        expect(s1.trim(null, 5)).toStrictEqual(NumSeq.from([ -10, 5, 0, 4, 5 ]));
     });
 
     test('succeeds with second value null', () => {
-        expect(s1.trim(-5, null)).toStrictEqual(intseq([ -5, 10, 0, 4, 18 ]));
+        expect(s1.trim(-5, null)).toStrictEqual(NumSeq.from([ -5, 10, 0, 4, 18 ]));
     });
 
     test('succeeds as expected for floats', () => {
-        expect(s2.trim(-0.5, 3)).toStrictEqual(floatseq([ 2.2, 3, -0.5 ]));
+        expect(s2.trim(-0.5, 3)).toStrictEqual(NumSeq.from([ 2.2, 3, -0.5 ], MICROTONAL));
     });
 
     test('succeeds as expected for chords', () => {
-        expect(s3.trim(-2, 13)).toStrictEqual(chordseq([ [ 1, 13 ], [], [ -2, 4, 6 ] ]));
+        expect(s3.trim(-2, 13)).toStrictEqual(ChordSeq.from([ [ 1, 13 ], [], [ -2, 4, 6 ] ]));
     });
 });
 
 describe('Sequence.bounce()', () => {
-    const s1 = intseq([ -10, 10, 0, 4, 18 ]);
-    const s2 = floatseq([ 2.2, 3.3, -1.1 ]);
-    const s3 = chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -10, 10, 0, 4, 18 ]);
+    const s2 = NumSeq.from([ 2.2, 3.3, -1.1 ], MICROTONAL);
+    const s3 = ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
 
     test('fails when non-numeric value passed as first argument', () => {
         expect(() => s1.bounce('1' as unknown as number, 10)).toThrow();
@@ -1655,15 +1658,15 @@ describe('Sequence.bounce()', () => {
     });
 
     test('succeeds as expected for ints', () => {
-        expect(s1.bounce(-5, 5)).toStrictEqual(intseq([ 0, 0, 0, 4, -2 ]));
+        expect(s1.bounce(-5, 5)).toStrictEqual(NumSeq.from([ 0, 0, 0, 4, -2 ]));
     });
 
     test('succeeds with first value null', () => {
-        expect(s1.bounce(null, 5)).toStrictEqual(intseq([ -10, 0, 0, 4, -8 ]));
+        expect(s1.bounce(null, 5)).toStrictEqual(NumSeq.from([ -10, 0, 0, 4, -8 ]));
     });
 
     test('succeeds with second value null', () => {
-        expect(s1.bounce(5, null)).toStrictEqual(intseq([ 20, 10, 10, 6, 18 ]));
+        expect(s1.bounce(5, null)).toStrictEqual(NumSeq.from([ 20, 10, 10, 6, 18 ]));
     });
 
     test('succeeds as expected for floats', () => {
@@ -1675,13 +1678,13 @@ describe('Sequence.bounce()', () => {
     });
 
     test('succeeds as expected for chords', () => {
-        expect(s3.bounce(-2, 5)).toStrictEqual(chordseq([ [ 1, 2 ], [], [ -1, 4, 4 ] ]));
+        expect(s3.bounce(-2, 5)).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [], [ -1, 4, 4 ] ]));
     });
 });
 
 describe('Sequence.scale()', () => {
-    const s1 = intseq([ -7, -2, 5, 0, 2, 8, 13 ]);
-    const s2 = chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
+    const s1 = NumSeq.from([ -7, -2, 5, 0, 2, 8, 13 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
 
     const errortable: [ string, string | number[], number, number | undefined ][] = [
         [ 'scale with a name that doesn\'t exist', 'imaginary', 0, 12 ],
@@ -1696,9 +1699,9 @@ describe('Sequence.scale()', () => {
     });
 
     const table: [ string, AnySeq, string | number[], number, number | undefined, AnySeq ][] = [
-        [ 'lydian scale', s2, 'lydian', 60, undefined, chordseq([ [ 62, 98 ], [], [ 55, 67, 71 ] ]) ],
-        [ 'chromatic scale but 24-note octave', s2, 'chromatic', 60, 24, chordseq([ [ 61, 94 ], [], [ 45, 64, 66 ] ]) ],
-        [ 'whole tone scale', s1, [ 0, 2, 4, 6, 8, 10 ], 72, 12, intseq([ 58, 68, 82, 72, 76, 88, 98 ]) ],
+        [ 'lydian scale', s2, 'lydian', 60, undefined, ChordSeq.from([ [ 62, 98 ], [], [ 55, 67, 71 ] ]) ],
+        [ 'chromatic scale but 24-note octave', s2, 'chromatic', 60, 24, ChordSeq.from([ [ 61, 94 ], [], [ 45, 64, 66 ] ]) ],
+        [ 'whole tone scale', s1, [ 0, 2, 4, 6, 8, 10 ], 72, 12, NumSeq.from([ 58, 68, 82, 72, 76, 88, 98 ]) ],
     ];
 
     test.each(table)('gives expected result when %s', (_, seq, scale, zero, octave, ret) => {
@@ -1707,9 +1710,9 @@ describe('Sequence.scale()', () => {
 });
 
 describe('Sequence.gamut()', () => {
-    const s1 = intseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
-    const s3 = floatseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
+    const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
     const errortable: [ string, number[], GamutOpts | undefined ][] = [
         [ 'gamut is not an array', 500 as unknown as number[], {} ],
@@ -1724,12 +1727,12 @@ describe('Sequence.gamut()', () => {
     });
 
     const table: [ string, AnySeq, number[], GamutOpts | undefined, AnySeq ][] = [
-        [ 'no options passed', s1, [ 2, 1, 0, 5, 4, 3 ], undefined, intseq([ 2, 4, 1, 5, 0, 4, 3, 3, 2, 0 ]) ],
-        [ 'empty options passed', s1, [ 2, 1, 0, 5, 4, 3 ], {}, intseq([ 2, 4, 1, 5, 0, 4, 3, 3, 2, 0 ]) ],
-        [ 'zero-value passed', s1, [ 2, 1, 0, 5, 4, 3 ], { zero: 4 }, intseq([ 4, 0, 3, 1, 2, 0, 5, 5, 4, 2 ]) ],
-        [ 'low-value passed', s2, [ 5, 4, 3, 2, 1, 0 ], { lowVal: 10 }, chordseq([ [ 4, 1 ], [], [ 10, 1, 5 ] ]) ],
-        [ 'high-value passed', s2, [ 5, 4, 3, 2, 1, 0 ], { highVal: 10 }, chordseq([ [ 4, 10 ], [], [ 2, 1, 10 ] ]) ],
-        [ 'all options passed', s3, [ 10, -10, 6.5, -6.5, 0 ], { zero: 6.5, lowVal: -16, highVal: 16 }, floatseq([ 6.5, 10, -6.5, 16, 0, 16, 16, -16, 16, 16 ]) ],
+        [ 'no options passed', s1, [ 2, 1, 0, 5, 4, 3 ], undefined, NumSeq.from([ 2, 4, 1, 5, 0, 4, 3, 3, 2, 0 ]) ],
+        [ 'empty options passed', s1, [ 2, 1, 0, 5, 4, 3 ], {}, NumSeq.from([ 2, 4, 1, 5, 0, 4, 3, 3, 2, 0 ]) ],
+        [ 'zero-value passed', s1, [ 2, 1, 0, 5, 4, 3 ], { zero: 4 }, NumSeq.from([ 4, 0, 3, 1, 2, 0, 5, 5, 4, 2 ]) ],
+        [ 'low-value passed', s2, [ 5, 4, 3, 2, 1, 0 ], { lowVal: 10 }, ChordSeq.from([ [ 4, 1 ], [], [ 10, 1, 5 ] ]) ],
+        [ 'high-value passed', s2, [ 5, 4, 3, 2, 1, 0 ], { highVal: 10 }, ChordSeq.from([ [ 4, 10 ], [], [ 2, 1, 10 ] ]) ],
+        [ 'all options passed', s3, [ 10, -10, 6.5, -6.5, 0 ], { zero: 6.5, lowVal: -16, highVal: 16 }, NumSeq.from([ 6.5, 10, -6.5, 16, 0, 16, 16, -16, 16, 16 ], MICROTONAL) ],
     ];
 
     test.each(table)('gives expected result when %s', (_, seq, gamut, opts, ret) => {
@@ -1738,8 +1741,8 @@ describe('Sequence.gamut()', () => {
 });
 
 describe('Sequence.filterInPosition()', () => {
-    const s1 = intseq([ 0, -2, 5, 2, 4, 5 ]);
-    const s2 = chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
+    const s1 = NumSeq.from([ 0, -2, 5, 2, 4, 5 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ]]);
 
     test('throws if function passed is not a function', () => {
         expect(() => s1.filterInPosition(1 as unknown as FilterFn<NumSeqMember>, new NumSeqMember(1))).toThrow();
@@ -1754,22 +1757,22 @@ describe('Sequence.filterInPosition()', () => {
     });
 
     test('works as expected on intseq', () => {
-        expect(s1.filterInPosition(e => e.val() < 5, new NumSeqMember(3))).toStrictEqual(intseq([ 0, -2, 3, 2, 4, 3 ]));
+        expect(s1.filterInPosition(e => e.val() < 5, new NumSeqMember(3))).toStrictEqual(NumSeq.from([ 0, -2, 3, 2, 4, 3 ]));
     });
 
     test('works as expected on chordseq with nullval passed as array value', () => {
-        expect(s2.filterInPosition((_, i) => i % 2 === 0, [ 7, 8 ])).toStrictEqual(chordseq([ [ 1, 22 ], [ 7, 8 ], [ -3, 4, 6 ] ]));
+        expect(s2.filterInPosition((_, i) => i % 2 === 0, [ 7, 8 ])).toStrictEqual(ChordSeq.from([ [ 1, 22 ], [ 7, 8 ], [ -3, 4, 6 ] ]));
     });
 
     test('works as expected on chordseq with nullval not passed', () => {
-        expect(s2.filterInPosition((_, i) => i % 2 === 0)).toStrictEqual(chordseq([ [ 1, 22 ], [], [ -3, 4, 6 ] ]));
+        expect(s2.filterInPosition((_, i) => i % 2 === 0)).toStrictEqual(ChordSeq.from([ [ 1, 22 ], [], [ -3, 4, 6 ] ]));
     });
 });
 
 describe('Sequence.mapWindow()', () => {
-    const s1 = intseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
-    const s3 = floatseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
     const errortable: [ string, number, number, MapperFn<NumSeqMember[]> ][] = [
         [ 'mapper function is not a function', 5, 5, 0 as unknown as MapperFn<NumSeqMember[]> ],
@@ -1783,34 +1786,34 @@ describe('Sequence.mapWindow()', () => {
 
     test('size and step one, result length one', () => {
         expect(s1.mapWindow(1, 1, ((a, i) => a.map(e => e.transpose(i)))))
-            .toStrictEqual(intseq([ 0, -1, 3, 6, 6, 9, 11, 0, 14, 23 ]));
+            .toStrictEqual(NumSeq.from([ 0, -1, 3, 6, 6, 9, 11, 0, 14, 23 ]));
     });
 
     test('size and step one, result length varied', () => {
         expect(s2.mapWindow(1, 1, ((a, i) => i % 2 ? [ ...a, ...a ] : [])))
-            .toStrictEqual(chordseq([ [ -3, 4, 6 ], [ -3, 4, 6 ], [ 2 ], [ 2 ] ]));
+            .toStrictEqual(ChordSeq.from([ [ -3, 4, 6 ], [ -3, 4, 6 ], [ 2 ], [ 2 ] ]));
     });
 
     test('size more than one, step one', () => {
         expect(s3.mapWindow(2, 1, a => a.reverse()))
-            .toStrictEqual(floatseq([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6 ]));
+            .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6 ], MICROTONAL));
     });
 
     test('size one, step more than one but a subdivision of sequence length', () => {
         expect(s3.mapWindow(1, 2, (a, i) => a.map(e => e.transpose(i / 2))))
-            .toStrictEqual(floatseq([ 0, 1.5, 3, 6.5, 8 ]));
+            .toStrictEqual(NumSeq.from([ 0, 1.5, 3, 6.5, 8 ], MICROTONAL));
     });
 
     test('size and step more than one', () => {
         expect(s1.mapWindow(3, 2, a => a.reverse()))
-            .toStrictEqual(intseq([ 1, -2, 0, 2, 3, 1, 5, 4, 2, 6, -7, 5 ]));
+            .toStrictEqual(NumSeq.from([ 1, -2, 0, 2, 3, 1, 5, 4, 2, 6, -7, 5 ]));
     });
 });
 
 describe('Sequence.filterWindow()', () => {
-    const s1 = intseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
-    const s3 = floatseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
     const errortable: [ string, number, number, FilterFn<NumSeqMember[]> ][] = [
         [ 'filter function is not a function', 5, 5, 0 as unknown as FilterFn<NumSeqMember[]> ],
@@ -1824,28 +1827,28 @@ describe('Sequence.filterWindow()', () => {
 
     test('size and step one', () => {
         expect(s1.filterWindow(1, 1, (a, i) => a[0].val() > i))
-            .toStrictEqual(intseq([ 14 ]));
+            .toStrictEqual(NumSeq.from([ 14 ]));
     });
 
     test('size more than one, step one', () => {
         expect(s3.filterWindow(2, 1, a => a[0].val() < a[1].val()))
-            .toStrictEqual(floatseq([ -2, 1, 1, 3, 2, 4, 4, 5, -7, 6, 6, 14 ]));
+            .toStrictEqual(NumSeq.from([ -2, 1, 1, 3, 2, 4, 4, 5, -7, 6, 6, 14 ], MICROTONAL));
     });
 
     test('size one, step more than one but a subdivision of sequence length', () => {
         expect(s2.filterWindow(1, 2, a => a[0].len() > 0))
-            .toStrictEqual(chordseq([ [ 1, 22 ], [ 11 ] ]));
+            .toStrictEqual(ChordSeq.from([ [ 1, 22 ], [ 11 ] ]));
     });
 
     test('size and step more than one', () => {
         expect(s1.filterWindow(3, 2, a => a[0].val() < a[1].val()))
-            .toStrictEqual(intseq([ 1, 3, 2, 2, 4, 5 ]));
+            .toStrictEqual(NumSeq.from([ 1, 3, 2, 2, 4, 5 ]));
     });
 });
 
 describe('Sequence.sort()', () => {
-    const s1 = intseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
 
     test('fails when sort function is not a function', () => {
         expect(() => s2.sort(0 as unknown as (a: ChordSeqMember, b: ChordSeqMember) => number)).toThrow();
@@ -1857,18 +1860,18 @@ describe('Sequence.sort()', () => {
 
     test('sorts as expected without filter function', () => {
         expect(s2.sort((a, b) => a.len() - b.len()))
-            .toStrictEqual(chordseq([ [], [ 2 ], [ 11 ], [ 1, 22 ], [ -3, 4, 6 ] ]));
+            .toStrictEqual(ChordSeq.from([ [], [ 2 ], [ 11 ], [ 1, 22 ], [ -3, 4, 6 ] ]));
     });
 
     test('sorts as expected with filter function', () => {
         expect(s1.sort((a, b) => a.val() - b.val(), e => e.val() % 3 !== 0))
-            .toStrictEqual(intseq([ 0, -7, -2, 3, 1, 2, 4, 5, 6, 14 ]));
+            .toStrictEqual(NumSeq.from([ 0, -7, -2, 3, 1, 2, 4, 5, 6, 14 ]));
     });
 });
 
 describe('Sequence.chop()', () => {
-    const s1 = intseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
 
     test('fails when length is not a positive integer', () => {
         expect(() => s1.chop(0)).toThrow();
@@ -1876,20 +1879,20 @@ describe('Sequence.chop()', () => {
 
     test('chops at length 1', () => {
         expect(s2.chop(1)).toStrictEqual([
-            chordseq([ [ 1, 22 ] ]), chordseq([ [ -3, 4, 6 ] ]), chordseq([ [] ]), chordseq([ [ 2 ] ]), chordseq([ [ 11 ] ]) 
+            ChordSeq.from([ [ 1, 22 ] ]), ChordSeq.from([ [ -3, 4, 6 ] ]), ChordSeq.from([ [] ]), ChordSeq.from([ [ 2 ] ]), ChordSeq.from([ [ 11 ] ]) 
         ]);
     });
 
     test('truncates incomplete slice', () => {
         expect(s1.chop(3)).toStrictEqual([
-            intseq([ 0, -2, 1 ]), intseq([ 3, 2, 4 ]), intseq([ 5, -7, 6 ])
+            NumSeq.from([ 0, -2, 1 ]), NumSeq.from([ 3, 2, 4 ]), NumSeq.from([ 5, -7, 6 ])
         ]);
     });
 });
 
 describe('Sequence.partitionInPosition()', () => {
-    const s1 = intseq([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
 
     test('fails when partition function is not a function', () => {
         expect(() => s2.partitionInPosition(0 as unknown as FilterFn<ChordSeqMember>, new ChordSeqMember([ -5 ]))).toThrow();
@@ -1905,29 +1908,29 @@ describe('Sequence.partitionInPosition()', () => {
 
     test('partitions as expected with event as nullval', () => {
         expect(s1.partitionInPosition(e => e.val() > 2, new NumSeqMember(-5))).toStrictEqual([
-            intseq([ -5, -5, -5, 3, -5, 4, 5, -5, 6, 14 ]),
-            intseq([ 0, -2, 1, -5, 2, -5, -5, -7, -5, -5 ]),
+            NumSeq.from([ -5, -5, -5, 3, -5, 4, 5, -5, 6, 14 ]),
+            NumSeq.from([ 0, -2, 1, -5, 2, -5, -5, -7, -5, -5 ]),
         ]);
     });
 
     test('partitions chordseq as expected with array as nullval', () => {
         expect(s2.partitionInPosition(e => e.len() > 1, [ -5, 2 ])).toStrictEqual([
-            chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [ -5, 2 ], [ -5, 2 ], [ -5, 2 ] ]),
-            chordseq([ [ -5, 2 ], [ -5, 2 ], [], [ 2 ], [ 11 ] ]),
+            ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [ -5, 2 ], [ -5, 2 ], [ -5, 2 ] ]),
+            ChordSeq.from([ [ -5, 2 ], [ -5, 2 ], [], [ 2 ], [ 11 ] ]),
         ]);
     });
 
     test('partitions chordseq as expected with nullval not passed', () => {
         expect(s2.partitionInPosition(e => e.len() > 1, null)).toStrictEqual([
-            chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [], [] ]),
-            chordseq([ [], [], [], [ 2 ], [ 11 ] ]),
+            ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [], [] ]),
+            ChordSeq.from([ [], [], [], [ 2 ], [ 11 ] ]),
         ]);
     });
 });
 
 describe('Sequence.groupByInPosition()', () => {
-    const s1 = intseq([ 0, 8, 1, 3, 2, 4, 5, 17, 6, 14 ]);
-    const s2 = chordseq([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s1 = NumSeq.from([ 0, 8, 1, 3, 2, 4, 5, 17, 6, 14 ]);
+    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
 
     test('fails when group function is not a function', () => {
         expect(() => s2.groupByInPosition(0 as unknown as (e: ChordSeqMember, i?: number) => string, new ChordSeqMember([ 0 ]))).toThrow();
@@ -1943,34 +1946,34 @@ describe('Sequence.groupByInPosition()', () => {
 
     test('groups as expected with event as nullval', () => {
         expect(s1.groupByInPosition(e => String(e.val() % 3), new NumSeqMember(-5))).toStrictEqual({
-            '0': intseq([ 0, -5, -5, 3, -5, -5, -5, -5, 6, -5 ]),
-            '1': intseq([ -5, -5, 1, -5, -5, 4, -5, -5, -5, -5 ]),
-            '2': intseq([ -5, 8, -5, -5, 2, -5, 5, 17, -5, 14 ])
+            '0': NumSeq.from([ 0, -5, -5, 3, -5, -5, -5, -5, 6, -5 ]),
+            '1': NumSeq.from([ -5, -5, 1, -5, -5, 4, -5, -5, -5, -5 ]),
+            '2': NumSeq.from([ -5, 8, -5, -5, 2, -5, 5, 17, -5, 14 ])
         });
     });
 
     test('groups chordseq as expected with array value as nullval', () => {
         expect(s2.groupByInPosition(e => String(e.len()), [ -5, 6 ])).toStrictEqual({
-            '0': chordseq([ [ -5, 6 ], [ -5, 6 ], [], [ -5, 6 ], [ -5, 6 ] ]),
-            '1': chordseq([ [ -5, 6 ], [ -5, 6 ], [ -5, 6 ], [ 2 ], [ 11 ] ]),
-            '2': chordseq([ [ 1, 22 ], [ -5, 6 ], [ -5, 6 ], [ -5, 6 ], [ -5, 6 ] ]),
-            '3': chordseq([ [ -5, 6 ], [ -3, 4, 6 ], [ -5, 6 ], [ -5, 6 ], [ -5, 6 ] ]),
+            '0': ChordSeq.from([ [ -5, 6 ], [ -5, 6 ], [], [ -5, 6 ], [ -5, 6 ] ]),
+            '1': ChordSeq.from([ [ -5, 6 ], [ -5, 6 ], [ -5, 6 ], [ 2 ], [ 11 ] ]),
+            '2': ChordSeq.from([ [ 1, 22 ], [ -5, 6 ], [ -5, 6 ], [ -5, 6 ], [ -5, 6 ] ]),
+            '3': ChordSeq.from([ [ -5, 6 ], [ -3, 4, 6 ], [ -5, 6 ], [ -5, 6 ], [ -5, 6 ] ]),
         });
     });
 
     test('groups chordseq as expected with nullval not passed', () => {
         expect(s2.groupByInPosition(e => String(e.len()))).toStrictEqual({
-            '0': chordseq([ [], [], [], [], [] ]),
-            '1': chordseq([ [], [], [], [ 2 ], [ 11 ] ]),
-            '2': chordseq([ [ 1, 22 ], [], [], [], [] ]),
-            '3': chordseq([ [], [ -3, 4, 6 ], [], [], [] ]),
+            '0': ChordSeq.from([ [], [], [], [], [] ]),
+            '1': ChordSeq.from([ [], [], [], [ 2 ], [ 11 ] ]),
+            '2': ChordSeq.from([ [ 1, 22 ], [], [], [], [] ]),
+            '3': ChordSeq.from([ [], [ -3, 4, 6 ], [], [], [] ]),
         });
     });
 });
 
 describe('Sequence.untwine()', () => {
-    const s1 = intseq([ 0, 8, 1, 3, 2, 4, 5, 17, 6 ]);
-    const s2 = chordseq([ [], [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
+    const s1 = NumSeq.from([ 0, 8, 1, 3, 2, 4, 5, 17, 6 ]);
+    const s2 = ChordSeq.from([ [], [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
 
     test('fails when argument is not a positive integer', () => {
         expect(() => s1.untwine(0)).toThrow();
@@ -1982,73 +1985,73 @@ describe('Sequence.untwine()', () => {
 
     test('succeeds on an intseq', () => {
         expect(s1.untwine(3)).toStrictEqual([
-            intseq([ 0, 3, 5 ]), intseq([ 8, 2, 17 ]), intseq([ 1, 4, 6 ]),
+            NumSeq.from([ 0, 3, 5 ]), NumSeq.from([ 8, 2, 17 ]), NumSeq.from([ 1, 4, 6 ]),
         ]);
     });
 
     test('succeeds on a chordseq', () => {
         expect(s2.untwine(2)).toStrictEqual([
-            chordseq([ [], [ -3, 4, 6 ], [ 2 ] ]), chordseq([ [ 1, 22 ], [], [ 11 ] ]) 
+            ChordSeq.from([ [], [ -3, 4, 6 ], [ 2 ] ]), ChordSeq.from([ [ 1, 22 ], [], [ 11 ] ]) 
         ]);
     });
 });
 
 describe('Sequence.twine()', () => {
     test('fails when one of the sequences is not a sequence', () => {
-        expect(() => intseq([ 1, 2, 3 ]).twine(intseq([ 4, 5, 6 ]), 0 as unknown as NumSeq)).toThrow();
+        expect(() => NumSeq.from([ 1, 2, 3 ]).twine(NumSeq.from([ 4, 5, 6 ]), 0 as unknown as NumSeq)).toThrow();
     });
 
     test('fails when one of the sequences is of a different length', () => {
-        expect(() => chordseq([ 1, 2, 3 ]).twine(chordseq([ 4, 5, 6 ]), chordseq([ 7, 8 ]))).toThrow();
+        expect(() => ChordSeq.from([ 1, 2, 3 ]).twine(ChordSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8 ]))).toThrow();
     });
 
     test('does nothing when twwining itself', () => {
-        expect(intseq([ 1, 2, 3 ]).twine()).toStrictEqual(intseq([ 1, 2, 3 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).twine()).toStrictEqual(NumSeq.from([ 1, 2, 3 ]));
     });
 
     test('twines multiple sequences', () => {
-        expect(intseq([ 1, 2, 3 ]).twine(intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]), intseq([ 10, 11, 12 ])))
-            .toStrictEqual(intseq([ 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).twine(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8, 9 ]), NumSeq.from([ 10, 11, 12 ])))
+            .toStrictEqual(NumSeq.from([ 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 ]));
     });
 });
 
 describe('Sequence.combine()', () => {
     test('fails when passed function is not a function', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combine(0 as unknown as (...a: NumSeqMember[]) => NumSeqMember, intseq([ 4, 5, 6 ])))
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combine(0 as unknown as (...a: NumSeqMember[]) => NumSeqMember, NumSeq.from([ 4, 5, 6 ])))
             .toThrow();
     });
 
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combine((...a: NumSeqMember[]) => a[0], intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])))
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combine((...a: NumSeqMember[]) => a[0], NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])))
             .toThrow();
     });
 
     test('works when nothing is passed', () => {
-        expect(chordseq([ [ 1 ], [ 2, 3 ], [ 4 ]]).combine((...a: ChordSeqMember[]) => a[0]))
-            .toStrictEqual(chordseq([ [ 1 ], [ 2, 3, ], [ 4 ] ]));
+        expect(ChordSeq.from([ [ 1 ], [ 2, 3 ], [ 4 ]]).combine((...a: ChordSeqMember[]) => a[0]))
+            .toStrictEqual(ChordSeq.from([ [ 1 ], [ 2, 3, ], [ 4 ] ]));
     });
 
     test('works to sum all series', () => {
-        expect(intseq([ 1, 2, 3 ]).combine(
-            (...a: NumSeqMember[]) => new NumSeqMember(a[0].val() + a[1].val() + a[2].val()), intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]))
-        ).toStrictEqual(intseq([ 12, 15, 18 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).combine(
+            (...a: NumSeqMember[]) => new NumSeqMember(a[0].val() + a[1].val() + a[2].val()), NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8, 9 ]))
+        ).toStrictEqual(NumSeq.from([ 12, 15, 18 ]));
     });
 });
 
 describe('Sequence.flatCombine()', () => {
     test('fails when passed function is not a function', () => {
-        expect(() => intseq([ 1, 2, 3 ]).flatCombine(0 as unknown as (...a: NumSeqMember[]) => NumSeqMember, intseq([ 4, 5, 6 ])))
+        expect(() => NumSeq.from([ 1, 2, 3 ]).flatCombine(0 as unknown as (...a: NumSeqMember[]) => NumSeqMember, NumSeq.from([ 4, 5, 6 ])))
             .toThrow();
     });
 
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).flatCombine((...a: NumSeqMember[]) => a[0], intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])))
+        expect(() => NumSeq.from([ 1, 2, 3 ]).flatCombine((...a: NumSeqMember[]) => a[0], NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])))
             .toThrow();
     });
 
     test('works when nothing is passed', () => {
-        expect(chordseq([ [ 1 ], [ 2, 3 ], [ 4 ]]).flatCombine((...a: ChordSeqMember[]) => a[0]))
-            .toStrictEqual(chordseq([ [ 1 ], [ 2, 3, ], [ 4 ] ]));
+        expect(ChordSeq.from([ [ 1 ], [ 2, 3 ], [ 4 ]]).flatCombine((...a: ChordSeqMember[]) => a[0]))
+            .toStrictEqual(ChordSeq.from([ [ 1 ], [ 2, 3, ], [ 4 ] ]));
     });
 
     test('works with different length results', () => {
@@ -2061,342 +2064,342 @@ describe('Sequence.flatCombine()', () => {
             }
         }
 
-        expect(intseq([ 0, 1, 2, 3 ]).flatCombine(combiner, intseq([ 3, 4, 5, 6 ]), intseq([ 6, 7, 8, 9 ])))
-            .toStrictEqual(intseq([ 1, 2, 5, 3, 6, 9 ]));
+        expect(NumSeq.from([ 0, 1, 2, 3 ]).flatCombine(combiner, NumSeq.from([ 3, 4, 5, 6 ]), NumSeq.from([ 6, 7, 8, 9 ])))
+            .toStrictEqual(NumSeq.from([ 1, 2, 5, 3, 6, 9 ]));
     });
 });
 
 describe('Sequence.combineMin()', () => {
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineMin(intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineMin(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineMin(intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineMin(NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('takes minima when nothing is passed', () => {
-        expect(chordseq([ [ 1 ], [ 2, 3 ], [ 4 ]]).combineMin()).toStrictEqual(chordseq([ [ 1 ], [ 2 ], [ 4 ] ]));
+        expect(ChordSeq.from([ [ 1 ], [ 2, 3 ], [ 4 ]]).combineMin()).toStrictEqual(ChordSeq.from([ [ 1 ], [ 2 ], [ 4 ] ]));
     });
 
     test('works with multiple series', () => {
-        expect(intseq([ 1, 6, 9 ]).combineMin(intseq([ 0, 11, 4 ]), intseq([ 6, 7, 8 ]), intseq([ 3, -1, 5 ]))).toStrictEqual(intseq([ 0, -1, 4 ]));
+        expect(NumSeq.from([ 1, 6, 9 ]).combineMin(NumSeq.from([ 0, 11, 4 ]), NumSeq.from([ 6, 7, 8 ]), NumSeq.from([ 3, -1, 5 ]))).toStrictEqual(NumSeq.from([ 0, -1, 4 ]));
     });
 });
 
 describe('Sequence.combineMax()', () => {
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineMax(intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineMax(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineMax(intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineMax(NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('takes maxima when nothing is passed', () => {
-        expect(chordseq([ [ 1 ], [ 2, 3 ], [ 4 ]]).combineMax()).toStrictEqual(chordseq([ [ 1 ], [ 3 ], [ 4 ] ]));
+        expect(ChordSeq.from([ [ 1 ], [ 2, 3 ], [ 4 ]]).combineMax()).toStrictEqual(ChordSeq.from([ [ 1 ], [ 3 ], [ 4 ] ]));
     });
 
     test('works with multiple series', () => {
-        expect(intseq([ 1, 6, 9 ]).combineMax(intseq([ 0, 11, 4 ]), intseq([ 6, 7, 8 ]), intseq([ 3, -1, 5 ]))).toStrictEqual(intseq([ 6, 11, 9 ]));
+        expect(NumSeq.from([ 1, 6, 9 ]).combineMax(NumSeq.from([ 0, 11, 4 ]), NumSeq.from([ 6, 7, 8 ]), NumSeq.from([ 3, -1, 5 ]))).toStrictEqual(NumSeq.from([ 6, 11, 9 ]));
     });
 });
 
 describe('Sequence.combineOr()', () => {
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineOr(intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineOr(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineOr(intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineOr(NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('takes existing values when nothing is passed', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).combineOr()).toStrictEqual(intseq([ 1, 2, 3, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).combineOr()).toStrictEqual(NumSeq.from([ 1, 2, 3, 4 ]));
     });
 
     test('works as expected with multiple series', () => {
-        expect(chordseq([ [ 1, 4 ], [ 2, 3 ], [ 4 ]]).combineOr(
-            chordseq([ [ 1, 4, 6 ], [ 2, 4 ], [ 3, 5 ] ]),
-            chordseq([ [ 1, 2, 4 ], [ 1, 2, 3 ], [] ])
-        )).toStrictEqual(chordseq([ [ 1, 2, 4, 6 ], [ 1, 2, 3, 4 ], [ 3, 4, 5 ] ]));
+        expect(ChordSeq.from([ [ 1, 4 ], [ 2, 3 ], [ 4 ]]).combineOr(
+            ChordSeq.from([ [ 1, 4, 6 ], [ 2, 4 ], [ 3, 5 ] ]),
+            ChordSeq.from([ [ 1, 2, 4 ], [ 1, 2, 3 ], [] ])
+        )).toStrictEqual(ChordSeq.from([ [ 1, 2, 4, 6 ], [ 1, 2, 3, 4 ], [ 3, 4, 5 ] ]));
     });
 });
 
 describe('Sequence.combineAnd()', () => {
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineAnd(intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineAnd(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).combineAnd(intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).combineAnd(NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('takes existing values when nothing is passed', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).combineAnd()).toStrictEqual(intseq([ 1, 2, 3, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).combineAnd()).toStrictEqual(NumSeq.from([ 1, 2, 3, 4 ]));
     });
 
     test('works as expected with multiple series', () => {
-        expect(chordseq([ [ 1, 4 ], [ 2, 3 ], [ 4 ]]).combineAnd(
-            chordseq([ [ 1, 4, 6 ], [ 2, 4 ], [ 3, 5 ] ]),
-            chordseq([ [ 1, 2, 4 ], [ 1, 2, 3 ], [] ])
-        )).toStrictEqual(chordseq([ [ 1, 4 ], [ 2 ], [] ]));
+        expect(ChordSeq.from([ [ 1, 4 ], [ 2, 3 ], [ 4 ]]).combineAnd(
+            ChordSeq.from([ [ 1, 4, 6 ], [ 2, 4 ], [ 3, 5 ] ]),
+            ChordSeq.from([ [ 1, 2, 4 ], [ 1, 2, 3 ], [] ])
+        )).toStrictEqual(ChordSeq.from([ [ 1, 4 ], [ 2 ], [] ]));
     });
 });
 
 describe('Sequence.zipWith()', () => {
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).zipWith(intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).zipWith(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).zipWith(intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).zipWith(NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('takes existing values when nothing is passed', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).zipWith())
-            .toStrictEqual([ chordseq([ 1 ]), chordseq([ 2 ]), chordseq([ 3 ]), chordseq([ 4 ]) ]);
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).zipWith())
+            .toStrictEqual([ ChordSeq.from([ 1 ]), ChordSeq.from([ 2 ]), ChordSeq.from([ 3 ]), ChordSeq.from([ 4 ]) ]);
     });
 
     test('zips multiple sequences as expected', () => {
-        expect(intseq([ 1, 2, 3 ]).zipWith(intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]), intseq([ 10, 11, 12 ])))
-            .toStrictEqual([ intseq([ 1, 4, 7, 10 ]), intseq([ 2, 5, 8, 11 ]), intseq([ 3, 6, 9, 12 ]) ]);
+        expect(NumSeq.from([ 1, 2, 3 ]).zipWith(NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8, 9 ]), NumSeq.from([ 10, 11, 12 ])))
+            .toStrictEqual([ NumSeq.from([ 1, 4, 7, 10 ]), NumSeq.from([ 2, 5, 8, 11 ]), NumSeq.from([ 3, 6, 9, 12 ]) ]);
     });
 });
 
 describe('Sequence.mapWith()', () => {
     test('fails when function is not a function', () => {
-        expect(() => chordseq([]).mapWith(
+        expect(() => ChordSeq.from([]).mapWith(
             0 as unknown as (vals: ChordSeqMember[], i?: number) => ChordSeqMember[] | ChordSeqMember,
-            chordseq([])
+            ChordSeq.from([])
         )).toThrow();
     });
 
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).mapWith((a: NumSeqMember[]) => a[0], intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).mapWith((a: NumSeqMember[]) => a[0], NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).mapWith((a: NumSeqMember[]) => a[0], intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).mapWith((a: NumSeqMember[]) => a[0], NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('returns empty arrays when sequences are empty', () => {
-        expect(chordseq([]).mapWith((a: ChordSeqMember[]) => a.reverse(), chordseq([]), chordseq([])))
-            .toStrictEqual([ chordseq([]), chordseq([]), chordseq([]) ]);
+        expect(ChordSeq.from([]).mapWith((a: ChordSeqMember[]) => a.reverse(), ChordSeq.from([]), ChordSeq.from([])))
+            .toStrictEqual([ ChordSeq.from([]), ChordSeq.from([]), ChordSeq.from([]) ]);
     });
 
     test('works on existing values when nothing is passed', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).mapWith((a: ChordSeqMember[]) => a[0].transpose(1))).toStrictEqual([ chordseq([ 2, 3, 4, 5 ]) ]);
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).mapWith((a: ChordSeqMember[]) => a[0].transpose(1))).toStrictEqual([ ChordSeq.from([ 2, 3, 4, 5 ]) ]);
     });
 
     test('maps multiple sequences as expected', () => {
-        expect(intseq([ 1, 2, 3 ]).mapWith(
+        expect(NumSeq.from([ 1, 2, 3 ]).mapWith(
             (a: NumSeqMember[]) => a.reverse().map(e => e.transpose(1)),
-            intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]), intseq([ 10, 11, 12 ]))
-        ).toStrictEqual([ intseq([ 11, 12, 13 ]), intseq([ 8, 9, 10 ]), intseq([ 5, 6, 7 ]), intseq([ 2, 3, 4 ]) ]);
+            NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8, 9 ]), NumSeq.from([ 10, 11, 12 ]))
+        ).toStrictEqual([ NumSeq.from([ 11, 12, 13 ]), NumSeq.from([ 8, 9, 10 ]), NumSeq.from([ 5, 6, 7 ]), NumSeq.from([ 2, 3, 4 ]) ]);
     });
 });
 
 describe('Sequence.filterWith()', () => {
     test('fails when function is not a function', () => {
-        expect(() => chordseq([]).filterWith(
+        expect(() => ChordSeq.from([]).filterWith(
             0 as unknown as (vals: ChordSeqMember[], i?: number) => boolean,
-            chordseq([])
+            ChordSeq.from([])
         )).toThrow();
     });
 
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).filterWith(() => true, intseq([ 4, 5, 6 ]), intseq([ 7, 8 ])));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).filterWith(() => true, NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8 ])));
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).filterWith(() => true, intseq([ 4, 5, 6 ]), chordseq([ 7, 8, 9 ]) as unknown as NumSeq));
+        expect(() => NumSeq.from([ 1, 2, 3 ]).filterWith(() => true, NumSeq.from([ 4, 5, 6 ]), ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq));
     });
 
     test('returns empty sequences when sequences are empty', () => {
-        expect(chordseq([]).filterWith(() => true, chordseq([]), chordseq([])))
-            .toStrictEqual([ chordseq([]), chordseq([]), chordseq([]) ]);
+        expect(ChordSeq.from([]).filterWith(() => true, ChordSeq.from([]), ChordSeq.from([])))
+            .toStrictEqual([ ChordSeq.from([]), ChordSeq.from([]), ChordSeq.from([]) ]);
     });
 
     test('works on existing values when nothing is passed', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).filterWith(() => true)).toStrictEqual([ chordseq([ 1, 2, 3, 4 ]) ]);
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).filterWith(() => true)).toStrictEqual([ ChordSeq.from([ 1, 2, 3, 4 ]) ]);
     });
 
     test('works correctly when everything is filtered out', () => {
-        expect(intseq([ 1, 2, 3 ]).filterWith( () => false,
-            intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]), intseq([ 10, 11, 12 ]))
-        ).toStrictEqual([ intseq([]), intseq([]), intseq([]), intseq([]) ]);
+        expect(NumSeq.from([ 1, 2, 3 ]).filterWith( () => false,
+            NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8, 9 ]), NumSeq.from([ 10, 11, 12 ]))
+        ).toStrictEqual([ NumSeq.from([]), NumSeq.from([]), NumSeq.from([]), NumSeq.from([]) ]);
     });
 
     test('filters multiple sequences as expected', () => {
-        expect(intseq([ 1, 2, 3 ]).filterWith(
+        expect(NumSeq.from([ 1, 2, 3 ]).filterWith(
             (a: NumSeqMember[]) => a[0].val() % 2 !== 0,
-            intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]), intseq([ 10, 11, 12 ]))
-        ).toStrictEqual([ intseq([ 1, 3 ]), intseq([ 4, 6 ]), intseq([ 7, 9 ]), intseq([ 10, 12 ]) ]);
+            NumSeq.from([ 4, 5, 6 ]), NumSeq.from([ 7, 8, 9 ]), NumSeq.from([ 10, 11, 12 ]))
+        ).toStrictEqual([ NumSeq.from([ 1, 3 ]), NumSeq.from([ 4, 6 ]), NumSeq.from([ 7, 9 ]), NumSeq.from([ 10, 12 ]) ]);
     });
 });
 
 describe('Sequence.exchangeValuesIf()', () => {
     test('fails when comparator is not a function', () => {
-        expect(() => intseq([ 1, 2, 3 ]).exchangeValuesIf(0 as unknown as () => boolean, intseq([ 7, 8, 9 ]))).toThrow();
+        expect(() => NumSeq.from([ 1, 2, 3 ]).exchangeValuesIf(0 as unknown as () => boolean, NumSeq.from([ 7, 8, 9 ]))).toThrow();
     });
 
     test('fails when sequences are of different lengths', () => {
-        expect(() => intseq([ 1, 2, 3 ]).exchangeValuesIf(() => true, intseq([ 7, 8 ]))).toThrow();
+        expect(() => NumSeq.from([ 1, 2, 3 ]).exchangeValuesIf(() => true, NumSeq.from([ 7, 8 ]))).toThrow();
     });
 
     test('fails when sequences are of different types', () => {
-        expect(() => intseq([ 1, 2, 3 ]).exchangeValuesIf(() => true, chordseq([ 7, 8, 9 ]) as unknown as NumSeq)).toThrow();
+        expect(() => NumSeq.from([ 1, 2, 3 ]).exchangeValuesIf(() => true, ChordSeq.from([ 7, 8, 9 ]) as unknown as NumSeq)).toThrow();
     });
 
     test('works when sequences are empty', () => {
-        expect(chordseq([]).exchangeValuesIf(() => true, chordseq([]))).toStrictEqual([ chordseq([]), chordseq([]) ]);
+        expect(ChordSeq.from([]).exchangeValuesIf(() => true, ChordSeq.from([]))).toStrictEqual([ ChordSeq.from([]), ChordSeq.from([]) ]);
     });
 
     test('exchanges when expected', () => {
-        expect(intseq([ 1, 2, 3, 4, 5, 6 ]).exchangeValuesIf(
+        expect(NumSeq.from([ 1, 2, 3, 4, 5, 6 ]).exchangeValuesIf(
             (e1: NumSeqMember, e2: NumSeqMember, i?: number) => e1.val() === 2 || e2.val() === 2 || i === 2,
-            intseq([ 6, 5, 4, 3, 2, 1 ])
-        )).toStrictEqual([ intseq([ 1, 5, 4, 4, 2, 6 ]), intseq([ 6, 2, 3, 3, 5, 1 ]) ]);
+            NumSeq.from([ 6, 5, 4, 3, 2, 1 ])
+        )).toStrictEqual([ NumSeq.from([ 1, 5, 4, 4, 2, 6 ]), NumSeq.from([ 6, 2, 3, 3, 5, 1 ]) ]);
     });
 });
 
 describe('Sequence.toNumSeq()', () => {
     test('fails when non-numeric values included', () => {
-        expect(() => noteseq([ 4, null, 2 ]).toNumSeq()).toThrow();
+        expect(() => NoteSeq.from([ 4, null, 2 ]).toNumSeq()).toThrow();
     });
 
     test('succeeds when values are appropriate', () => {
-        expect(noteseq([ 1, 2, 3 ]).withTrackName('testing').toNumSeq())
-            .toStrictEqual(intseq([ 1, 2, 3 ]).withTrackName('testing'));
+        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toNumSeq())
+            .toStrictEqual(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
 
-        expect(chordseq([ [ 1 ], [ 2 ], [ 3 ] ]).withTrackName('testing').toNumSeq())
-            .toStrictEqual(intseq([ 1, 2, 3 ]).withTrackName('testing'));
+        expect(ChordSeq.from([ [ 1 ], [ 2 ], [ 3 ] ]).withTrackName('testing').toNumSeq())
+            .toStrictEqual(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
 
-        expect(melody([ [ 1 ], [ 2 ], [ 3 ] ]).withTrackName('testing').toNumSeq())
-            .toStrictEqual(intseq([ 1, 2, 3 ]).withTrackName('testing'));
+        expect(Melody.from([ [ 1 ], [ 2 ], [ 3 ] ]).withTrackName('testing').toNumSeq())
+            .toStrictEqual(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
     });
 });
 
-describe('Sequence.toNoteSeq()', () => {
+describe('Sequence.toNoteSeq.from()', () => {
     test('fails when non-numeric values included', () => {
-        expect(() => chordseq([ [ 4 ], [], [ 2, 3 ] ]).toNoteSeq()).toThrow();
+        expect(() => ChordSeq.from([ [ 4 ], [], [ 2, 3 ] ]).toNoteSeq()).toThrow();
     });
 
     test('succeeds when values are appropriate', () => {
-        expect(intseq([ 1, 2, 3 ]).withTrackName('testing').toNoteSeq())
-            .toStrictEqual(noteseq([ 1, 2, 3 ]).withTrackName('testing'));
+        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toNoteSeq())
+            .toStrictEqual(NoteSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
 
-        expect(chordseq([ [ 1 ], [], [ 3 ] ]).withTrackName('testing').toNoteSeq())
-            .toStrictEqual(noteseq([ 1, null, 3 ]).withTrackName('testing'));
+        expect(ChordSeq.from([ [ 1 ], [], [ 3 ] ]).withTrackName('testing').toNoteSeq())
+            .toStrictEqual(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing'));
 
-        expect(melody([ [ 1 ], [], [ 3 ] ]).withTrackName('testing').toNoteSeq())
-            .toStrictEqual(noteseq([ 1, null, 3 ]).withTrackName('testing'));
-    });
-});
-
-describe('Sequence.toChordSeq()', () => {
-    test('succeeds when values are appropriate', () => {
-        expect(intseq([ 1, 2, 3 ]).withTrackName('testing').toChordSeq())
-            .toStrictEqual(chordseq([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
-
-        expect(noteseq([ 1, null, 3 ]).withTrackName('testing').toChordSeq())
-            .toStrictEqual(chordseq([ [ 1 ], [] , [ 3 ] ]).withTrackName('testing'));
-
-        expect(melody([ 1, [ 0, 2 ], 3 ]).withTrackName('testing').toChordSeq())
-            .toStrictEqual(chordseq([ [ 1 ], [ 0, 2 ] , [ 3 ] ]).withTrackName('testing'));
+        expect(Melody.from([ [ 1 ], [], [ 3 ] ]).withTrackName('testing').toNoteSeq())
+            .toStrictEqual(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing'));
     });
 });
 
-describe('Sequence.toMelody()', () => {
+describe('Sequence.toChordSeq.from()', () => {
     test('succeeds when values are appropriate', () => {
-        expect(intseq([ 1, 2, 3 ]).withTrackName('testing').toMelody())
-            .toStrictEqual(melody([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
+        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toChordSeq())
+            .toStrictEqual(ChordSeq.from([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
 
-        expect(noteseq([ 1, null, 3 ]).withTrackName('testing').toMelody())
-            .toStrictEqual(melody([ [ 1 ], [] , [ 3 ] ]).withTrackName('testing'));
+        expect(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing').toChordSeq())
+            .toStrictEqual(ChordSeq.from([ [ 1 ], [] , [ 3 ] ]).withTrackName('testing'));
 
-        expect(chordseq([ [ 1 ], [ 0, 2 ], [ 3 ] ]).withTrackName('testing').toMelody())
-            .toStrictEqual(melody([ [ 1 ], [ 0, 2 ] , [ 3 ] ]).withTrackName('testing'));
+        expect(Melody.from([ 1, [ 0, 2 ], 3 ]).withTrackName('testing').toChordSeq())
+            .toStrictEqual(ChordSeq.from([ [ 1 ], [ 0, 2 ] , [ 3 ] ]).withTrackName('testing'));
+    });
+});
+
+describe('Sequence.toMelody.from()', () => {
+    test('succeeds when values are appropriate', () => {
+        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toMelody())
+            .toStrictEqual(Melody.from([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
+
+        expect(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing').toMelody())
+            .toStrictEqual(Melody.from([ [ 1 ], [] , [ 3 ] ]).withTrackName('testing'));
+
+        expect(ChordSeq.from([ [ 1 ], [ 0, 2 ], [ 3 ] ]).withTrackName('testing').toMelody())
+            .toStrictEqual(Melody.from([ [ 1 ], [ 0, 2 ] , [ 3 ] ]).withTrackName('testing'));
     });
 });
 
 // Tests for functionality affected by the overriding of replacer()
 describe('Sequence.insertBefore()', () => {
     test('works when inserting a number', () => {
-        expect(intseq([ 1, 2, 3 ]).insertBefore(1, 5)).toStrictEqual(intseq([ 1, 5, 2, 3 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).insertBefore(1, 5)).toStrictEqual(NumSeq.from([ 1, 5, 2, 3 ]));
     });
 
     test('works when inserting a number via a function', () => {
-        expect(intseq([ 1, 2, 3 ]).insertBefore(1, e => e.val() - 4)).toStrictEqual(intseq([ 1, -2, 2, 3 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).insertBefore(1, e => e.val() - 4)).toStrictEqual(NumSeq.from([ 1, -2, 2, 3 ]));
     });
 
     test('inserting number[] inserts multiple single values', () => {
-        expect(chordseq([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ 4, 5 ])).toStrictEqual(chordseq([ [ 4 ], [ 5 ], [ 1, 2 ], [ 3 ] ]));
+        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ [ 4 ], [ 5 ], [ 1, 2 ], [ 3 ] ]));
     });
 
     test('inserting number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ [ 1, 2 ], [ 3 ]]).insertBefore(0, e => [ e.val()[0] + 4, e.val()[1] - 5 ])).toStrictEqual(chordseq([ [ 5 ], [ -3 ], [ 1, 2 ], [ 3 ] ]));
+        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, e => [ e.val()[0] + 4, e.val()[1] - 5 ])).toStrictEqual(ChordSeq.from([ [ 5 ], [ -3 ], [ 1, 2 ], [ 3 ] ]));
     });
 
     test('inserting number[][] inserts multivalued members', () => {
-        expect(melody([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ [ 4, 5 ], [ 6, 7 ] ] )).toStrictEqual(melody([ [ 4, 5 ], [ 6, 7 ], [ 1, 2 ], [ 3 ] ]));
+        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ [ 4, 5 ], [ 6, 7 ] ] )).toStrictEqual(Melody.from([ [ 4, 5 ], [ 6, 7 ], [ 1, 2 ], [ 3 ] ]));
     });
 
     test('inserting number[][] via a function inserts multivalued members', () => {
-        expect(melody([ [ 1, 2 ], [ 3 ]]).insertBefore(0, e => [ [ e.pitches()[0] + 4, e.pitches()[1] - 5 ] ])).toStrictEqual(melody([ [ 5, -3 ], [ 1, 2 ], [ 3 ] ]));
+        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, e => [ [ e.pitches()[0] + 4, e.pitches()[1] - 5 ] ])).toStrictEqual(Melody.from([ [ 5, -3 ], [ 1, 2 ], [ 3 ] ]));
     });
 });
 
 describe('Sequence.insertAfter()', () => {
     test('works when inserting a number', () => {
-        expect(intseq([ 1, 2, 3 ]).insertAfter(1, 5)).toStrictEqual(intseq([ 1, 2, 5, 3 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).insertAfter(1, 5)).toStrictEqual(NumSeq.from([ 1, 2, 5, 3 ]));
     });
 
     test('works when inserting a number via a function', () => {
-        expect(intseq([ 1, 2, 3 ]).insertAfter(1, e => e.val() - 4)).toStrictEqual(intseq([ 1, 2, -2, 3 ]));
+        expect(NumSeq.from([ 1, 2, 3 ]).insertAfter(1, e => e.val() - 4)).toStrictEqual(NumSeq.from([ 1, 2, -2, 3 ]));
     });
 
     test('inserting number[] inserts multiple single values', () => {
-        expect(chordseq([ [ 1, 2 ], [ 3 ]]).insertAfter(0, [ 4, 5 ])).toStrictEqual(chordseq([ [ 1, 2 ], [ 4 ], [ 5 ], [ 3 ] ]));
+        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 4 ], [ 5 ], [ 3 ] ]));
     });
 
     test('inserting number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ [ 1, 2 ], [ 3 ]]).insertAfter(0, e => [ e.val()[0] + 4, e.val()[1] - 5 ])).toStrictEqual(chordseq([ [ 1, 2 ], [ 5 ], [ -3 ], [ 3 ] ]));
+        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, e => [ e.val()[0] + 4, e.val()[1] - 5 ])).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 5 ], [ -3 ], [ 3 ] ]));
     });
 
     test('inserting number[][] inserts multivalued members', () => {
-        expect(melody([ [ 1, 2 ], [ 3 ]]).insertAfter(0, [ [ 4, 5 ], [ 6, 7 ] ] )).toStrictEqual(melody([ [ 1, 2 ], [ 4, 5 ], [ 6, 7 ], [ 3 ] ]));
+        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, [ [ 4, 5 ], [ 6, 7 ] ] )).toStrictEqual(Melody.from([ [ 1, 2 ], [ 4, 5 ], [ 6, 7 ], [ 3 ] ]));
     });
 
     test('inserting number[][] via a function inserts multivalued members', () => {
-        expect(melody([ [ 1, 2 ], [ 3 ]]).insertAfter(0, e => [ [ e.pitches()[0] + 4, e.pitches()[1] - 5 ] ])).toStrictEqual(melody([ [ 1, 2 ], [ -3, 5 ], [ 3 ] ]));
+        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, e => [ [ e.pitches()[0] + 4, e.pitches()[1] - 5 ] ])).toStrictEqual(Melody.from([ [ 1, 2 ], [ -3, 5 ], [ 3 ] ]));
     });
 });
 
 describe('Sequence.replaceIndices()', () => {
     test('replaces with a number', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], 0)).toStrictEqual(intseq([ 1, 0, 0, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], 0)).toStrictEqual(NumSeq.from([ 1, 0, 0, 4 ]));
     });
 
     test('replaces with a number via a function', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => e.val() + 3)).toStrictEqual(intseq([ 1, 5, 6, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => e.val() + 3)).toStrictEqual(NumSeq.from([ 1, 5, 6, 4 ]));
     });
 
     test('replacing with a number[] inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], [ 4, 5 ])).toStrictEqual(chordseq([ 1, 4, 5, 4, 5, 4 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 4, 5, 4, 5, 4 ]));
     });
 
     test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(chordseq([ 1, 5, -2, 6, -1, 4 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 1, 5, -2, 6, -1, 4 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(melody([ 1, [ 4, 5 ], [ 6, 7 ], [ 4, 5 ], [ 6, 7 ], 4 ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, [ 4, 5 ], [ 6, 7 ], [ 4, 5 ], [ 6, 7 ], 4 ]));
     });
 
     test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(melody([ 1, [ -2, 5 ], [ -1, 6 ], 4 ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ 1, [ -2, 5 ], [ -1, 6 ], 4 ]));
     });
 });
 
@@ -2404,27 +2407,27 @@ describe('Sequence.replaceFirstIndex()', () => {
     const fn = (e: SeqMember<unknown>) => (e.min() as number) > 2;
 
     test('replaces with a number', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, 0)).toStrictEqual(intseq([ 1, 2, 0, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, 0)).toStrictEqual(NumSeq.from([ 1, 2, 0, 4 ]));
     });
 
     test('replaces with a number via a function', () => {
-        expect(intseq([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => e.val() + 3)).toStrictEqual(intseq([ 7, 3, 2, 1 ]));
+        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 7, 3, 2, 1 ]));
     });
 
     test('replacing with a number[] inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, [ 4, 5 ])).toStrictEqual(chordseq([ 1, 2, 4, 5, 4 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 2, 4, 5, 4 ]));
     });
 
     test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(chordseq([ 7, 0, 3, 2, 1 ]));
+        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 7, 0, 3, 2, 1 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(melody([ 1, 2, [ 4, 5 ], [ 6, 7 ], 4 ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, 2, [ 4, 5 ], [ 6, 7 ], 4 ]));
     });
 
     test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(melody([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(melody([ [ 0, 7 ], 3, 2, 1 ]));
+        expect(Melody.from([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ [ 0, 7 ], 3, 2, 1 ]));
     });
 });
 
@@ -2432,27 +2435,27 @@ describe('Sequence.replaceLastIndex()', () => {
     const fn = (e: SeqMember<unknown>) => (e.min() as number) > 2;
 
     test('replaces with a number', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceLastIndex(fn, 0)).toStrictEqual(intseq([ 1, 2, 3, 0 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceLastIndex(fn, 0)).toStrictEqual(NumSeq.from([ 1, 2, 3, 0 ]));
     });
 
     test('replaces with a number via a function', () => {
-        expect(intseq([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => e.val() + 3)).toStrictEqual(intseq([ 4, 6, 2, 1 ]));
+        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 4, 6, 2, 1 ]));
     });
 
     test('replacing with a number[] inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceLastIndex(fn, [ 4, 5 ])).toStrictEqual(chordseq([ 1, 2, 3, 4, 5 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceLastIndex(fn, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 2, 3, 4, 5 ]));
     });
 
     test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(chordseq([ 4, 6, -1, 2, 1 ]));
+        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 4, 6, -1, 2, 1 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceLastIndex(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(melody([ 1, 2, 3, [ 4, 5 ], [ 6, 7 ] ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceLastIndex(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, 2, 3, [ 4, 5 ], [ 6, 7 ] ]));
     });
 
     test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(melody([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(melody([ 4, [ -1, 6 ], 2, 1 ]));
+        expect(Melody.from([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ 4, [ -1, 6 ], 2, 1 ]));
     });
 });
 
@@ -2460,79 +2463,79 @@ describe('Sequence.replaceIf()', () => {
     const fn = (e: SeqMember<unknown>) => (e.min() as number) % 2 === 0;
 
     test('replaces with a number', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceIf(fn, 0)).toStrictEqual(intseq([ 1, 0, 3, 0 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceIf(fn, 0)).toStrictEqual(NumSeq.from([ 1, 0, 3, 0 ]));
     });
 
     test('replaces with a number via a function', () => {
-        expect(intseq([ 4, 3, 2, 1 ]).replaceIf(fn, e => e.val() + 3)).toStrictEqual(intseq([ 7, 3, 5, 1 ]));
+        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceIf(fn, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 7, 3, 5, 1 ]));
     });
 
     test('replacing with a number[] inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceIf(fn, [ 4, 5 ])).toStrictEqual(chordseq([ 1, 4, 5, 3, 4, 5 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceIf(fn, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 4, 5, 3, 4, 5 ]));
     });
 
     test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ 4, 3, 2, 1 ]).replaceIf(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(chordseq([ 7, 0, 3, 5, -2, 1 ]));
+        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceIf(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 7, 0, 3, 5, -2, 1 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceIf(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(melody([ 1, [ 4, 5 ], [ 6, 7 ], 3, [ 4, 5 ], [ 6, 7 ] ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceIf(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, [ 4, 5 ], [ 6, 7 ], 3, [ 4, 5 ], [ 6, 7 ] ]));
     });
 
     test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(melody([ 4, 3, 2, 1 ]).replaceIf(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(melody([ [ 0, 7 ], 3, [ -2, 5 ], 1 ]));
+        expect(Melody.from([ 4, 3, 2, 1 ]).replaceIf(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ [ 0, 7 ], 3, [ -2, 5 ], 1 ]));
     });
 });
 
 describe('Sequence.replaceNth()', () => {
     test('replaces with a number', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceNth(2, 0)).toStrictEqual(intseq([ 0, 2, 0, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceNth(2, 0)).toStrictEqual(NumSeq.from([ 0, 2, 0, 4 ]));
     });
 
     test('replaces with a number via a function', () => {
-        expect(intseq([ 4, 3, 2, 1 ]).replaceNth(2, e => e.val() + 3)).toStrictEqual(intseq([ 7, 3, 5, 1 ]));
+        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceNth(2, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 7, 3, 5, 1 ]));
     });
 
     test('replacing with a number[] inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceNth(2, [ 4, 5 ])).toStrictEqual(chordseq([ 4, 5, 2, 4, 5, 4 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceNth(2, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 4, 5, 2, 4, 5, 4 ]));
     });
 
     test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ 4, 3, 2, 1 ]).replaceNth(2, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(chordseq([ 7, 0, 3, 5, -2, 1 ]));
+        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceNth(2, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 7, 0, 3, 5, -2, 1 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceNth(2, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(melody([ [ 4, 5 ], [ 6, 7 ], 2, [ 4, 5 ], [ 6, 7 ], 4 ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceNth(2, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ [ 4, 5 ], [ 6, 7 ], 2, [ 4, 5 ], [ 6, 7 ], 4 ]));
     });
 
     test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(melody([ 4, 3, 2, 1 ]).replaceNth(2, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(melody([ [ 0, 7 ], 3, [ -2, 5 ], 1 ]));
+        expect(Melody.from([ 4, 3, 2, 1 ]).replaceNth(2, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ [ 0, 7 ], 3, [ -2, 5 ], 1 ]));
     });
 });
 
 describe('Sequence.replaceSlice()', () => {
     test('replaces with a number', () => {
-        expect(intseq([ 1, 2, 3, 4 ]).replaceSlice(1, 3, 0)).toStrictEqual(intseq([ 1, 0, 4 ]));
+        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceSlice(1, 3, 0)).toStrictEqual(NumSeq.from([ 1, 0, 4 ]));
     });
 
     test('replaces with a number via a function', () => {
-        expect(intseq([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => s.length)).toStrictEqual(intseq([ 4, 2, 1 ]));
+        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => s.length)).toStrictEqual(NumSeq.from([ 4, 2, 1 ]));
     });
 
     test('replacing with a number[] inserts multiple single values', () => {
-        expect(chordseq([ 1, 2, 3, 4 ]).replaceSlice(1, 3, [ 4, 5 ])).toStrictEqual(chordseq([ 1, 4, 5, 4 ]));
+        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceSlice(1, 3, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 4, 5, 4 ]));
     });
 
     test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(chordseq([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => [ s.min(), s.max() ])).toStrictEqual(chordseq([ 4, 2, 3, 1 ]));
+        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => [ s.min(), s.max() ])).toStrictEqual(ChordSeq.from([ 4, 2, 3, 1 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
-        expect(melody([ 1, 2, 3, 4 ]).replaceSlice(1, 3, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(melody([ 1, [ 4, 5 ], [ 6, 7 ], 4 ]));
+        expect(Melody.from([ 1, 2, 3, 4 ]).replaceSlice(1, 3, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, [ 4, 5 ], [ 6, 7 ], 4 ]));
     });
 
     // TODO: Figure out typing issues with .replaceSlice() and determine if this particular example should be permitted
     //test('replacing with a number[][] via a function inserts multiple single values', () => {
-    //    expect(melody([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => [ [ s.min(), s.max() ] ])).toStrictEqual(melody([ 4, [ 2, 3 ], 1 ]));
+    //    expect(Melody.from([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => [ [ s.min(), s.max() ] ])).toStrictEqual(Melody.from([ 4, [ 2, 3 ], 1 ]));
     //});
 });

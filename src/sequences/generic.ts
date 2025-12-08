@@ -1000,7 +1000,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Return a Sequence where arrays of pitches have been mapped through a mapper function
+     * Return a Sequence where arrays of pitches have been mapped through a mapper function.
+     * The mapper function expects an array of pitches as argument.
      *
      * @example
      * // returns chordseq([ 2, 0, 3 ])
@@ -1015,7 +1016,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Return a NoteSeq where individual non-chord pitches have been mapped through a mapper function
+     * Return a NoteSeq where individual non-chord pitches have been mapped through a mapper function.
+     * The method will throw an error if any member contains multiple pitches.
      *
      * @example
      * // returns numseq([ 4, 3, 5, 1, 0 ])
@@ -1026,7 +1028,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Return a Sequence where individual pitches have been mapped through a mapper function
+     * Return a Sequence where individual pitches have been mapped through a mapper function.
+     * Each individual pitch in a sequence is mapped separately, members of the sequence that
+     * do not contain a pitch will be unaffected.
      *
      * @example
      * // returns chordseq([ [ 1, 4 ], [], [ 9, 16, 25 ] ])

@@ -2,13 +2,16 @@ import fs from 'fs';
 
 import type { MapperFn, SeqIndices, MetaEventOpts, MetaEventArg } from '../types';
 
+import { Melody, NumSeq } from './sequences';
+
+import NumericValidator from '../validation/numeric';
+
 import MelodyMember from './members/melody';
-import Melody from './melody';
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
 import Metadata from '../metadata/metadata';
 
-import { melody, intseq, microtonalmelody } from '../factory';
+const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
 
 // Mocking fs is ugly but without it jest.spyOn(fs, 'writeFileSync') doesn't work
 // in TypeScript, throwing: TypeError: Cannot redefine property: writeFileSync
@@ -22,22 +25,18 @@ jest.mock('fs', () => {
     };
 });
 
-describe('Melody creation', () => {
-    const m = melody([1, 2, 3]);
+describe('Melody.from()', () => {
+    const m = Melody.from([1, 2, 3]);
 
     test('Melody.from() with melody argument and same validator returns same object', () => {
         expect(Melody.from(m)).toBe(m);
     });
 
     test('Melody.from() with melody argument and different validator returns different object with same contents', () => {
-        const m2 = microtonalmelody(m);
+        const m2 = Melody.from(m, MICROTONAL);
 
         expect(m2).not.toBe(m);
         expect(m2.contents).toStrictEqual(m.contents);
-    });
-
-    test('Melody.from() taking contents from an intseq via factory', () => {
-        expect(melody(intseq([1, 2, 3]))).toStrictEqual(melody([1, 2, 3]));
     });
 });
 
@@ -86,8 +85,8 @@ describe('Melody.mergeMetadataFrom()', () => {
 });
 
 describe('Melody.mapEachPitch()', () => {
-    const is = melody([[1], [4, 0], [2], [3], [], [6, 7, 8]]);
-    const fs = microtonalmelody([1, [4, 0], 2, 3, [], [6, 7, 8]]);
+    const is = Melody.from([[1], [4, 0], [2], [3], [], [6, 7, 8]]);
+    const fs = Melody.from([1, [4, 0], 2, 3, [], [6, 7, 8]], MICROTONAL);
 
     test('throws when non-function passed', () => {
         expect(() => is.mapEachPitch(555 as unknown as MapperFn<number | null>)).toThrow();
@@ -102,19 +101,19 @@ describe('Melody.mapEachPitch()', () => {
             'maps according to a integer function for an non-microtonal sequence',
             is,
             (p, i) => p as number * i,
-            melody([[0], [4, 0], [4], [9], [], [30, 35, 40]]),
+            Melody.from([[0], [4, 0], [4], [9], [], [30, 35, 40]]),
         ],
         [
             'maps according to a function for a floatseq',
             fs,
             (p, i) => p as number * i / 2,
-            microtonalmelody([[0], [2, 0], [2], [4.5], [], [15, 17.5, 20]]),
+            Melody.from([[0], [2, 0], [2], [4.5], [], [15, 17.5, 20]], MICROTONAL),
         ],
         [
             'filters out when function returns null and retains metadata',
             is.withCopyright('test'),
             (p) => p as number % 2 ? p : null,
-            melody([[1], [], [], [3], [], [7]]).withCopyright('test')
+            Melody.from([[1], [], [], [3], [], [7]]).withCopyright('test')
         ]
     ];
 
@@ -124,7 +123,7 @@ describe('Melody.mapEachPitch()', () => {
 });
 
 describe('Melody.keepTopPitches()', () => {
-    const s = melody([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [7, 8, 9, 10]]);
+    const s = Melody.from([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [7, 8, 9, 10]]);
 
     test('throw if argument is not a non-negative integer', () => {
         expect(() => s.keepTopPitches(1.5)).toThrow();
@@ -133,10 +132,10 @@ describe('Melody.keepTopPitches()', () => {
     });
 
     const table: [string, Melody, number, Melody][] = [
-        ['empty sequence', melody([]), 1, melody([])],
-        ['top zero pitches', s, 0, melody([[], { pitch: [], duration: 100, velocity: 80 }, [], [], []])],
-        ['top one pitch', s, 1, melody([[], { pitch: [1], duration: 100, velocity: 80 }, [3], [6], [10]])],
-        ['top three pitches', s, 3, melody([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [8, 9, 10]])],
+        ['empty sequence', Melody.from([]), 1, Melody.from([])],
+        ['top zero pitches', s, 0, Melody.from([[], { pitch: [], duration: 100, velocity: 80 }, [], [], []])],
+        ['top one pitch', s, 1, Melody.from([[], { pitch: [1], duration: 100, velocity: 80 }, [3], [6], [10]])],
+        ['top three pitches', s, 3, Melody.from([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [8, 9, 10]])],
         ['top five pitches', s, 5, s],
     ];
 
@@ -146,7 +145,7 @@ describe('Melody.keepTopPitches()', () => {
 });
 
 describe('Melody.keepBottomPitches()', () => {
-    const s = melody([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [7, 8, 9, 10]]);
+    const s = Melody.from([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [7, 8, 9, 10]]);
 
     test('throw if argument is not a non-negative integer', () => {
         expect(() => s.keepBottomPitches(1.5)).toThrow();
@@ -155,10 +154,10 @@ describe('Melody.keepBottomPitches()', () => {
     });
 
     const table: [string, Melody, number, Melody][] = [
-        ['empty sequence', melody([]), 1, melody([])],
-        ['bottom zero pitches', s, 0, melody([[], { pitch: [], duration: 100, velocity: 80 }, [], [], []])],
-        ['bottom one pitch', s, 1, melody([[], { pitch: [1], duration: 100, velocity: 80 }, [2], [4], [7,]])],
-        ['bottom three pitches', s, 3, melody([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [7, 8, 9]])],
+        ['empty sequence', Melody.from([]), 1, Melody.from([])],
+        ['bottom zero pitches', s, 0, Melody.from([[], { pitch: [], duration: 100, velocity: 80 }, [], [], []])],
+        ['bottom one pitch', s, 1, Melody.from([[], { pitch: [1], duration: 100, velocity: 80 }, [2], [4], [7,]])],
+        ['bottom three pitches', s, 3, Melody.from([[], { pitch: [1], duration: 100, velocity: 80 }, [2, 3], [4, 5, 6], [7, 8, 9]])],
         ['bottom five pitches', s, 5, s],
     ];
 
@@ -169,7 +168,7 @@ describe('Melody.keepBottomPitches()', () => {
 
 describe('Melody.toDuration()', () => {
     test('returns list of volumes', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50 },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -179,7 +178,7 @@ describe('Melody.toDuration()', () => {
 });
 
 describe('Melody.withDuration()', () => {
-    const m = melody([
+    const m = Melody.from([
         { pitch: [60], duration: 8, velocity: 50, },
         { pitch: [61], duration: 16, velocity: 51 },
         { pitch: [63], duration: 16, velocity: 52 },
@@ -192,11 +191,11 @@ describe('Melody.withDuration()', () => {
 
     test('fails if length incorrect', () => {
         expect(() => m.withDuration([1, 2, 3])).toThrow();
-        expect(() => m.withDuration(intseq([1, 2, 3, 4, 5]))).toThrow();
+        expect(() => m.withDuration(NumSeq.from([1, 2, 3, 4, 5]))).toThrow();
     });
 
     test('works for static volume value', () => {
-        expect(m.withDuration(10)).toStrictEqual(melody([
+        expect(m.withDuration(10)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 10, velocity: 50 },
             { pitch: [61], duration: 10, velocity: 51 },
             { pitch: [63], duration: 10, velocity: 52 },
@@ -205,7 +204,7 @@ describe('Melody.withDuration()', () => {
     });
 
     test('works for dynamic volume values', () => {
-        expect(m.withDuration([4, 7, 10, 13])).toStrictEqual(melody([
+        expect(m.withDuration([4, 7, 10, 13])).toStrictEqual(Melody.from([
             { pitch: [60], duration: 4, velocity: 50 },
             { pitch: [61], duration: 7, velocity: 51 },
             { pitch: [63], duration: 10, velocity: 52 },
@@ -214,13 +213,13 @@ describe('Melody.withDuration()', () => {
     });
 
     test('works with sequence passed as argument', () => {
-        expect(m.withDuration([4, 7, 10, 13])).toStrictEqual(m.withDuration(intseq([4, 7, 10, 13])));
+        expect(m.withDuration([4, 7, 10, 13])).toStrictEqual(m.withDuration(NumSeq.from([4, 7, 10, 13])));
     });
 });
 
 describe('Melody.toVolume()', () => {
     test('returns list of volumes', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50 },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -230,7 +229,7 @@ describe('Melody.toVolume()', () => {
 });
 
 describe('Melody.withVolume()', () => {
-    const m = melody([
+    const m = Melody.from([
         { pitch: [60], duration: 8, velocity: 50, },
         { pitch: [61], duration: 16, velocity: 51 },
         { pitch: [63], duration: 16, velocity: 52 },
@@ -243,11 +242,11 @@ describe('Melody.withVolume()', () => {
 
     test('fails if length incorrect', () => {
         expect(() => m.withVolume([1, 2, 3])).toThrow();
-        expect(() => m.withVolume(intseq([1, 2, 3, 4, 5]))).toThrow();
+        expect(() => m.withVolume(NumSeq.from([1, 2, 3, 4, 5]))).toThrow();
     });
 
     test('works for static volume value', () => {
-        expect(m.withVolume(10)).toStrictEqual(melody([
+        expect(m.withVolume(10)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 10 },
             { pitch: [61], duration: 16, velocity: 10 },
             { pitch: [63], duration: 16, velocity: 10 },
@@ -256,7 +255,7 @@ describe('Melody.withVolume()', () => {
     });
 
     test('works for dynamic volume values', () => {
-        expect(m.withVolume([4, 7, 10, 13])).toStrictEqual(melody([
+        expect(m.withVolume([4, 7, 10, 13])).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 4 },
             { pitch: [61], duration: 16, velocity: 7 },
             { pitch: [63], duration: 16, velocity: 10 },
@@ -265,13 +264,13 @@ describe('Melody.withVolume()', () => {
     });
 
     test('works with sequence passed as argument', () => {
-        expect(m.withVolume([4, 7, 10, 13])).toStrictEqual(m.withVolume(intseq([4, 7, 10, 13])));
+        expect(m.withVolume([4, 7, 10, 13])).toStrictEqual(m.withVolume(NumSeq.from([4, 7, 10, 13])));
     });
 });
 
 describe('Melody.toDelay()', () => {
     test('returns list of delays', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, delay: 4 },
             { pitch: [61], duration: 16, velocity: 51, delay: 7 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -281,7 +280,7 @@ describe('Melody.toDelay()', () => {
 });
 
 describe('Melody.withDelay()', () => {
-    const m = melody([
+    const m = Melody.from([
         { pitch: [60], duration: 8, velocity: 50, },
         { pitch: [61], duration: 16, velocity: 51 },
         { pitch: [63], delay: 64, duration: 16, velocity: 52 },
@@ -294,11 +293,11 @@ describe('Melody.withDelay()', () => {
 
     test('fails if length incorrect', () => {
         expect(() => m.withDelay([1, 2, 3])).toThrow();
-        expect(() => m.withDelay(intseq([1, 2, 3, 4, 5]))).toThrow();
+        expect(() => m.withDelay(NumSeq.from([1, 2, 3, 4, 5]))).toThrow();
     });
 
     test('works for static delay value', () => {
-        expect(m.withDelay(10)).toStrictEqual(melody([
+        expect(m.withDelay(10)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, delay: 10 },
             { pitch: [61], duration: 16, velocity: 51, delay: 10 },
             { pitch: [63], duration: 16, velocity: 52, delay: 10 },
@@ -307,7 +306,7 @@ describe('Melody.withDelay()', () => {
     });
 
     test('works for dynamic delay values', () => {
-        expect(m.withDelay([4, 7, 10, 13])).toStrictEqual(melody([
+        expect(m.withDelay([4, 7, 10, 13])).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, delay: 4 },
             { pitch: [61], duration: 16, velocity: 51, delay: 7 },
             { pitch: [63], duration: 16, velocity: 52, delay: 10 },
@@ -316,13 +315,13 @@ describe('Melody.withDelay()', () => {
     });
 
     test('works with sequence passed as argument', () => {
-        expect(m.withDelay([4, 7, 10, 13])).toStrictEqual(m.withDelay(intseq([4, 7, 10, 13])));
+        expect(m.withDelay([4, 7, 10, 13])).toStrictEqual(m.withDelay(NumSeq.from([4, 7, 10, 13])));
     });
 });
 
 describe('Melody.toOffset()', () => {
     test('returns list of offsets', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, offset: 4 },
             { pitch: [61], duration: 16, velocity: 51, offset: 7 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -332,7 +331,7 @@ describe('Melody.toOffset()', () => {
 });
 
 describe('Melody.withOffset()', () => {
-    const m = melody([
+    const m = Melody.from([
         { pitch: [60], duration: 8, velocity: 50, },
         { pitch: [61], duration: 16, velocity: 51 },
         { pitch: [63], offset: 64, duration: 16, velocity: 52 },
@@ -345,11 +344,11 @@ describe('Melody.withOffset()', () => {
 
     test('fails if length incorrect', () => {
         expect(() => m.withOffset([1, 2, 3])).toThrow();
-        expect(() => m.withOffset(intseq([1, 2, 3, 4, 5]))).toThrow();
+        expect(() => m.withOffset(NumSeq.from([1, 2, 3, 4, 5]))).toThrow();
     });
 
     test('works for static offset value', () => {
-        expect(m.withOffset(10)).toStrictEqual(melody([
+        expect(m.withOffset(10)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, offset: 10 },
             { pitch: [61], duration: 16, velocity: 51, offset: 10 },
             { pitch: [63], duration: 16, velocity: 52, offset: 10 },
@@ -358,7 +357,7 @@ describe('Melody.withOffset()', () => {
     });
 
     test('works for dynamic offset values', () => {
-        expect(m.withOffset([4, 7, 10, 13])).toStrictEqual(melody([
+        expect(m.withOffset([4, 7, 10, 13])).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, offset: 4 },
             { pitch: [61], duration: 16, velocity: 51, offset: 7 },
             { pitch: [63], duration: 16, velocity: 52, offset: 10 },
@@ -367,13 +366,13 @@ describe('Melody.withOffset()', () => {
     });
 
     test('works with sequence passed as argument', () => {
-        expect(m.withOffset([4, 7, 10, 13])).toStrictEqual(m.withOffset(intseq([4, 7, 10, 13])));
+        expect(m.withOffset([4, 7, 10, 13])).toStrictEqual(m.withOffset(NumSeq.from([4, 7, 10, 13])));
     });
 });
 
 describe('Melody.toExactTick()', () => {
     test('returns list of ticks', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, at: 4 },
             { pitch: [61], duration: 16, velocity: 51, at: 7 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -383,7 +382,7 @@ describe('Melody.toExactTick()', () => {
 });
 
 describe('Melody.withExactTick()', () => {
-    const m = melody([
+    const m = Melody.from([
         { pitch: [60], duration: 8, velocity: 50, },
         { pitch: [61], duration: 16, velocity: 51 },
         { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -396,11 +395,11 @@ describe('Melody.withExactTick()', () => {
 
     test('fails if length incorrect', () => {
         expect(() => m.withExactTick([1, 2, 3])).toThrow();
-        expect(() => m.withExactTick(intseq([1, 2, 3, 4, 5]))).toThrow();
+        expect(() => m.withExactTick(NumSeq.from([1, 2, 3, 4, 5]))).toThrow();
     });
 
     test('works for static tick value', () => {
-        expect(m.withExactTick(10)).toStrictEqual(melody([
+        expect(m.withExactTick(10)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, at: 10 },
             { pitch: [61], duration: 16, velocity: 51, at: 10 },
             { pitch: [63], duration: 16, velocity: 52, at: 10 },
@@ -409,7 +408,7 @@ describe('Melody.withExactTick()', () => {
     });
 
     test('works for dynamic tick values', () => {
-        expect(m.withExactTick([4, 7, 10, 13])).toStrictEqual(melody([
+        expect(m.withExactTick([4, 7, 10, 13])).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, at: 4 },
             { pitch: [61], duration: 16, velocity: 51, at: 7 },
             { pitch: [63], duration: 16, velocity: 52, at: 10 },
@@ -418,17 +417,17 @@ describe('Melody.withExactTick()', () => {
     });
 
     test('works with sequence passed as argument', () => {
-        expect(m.withExactTick([4, 7, 10, 13])).toStrictEqual(m.withExactTick(intseq([4, 7, 10, 13])));
+        expect(m.withExactTick([4, 7, 10, 13])).toStrictEqual(m.withExactTick(NumSeq.from([4, 7, 10, 13])));
     });
 });
 
 describe('Melody.firstTick()', () => {
     test('first tick is zero for empty melody', () => {
-        expect(melody([]).firstTick()).toEqual(0);
+        expect(Melody.from([]).firstTick()).toEqual(0);
     });
 
     test('first tick is as expected without meta-events', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], at: 96, duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -439,7 +438,7 @@ describe('Melody.firstTick()', () => {
     });
 
     test('first tick is as expected with before meta-event', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], at: 96, duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -450,7 +449,7 @@ describe('Melody.firstTick()', () => {
     });
 
     test('first tick is as expected with after meta-event', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -463,11 +462,11 @@ describe('Melody.firstTick()', () => {
 
 describe('Melody.lastTick()', () => {
     test('last tick is zero for empty melody', () => {
-        expect(melody([]).lastTick()).toEqual(0);
+        expect(Melody.from([]).lastTick()).toEqual(0);
     });
 
     test('last tick is as expected without meta-events', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -478,7 +477,7 @@ describe('Melody.lastTick()', () => {
     });
 
     test('last tick is as expected with before meta-event', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52, before: [{ event: 'sustain', value: 0, offset: 64 }] },
@@ -489,7 +488,7 @@ describe('Melody.lastTick()', () => {
     });
 
     test('last tick is as expected with after meta-event', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52, after: [{ event: 'sustain', value: 0, offset: 64 }] },
@@ -502,7 +501,7 @@ describe('Melody.lastTick()', () => {
 
 describe('Melody.toTicks()', () => {
     test('produces list of ticks as expected', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -515,7 +514,7 @@ describe('Melody.toTicks()', () => {
 
 describe('Melody.toSummary()', () => {
     test('produces summary as expected', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50, },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], at: 64, duration: 16, velocity: 52 },
@@ -537,7 +536,7 @@ describe('Melody.toMidiBytes()', () => {
     const table: [string, Melody, number[]][] = [
         [
             'an empty melody',
-            melody([]),
+            Melody.from([]),
             [
                 0x4d, 0x54, 0x68, 0x64, // file header
                 0x00, 0x00, 0x00, 0x06, // header data length
@@ -549,7 +548,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'a single note with a different ticks per quarter',
-            melody([{ pitch: [64], duration: 128, velocity: 64 }]).withTicksPerQuarter(256),
+            Melody.from([{ pitch: [64], duration: 128, velocity: 64 }]).withTicksPerQuarter(256),
             [
                 0x4d, 0x54, 0x68, 0x64, // file header
                 0x00, 0x00, 0x00, 0x06, // header data length
@@ -563,7 +562,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'a single note with an event before it, plus some metadata',
-            melody([
+            Melody.from([
                 {
                     pitch: [64],
                     duration: 128,
@@ -590,7 +589,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'a single note with an event after it',
-            melody([{ pitch: [64], duration: 128, velocity: 64, after: [{ event: 'tempo', value: 60 }] }]),
+            Melody.from([{ pitch: [64], duration: 128, velocity: 64, after: [{ event: 'tempo', value: 60 }] }]),
             [
                 0x4d, 0x54, 0x68, 0x64, // file header
                 0x00, 0x00, 0x00, 0x06, // header data length
@@ -605,7 +604,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'a chord with events before and after it',
-            melody([
+            Melody.from([
                 {
                     pitch: [64, 68],
                     duration: 128,
@@ -633,7 +632,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'three notes with an event before the first and one after the last, both with an offset',
-            melody([
+            Melody.from([
                 { pitch: [64], duration: 128, velocity: 64, before: [{ event: 'sustain', value: 1, offset: 32 }] },
                 { pitch: [65], duration: 64, velocity: 63 },
                 { pitch: [66], duration: 64, velocity: 62, after: [{ event: 'sustain', value: 0, offset: -32 }] },
@@ -657,7 +656,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'four notes, three of them microtonal',
-            microtonalmelody([60.5, 59.75, 59, 58.25]),
+            Melody.from([60.5, 59.75, 59, 58.25], MICROTONAL),
             [
                 0x4d, 0x54, 0x68, 0x64, // file header
                 0x00, 0x00, 0x00, 0x06, // header data length
@@ -690,7 +689,7 @@ describe('Melody.toMidiBytes()', () => {
 
 describe('Melody.joinRepeats()', () => {
     test('joins as expected', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50 },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -699,7 +698,7 @@ describe('Melody.joinRepeats()', () => {
             { pitch: [66], duration: 16, velocity: 55 },
             { pitch: [66], duration: 8, velocity: 56 },
             { pitch: [65], duration: 8, velocity: 57 }
-        ]).joinRepeats()).toStrictEqual(melody([
+        ]).joinRepeats()).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50 },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -712,11 +711,11 @@ describe('Melody.joinRepeats()', () => {
 
 describe('Melody.joinIf()', () => {
     test('throws if function is not a function', () => {
-        expect(() => melody([]).joinIf(0 as unknown as (a: MelodyMember, b: MelodyMember) => boolean)).toThrow();
+        expect(() => Melody.from([]).joinIf(0 as unknown as (a: MelodyMember, b: MelodyMember) => boolean)).toThrow();
     });
 
     test('joins as expected', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [60], duration: 8, velocity: 50 },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -725,7 +724,7 @@ describe('Melody.joinIf()', () => {
             { pitch: [66], duration: 16, velocity: 55 },
             { pitch: [66], duration: 8, velocity: 56 },
             { pitch: [65], duration: 8, velocity: 57 }
-        ]).joinIf((a, b) => a.pitch.equals(b.pitch) && a.duration === 16)).toStrictEqual(melody([
+        ]).joinIf((a, b) => a.pitch.equals(b.pitch) && a.duration === 16)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 8, velocity: 50 },
             { pitch: [61], duration: 16, velocity: 51 },
             { pitch: [63], duration: 16, velocity: 52 },
@@ -738,7 +737,7 @@ describe('Melody.joinIf()', () => {
 });
 
 describe('Melody.augmentRhythm()', () => {
-    const s = melody([
+    const s = Melody.from([
         { pitch: [60], duration: 100, velocity: 60, before: [{ event: 'sustain', value: 1, offset: 50 }] },
         { pitch: [61, 64], duration: 50, velocity: 50, at: 100 },
         { pitch: [66], duration: 50, velocity: 60, delay: 50 },
@@ -761,7 +760,7 @@ describe('Melody.augmentRhythm()', () => {
     });
 
     test('reduces durations, offsets and delays', () => {
-        expect(s.augmentRhythm(0.5)).toStrictEqual(melody([
+        expect(s.augmentRhythm(0.5)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 50, velocity: 60, before: [{ event: 'sustain', value: 1, offset: 25 }] },
             { pitch: [61, 64], duration: 25, velocity: 50, at: 50 },
             { pitch: [66], duration: 25, velocity: 60, delay: 25 },
@@ -777,7 +776,7 @@ describe('Melody.augmentRhythm()', () => {
     });
 
     test('increases durations, offsets and delays', () => {
-        expect(s.augmentRhythm(5)).toStrictEqual(melody([
+        expect(s.augmentRhythm(5)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 500, velocity: 60, before: [{ event: 'sustain', value: 1, offset: 250 }] },
             { pitch: [61, 64], duration: 250, velocity: 50, at: 500 },
             { pitch: [66], duration: 250, velocity: 60, delay: 250 },
@@ -794,7 +793,7 @@ describe('Melody.augmentRhythm()', () => {
 });
 
 describe('Melody.diminishRhythm()', () => {
-    const s = melody([
+    const s = Melody.from([
         { pitch: [60], duration: 100, velocity: 60, before: [{ event: 'sustain', value: 1, offset: 50 }] },
         { pitch: [61, 64], duration: 50, velocity: 50, at: 100 },
         { pitch: [66], duration: 50, velocity: 60, delay: 50 },
@@ -817,7 +816,7 @@ describe('Melody.diminishRhythm()', () => {
     });
 
     test('reduces durations, offsets and delays', () => {
-        expect(s.diminishRhythm(2)).toStrictEqual(melody([
+        expect(s.diminishRhythm(2)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 50, velocity: 60, before: [{ event: 'sustain', value: 1, offset: 25 }] },
             { pitch: [61, 64], duration: 25, velocity: 50, at: 50 },
             { pitch: [66], duration: 25, velocity: 60, delay: 25 },
@@ -833,7 +832,7 @@ describe('Melody.diminishRhythm()', () => {
     });
 
     test('increases durations, offsets and delays', () => {
-        expect(s.diminishRhythm(0.2)).toStrictEqual(melody([
+        expect(s.diminishRhythm(0.2)).toStrictEqual(Melody.from([
             { pitch: [60], duration: 500, velocity: 60, before: [{ event: 'sustain', value: 1, offset: 250 }] },
             { pitch: [61, 64], duration: 250, velocity: 50, at: 500 },
             { pitch: [66], duration: 250, velocity: 60, delay: 250 },
@@ -851,7 +850,7 @@ describe('Melody.diminishRhythm()', () => {
 
 describe('Melody.withEventsBefore()', () => {
     test('adding two events using one-argument array form', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50, before: [{ event: 'text', value: 'sustain down' }] },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -859,7 +858,7 @@ describe('Melody.withEventsBefore()', () => {
         ]);
         const before: MetaEventArg[] = [{ event: 'sustain', value: 1 }, { event: 'sustain', value: 0, offset: 250 }];
 
-        expect(s.withEventsBefore([1, -2], before)).toStrictEqual(melody([
+        expect(s.withEventsBefore([1, -2], before)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             {
                 pitch: [60], duration: 50, velocity: 80, delay: 50, before: [
@@ -881,7 +880,7 @@ describe('Melody.withEventsBefore()', () => {
 
 describe('Melody.withEventsAfter()', () => {
     test('adding two events using one-argument array form', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50, after: [{ event: 'text', value: 'sustain down' }] },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -889,7 +888,7 @@ describe('Melody.withEventsAfter()', () => {
         ]);
         const after: MetaEventArg[] = [{ event: 'sustain', value: 1 }, { event: 'sustain', value: 0, offset: 250 }];
 
-        expect(s.withEventsAfter([1, -2], after)).toStrictEqual(melody([
+        expect(s.withEventsAfter([1, -2], after)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             {
                 pitch: [60], duration: 50, velocity: 80, delay: 50, after: [
@@ -911,7 +910,7 @@ describe('Melody.withEventsAfter()', () => {
 
 describe('Melody.withEventBefore()', () => {
     test('adding event using one-argument form', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -919,7 +918,7 @@ describe('Melody.withEventBefore()', () => {
         ]);
         const before: MetaEventArg = { event: 'sustain', value: 1 };
 
-        expect(s.withEventBefore(-1, before)).toStrictEqual(melody([
+        expect(s.withEventBefore(-1, before)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -928,14 +927,14 @@ describe('Melody.withEventBefore()', () => {
     });
 
     test('adding event using three-argument form', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withEventBefore(-1, 'sustain', 1, { offset: 100 })).toStrictEqual(melody([
+        expect(s.withEventBefore(-1, 'sustain', 1, { offset: 100 })).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -946,7 +945,7 @@ describe('Melody.withEventBefore()', () => {
 
 describe('Melody.withEventAfter()', () => {
     test('adding event using one-argument form', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -954,7 +953,7 @@ describe('Melody.withEventAfter()', () => {
         ]);
         const after: MetaEventArg = { event: 'sustain', value: 1 };
 
-        expect(s.withEventAfter(-1, after)).toStrictEqual(melody([
+        expect(s.withEventAfter(-1, after)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -963,14 +962,14 @@ describe('Melody.withEventAfter()', () => {
     });
 
     test('adding event using three-argument form', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withEventAfter(-1, 'sustain', 1, { offset: 100 })).toStrictEqual(melody([
+        expect(s.withEventAfter(-1, 'sustain', 1, { offset: 100 })).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -981,14 +980,14 @@ describe('Melody.withEventAfter()', () => {
 
 describe('Melody.addDelayAt()', () => {
     test('adding delays works whether or not there was one already present', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.addDelayAt([1, -1], 100)).toStrictEqual(melody([
+        expect(s.addDelayAt([1, -1], 100)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 150 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -999,14 +998,14 @@ describe('Melody.addDelayAt()', () => {
 
 describe('Melody.addOffsetAt()', () => {
     test('adding offsets works whether or not there was one already present', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, offset: 50 },
             { pitch: [70], duration: 100, velocity: 80, offset: -50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.addOffsetAt([1, -1], 100)).toStrictEqual(melody([
+        expect(s.addOffsetAt([1, -1], 100)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, offset: 150 },
             { pitch: [70], duration: 100, velocity: 80, offset: -50 },
@@ -1017,14 +1016,14 @@ describe('Melody.addOffsetAt()', () => {
 
 describe('Melody.withExactTickAt()', () => {
     test('sets exact ticks works whether or not there was one already present', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, at: 50 },
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withExactTickAt([1, -1], 100)).toStrictEqual(melody([
+        expect(s.withExactTickAt([1, -1], 100)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, at: 100 },
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
@@ -1035,14 +1034,14 @@ describe('Melody.withExactTickAt()', () => {
 
 describe('Melody.withDelayAt()', () => {
     test('adding delays works whether or not there was one already present', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 50 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withDelayAt([1, -1], 100)).toStrictEqual(melody([
+        expect(s.withDelayAt([1, -1], 100)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, delay: 100 },
             { pitch: [70], duration: 100, velocity: 80, delay: -50 },
@@ -1053,14 +1052,14 @@ describe('Melody.withDelayAt()', () => {
 
 describe('Melody.withOffsetAt()', () => {
     test('adding offsets works whether or not there was one already present', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, offset: 50 },
             { pitch: [70], duration: 100, velocity: 80, offset: -50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withOffsetAt([1, -1], 100)).toStrictEqual(melody([
+        expect(s.withOffsetAt([1, -1], 100)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, offset: 100 },
             { pitch: [70], duration: 100, velocity: 80, offset: -50 },
@@ -1071,14 +1070,14 @@ describe('Melody.withOffsetAt()', () => {
 
 describe('Melody.withDurationAt()', () => {
     test('sets exact durations', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, at: 50 },
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withDurationAt([1, -1], 150)).toStrictEqual(melody([
+        expect(s.withDurationAt([1, -1], 150)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 150, velocity: 80, at: 50 },
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
@@ -1089,14 +1088,14 @@ describe('Melody.withDurationAt()', () => {
 
 describe('Melody.withVolumeAt()', () => {
     test('sets exact volumes', () => {
-        const s = melody([
+        const s = Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 80, at: 50 },
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
             { pitch: [80], duration: 50, velocity: 80 }
         ]);
 
-        expect(s.withVolumeAt([1, -1], 60)).toStrictEqual(melody([
+        expect(s.withVolumeAt([1, -1], 60)).toStrictEqual(Melody.from([
             { pitch: [50], duration: 100, velocity: 80 },
             { pitch: [60], duration: 50, velocity: 60, at: 50 },
             { pitch: [70], duration: 100, velocity: 80, at: 50 },
@@ -1252,11 +1251,11 @@ describe('MelodyMember.withAllTicksExact()', () => {
 
 describe('Melody.withChordsCombined()', () => {
     describe('does not fail if no notes', () => {
-        expect(melody([]).withChordsCombined()).toStrictEqual(melody([]));
+        expect(Melody.from([]).withChordsCombined()).toStrictEqual(Melody.from([]));
     });
 
     describe('combines only when all are equal', () => {
-        expect(melody([
+        expect(Melody.from([
             { pitch: [ 60 ], duration: 16, velocity: 50 },
             { pitch: [ 64 ], duration: 16, velocity: 55 },
             { pitch: [ 67 ], duration: 32, velocity: 60 },
@@ -1269,7 +1268,7 @@ describe('Melody.withChordsCombined()', () => {
             { pitch: [ 36 ], duration: 32, velocity: 60, at: 0 },
             { pitch: [ 48 ], duration: 32, velocity: 50 },
             { pitch: [ 54 ], duration: 32, velocity: 60, at: 0 }
-        ]).withChordsCombined()).toStrictEqual(melody([
+        ]).withChordsCombined()).toStrictEqual(Melody.from([
             { pitch: [ 52 ], duration: 8, velocity: 50, at: 0 },
             { pitch: [ 60 ], duration: 16, velocity: 50, at: 0 },
             { pitch: [ 48 ], duration: 32, velocity: 50, at: 0 },
@@ -1284,16 +1283,16 @@ describe('Melody.withChordsCombined()', () => {
 
 describe('Melody.withStartTick()', () => {
     test('changing start tick changes undefined ticks in sequence', () => {
-        const s = melody([{ pitch: [50], duration: 100, velocity: 80 }, { pitch: [60], duration: 50, velocity: 80, at: 50 }]);
+        const s = Melody.from([{ pitch: [50], duration: 100, velocity: 80 }, { pitch: [60], duration: 50, velocity: 80, at: 50 }]);
 
         expect(s.withStartTick(100)).toStrictEqual(
-            melody([{ pitch: [50], duration: 100, velocity: 80, at: 100 }, { pitch: [60], duration: 50, velocity: 80, at: 50 }])
+            Melody.from([{ pitch: [50], duration: 100, velocity: 80, at: 100 }, { pitch: [60], duration: 50, velocity: 80, at: 50 }])
         );
     });
 });
 
 describe('Melody.withTextBefore()', () => {
-    const m = melody([60, 64, 67, 72]);
+    const m = Melody.from([60, 64, 67, 72]);
 
     const errortable: [string, SeqIndices, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined][] = [
         ['invalid indices passed', '55' as unknown as SeqIndices, 'test text', 'text', undefined],
@@ -1314,7 +1313,7 @@ describe('Melody.withTextBefore()', () => {
             'test text',
             undefined,
             undefined,
-            melody([{ pitch: [60], before: MetaList.from([{ event: 'text', value: 'test text' }]) }, 64, 67, 72])
+            Melody.from([{ pitch: [60], before: MetaList.from([{ event: 'text', value: 'test text' }]) }, 64, 67, 72])
         ],
         [
             'default text type, options passed',
@@ -1322,7 +1321,7 @@ describe('Melody.withTextBefore()', () => {
             'test text',
             { offset: 64 },
             undefined,
-            melody([60, 64, 67, { pitch: [72], before: MetaList.from([{ event: 'text', value: 'test text', offset: 64 }]) }]),
+            Melody.from([60, 64, 67, { pitch: [72], before: MetaList.from([{ event: 'text', value: 'test text', offset: 64 }]) }]),
         ],
         [
             'non default text type, no options passed',
@@ -1330,7 +1329,7 @@ describe('Melody.withTextBefore()', () => {
             'test text',
             'lyric',
             undefined,
-            melody([
+            Melody.from([
                 60,
                 64,
                 { pitch: [67], before: MetaList.from([{ event: 'lyric', value: 'test text' }]) },
@@ -1339,11 +1338,11 @@ describe('Melody.withTextBefore()', () => {
         ],
         [
             'non default text type, options passed',
-            intseq([-1]),
+            NumSeq.from([-1]),
             'test text',
             'lyric',
             { at: 64 },
-            melody([60, 64, 67, { pitch: [72], before: MetaList.from([{ event: 'lyric', value: 'test text', at: 64 }]) }]),
+            Melody.from([60, 64, 67, { pitch: [72], before: MetaList.from([{ event: 'lyric', value: 'test text', at: 64 }]) }]),
         ],
     ];
 
@@ -1353,7 +1352,7 @@ describe('Melody.withTextBefore()', () => {
 });
 
 describe('Melody.withTextAfter()', () => {
-    const m = melody([60, 64, 67, 72]);
+    const m = Melody.from([60, 64, 67, 72]);
 
     const errortable: [string, SeqIndices, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined][] = [
         ['invalid indices passed', '55' as unknown as SeqIndices, 'test text', 'text', undefined],
@@ -1374,7 +1373,7 @@ describe('Melody.withTextAfter()', () => {
             'test text',
             undefined,
             undefined,
-            melody([{ pitch: [60], after: MetaList.from([{ event: 'text', value: 'test text' }]) }, 64, 67, 72])
+            Melody.from([{ pitch: [60], after: MetaList.from([{ event: 'text', value: 'test text' }]) }, 64, 67, 72])
         ],
         [
             'default text type, options passed',
@@ -1382,7 +1381,7 @@ describe('Melody.withTextAfter()', () => {
             'test text',
             { offset: 64 },
             undefined,
-            melody([60, 64, 67, { pitch: [72], after: MetaList.from([{ event: 'text', value: 'test text', offset: 64 }]) }]),
+            Melody.from([60, 64, 67, { pitch: [72], after: MetaList.from([{ event: 'text', value: 'test text', offset: 64 }]) }]),
         ],
         [
             'non default text type, no options passed',
@@ -1390,7 +1389,7 @@ describe('Melody.withTextAfter()', () => {
             'test text',
             'lyric',
             undefined,
-            melody([
+            Melody.from([
                 60,
                 64,
                 { pitch: [67], after: MetaList.from([{ event: 'lyric', value: 'test text' }]) },
@@ -1399,11 +1398,11 @@ describe('Melody.withTextAfter()', () => {
         ],
         [
             'non default text type, options passed',
-            intseq([-1]),
+            NumSeq.from([-1]),
             'test text',
             'lyric',
             { at: 64 },
-            melody([60, 64, 67, { pitch: [72], after: MetaList.from([{ event: 'lyric', value: 'test text', at: 64 }]) }]),
+            Melody.from([60, 64, 67, { pitch: [72], after: MetaList.from([{ event: 'lyric', value: 'test text', at: 64 }]) }]),
         ],
     ];
 
@@ -1414,11 +1413,11 @@ describe('Melody.withTextAfter()', () => {
 
 describe('Melody.toOrderedEntities()', () => {
     test('converts empty track to zero entities', () => {
-        expect(melody([]).toOrderedEntities()).toStrictEqual([]);
+        expect(Melody.from([]).toOrderedEntities()).toStrictEqual([]);
     });
 
     test('converts non-empty track to expected entities', () => {
-        expect(melody([ 
+        expect(Melody.from([ 
             {
                 pitch: 60,
                 duration: 64,
@@ -1475,11 +1474,11 @@ describe('Melody.toOrderedEntities()', () => {
 
 describe('Melody.toOrderedEntitiesWithMetadata()', () => {
     test('converts empty track to array containing an array of zero entities', () => {
-        expect(melody([]).toOrderedEntitiesWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
+        expect(Melody.from([]).toOrderedEntitiesWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
     });
 
     test('converts non-empty track to expected entities', () => {
-        expect(melody([ 
+        expect(Melody.from([ 
             {
                 pitch: 60,
                 duration: 64,
@@ -1504,26 +1503,26 @@ describe('Melody.toOrderedEntitiesWithMetadata()', () => {
 
 describe('Melody.toDataURI()', () => {
     test('Empty melody data URI as expected', () => {
-        expect(melody([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
+        expect(Melody.from([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
     });
 
     test('Non-empty melody data URI as expected', () => {
-        expect(melody([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
+        expect(Melody.from([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
     });
 });
 
 describe('Melody.toHash()', () => {
     test('Empty melody hash as expected', () => {
-        expect(melody([]).toHash()).toStrictEqual('6a614850f0493b0cbff25166f12dc7e2');
+        expect(Melody.from([]).toHash()).toStrictEqual('6a614850f0493b0cbff25166f12dc7e2');
     });
 
     test('Non-empty melody hash as expected', () => {
-        expect(melody([ 60, 63, 67, 72 ]).toHash()).toStrictEqual('d7927d4732948cf44bd2d586d3ca621e');
+        expect(Melody.from([ 60, 63, 67, 72 ]).toHash()).toStrictEqual('d7927d4732948cf44bd2d586d3ca621e');
     });
 });
 
 describe('Melody.expectHash()', () => {
-    const m = melody([ 60, 63, 67, 72 ]);
+    const m = Melody.from([ 60, 63, 67, 72 ]);
 
     test('does not throw when expected hash passed', () => {
         expect(() => m.expectHash('d7927d4732948cf44bd2d586d3ca621e')).not.toThrow();
@@ -1535,7 +1534,7 @@ describe('Melody.expectHash()', () => {
 });
 
 describe('Melody.writeMidi()', () => {
-    const m = melody([]);
+    const m = Melody.from([]);
 
     beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
     afterAll(() => jest.restoreAllMocks());
