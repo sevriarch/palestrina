@@ -1,12 +1,10 @@
 import type { MapperFn, FilterFn, ScoreCanvasOpts } from '../types';
 
-import type Melody from '../sequences/melody';
+import { Melody } from '../sequences/sequences';
 
 import Score from './score';
 
 import * as fs from 'fs';
-
-import { score, melody } from '../factory';
 
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
@@ -25,22 +23,22 @@ jest.mock('fs', () => {
     };
 });
 
-const T0 = melody([]);
-const T1 = melody([
+const T0 = Melody.from([]);
+const T1 = Melody.from([
     { pitch: [ 60 ], duration: 8, velocity: 50 }
 ]);
-const T2 = melody([
+const T2 = Melody.from([
     { pitch: [ 64 ], duration: 4, velocity: 45 },
     { pitch: [ 52 ], duration: 4, velocity: 40 },
 ]);
-const T3 = melody([
+const T3 = Melody.from([
     { pitch: [ 48 ], duration: 4, velocity: 44 },
     { pitch: [ 60 ], duration: 16, velocity: 46 },
     { pitch: [], duration: 8, velocity: 0 },
     { pitch: [ 63 ], duration: 16, velocity: 48 },
     { pitch: [ 60 ], duration: 8, velocity: 50 }
 ]);
-const T4 = melody([
+const T4 = Melody.from([
     { pitch: [ 54, 63 ], duration: 8, velocity: 63 },
     { pitch: [ 55, 60 ], duration: 4, velocity: 56 },
     { pitch: [ 52, 59 ], duration: 4, velocity: 58 },
@@ -57,29 +55,29 @@ describe('Score construction tests', () => {
 
     describe.each(table)('constructor/appendItems() %#', trax => {
         test('constructor fails when invalid argument passed', () => {
-            expect(() => score(0 as unknown as Melody[])).toThrow();
+            expect(() => Score.from(0 as unknown as Melody[])).toThrow();
         });
 
         test('constructor fails with invalid member in array', () => {
-            expect(() => score([ T1, 0 as unknown as Melody, T2 ])).toThrow();
+            expect(() => Score.from([ T1, 0 as unknown as Melody, T2 ])).toThrow();
         });
 
         test('constructor', () => {
-            const sc = score(trax);
+            const sc = Score.from(trax);
 
             expect(sc.contents).toStrictEqual(trax);
             expect(sc.contents).not.toBe(trax);
         });
 
         test('appendItems() (all at once)', () => {
-            const sc = score().appendItems(...trax);
+            const sc = Score.from([]).appendItems(...trax);
 
             expect(sc.contents).toStrictEqual(trax);
             expect(sc.contents).not.toBe(trax);
         });
 
         test('appendItems() (one at a time)', () => {
-            let sc = score();
+            let sc = Score.from([]);
 
             trax.forEach(t => sc = sc.appendItems(t));
 
@@ -100,21 +98,21 @@ describe('Score construction tests', () => {
     });
 
     test('expect score with no argument to be the same as score with an empty array', () => {
-        const sc = score();
+        const sc = Score.from([]);
 
         expect(sc.contents).toStrictEqual([]);
         expect(sc.metadata.ticks_per_quarter).toEqual(192);
     });
 
     test('expect score with a {} second argument to take default ticks_per_quarter', () => {
-        const sc = score(undefined, {});
+        const sc = Score.from([], {});
 
         expect(sc.contents).toStrictEqual([]);
         expect(sc.metadata.ticks_per_quarter).toEqual(192);
     });
 
     test('expect score with defined metadata to use that metadata', () => {
-        const sc = score(undefined, { ticks_per_quarter: 128, copyright: 'mine' });
+        const sc = Score.from([], { ticks_per_quarter: 128, copyright: 'mine' });
 
         expect(sc.contents).toStrictEqual([]);
         expect(sc.metadata.ticks_per_quarter).toEqual(128);
@@ -122,7 +120,7 @@ describe('Score construction tests', () => {
     });
 
     test('expect score and tracks to be immutable', () => {
-        const sc = score([ T1, T2, T3, T4 ]);
+        const sc = Score.from([ T1, T2, T3, T4 ]);
 
         expect(Object.isFrozen(sc)).toBeTruthy();
         expect(Object.isFrozen(sc.contents)).toBeTruthy();
@@ -130,7 +128,7 @@ describe('Score construction tests', () => {
 });
 
 describe('Score.clone()', () => {
-    const sc = score([ T1, T2, T3, T4 ]).withCopyright('test');
+    const sc = Score.from([ T1, T2, T3, T4 ]).withCopyright('test');
 
     test('clone() makes a copy with identical values', () => {
         const copy = sc.clone();
@@ -142,14 +140,14 @@ describe('Score.clone()', () => {
     test('clone() retains transient metadata', () => {
         // this is a slightly awkward way to test as it relies on implementation
         // details of Score.withAllTicksExact(), but should give accurate results.
-        const sc = score([]).withAllTicksExact().clone();
+        const sc = Score.from([]).withAllTicksExact().clone();
 
         expect(sc.withAllTicksExact()).toBe(sc);
     });
 });
 
 describe('Score.withNewEvent()', () => {
-    const S0 = score([ T0 ]);
+    const S0 = Score.from([ T0 ]);
 
     test('adding two events using three-argument form works', () => {
         const S1 = S0.withNewEvent('sustain', 1)
@@ -197,34 +195,34 @@ describe('Score.keepSlice()', () => {
     // TODO: Do we need to keep this, since it is tested in collection.test.ts?
     const table: [ Score, number, number | undefined, Score ][] = [
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             0,
             undefined,
-            score([ T0, T1, T2, T3, T4 ])
+            Score.from([ T0, T1, T2, T3, T4 ])
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             2,
             undefined,
-            score([ T2, T3, T4 ])
+            Score.from([ T2, T3, T4 ])
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64),
+            Score.from([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64),
             5,
             undefined,
-            score([ ]).withTicksPerQuarter(64)
+            Score.from([ ]).withTicksPerQuarter(64)
         ],
         [
-            score([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
+            Score.from([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
             1,
             2,
-            score([ T1 ], { midichannel: 10 })
+            Score.from([ T1 ], { midichannel: 10 })
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             1,
             6,
-            score([ T1, T2, T3, T4 ])
+            Score.from([ T1, T2, T3, T4 ])
         ],
     ];
 
@@ -237,34 +235,34 @@ describe('Score.dropSlice()', () => {
     // TODO: Do we need to keep this, since it is tested in collection.test.ts?
     const table: [ Score, number, number | undefined, Score ][] = [
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             0,
             undefined,
-            score([ ])
+            Score.from([ ])
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             2,
             undefined,
-            score([ T0, T1 ])
+            Score.from([ T0, T1 ])
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64),
+            Score.from([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64),
             5,
             undefined,
-            score([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64)
+            Score.from([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64)
         ],
         [
-            score([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
+            Score.from([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
             1,
             2,
-            score([ T0, T2, T3, T4 ], { midichannel: 10 })
+            Score.from([ T0, T2, T3, T4 ], { midichannel: 10 })
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             1,
             6,
-            score([ T0 ])
+            Score.from([ T0 ])
         ],
     ];
 
@@ -277,34 +275,34 @@ describe('Score.dropIndices()', () => {
     // TODO: Do we need to keep this, since it is tested in collection.test.ts?
     const table: [ Score, number[], Score ][] = [
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             [],
-            score([ T0, T1, T2, T3, T4 ])
+            Score.from([ T0, T1, T2, T3, T4 ])
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             [ 2 ],
-            score([ T0, T1, T3, T4 ])
+            Score.from([ T0, T1, T3, T4 ])
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64),
+            Score.from([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64),
             [ 1, 2 ],
-            score([ T0, T3, T4 ]).withTicksPerQuarter(64)
+            Score.from([ T0, T3, T4 ]).withTicksPerQuarter(64)
         ],
         [
-            score([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
+            Score.from([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
             [ 0, 1, 2 ],
-            score([ T3, T4 ], { midichannel: 10 })
+            Score.from([ T3, T4 ], { midichannel: 10 })
         ],
         [
-            score([ T0, T1, T2, T3, T4 ]),
+            Score.from([ T0, T1, T2, T3, T4 ]),
             [ 0, 1, 2, 3, 4 ],
-            score([ ])
+            Score.from([ ])
         ],
     ];
 
     test('Score.dropIndices() with non-array fails', () => {
-        expect(() => score([]).dropIndices(0)).toThrow();
+        expect(() => Score.from([]).dropIndices(0)).toThrow();
     });
 
     test.each(table)('Score.dropIndices() %#', (s, tracks, ret) => {
@@ -316,25 +314,25 @@ describe('Score.map()', () => {
     // TODO: Do we need to keep this, since it is tested in collection.test.ts?
     const table: [ Score, MapperFn<Melody>, Score ][] = [
         [
-            score([]),
+            Score.from([]),
             m => m.repeat(),
-            score([])
+            Score.from([])
         ],
         [
-            score([
-                melody([ 60, 72, 84 ]),
-                melody([ 56 ])
+            Score.from([
+                Melody.from([ 60, 72, 84 ]),
+                Melody.from([ 56 ])
             ]),
             m => m.repeat(),
-            score([
-                melody([ 60, 72, 84, 60, 72, 84 ]),
-                melody([ 56, 56 ])
+            Score.from([
+                Melody.from([ 60, 72, 84, 60, 72, 84 ]),
+                Melody.from([ 56, 56 ])
             ])
         ]
     ];
 
     test('map() without a function fails', () => {
-        expect(() => score([]).map(55 as unknown as MapperFn<Melody>)).toThrow();
+        expect(() => Score.from([]).map(55 as unknown as MapperFn<Melody>)).toThrow();
     });
 
     test.each(table)('map() %# works', (score, fn, ret) => {
@@ -346,24 +344,24 @@ describe('Score.filter()', () => {
     // TODO: Do we need to keep this, since it is tested in collection.test.ts?
     const table: [ Score, FilterFn<Melody>, Score ][] = [
         [
-            score([]),
+            Score.from([]),
             m => m.length !== 1,
-            score([])
+            Score.from([])
         ],
         [
-            score([
-                melody([60, 72, 84 ]),
-                melody([ 56 ])
+            Score.from([
+                Melody.from([60, 72, 84 ]),
+                Melody.from([ 56 ])
             ]),
             m => m.length !== 1,
-            score([
-                melody([ 60, 72, 84 ]),
+            Score.from([
+                Melody.from([ 60, 72, 84 ]),
             ])
         ]
     ];
 
     test('filter() without a function fails', () => {
-        expect(() => score([]).filter(55 as unknown as FilterFn<Melody>)).toThrow();
+        expect(() => Score.from([]).filter(55 as unknown as FilterFn<Melody>)).toThrow();
     });
 
     test.each(table)('filter() %# works', (score, fn, ret) => {
@@ -385,7 +383,7 @@ describe('Score.pitchRange() tests', () => {
     ];
 
     test.each(table)('pitchRange() %# is %p', (trax, ret) => {
-        expect(score(trax).pitchRange()).toStrictEqual(ret);
+        expect(Score.from(trax).pitchRange()).toStrictEqual(ret);
     });
 });
 
@@ -403,7 +401,7 @@ describe('Score.volumeRange() tests', () => {
     ];
 
     test.each(table)('volumeRange() %# is %p', (trax, ret) => {
-        expect(score(trax).volumeRange()).toStrictEqual(ret);
+        expect(Score.from(trax).volumeRange()).toStrictEqual(ret);
     });
 });
 
@@ -451,7 +449,7 @@ describe('Score.withAllTicksExact() tests', () => {
     const S0 = Score.from([]);
     const S1 = Score.from([
         T0,
-        melody([
+        Melody.from([
             { pitch: [ 64 ], duration: 4, velocity: 45 },
             { pitch: [ 52 ], duration: 4, velocity: 40 },
         ], {
@@ -462,7 +460,7 @@ describe('Score.withAllTicksExact() tests', () => {
     });
     const S1RET = Score.from([
         T0,
-        melody([
+        Melody.from([
             { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
             { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
         ], {
@@ -487,11 +485,11 @@ describe('Score.withAllTicksExact() tests', () => {
     });
 
     test('does recalculate if any operations have changed it in the interim', () => {
-        expect(S1.withAllTicksExact().appendItems(melody([
+        expect(S1.withAllTicksExact().appendItems(Melody.from([
             { pitch: [ 64 ], duration: 4, velocity: 45 },
             { pitch: [ 52 ], duration: 4, velocity: 40 },
         ])).withAllTicksExact()).toStrictEqual(
-            S1RET.appendItems(melody([
+            S1RET.appendItems(Melody.from([
                 { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
                 { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
             ]))
@@ -501,37 +499,37 @@ describe('Score.withAllTicksExact() tests', () => {
 
 describe('Score.withChordsCombined()', () => {
     describe('does not fail if no tracks', () => {
-        expect(score([]).withChordsCombined()).toStrictEqual(score([]));
+        expect(Score.from([]).withChordsCombined()).toStrictEqual(Score.from([]));
     });
 
     describe('does not fail if no notes', () => {
-        expect(score([ T0, T0 ]).withChordsCombined()).toStrictEqual(score([ T0 ]));
+        expect(Score.from([ T0, T0 ]).withChordsCombined()).toStrictEqual(Score.from([ T0 ]));
     });
 
     describe('combines only when all are equal', () => {
-        expect(score([
-            melody([
+        expect(Score.from([
+            Melody.from([
                 { pitch: [ 60 ], duration: 16, velocity: 50 },
                 { pitch: [ 64 ], duration: 16, velocity: 55 },
                 { pitch: [ 67 ], duration: 32, velocity: 60 },
             ]),
-            melody([
+            Melody.from([
                 { pitch: [ 52 ], duration: 8, velocity: 50 },
                 { pitch: [ 54 ], duration: 8, velocity: 50 },
                 { pitch: [ 56 ], duration: 16, velocity: 55 },
                 { pitch: [ 58 ], duration: 32, velocity: 60 },
             ]),
-            melody([
+            Melody.from([
                 { pitch: [ 48 ], duration: 32, velocity: 50 },
                 { pitch: [ 41 ], duration: 32, velocity: 60 },
             ]),
-            melody([
+            Melody.from([
                 { pitch: [ 36 ], duration: 32, velocity: 60 },
                 { pitch: [ 48 ], duration: 32, velocity: 50 },
                 { pitch: [ 54 ], duration: 32, velocity: 60, at: 0 }
             ]),
-        ]).withChordsCombined()).toStrictEqual(score([
-            melody([
+        ]).withChordsCombined()).toStrictEqual(Score.from([
+            Melody.from([
                 { pitch: [ 52 ], duration: 8, velocity: 50, at: 0 },
                 { pitch: [ 60 ], duration: 16, velocity: 50, at: 0 },
                 { pitch: [ 48 ], duration: 32, velocity: 50, at: 0 },
@@ -545,11 +543,11 @@ describe('Score.withChordsCombined()', () => {
     });
 
     describe('does not eliminate duplicated notes', () => {
-        expect(score([
-            melody([ 54, 56, 58 ]),
-            melody([ 54, 60, 58 ])
-        ]).withChordsCombined()).toStrictEqual(score([
-            melody([ 
+        expect(Score.from([
+            Melody.from([ 54, 56, 58 ]),
+            Melody.from([ 54, 60, 58 ])
+        ]).withChordsCombined()).toStrictEqual(Score.from([
+            Melody.from([ 
                 { pitch: [ 54, 54 ], duration: 16, velocity: 64, at: 0 },
                 { pitch: [ 56, 60 ], duration: 16, velocity: 64, at: 16 },
                 { pitch: [ 58, 58 ], duration: 16, velocity: 64, at: 32 }
@@ -560,12 +558,12 @@ describe('Score.withChordsCombined()', () => {
 
 describe('Score.toOrderedEntitiesWithMetadata()', () => {
     test('converts empty track to zero entities even though there is metadata present', () => {
-        expect(score([]).withCopyright('test').toOrderedEntitiesWithMetadata()).toStrictEqual([]);
+        expect(Score.from([]).withCopyright('test').toOrderedEntitiesWithMetadata()).toStrictEqual([]);
     });
 
     test('converts non-empty score to expected entities', () => {
-        expect(score([
-            melody([ 
+        expect(Score.from([
+            Melody.from([ 
                 {
                     pitch: 60,
                     duration: 64,
@@ -585,7 +583,7 @@ describe('Score.toOrderedEntitiesWithMetadata()', () => {
                 }
             ]).withInstrument('violin')
                 .withNewEvent({ event: 'text', value: 'second test', at: 64 }),
-            melody([
+            Melody.from([
                 {
                     pitch: 48,
                     duration: 64,
@@ -655,95 +653,95 @@ describe('Score.toOrderedEntitiesWithMetadata()', () => {
 
 describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() tests', () => {
     describe('should throw if ticks_per_quarter is invalid', () => {
-        expect(() => score([], { ticks_per_quarter: 65536 }).toMidiBytes()).toThrow();
+        expect(() => Score.from([], { ticks_per_quarter: 65536 }).toMidiBytes()).toThrow();
     });
 
     describe('should throw if a pitch is too low', () => {
-        expect(() => score([ 
-            melody([ 1, 2, 3, [ 4, 25 ], -1 ])
+        expect(() => Score.from([ 
+            Melody.from([ 1, 2, 3, [ 4, 25 ], -1 ])
         ]).toMidiBytes()).toThrow();
     });
 
     describe('should throw if a pitch is too high', () => {
-        expect(() => score([ 
-            melody([ 1, 2, 3, [ 4, 256 ], 5 ])
+        expect(() => Score.from([ 
+            Melody.from([ 1, 2, 3, [ 4, 256 ], 5 ])
         ]).toMidiBytes()).toThrow();
     });
 
     const table: [ string, Score, string, number[], string ][] = [
         [
             'a score with no tracks',
-            score([]),
+            Score.from([]),
             '54494bd9650d7afe616cbe7c1a3ed0ff',
             [77,84,104,100,0,0,0,6,0,1,0,0,0,192],
             'data:audio/midi;base64,TVRoZAAAAAYAAQAAAMA='
         ],
         [
             'a score with no tracks and one MetaEvent ignores that MetaEvent',
-            score([]).withNewEvent('sustain', 1),
+            Score.from([]).withNewEvent('sustain', 1),
             '54494bd9650d7afe616cbe7c1a3ed0ff',
             [77,84,104,100,0,0,0,6,0,1,0,0,0,192],
             'data:audio/midi;base64,TVRoZAAAAAYAAQAAAMA='
         ],
         [
             'a score with an empty track',
-            score([ T0 ]),
+            Score.from([ T0 ]),
             '6a614850f0493b0cbff25166f12dc7e2',
             [77,84,104,100,0,0,0,6,0,1,0,1,0,192,77,84,114,107,0,0,0,4,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA='
         ],
         [
             'a score with an empty track and one MetaEvent, with a non-default ticks per quarter value',
-            score([ T0 ], { ticks_per_quarter: 128 }).withNewEvent('sustain', 1),
+            Score.from([ T0 ], { ticks_per_quarter: 128 }).withNewEvent('sustain', 1),
             'b30e8fda9dcc60c8ca977933017b0724',
             [77,84,104,100,0,0,0,6,0,1,0,1,0,128,77,84,114,107,0,0,0,8,0,176,64,127,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQABAIBNVHJrAAAACACwQH8A/y8A'
         ],
         [
             'a score with an empty track and two MetaEvents',
-            score([ T0 ]).withNewEvent('sustain', 1).withNewEvent('sustain', 0, { at: 64 }),
+            Score.from([ T0 ]).withNewEvent('sustain', 1).withNewEvent('sustain', 0, { at: 64 }),
             '065893a83b030ef50680543703e037cb',
             [77,84,104,100,0,0,0,6,0,1,0,1,0,192,77,84,114,107,0,0,0,12,0,176,64,127,64,176,64,0,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAADACwQH9AsEAAAP8vAA=='
         ],
         [
             'a score with a non-empty track',
-            score([ T1 ]),
+            Score.from([ T1 ]),
             '8e83e4d241556f9e1cb17ac1599a7cc9',
             [77,84,104,100,0,0,0,6,0,1,0,1,0,192,77,84,114,107,0,0,0,12,0,144,60,50,8,128,60,50,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAADACQPDIIgDwyAP8vAA=='
         ],
         [
             'a score with a non-empty track and a MetaEvent',
-            score([ T1 ]).withNewEvent('sustain', 1),
+            Score.from([ T1 ]).withNewEvent('sustain', 1),
             '0805c67d36c396034e9aac911561059a',
             [77,84,104,100,0,0,0,6,0,1,0,1,0,192,77,84,114,107,0,0,0,16,0,176,64,127,0,144,60,50,8,128,60,50,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAEACwQH8AkDwyCIA8MgD/LwA='
         ],
         [
             'a score with two non-empty tracks',
-            score([ T1, T2 ]),
+            Score.from([ T1, T2 ]),
             'c4b66a0ff18e6dcdcfd63295d04b8d4f',
             [77,84,104,100,0,0,0,6,0,1,0,2,0,192,77,84,114,107,0,0,0,12,0,144,60,50,8,128,60,50,0,255,47,0,77,84,114,107,0,0,0,20,0,144,64,45,4,128,64,45,0,144,52,40,4,128,52,40,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQACAMBNVHJrAAAADACQPDIIgDwyAP8vAE1UcmsAAAAUAJBALQSAQC0AkDQoBIA0KAD/LwA='
         ],
         [
             'a score with two non-empty tracks and a MetaEvent',
-            score([ T1, T2 ]).withNewEvent('sustain', 1),
+            Score.from([ T1, T2 ]).withNewEvent('sustain', 1),
             '388fd7d7de0515c5b0662e57014b5cfd',
             [77,84,104,100,0,0,0,6,0,1,0,2,0,192,77,84,114,107,0,0,0,16,0,176,64,127,0,144,60,50,8,128,60,50,0,255,47,0,77,84,114,107,0,0,0,20,0,144,64,45,4,128,64,45,0,144,52,40,4,128,52,40,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQACAMBNVHJrAAAAEACwQH8AkDwyCIA8MgD/LwBNVHJrAAAAFACQQC0EgEAtAJA0KASANCgA/y8A'
         ],
         [
             'a score with two empty tracks and metadata only applies metadata to first track',
-            score([ T0, T0 ]).withCopyright('boop').withTrackName('test track').withKeySignature('C').withTimeSignature('9/8').withTempo(144),
+            Score.from([ T0, T0 ]).withCopyright('boop').withTrackName('test track').withKeySignature('C').withTimeSignature('9/8').withTempo(144),
             '0db8d161fdb51628ff490833615b2861',
             [77,84,104,100,0,0,0,6,0,1,0,2,0,192,77,84,114,107,0,0,0,47,0,255,2,4,98,111,111,112,0,255,3,10,116,101,115,116,32,116,114,97,99,107,0,255,88,4,9,3,24,8,0,255,89,2,0,0,0,255,81,3,6,91,155,0,255,47,0,77,84,114,107,0,0,0,4,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQACAMBNVHJrAAAALwD/AgRib29wAP8DCnRlc3QgdHJhY2sA/1gECQMYCAD/WQIAAAD/UQMGW5sA/y8ATVRyawAAAAQA/y8A'
         ],
         [
             'an identical case but with metadata applied to first track instead of score',
-            score([ T0.withCopyright('boop').withTrackName('test track').withKeySignature('C').withTimeSignature('9/8').withTempo(144), T0 ]),
+            Score.from([ T0.withCopyright('boop').withTrackName('test track').withKeySignature('C').withTimeSignature('9/8').withTempo(144), T0 ]),
             '0db8d161fdb51628ff490833615b2861',
             [77,84,104,100,0,0,0,6,0,1,0,2,0,192,77,84,114,107,0,0,0,47,0,255,2,4,98,111,111,112,0,255,3,10,116,101,115,116,32,116,114,97,99,107,0,255,88,4,9,3,24,8,0,255,89,2,0,0,0,255,81,3,6,91,155,0,255,47,0,77,84,114,107,0,0,0,4,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQACAMBNVHJrAAAALwD/AgRib29wAP8DCnRlc3QgdHJhY2sA/1gECQMYCAD/WQIAAAD/UQMGW5sA/y8ATVRyawAAAAQA/y8A'
@@ -789,11 +787,11 @@ describe('Score.writeNotesSVG() tests', () => {
     beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
     afterAll(() => jest.restoreAllMocks());
 
-    const S0 = score([]);
-    const S1 = score([ T2 ]);
-    const S2 = score([
-        melody([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
-        melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
+    const S0 = Score.from([]);
+    const S1 = Score.from([ T2 ]);
+    const S2 = Score.from([
+        Melody.from([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
+        Melody.from([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
     ]).withTicksPerQuarter(128);
 
     test('fails with invalid argument', () => {
@@ -1085,10 +1083,10 @@ describe('Score.toGamutSVG() tests', () => {
     beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
     afterAll(() => jest.restoreAllMocks());
 
-    const S1 = score([]);
-    const S2 = score([
-        melody([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
-        melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
+    const S1 = Score.from([]);
+    const S2 = Score.from([
+        Melody.from([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
+        Melody.from([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
     ]).withTicksPerQuarter(128);
 
     test('fails with invalid argument', () => {
@@ -1164,10 +1162,10 @@ describe('Score.toIntervalSVG() tests', () => {
     beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
     afterAll(() => jest.restoreAllMocks());
 
-    const S1 = score([]);
-    const S2 = score([
-        melody([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
-        melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
+    const S1 = Score.from([]);
+    const S2 = Score.from([
+        Melody.from([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
+        Melody.from([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
     ]).withTicksPerQuarter(128);
 
     test('fails with invalid argument', () => {
@@ -1302,7 +1300,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
     const table: [ string, Score, ScoreCanvasOpts | undefined, string[] ][] = [
         [
             'one track, no options passed',
-            score([ T1 ]),
+            Score.from([ T1 ]),
             undefined,
             [
                 RENDER_T1,
@@ -1316,7 +1314,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
         ],
         [
             'one track, width option passed',
-            score([ T2 ]),
+            Score.from([ T2 ]),
             { wd: 5000 },
             [
                 RENDER_T2,
@@ -1331,7 +1329,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
         ],
         [
             'one track, height and width per quarter options passed',
-            score([ T3 ]),
+            Score.from([ T3 ]),
             { ht: 500, wd_quarter: 8 },
             [
                 RENDER_T3,
@@ -1347,7 +1345,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
         ],
         [
             'one track, ticks per quarter set, height, width per quarter and width scale passed',
-            score([ T3 ]).withTicksPerQuarter(128),
+            Score.from([ T3 ]).withTicksPerQuarter(128),
             { ht: 500, wd_quarter: 8, wd_scale: 4 },
             [
                 RENDER_T3,
@@ -1362,7 +1360,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
         ],
         [
             'two tracks, minimum width passed',
-            score([ T1, T2 ]),
+            Score.from([ T1, T2 ]),
             { wd_min: 4 },
             [
                 RENDER_T12,
@@ -1377,7 +1375,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
         ],
         [
             'four tracks, height and width passed',
-            score([ T0, T2, T3, T4 ]),
+            Score.from([ T0, T2, T3, T4 ]),
             { ht: 500, wd: 5000 },
             [
                 RENDER_T234,
@@ -1419,7 +1417,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
 // inherited from CollectionWithMetadata
 describe('Score.describe', () => {
     test('describes as expected', () => {
-        expect(score([ melody([ 1, [ 2, 3 ] ]) ], { tempo: 144 }).describe())
+        expect(Score.from([ Melody.from([ 1, [ 2, 3 ] ]) ], { tempo: 144 }).describe())
             .toStrictEqual(`Score(length=1,metadata=Metadata({tempo=144}))([
     0: Melody(length=2,metadata=Metadata({}))([
         0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),

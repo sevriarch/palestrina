@@ -1,7 +1,9 @@
 import * as crypto from 'crypto';
 
+import { Melody } from '../sequences/sequences';
+
 import * as visualizations from './visualizations';
-import * as factory from '../factory';
+import Score from '../scores/score';
 
 function getHash(str: string): string {
     const hash = crypto.createHash('md5');
@@ -80,10 +82,10 @@ describe('visualizations.render2DCanvas() tests', () => {
     });
 });
 
-const EMPTY_SCORE = factory.score([]);
-const SAMPLE_SCORE = factory.score([
-    factory.melody([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
-    factory.melody([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
+const EMPTY_SCORE = Score.from([]);
+const SAMPLE_SCORE = Score.from([
+    Melody.from([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
+    Melody.from([ { pitch: [ 26, 29 ], duration: 64, velocity: 80 }, { pitch: [ 33 ], duration: 64, velocity: 60 }, { pitch: [ 30, 32 ], duration: 96, velocity: 60 }]),
 ]).withTicksPerQuarter(128);
 
 // This section only tests some limited error handling as functionality is

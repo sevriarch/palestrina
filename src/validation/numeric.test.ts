@@ -2,7 +2,9 @@ import type { ValidatorFn, ISeqMember } from '../types';
 
 import NumericValidator from './numeric';
 
-import { floatseq, microtonalchordseq } from '../factory';
+import { NumSeq, ChordSeq } from '../sequences/sequences';
+
+const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
 
 class MockMember {
     val: number;
@@ -46,9 +48,9 @@ describe('Validator.INT_VALIDATOR', () => {
         expect(val.validate(59.99)).toEqual(false);
         expect(val.validate('60' as unknown as number)).toEqual(false);
 
-        expect(() => val.validateContents(floatseq([ 1, 60.000001, 59.999999 ]).contents)).not.toThrow();
-        expect(() => val.validateContents(floatseq([ 1, 60.000001, 59.99 ]).contents)).toThrow('indices 2 [59.99] failed');
-        expect(() => val.validateContents(microtonalchordseq([ [ 1, 60 ], [], 60.01, 59.999999, [ 59.99, 59.99 ] ]).contents)).toThrow('indices 2 [60.01], 4 [59.99,59.99] failed');
+        expect(() => val.validateContents(NumSeq.from([ 1, 60.000001, 59.999999 ], MICROTONAL).contents)).not.toThrow();
+        expect(() => val.validateContents(NumSeq.from([ 1, 60.000001, 59.99 ], MICROTONAL).contents)).toThrow('indices 2 [59.99] failed');
+        expect(() => val.validateContents(ChordSeq.from([ [ 1, 60 ], [], 60.01, 59.999999, [ 59.99, 59.99 ] ], MICROTONAL).contents)).toThrow('indices 2 [60.01], 4 [59.99,59.99] failed');
 
         expect(() => val.validateContents(MOCK_VALID)).not.toThrow();
         expect(() => val.validateContents(MOCK_INVALID)).toThrow('indices 1 ["1"] failed');
@@ -66,9 +68,9 @@ describe('Validator.NOOP_VALIDATOR', () => {
         expect(val.validate(59.99)).toEqual(true);
         expect(val.validate('60' as unknown as number)).toEqual(true);
 
-        expect(() => val.validateContents(floatseq([ 1, 60.000001, 59.999999 ]).contents)).not.toThrow();
-        expect(() => val.validateContents(floatseq([ 1, 60.000001, 59.99 ]).contents)).not.toThrow();
-        expect(() => val.validateContents(microtonalchordseq([ [ 1, 60 ], [], 60.01, 59.999999, [ 59.99, 59.99 ] ]).contents)).not.toThrow();
+        expect(() => val.validateContents(NumSeq.from([ 1, 60.000001, 59.999999 ], MICROTONAL).contents)).not.toThrow();
+        expect(() => val.validateContents(NumSeq.from([ 1, 60.000001, 59.99 ], MICROTONAL).contents)).not.toThrow();
+        expect(() => val.validateContents(ChordSeq.from([ [ 1, 60 ], [], 60.01, 59.999999, [ 59.99, 59.99 ] ], MICROTONAL).contents)).not.toThrow();
 
         expect(() => val.validateContents(MOCK_VALID)).not.toThrow();
         expect(() => val.validateContents(MOCK_INVALID)).not.toThrow();
@@ -94,9 +96,9 @@ describe('Validator.FRACTION_VALIDATOR()', () => {
         expect(val.validate(60.251)).toEqual(false);
         expect(val.validate('60' as unknown as number)).toEqual(false);
 
-        expect(() => val.validateContents(floatseq([ 1, 60.25000001, 59.74999999 ]).contents)).not.toThrow();
-        expect(() => val.validateContents(floatseq([ 1, 60.251, 59.74999999 ]).contents)).toThrow('indices 1 [60.251] failed');
-        expect(() => val.validateContents(microtonalchordseq([ [ 1, 60 ], [], 60.25000001, 59.749, [ 60.251, 60.251 ] ]).contents))
+        expect(() => val.validateContents(NumSeq.from([ 1, 60.25000001, 59.74999999 ], MICROTONAL).contents)).not.toThrow();
+        expect(() => val.validateContents(NumSeq.from([ 1, 60.251, 59.74999999 ], MICROTONAL).contents)).toThrow('indices 1 [60.251] failed');
+        expect(() => val.validateContents(ChordSeq.from([ [ 1, 60 ], [], 60.25000001, 59.749, [ 60.251, 60.251 ] ], MICROTONAL).contents))
             .toThrow('indices 3 [59.749], 4 [60.251,60.251] failed');
 
         expect(() => val.validateContents(MOCK_VALID)).not.toThrow();
@@ -116,9 +118,9 @@ describe('Validator.FRACTION_VALIDATOR()', () => {
         expect(val.validate(60.2511)).toEqual(false);
         expect(val.validate('60' as unknown as number)).toEqual(false);
 
-        expect(() => val.validateContents(floatseq([ 1, 59.749, 60.251 ]).contents)).not.toThrow();
-        expect(() => val.validateContents(floatseq([ 1, 59.7489, 60.25 ]).contents)).toThrow('indices 1 [59.7489] failed');
-        expect(() => val.validateContents(microtonalchordseq([ [ 1, 60 ], [], 59.749, 60.2511, [ 59.7489, 59.7489 ] ]).contents))
+        expect(() => val.validateContents(NumSeq.from([ 1, 59.749, 60.251 ], MICROTONAL).contents)).not.toThrow();
+        expect(() => val.validateContents(NumSeq.from([ 1, 59.7489, 60.25 ], MICROTONAL).contents)).toThrow('indices 1 [59.7489] failed');
+        expect(() => val.validateContents(ChordSeq.from([ [ 1, 60 ], [], 59.749, 60.2511, [ 59.7489, 59.7489 ] ], MICROTONAL).contents))
             .toThrow('indices 3 [60.2511], 4 [59.7489,59.7489] failed');
 
         expect(() => val.validateContents(MOCK_VALID)).not.toThrow();
@@ -143,9 +145,9 @@ describe('Validator.CUSTOM_VALIDATOR()', () => {
         expect(val.validate(60.2)).toEqual(false);
         expect(val.validate('60' as unknown as number)).toEqual(true); // because this custom validator does not test type
 
-        expect(() => val.validateContents(floatseq([ 1, 59.19, 60.19 ]).contents)).not.toThrow();
-        expect(() => val.validateContents(floatseq([ 1, 59.2, 60.19 ]).contents)).toThrow('indices 1 [59.2] failed');
-        expect(() => val.validateContents(microtonalchordseq([ [ 1, 60 ], [], 59.19, 59.2, [ 60.2, 60.2 ] ]).contents))
+        expect(() => val.validateContents(NumSeq.from([ 1, 59.19, 60.19 ], MICROTONAL).contents)).not.toThrow();
+        expect(() => val.validateContents(NumSeq.from([ 1, 59.2, 60.19 ], MICROTONAL).contents)).toThrow('indices 1 [59.2] failed');
+        expect(() => val.validateContents(ChordSeq.from([ [ 1, 60 ], [], 59.19, 59.2, [ 60.2, 60.2 ] ], MICROTONAL).contents))
             .toThrow('indices 3 [59.2], 4 [60.2,60.2] failed');
 
         expect(() => val.validateContents(MOCK_VALID)).not.toThrow();

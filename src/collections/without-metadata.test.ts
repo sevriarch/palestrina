@@ -2,9 +2,7 @@ import type { SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn,
 
 import Collection from './without-metadata';
 
-import { intseq } from '../factory';
-
-import type NumSeq from '../sequences/number';
+import { NumSeq } from '../sequences/sequences';
 
 describe('Collection.toString()', () => {
     class C1 extends Collection<unknown> {}
@@ -127,7 +125,7 @@ describe('Collection.indices()', () => {
     const table: [ string, Collection<number>, SeqIndices, number[] ][] = [
         [ 'single member', c3, 1, [ 1 ] ],
         [ 'valid collection members', c3, [ 0, -3, 2, -1 ], [ 0, 0, 2, 2 ] ],
-        [ 'valid collection members as intseq', c3, intseq([ 1, 2 ]), [ 1, 2 ] ],
+        [ 'valid collection members as NumSeq.from', c3, NumSeq.from([ 1, 2 ]), [ 1, 2 ] ],
     ];
 
     test.each(table)('%s', (_, c, ix, ret) => {
@@ -297,8 +295,8 @@ describe('Collection.keepIndices()', () => {
         expect(c.keepIndices([ 0, -4, 2, -1 ])).toStrictEqual(new Collection([ 1, 4, 4, 6 ]));
     });
 
-    test('works with valid collection members, passed as an intseq', () => {
-        expect(c.keepIndices(intseq([ 1, 2 ]))).toStrictEqual(new Collection([ 5, 4 ]));
+    test('works with valid collection members, passed as an NumSeq.from', () => {
+        expect(c.keepIndices(NumSeq.from([ 1, 2 ]))).toStrictEqual(new Collection([ 5, 4 ]));
     });
 });
 
@@ -385,7 +383,7 @@ describe('Collection.dropIndices()', () => {
 
     const table: [ string, number[] | NumSeq, number[] | Error ][] = [
         [ 'valid collection members', [ 0, -4, 2, -1 ], [ 5, 2, 3 ] ],
-        [ 'valid collection members as intseq', intseq([ 1, 2 ]), [ 1, 2, 3, 6 ] ],
+        [ 'valid collection members as NumSeq.from', NumSeq.from([ 1, 2 ]), [ 1, 2, 3, 6 ] ],
         [ 'after last member of collection errors', [ 6 ], e ],
         [ 'before first member of collection errors', [ -7 ], e ],
     ];
@@ -498,7 +496,7 @@ describe('Collection.insertBefore()', () => {
         ],
         [
             'one value before multiple locations passed as a sequence',
-            intseq([ 1, 3, 5 ]),
+            NumSeq.from([ 1, 3, 5 ]),
             10,
             [ 1, 10, 2, 3, 10, 4, 5, 10, 6 ]
         ],
@@ -593,7 +591,7 @@ describe('Collection.insertAfter()', () => {
         ],
         [
             'one value after multiple locations passed as a sequence',
-            intseq([ 1, 3, 5 ]),
+            NumSeq.from([ 1, 3, 5 ]),
             10,
             [ 1, 2, 10, 3, 4, 10, 5, 6, 10 ]
         ],
@@ -676,7 +674,7 @@ describe('Collection.replaceIndices()', () => {
         ],
         [
             'with one value after multiple locations passed as a sequence',
-            intseq([ 1, 3, 5 ]),
+            NumSeq.from([ 1, 3, 5 ]),
             10,
             [ 1, 10, 3, 10, 5, 10 ]
         ],
@@ -1272,7 +1270,7 @@ describe('Collection.splitAt()', () => {
         [ [ 1 ], [ [ 1 ], [ 5, 4, 2, 3, 6, ] ] ],
         [ [ -2 ], [ [ 1, 5, 4, 2 ], [ 3, 6 ] ] ],
         [ [ 2, 2, 2, 6, 6 ], [ [ 1, 5 ], [], [], [ 4, 2, 3, 6 ], [], [] ] ],
-        [ intseq([ 3, 6, 4 ]), [ [ 1, 5, 4 ], [ 2 ], [ 3, 6 ], [] ] ],
+        [ NumSeq.from([ 3, 6, 4 ]), [ [ 1, 5, 4 ], [ 2 ], [ 3, 6 ], [] ] ],
         [ [ 6, 2, 0, -1, -3, -5, 4 ], [ [], [ 1 ], [ 5 ], [ 4 ], [ 2 ], [ 3 ], [ 6 ], [] ] ]
     ];
 

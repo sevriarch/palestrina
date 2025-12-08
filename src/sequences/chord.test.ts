@@ -1,4 +1,4 @@
-import { ChordSeq, NumSeq } from './sequences';
+import { ChordSeq } from './sequences';
 
 import NumericValidator from '../validation/numeric';
 

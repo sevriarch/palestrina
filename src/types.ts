@@ -246,7 +246,7 @@ export type MelodySummary = {
 export type AnySeq = NumSeq | NoteSeq | ChordSeq | Melody;
 
 /**
- * A type representing the data required to construct a Sequence through a factory
+ * A type representing the data required to construct a Sequence of any kind
  */
 export type SeqArgument = AnySeq | SeqMemberArgument[];
 
