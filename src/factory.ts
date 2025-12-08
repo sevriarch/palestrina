@@ -19,11 +19,11 @@ Registry.set_melody_from_method(Melody.from);
  * A factory module for creating various entities used in Palestrina.
  */
 function applyMetadataFloatDefaults(m: MetadataData = {}): MetadataData {
-    if (!('validator' in m)) {
-        m.validator = NumericValidator.NOOP_VALIDATOR;
+    if ('validator' in m) {
+        return m;
     }
 
-    return m;
+    return { ...m, validator: NumericValidator.NOOP_VALIDATOR };
 }
 
 /**
