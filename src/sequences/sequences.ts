@@ -3,24 +3,45 @@
 //
 // This prevents issues with circular imports.
 
+import { SeqArgument, Metadata } from '../types';
+
 import NumSeq from './number';
 import NoteSeq from './note';
 import ChordSeq from './chord';
 import Melody from './melody';
 
-import Registry from '../registry/registry';
+class Conversions {
+    contents!: SeqArgument;
+    metadata!: Metadata;
 
-Registry.set_numseq_from_method(NumSeq.from);
-Registry.set_noteseq_from_method(NoteSeq.from);
-Registry.set_chordseq_from_method(ChordSeq.from);
-Registry.set_melody_from_method(Melody.from);
+    toNumSeq(): NumSeq {
+        return NumSeq.from(this.contents, this.metadata);
+    }
 
-// Alternate non-registry implementation would use something analogous to a mixin for this.
+    toNoteSeq(): NoteSeq {
+        return NoteSeq.from(this.contents, this.metadata);
+    }
 
-//for (const c of [ NumSeq, NoteSeq, ChordSeq, Melody ]) {
-//    c.prototype.toNumSeq = () => NumSeq.from(this.contents, this.metadata);
-//}
+    toChordSeq(): ChordSeq {
+        return ChordSeq.from(this.contents, this.metadata);
+    }
 
-// Re-export classes. If imported from here this guarantees that these classes will provide
-// intra-class conversion methods.
+    toMelody(): Melody {
+        return Melody.from(this.contents, this.metadata);
+    }
+}
+
+function applyMixins(seqCtor: any[]) {
+    seqCtor.forEach(ctor => {
+        [ 'toNumSeq', 'toNoteSeq', 'toChordSeq', 'toMelody' ].forEach(name => {
+            Object.defineProperty(ctor.prototype,
+                name,
+                Object.getOwnPropertyDescriptor(Conversions.prototype, name) as PropertyDescriptor
+            );
+        });
+    });
+}
+
+applyMixins([ NumSeq, NoteSeq, ChordSeq, Melody ]);
+
 export { NumSeq, NoteSeq, ChordSeq, Melody };
