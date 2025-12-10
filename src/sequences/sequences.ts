@@ -5,7 +5,7 @@
 //
 // Also provides the lowercase method wrappers that are exported from the main module.
 
-import { SeqArgument, Metadata, ValidatorFn } from '../types';
+import { SeqArgument, Metadata, ValidatorFn, ISequence } from '../types';
 
 import NumSeq from './number';
 import NoteSeq from './note';
@@ -35,18 +35,18 @@ class Conversions {
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function applyMixins(seqCtors: any[]) {
-    seqCtors.forEach(ctor => {
-        const proto = ctor.prototype;
+function applyMixins<T extends ISequence<ET>, ET>(seqCtor: new (contents: ET[], metadata: Metadata) => T) {
+    const proto = seqCtor.prototype;
 
-        [ 'toNumSeq', 'toNoteSeq', 'toChordSeq', 'toMelody' ].forEach(name => 
-            Object.defineProperty(proto, name, Object.getOwnPropertyDescriptor(Conversions.prototype, name) as PropertyDescriptor)
-        );
-    });
+    [ 'toNumSeq', 'toNoteSeq', 'toChordSeq', 'toMelody' ].forEach(name => 
+        Object.defineProperty(proto, name, Object.getOwnPropertyDescriptor(Conversions.prototype, name) as PropertyDescriptor)
+    );
 }
 
-applyMixins([ NumSeq, NoteSeq, ChordSeq, Melody ]);
+applyMixins(NumSeq);
+applyMixins(NoteSeq);
+applyMixins(ChordSeq);
+applyMixins(Melody);
 
 function getValidator(type: string, custom?: ValidatorFn): NumericValidator {
     switch (type) {
