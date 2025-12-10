@@ -1,7 +1,7 @@
 'use strict'
 
 // Import the relevant parts of Palestrina: when using the module itself, we would require("palestrina")
-const { intseq, noteseq, score, CONSTANTS, imports } = require('../built')
+const { numseq, noteseq, score, CONSTANTS, imports } = require('../built')
 
 const LEN    = Number(process.env.INF_LEN   || 1280)
 const TICKS  = Number(process.env.INF_TICKS || 64)
@@ -57,7 +57,7 @@ function makeVolume() {
     // sequence
     function dy(from, to = from) { return s => imports.linear(s.length, from, to) }
 
-    return intseq(imports.constant(LEN, MF))
+    return numseq(imports.constant(LEN, MF))
         .replaceSlice(bar(3), bar(6), dy(MF, F))
         .replaceSlice(bar(6), bar(8), dy(F))
         .replaceSlice(bar(8), bar(10), dy(F, MF))
@@ -83,7 +83,7 @@ function makeVolume() {
         .replaceSlice(bar(71), bar(75), dy(PP, MF))
         .replaceSlice(bar(77), bar(80), dy(P, F))
         .replaceSlice(bar(80), -1, dy(F, PP))
-        .append(intseq([ PP, PP ]))
+        .append(numseq([ PP, PP ]))
 }
 
 // Function to generate the rhythm for the composition (all in 16th notes in this case)
