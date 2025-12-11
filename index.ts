@@ -2,10 +2,10 @@ export type {
     ISequence, ISingleValuedSequence, ISeqMember, // interfaces
     JSONValue, TypeOrArray, // generic types
     Sequence, SeqMember, SeqArgument, SeqIndices, SeqMemberArgument, AnySeq, // generic sequence-related types
-    NumSeqMember, // numeric sequence-related types
-    NoteSeqMember, // note sequence-related types
-    ChordSeqMember, // chord sequence-related types
-    MelodyMember, MelodyMemberData, MelodyMemberArg, MelodySummary, // melody-related types
+    NumSeq, NumSeqMember, // numeric sequence-related types
+    NoteSeq, NoteSeqMember, // note sequence-related types
+    ChordSeq, ChordSeqMember, // chord sequence-related types
+    Melody, MelodyMember, MelodyMemberData, MelodyMemberArg, MelodySummary, // melody-related types
     Score, CanvasArg, CanvasArgOpts, ScoreCanvasOpts, // score-related types
     PitchArgument, PitchMutatorFn, PitchMapperFn, GamutOpts, NumericValidator, // pitch-related types
     Metadata, MetadataData, // metadata-related types
@@ -24,7 +24,6 @@ export * as imports from './src/imports/imports';
 export * as helpers from './src/helpers/pitch';
 export * as transformations from './src/transformations/transformations';
 
-export type { NumSeq, NoteSeq, ChordSeq, Melody } from './src/sequences/sequences';
 export { numseq, noteseq, chordseq, melody } from './src/sequences/sequences';
 
 import Score from './src/scores/score';
