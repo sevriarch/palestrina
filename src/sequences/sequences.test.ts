@@ -452,3 +452,103 @@ describe('melody()', () => {
         expect(melody(arg, val, fn).contents).toStrictEqual(ret.contents);
     });
 });
+
+describe('*.toNumSeq()', () => {
+    test('NoteSeq with nulls fails', () => {
+        expect(() => NoteSeq.from([ 1, null, 3 ]).toNumSeq()).toThrow();
+    });
+
+    test('ChordSeq with chords fails', () => {
+        expect(() => ChordSeq.from([ [ 1 ], [ 2, 3 ] ]).toNumSeq()).toThrow();
+    });
+
+    test('NumSeq to NumSeq OK', () => {
+        expect(NumSeq.from([ 1, 2, 3 ]).toNumSeq()).toStrictEqual(NumSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('NoteSeq to NumSeq OK', () => {
+        expect(NoteSeq.from([ 1, 2, 3 ]).toNumSeq()).toStrictEqual(NumSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('ChordSeq to NumSeq OK', () => {
+        expect(ChordSeq.from([ 1, 2, 3 ]).toNumSeq()).toStrictEqual(NumSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('Melody to NumSeq OK', () => {
+        expect(Melody.from([ 1, 2, 3 ]).toNumSeq()).toStrictEqual(NumSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('retains non-default validator', () => {
+        expect(noteseq([ 1.2, 2.3 ], 'microtonal').toNumSeq()).toStrictEqual(numseq([ 1.2, 2.3 ], 'microtonal'));
+    });
+});
+
+describe('*.toNoteSeq()', () => {
+    test('ChordSeq with chords fails', () => {
+        expect(() => ChordSeq.from([ [ 1 ], [ 2, 3 ] ]).toNoteSeq()).toThrow();
+    });
+
+    test('NumSeq to NoteSeq OK', () => {
+        expect(NumSeq.from([ 1, 2, 3 ]).toNoteSeq()).toStrictEqual(NoteSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('NoteSeq to NoteSeq OK', () => {
+        expect(NoteSeq.from([ 1, null, 3 ]).toNoteSeq()).toStrictEqual(NoteSeq.from([ 1, null, 3 ]));
+    });
+
+    test('ChordSeq to NoteSeq OK', () => {
+        expect(ChordSeq.from([ 1, 2, 3 ]).toNoteSeq()).toStrictEqual(NoteSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('Melody to NoteSeq OK', () => {
+        expect(Melody.from([ 1, 2, 3 ]).toNoteSeq()).toStrictEqual(NoteSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('retains non-default validator', () => {
+        expect(numseq([ 1.2, 2.3 ], 'microtonal').toNoteSeq()).toStrictEqual(noteseq([ 1.2, 2.3 ], 'microtonal'));
+    });
+});
+
+describe('*.toChordSeq()', () => {
+    test('NumSeq to ChordSeq OK', () => {
+        expect(NumSeq.from([ 1, 2, 3 ]).toChordSeq()).toStrictEqual(ChordSeq.from([ 1, 2, 3 ]));
+    });
+
+    test('NoteSeq to ChordSeq OK', () => {
+        expect(NoteSeq.from([ 1, null, 3 ]).toChordSeq()).toStrictEqual(ChordSeq.from([ 1, null, 3 ]));
+    });
+
+    test('ChordSeq to ChordSeq OK', () => {
+        expect(ChordSeq.from([ [ 1 ], [ 2, 3 ] ]).toChordSeq()).toStrictEqual(ChordSeq.from([ [ 1 ], [ 2, 3 ] ]));
+    });
+
+    test('ChordSeq to Melody OK', () => {
+        expect(Melody.from([ [ 1 ], [ 2, 3 ] ]).toChordSeq()).toStrictEqual(ChordSeq.from([ [ 1 ], [ 2, 3 ] ]));
+    });
+
+    test('retains non-default validator', () => {
+        expect(numseq([ 1.2, 2.3 ], 'microtonal').toChordSeq()).toStrictEqual(chordseq([ 1.2, 2.3 ], 'microtonal'));
+    });
+});
+
+describe('*.toMelody()', () => {
+    test('NumSeq to Melody OK', () => {
+        expect(NumSeq.from([ 1, 2, 3 ]).toMelody()).toStrictEqual(Melody.from([ 1, 2, 3 ]));
+    });
+
+    test('NoteSeq to Melody OK', () => {
+        expect(NoteSeq.from([ 1, null, 3 ]).toMelody()).toStrictEqual(Melody.from([ 1, null, 3 ]));
+    });
+
+    test('ChordSeq to Melody OK', () => {
+        expect(ChordSeq.from([ [ 1 ], [ 2, 3 ] ]).toMelody()).toStrictEqual(Melody.from([ [ 1 ], [ 2, 3 ] ]));
+    });
+
+    test('Melody to Melody OK', () => {
+        expect(Melody.from([ [ 1 ], [ 2, 3 ] ]).toMelody()).toStrictEqual(Melody.from([ [ 1 ], [ 2, 3 ] ]));
+    });
+
+    test('retains non-default validator', () => {
+        expect(numseq([ 1.2, 2.3 ], 'microtonal').toMelody()).toStrictEqual(melody([ 1.2, 2.3 ], 'microtonal'));
+    });
+});

@@ -2281,7 +2281,7 @@ describe('Sequence.toNumSeq()', () => {
     });
 });
 
-describe('Sequence.toNoteSeq.from()', () => {
+describe('Sequence.toNoteSeq()', () => {
     test('fails when non-numeric values included', () => {
         expect(() => ChordSeq.from([ [ 4 ], [], [ 2, 3 ] ]).toNoteSeq()).toThrow();
     });
@@ -2298,7 +2298,7 @@ describe('Sequence.toNoteSeq.from()', () => {
     });
 });
 
-describe('Sequence.toChordSeq.from()', () => {
+describe('Sequence.toChordSeq()', () => {
     test('succeeds when values are appropriate', () => {
         expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toChordSeq())
             .toStrictEqual(ChordSeq.from([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
@@ -2311,7 +2311,7 @@ describe('Sequence.toChordSeq.from()', () => {
     });
 });
 
-describe('Sequence.toMelody.from()', () => {
+describe('Sequence.toMelody()', () => {
     test('succeeds when values are appropriate', () => {
         expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toMelody())
             .toStrictEqual(Melody.from([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));

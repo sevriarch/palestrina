@@ -15,11 +15,11 @@ import MelodyMember from '../sequences/members/melody';
 // in TypeScript, throwing: TypeError: Cannot redefine property: writeFileSync
 // See: https://github.com/aelbore/esbuild-jest/issues/26
 jest.mock('fs', () => {
-    const rawfs = jest.requireActual('fs');
+    const mockfs = jest.requireActual('fs');
 
     return {
-        ...rawfs,
-        writeFileSync: jest.fn()
+        ...mockfs,
+        writeFileSync: jest.fn(mockfs.writeFileSync),
     };
 });
 
@@ -126,6 +126,32 @@ describe('Score construction tests', () => {
         expect(Object.isFrozen(sc.contents)).toBeTruthy();
     });
 });
+
+/* TODO: This may need to be in a separate file
+describe('Score.from() with file argument', () => {
+    beforeAll(() => jest.spyOn(fs, 'readFileSync').mockReturnValue(Buffer.from([
+        77,  84, 104, 100,   0,   0,  0,   6,  0,  1,  0,   1,
+        0, 192,  77,  84, 114, 107,  0,   0,  0, 32,  0, 176,
+        64, 127,   0, 144,  60,  64, 16, 128, 60, 64,  0, 144,
+        67,  64,  16, 128,  67,  64,  0, 144, 72, 64, 16, 128,
+        72,  64,   0, 255,  47,   0
+    ])));
+    afterAll(() => jest.restoreAllMocks());
+
+    test('read file successfully using a mock', () => {
+        expect(Score.from('test')).toStrictEqual(Score.from(
+            [
+                Melody.from([
+                    { pitch: [ 0x3c ], velocity: 0x40, duration: 0x10, at: 0x00 },
+                    { pitch: [ 0x43 ], velocity: 0x40, duration: 0x10, at: 0x10 },
+                    { pitch: [ 0x48 ], velocity: 0x40, duration: 0x10, at: 0x20 }
+                ], { before: MetaList.from([ { event: 'sustain', value: 1, at: 0 } ]) })
+            ],
+            { ticks_per_quarter: 192 }
+        ));
+    });
+});
+*/
 
 describe('Score.clone()', () => {
     const sc = Score.from([ T1, T2, T3, T4 ]).withCopyright('test');
@@ -1390,7 +1416,10 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
         ]
     ];
 
-    beforeAll(() => jest.spyOn(fs, 'writeFileSync').mockImplementation());
+    beforeAll(() => {
+        jest.spyOn(fs, 'writeFileSync').mockImplementation();
+    });
+
     afterAll(() => jest.restoreAllMocks());
 
     describe.each(table)('%s', (_, score, opts, ret) => {
