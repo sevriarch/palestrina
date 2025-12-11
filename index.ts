@@ -27,4 +27,5 @@ export * as transformations from './src/transformations/transformations';
 export type { NumSeq, NoteSeq, ChordSeq, Melody } from './src/sequences/sequences';
 export { numseq, noteseq, chordseq, melody } from './src/sequences/sequences';
 
-export { score, validator } from './src/factory';
+import Score from './src/scores/score';
+export const score = Score.from;

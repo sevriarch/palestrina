@@ -222,7 +222,7 @@ addTrack(newtrax[2], { instrument: 'cello' });
 const TRACKS = [ /*42, 43, 45,*/ 46, 47, 48, 16, 18, 20, 24, 25, 44, 28, 32, 37 ]
 const BASE   = { tempo: 92, timeSignature: [ 2, 4 ] }
 
-let s = score().withTicksPerQuarter(64)
+let s = score([]).withTicksPerQuarter(64)
     .withTimeSignature('2/4')
     .withTempo(92)
 
