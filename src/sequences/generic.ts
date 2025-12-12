@@ -5,8 +5,6 @@ import Metadata from '../metadata/metadata';
 
 import CollectionWithMetadata from '../collections/with-metadata';
 
-import Registry from '../registry/registry';
-
 import * as mutators from '../mutators/mutators';
 
 import { isNumber, isNonnegInt, isPosInt } from '../helpers/validation';

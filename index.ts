@@ -16,10 +16,8 @@ export type {
     FilterFn, FinderFn, ArrayFinderFn, GrouperFn, MapperFn, FlatMapperFn, ValidatorFn, // general method types
 } from './src/types';
 
-import Registry from './src/registry/registry';
-import { exportable as CONSTANTS } from './src/constants';
+export { exportable as CONSTANTS } from './src/constants';
 
-export { Registry, CONSTANTS };
 export * as imports from './src/imports/imports';
 export * as helpers from './src/helpers/pitch';
 export * as transformations from './src/transformations/transformations';
