@@ -478,8 +478,9 @@ describe('*.toNumSeq()', () => {
         expect(Melody.from([ 1, 2, 3 ]).toNumSeq()).toStrictEqual(NumSeq.from([ 1, 2, 3 ]));
     });
 
-    test('retains non-default validator', () => {
-        expect(noteseq([ 1.2, 2.3 ], 'microtonal').toNumSeq()).toStrictEqual(numseq([ 1.2, 2.3 ], 'microtonal'));
+    test('retains non-default metadata', () => {
+        expect(noteseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test').toNumSeq())
+            .toStrictEqual(numseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test'));
     });
 });
 
@@ -505,7 +506,8 @@ describe('*.toNoteSeq()', () => {
     });
 
     test('retains non-default validator', () => {
-        expect(numseq([ 1.2, 2.3 ], 'microtonal').toNoteSeq()).toStrictEqual(noteseq([ 1.2, 2.3 ], 'microtonal'));
+        expect(numseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test').toNoteSeq())
+            .toStrictEqual(noteseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test'));
     });
 });
 
@@ -527,7 +529,8 @@ describe('*.toChordSeq()', () => {
     });
 
     test('retains non-default validator', () => {
-        expect(numseq([ 1.2, 2.3 ], 'microtonal').toChordSeq()).toStrictEqual(chordseq([ 1.2, 2.3 ], 'microtonal'));
+        expect(numseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test').toChordSeq())
+            .toStrictEqual(chordseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test'));
     });
 });
 
@@ -549,6 +552,7 @@ describe('*.toMelody()', () => {
     });
 
     test('retains non-default validator', () => {
-        expect(numseq([ 1.2, 2.3 ], 'microtonal').toMelody()).toStrictEqual(melody([ 1.2, 2.3 ], 'microtonal'));
+        expect(numseq([ 1.2, 2.3 ], 'microtonal').withCopyright('test').toMelody())
+            .toStrictEqual(melody([ [ 1.2 ], [ 2.3 ] ], 'microtonal').withCopyright('test'));
     });
 });

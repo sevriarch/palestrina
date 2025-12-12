@@ -537,11 +537,13 @@ export interface ISequence<T> extends CollectionWithMetadata<T> {
     filterWith(fn: (vals: T[], i?: number) => boolean, ...seq: this[]): this[];
     exchangeValuesIf(fn: (s1: T, s2: T, i?: number) => boolean, seq: this): [ this, this ];
 
+    /*
     // Transform this sequence into a different type of sequence
     toNumSeq(): NumSeq;
     toNoteSeq(): NoteSeq;
     toChordSeq(): ChordSeq;
     toMelody(): Melody;
+    */
 }
 
 /**

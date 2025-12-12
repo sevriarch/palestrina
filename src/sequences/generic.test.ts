@@ -1,6 +1,9 @@
 import type { AnySeq, SeqMember, SeqMemberArgument, SeqIndices, PitchArgument, MapperFn, FilterFn, ArrayFinderFn, PitchMapperFn, GamutOpts } from '../types';
 
-import { NumSeq, NoteSeq, ChordSeq, Melody } from './sequences';
+import NumSeq from './number';
+import NoteSeq from './note';
+import ChordSeq from './chord';
+import Melody from './melody';
 
 import NumericValidator from '../validation/numeric';
 import NumSeqMember from './members/number';
@@ -1315,7 +1318,7 @@ describe('Sequence.mapPitch()', () => {
     });
 
     test('converts numbers and nulls appropriately even when multivalued', () => {
-        expect(ns.toMelody().mapPitch((v, i) => v === null ? i : null)).toStrictEqual(Melody.from([ null, 1, null, null, 4, null ]));
+        expect(Melody.from(ns).mapPitch((v, i) => v === null ? i : null)).toStrictEqual(Melody.from([ null, 1, null, null, 4, null ]));
     });
 });
 
@@ -1353,7 +1356,7 @@ describe('Sequence.filterPitches()', () => {
     });
 
     test('passes the correct second argument to the filter function', () => {
-        expect(s.toMelody().filterPitches((p, i) => p !== i)).toStrictEqual(Melody.from([ [], [], [ 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]));
+        expect(Melody.from(s).filterPitches((p, i) => p !== i)).toStrictEqual(Melody.from([ [], [], [ 3 ], [ 4, 5, 6 ], [ 7, 8, 9, 10 ] ]));
     });
 });
 // TODO: Sequence.filterPitches() [for similar reasons]
@@ -2264,63 +2267,12 @@ describe('Sequence.exchangeValuesIf()', () => {
     });
 });
 
-describe('Sequence.toNumSeq()', () => {
-    test('fails when non-numeric values included', () => {
-        expect(() => NoteSeq.from([ 4, null, 2 ]).toNumSeq()).toThrow();
-    });
-
-    test('succeeds when values are appropriate', () => {
-        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toNumSeq())
-            .toStrictEqual(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
-
-        expect(ChordSeq.from([ [ 1 ], [ 2 ], [ 3 ] ]).withTrackName('testing').toNumSeq())
-            .toStrictEqual(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
-
-        expect(Melody.from([ [ 1 ], [ 2 ], [ 3 ] ]).withTrackName('testing').toNumSeq())
-            .toStrictEqual(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
-    });
-});
-
-describe('Sequence.toNoteSeq()', () => {
-    test('fails when non-numeric values included', () => {
-        expect(() => ChordSeq.from([ [ 4 ], [], [ 2, 3 ] ]).toNoteSeq()).toThrow();
-    });
-
-    test('succeeds when values are appropriate', () => {
-        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toNoteSeq())
-            .toStrictEqual(NoteSeq.from([ 1, 2, 3 ]).withTrackName('testing'));
-
-        expect(ChordSeq.from([ [ 1 ], [], [ 3 ] ]).withTrackName('testing').toNoteSeq())
-            .toStrictEqual(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing'));
-
-        expect(Melody.from([ [ 1 ], [], [ 3 ] ]).withTrackName('testing').toNoteSeq())
-            .toStrictEqual(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing'));
-    });
-});
-
-describe('Sequence.toChordSeq()', () => {
-    test('succeeds when values are appropriate', () => {
-        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toChordSeq())
-            .toStrictEqual(ChordSeq.from([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
-
-        expect(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing').toChordSeq())
-            .toStrictEqual(ChordSeq.from([ [ 1 ], [] , [ 3 ] ]).withTrackName('testing'));
-
-        expect(Melody.from([ 1, [ 0, 2 ], 3 ]).withTrackName('testing').toChordSeq())
-            .toStrictEqual(ChordSeq.from([ [ 1 ], [ 0, 2 ] , [ 3 ] ]).withTrackName('testing'));
-    });
-});
-
-describe('Sequence.toMelody()', () => {
-    test('succeeds when values are appropriate', () => {
-        expect(NumSeq.from([ 1, 2, 3 ]).withTrackName('testing').toMelody())
-            .toStrictEqual(Melody.from([ [ 1 ], [ 2 ] , [ 3 ] ]).withTrackName('testing'));
-
-        expect(NoteSeq.from([ 1, null, 3 ]).withTrackName('testing').toMelody())
-            .toStrictEqual(Melody.from([ [ 1 ], [] , [ 3 ] ]).withTrackName('testing'));
-
-        expect(ChordSeq.from([ [ 1 ], [ 0, 2 ], [ 3 ] ]).withTrackName('testing').toMelody())
-            .toStrictEqual(Melody.from([ [ 1 ], [ 0, 2 ] , [ 3 ] ]).withTrackName('testing'));
+describe('Sequence.to*() staubs', () => {
+    test('all should fail', () => {
+        expect(() => NoteSeq.from([]).toNumSeq()).toThrow();
+        expect(() => ChordSeq.from([]).toNoteSeq()).toThrow();
+        expect(() => Melody.from([]).toChordSeq()).toThrow();
+        expect(() => NumSeq.from([]).toMelody()).toThrow();
     });
 });
 

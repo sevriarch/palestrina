@@ -1686,29 +1686,31 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
     /**
      * Convert this Sequence to a NumSeq.
+     * 
+     * These methods are stubs whose implementations appear as a mixin in sequences.ts
      */
     toNumSeq(): NumSeq {
-        return Registry.numseq_from_method(this.contents, this.metadata);
+        throw new Error('not implemented');
     }
 
     /**
      * Convert this Sequence to a NoteSeq.
      */
     toNoteSeq(): NoteSeq {
-        return Registry.noteseq_from_method(this.contents, this.metadata);
+        throw new Error('not implemented');
     }
 
     /**
      * Convert this Sequence to a ChordSeq.
      */
     toChordSeq(): ChordSeq {
-        return Registry.chordseq_from_method(this.contents, this.metadata);
+        throw new Error('not implemented');
     }
 
     /**
      * Convert this Sequence to a Melody.
      */
     toMelody(): Melody {
-        return Registry.melody_from_method(this.contents, this.metadata);
+        throw new Error('not implemented');
     }
 }
