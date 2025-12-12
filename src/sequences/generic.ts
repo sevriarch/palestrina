@@ -961,16 +961,16 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * intseq([ 1, 2, 3]).withPitch([ 4, 5, 6 ]);
      */
     withPitches(pitches: PitchArgument[] | { toPitches: () => number[][] }): this {
-        if ('toPitches' in pitches) {
-            return this.withPitches(pitches.toPitches());
-        }
-
         if (Array.isArray(pitches)) {
             if (pitches.length !== this.length) {
                 throw new Error(`${this.constructor.name}.withPitches(): argument length should be ${this.length}, was ${pitches.length}`);
             }
 
             return this.map((e, i) => e.setPitches(pitches[i]));
+        }
+
+        if (typeof pitches === 'object' && pitches !== null && 'toPitches' in pitches) {
+            return this.withPitches(pitches.toPitches());
         }
 
         throw new Error(`${this.constructor.name}.withPitches(): invalid argument: ${dumpOneLine(pitches)}; should be (null | number)[] or Sequence`);
