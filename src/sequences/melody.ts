@@ -1,4 +1,4 @@
-import type { TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MelodySummary, MapperFn, SeqIndices, Metadata, MetaEventValueMap, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MapperFn, SeqIndices, Metadata, MetaEventValueMap, MetaEventOpts, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -203,20 +203,6 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     toTicks(): number[] {
         return this.withAllTicksExact().contents.map(v => v.at as number);
-    }
-
-    /**
-     * Returns values of this Melody, with Midi ticks added for note start.
-     * 
-     * Used by the canvas-drawing feature of the Score class.
-     */
-    toSummary(): MelodySummary {
-        return this.withAllTicksExact().contents.map(v => ({
-            tick: v.at as number,
-            pitch: v.pitches(),
-            duration: v.duration,
-            velocity: v.velocity,
-        }));
     }
 
     /**
@@ -483,7 +469,12 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
-     * Returns everything in this Melody, in an ordered array of events.
+     * Returns everything in this Melody, in temporal order, with an exact tick applied to each entity.
+     *
+     * Note: Events corresponding to the before and after fields within the members of this Melody are extracted as
+     * separate events within the return value; however, to optimise performance and memory usage, these fields are
+     * not removed from the members of the Melody themselves; hence the 'before' and 'after' fields within members
+     * of the Melody should be ignored when doing processing on the result of this method.
      */
     toOrderedEntities(): TimedEntity[] {
         const fixed = this.withAllTicksExact();
@@ -496,8 +487,25 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
-     * Returns everything in this melody, contained within an array.
+     * Returns just the chords in this Melody, in a temporally ordered array of MelodyMembers, with an
+     * exact tick applied to each member.
+     */
+    toOrderedChords(): Timed<MelodyMember>[] {
+        return (this.withAllTicksExact().contents as Timed<MelodyMember>[]).slice().sort((a, b) => a.at - b.at);
+    }
+
+    /**
+     * Return an array of length 1 containing a tuple containing an array and metadata.
+     *
+     * The array contains everything in this melody, in a temporally ordered array, with an exact tick applied to
+     * each member.
+     *
      * This is to provide a common interface with the behaviour of this method in Scores.
+     *
+     * Note: Events corresponding to the before and after fields within the members of this Melody are extracted as
+     * separate events within the return value; however, to optimise performance and memory usage, these fields are
+     * not removed from the members of the Melody themselves; hence the 'before' and 'after' fields within members
+     * of the Melody should be ignored when doing processing on the result of this method.
      */
     toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][] {
         return [ [ this.toOrderedEntities(), this.metadata ] ];

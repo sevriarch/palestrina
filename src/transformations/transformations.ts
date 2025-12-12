@@ -27,15 +27,15 @@ function getOnOff(mels: Melody[]): { [k: number]: [ number[], number[] ] } {
     const onoff: { [k: number]: [ number[], number[] ] } = {};
 
     mels.forEach(m => {
-        m.toSummary().forEach(event => {
-            const start = event.tick;
-            const stop  = event.tick + event.duration;
+        m.toOrderedChords().forEach(event => {
+            const start = event.at;
+            const stop  = event.at + event.duration;
 
             if (!onoff[start]) { onoff[start] = [ [], [] ]; }
             if (!onoff[stop]) { onoff[stop] = [ [], [] ]; }
 
-            onoff[start][0].push(...event.pitch);
-            onoff[stop][1].push(...event.pitch);
+            onoff[start][0].push(...event.pitches());
+            onoff[stop][1].push(...event.pitches());
         });
     });
 

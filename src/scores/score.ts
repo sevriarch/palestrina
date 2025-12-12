@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import type { TimedEntity, MetaEvent, MetaEventValueMap, MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
+import type { Timed, TimedEntity, MelodyMember, MetaEvent, MetaEventValueMap, MetadataData, ScoreCanvasOpts, SVGOpts } from '../types';
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
@@ -290,10 +290,26 @@ export default class Score extends CollectionWithMetadata<Melody> {
 
     /**
      * Return an array with one member per each Melody within the score.
-     * Each of these members contains all MetaEvents or notes/chords in that Melody,
-     * ordered by exact tick, ascending.
+     *
+     * Each contains just the notes/chords in the Melody, in a temporally ordered array of MelodyMembers, with an
+     * exact tick applied to each member.
+     */
+    toOrderedChords(): Timed<MelodyMember>[][] {
+        return this.contents.map(m => m.toOrderedChords());
+    }
+
+    /**
+     * Return an array of tuples each containing an array and metadata.
+     *
+     * The array within each tuple contains everything in the corresponding Melody, in a temporally ordered array,
+     * with an exact tick applied to each member, while the metadata contains metadata associated with that Melody.
      * 
      * MetaEvents that are generated from Score metadata appear in the first Melody.
+     *
+     * Note: Events corresponding to the before and after fields within the members of this Melody are extracted as
+     * separate events within the return value; however, to optimise performance and memory usage, these fields are
+     * not removed from the members of the Melody themselves; hence the 'before' and 'after' fields within members
+     * of the Melody should be ignored when doing processing on the result of this method.
      */
     toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][] {
         const fixed = this.withAllTicksExact();

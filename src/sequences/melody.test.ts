@@ -512,26 +512,6 @@ describe('Melody.toTicks()', () => {
     });
 });
 
-describe('Melody.toSummary()', () => {
-    test('produces summary as expected', () => {
-        expect(Melody.from([
-            { pitch: [60], duration: 8, velocity: 50, },
-            { pitch: [61], duration: 16, velocity: 51 },
-            { pitch: [63], at: 64, duration: 16, velocity: 52 },
-            { pitch: [64], duration: 8, velocity: 53 },
-            { pitch: [66], at: 48, duration: 16, velocity: 54 },
-            { pitch: [66], duration: 16, velocity: 55 },
-        ]).toSummary()).toStrictEqual([
-            { pitch: [60], tick: 0, duration: 8, velocity: 50, },
-            { pitch: [61], tick: 8, duration: 16, velocity: 51 },
-            { pitch: [63], tick: 64, duration: 16, velocity: 52 },
-            { pitch: [64], tick: 80, duration: 8, velocity: 53 },
-            { pitch: [66], tick: 48, duration: 16, velocity: 54 },
-            { pitch: [66], tick: 64, duration: 16, velocity: 55 },
-        ]);
-    });
-});
-
 describe('Melody.toMidiBytes()', () => {
     const table: [string, Melody, number[]][] = [
         [
@@ -1447,7 +1427,7 @@ describe('Melody.toOrderedEntities()', () => {
             MetaEvent.from({ event: 'copyright', value: 'text', at: 0 }),
             MetaEvent.from({ event: 'sustain', value: 1, at: 0 }),
             MelodyMember.from({
-                pitch: 60,
+                pitch: [ 60 ],
                 duration: 64,
                 velocity: 48,
                 before: MetaList.from([{ event: 'sustain', value: 1, at: 0 }]),
@@ -1469,6 +1449,100 @@ describe('Melody.toOrderedEntities()', () => {
                 at: 192
             }),
         ]);
+    });
+});
+
+describe('Melody.toOrderedChords()', () => {
+    test('converts empty track to zero chords', () => {
+        expect(Melody.from([]).toOrderedChords()).toStrictEqual([]);
+    });
+
+    test('converts non-empty track to expected chords', () => {
+        expect(Melody.from([ 
+            {
+                pitch: 60,
+                duration: 64,
+                velocity: 48,
+                before: MetaList.from([{ event: 'sustain', value: 1 }])
+            },
+            {
+                pitch: [ 64 ],
+                duration: 128,
+                velocity: 64
+            },
+            {
+                pitch: [ 67, 72 ],
+                duration: 192,
+                velocity: 80,
+                after: MetaList.from([{ event: 'sustain', value: 0, offset: -256 }])
+            }
+        ])
+            .withTempo(144)
+            .withTimeSignature('3/4')
+            .withNewEvent({ event: 'text', value: 'test', at: 64 })
+            .withNewEvent({ event: 'copyright', value: 'text' })
+            .toOrderedChords()
+        ).toStrictEqual([
+            MelodyMember.from({
+                pitch: [ 60 ],
+                duration: 64,
+                velocity: 48,
+                before: MetaList.from([{ event: 'sustain', value: 1, at: 0 }]),
+                at: 0,
+            }),
+            MelodyMember.from({
+                pitch: [ 64 ],
+                duration: 128,
+                velocity: 64,
+                at: 64,
+            }),
+            MelodyMember.from({
+                pitch: [ 67, 72 ],
+                duration: 192,
+                velocity: 80,
+                after: MetaList.from([{ event: 'sustain', value: 0, at: 128 }]),
+                at: 192
+            }),
+        ]);
+    });
+});
+
+describe('Melody.toOrderedEntitiesWithMetadata()', () => {
+    test('converts empty track to array containing an array of zero entities', () => {
+        expect(Melody.from([]).toOrderedEntitiesWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
+    });
+
+    test('converts non-empty track to expected entities', () => {
+        expect(Melody.from([ 
+            {
+                pitch: 60,
+                duration: 64,
+                velocity: 48,
+            }
+        ]).withTempo(120).toOrderedEntitiesWithMetadata()).toStrictEqual([
+            [
+                [
+                    MetaEvent.from({ event: 'tempo', value: 120, at: 0 }),
+                    MelodyMember.from({
+                        pitch: 60,
+                        duration: 64,
+                        velocity: 48,
+                        at: 0,
+                    }),
+                ],
+                Metadata.from({ tempo: 120 })
+            ],
+        ]);
+    });
+});
+
+describe('Melody.toDataURI()', () => {
+    test('Empty melody data URI as expected', () => {
+        expect(Melody.from([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
+    });
+
+    test('Non-empty melody data URI as expected', () => {
+        expect(Melody.from([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
     });
 });
 

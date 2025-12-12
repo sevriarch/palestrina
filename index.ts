@@ -5,7 +5,7 @@ export type {
     NumSeq, NumSeqMember, // numeric sequence-related types
     NoteSeq, NoteSeqMember, // note sequence-related types
     ChordSeq, ChordSeqMember, // chord sequence-related types
-    Melody, MelodyMember, MelodyMemberData, MelodyMemberArg, MelodySummary, // melody-related types
+    Melody, MelodyMember, MelodyMemberData, MelodyMemberArg, // melody-related types
     Score, CanvasArg, CanvasArgOpts, ScoreCanvasOpts, // score-related types
     PitchArgument, PitchMutatorFn, PitchMapperFn, GamutOpts, NumericValidator, // pitch-related types
     Metadata, MetadataData, // metadata-related types

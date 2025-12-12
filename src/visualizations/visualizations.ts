@@ -333,7 +333,12 @@ export function scoreToIntervalGamutCanvas(score: Score, opts: CanvasArgOpts = {
  * wd_min: Minimum width in pixels for any note (default 2)
  */
 export function scoreToScoreCanvas(score: Score, { ht = 750, wd = 2500, wd_quarter, wd_scale = 1, wd_min = 2 }: ScoreCanvasOpts = {}): string {
-    const notes = score.contents.map(t => t.toSummary().filter(n => n.pitch.length));
+    const notes = score.contents.map(t => t.toOrderedChords().filter(n => !n.isSilent()).map(v => ({
+        tick: v.at,
+        pitch: v.pitches(),
+        duration: v.duration,
+        velocity: v.velocity,
+    })));
     const [ minp, maxp ] = score.pitchRange();
     const last = score.lastTick();
 
