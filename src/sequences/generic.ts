@@ -1,4 +1,4 @@
-import type { GamutOpts, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, AnySeq, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument, MetadataData } from '../types';
+import type { GamutOpts, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument, MetadataData } from '../types';
 
 import type SeqMember from './members/generic';
 import Metadata from '../metadata/metadata';
@@ -960,8 +960,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * // returns intseq([ 4, 5, 6 ])
      * intseq([ 1, 2, 3]).withPitch([ 4, 5, 6 ]);
      */
-    withPitches(pitches: PitchArgument[] | AnySeq): this {
-        if (pitches instanceof Sequence) {
+    withPitches(pitches: PitchArgument[] | { toPitches: () => number[][] }): this {
+        if ('toPitches' in pitches) {
             return this.withPitches(pitches.toPitches());
         }
 

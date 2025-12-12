@@ -225,16 +225,6 @@ export type MelodyMemberData = {
     timing: Timing,
 };
 
-/**
- * A type representing a summary of a Melody, primarily used for visualizations
- */
-export type MelodySummary = {
-    tick: number,
-    pitch: number[],
-    duration: number,
-    velocity: number,
-}[];
-
 /*
  * SEQUENCES
  */
