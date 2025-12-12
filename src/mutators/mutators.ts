@@ -2,7 +2,7 @@ import type { PitchMutatorFn, GamutOpts } from '../types';
 
 import { isInt, isPosInt, isNumber } from '../helpers/validation';
 
-import { dumpOneLine} from '../dump/dump';
+import { dumpOneLine } from '../dump/dump';
 
 /**
  * A helper module containing pitch mutation functions.

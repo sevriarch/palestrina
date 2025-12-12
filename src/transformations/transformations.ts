@@ -1,6 +1,5 @@
-import type { Timed, Score, MetaEvent, MetaEventValueMap } from '../types';
+import type { Timed, Melody, Score, MetaEvent, MetaEventValueMap } from '../types';
 
-import Melody from '../sequences/melody';
 import * as timeSignature from '../helpers/time-signature';
 
 import { PITCH_CLASS_MAP } from '../constants';
