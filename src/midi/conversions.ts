@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, MetaEvent, MetaEventValueMap, MidiTickAndBytes, MelodyMember, Renderable } from '../types';
+import type { Timed, TimedEntity, MetaEvent, MetaEventValueMap, MelodyMember, Renderable } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -7,6 +7,8 @@ import { dumpOneLine, dumpHex } from '../dump/dump';
 import * as keySignature from '../helpers/key-signature';
 import * as timeSignature from '../helpers/time-signature';
 import * as instrument from '../helpers/instrument';
+
+type MidiTickAndBytes = [ number, number[] ];
 
 /**
  * Convert a number to a MIDI fixed bytes representation.

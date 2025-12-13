@@ -152,11 +152,6 @@ export type Renderable = {
  */
 export type Midifiable = { toMidiBytes(): number[] };
 
-/**
- * A tuple containing the exact tick at which a MIDI event occurs, and the bytes representing that event.
- */
-export type MidiTickAndBytes = [ number, number[] ];
-
 /*
  * PITCHES
  */
