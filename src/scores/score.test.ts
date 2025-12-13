@@ -829,8 +829,12 @@ describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() 
             expect(score.toHash()).toStrictEqual(hash);
         });
 
-        test('toMidiBytes() returns correctly', () => {
-            expect(score.toMidiBytes()).toStrictEqual(bytes);
+        test('toMidiBytes() returns correctly with and without caching', () => {
+            const firstBytes = score.toMidiBytes();
+            const secondBytes = score.toMidiBytes();
+
+            expect(firstBytes).toStrictEqual(bytes);
+            expect(secondBytes).toStrictEqual(bytes);
         });
 
         test('writeMidi() fails with invalid argument', () => {

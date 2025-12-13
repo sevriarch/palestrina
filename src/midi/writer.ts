@@ -1,4 +1,6 @@
-import type { Midifiable } from '../types';
+import type { Renderable } from '../types';
+
+import { toMidiBytes}  from './conversions'; 
 
 import * as fs from 'fs';
 import crypto from 'crypto';
@@ -10,32 +12,26 @@ import { dumpOneLine } from '../dump/dump';
  * 
  * Second argument must be an object that implements the toMidiBytes() method.
  */
-export function writeToFile(file: string, entity: Midifiable) {
+export function writeToFile(file: string, entity: Renderable) {
     if (typeof file !== 'string') {
         throw new Error(`MidiWriter.writeMidi(): filename must be a file, was ${dumpOneLine(file)}`);
     }
 
-    const bytes = entity.toMidiBytes();
-
-    if (!Array.isArray(bytes)) {
-        throw new Error(`MidiWriter.writeMidi(): ${entity.constructor.name}.toMidiBytes() did not return an array of bytes; returned ${dumpOneLine(bytes)}`);
-    }
-
-    fs.writeFileSync(file + '.mid', Buffer.from(bytes));
+    fs.writeFileSync(file + '.mid', Buffer.from(toMidiBytes(entity)));
 }
 
 /**
  * Returns the MIDI bytes of this Score or Melody in the form of a data URI.
  */
-export function toDataURI(entity: Midifiable): string {
-    return 'data:audio/midi;base64,' + Buffer.from(entity.toMidiBytes()).toString('base64');
+export function toDataURI(entity: Renderable): string {
+    return 'data:audio/midi;base64,' + Buffer.from(toMidiBytes(entity)).toString('base64');
 }
 
 /**
  * Returns a hash of the MIDI bytes for this Score or Melody.
  */
-export function toHash(entity: Midifiable): string {
-    const arr = entity.toMidiBytes();
+export function toHash(entity: Renderable): string {
+    const arr = toMidiBytes(entity);
     const hash = crypto.createHash('md5');
 
     hash.update(Buffer.from(arr));
@@ -46,7 +42,7 @@ export function toHash(entity: Midifiable): string {
 /**
  * Throws unless the hash of the MIDI bytes for this Score or Melody is as expected.
  */
-export function expectHash(entity: Midifiable, expected: string) {
+export function expectHash(entity: Renderable, expected: string) {
     const hash = toHash(entity);
 
     if (expected !== hash) {

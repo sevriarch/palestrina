@@ -147,11 +147,6 @@ export type Renderable = {
     toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][];
 }
 
-/**
- * An entity that can be converted to a string of MIDI bytes
- */
-export type Midifiable = { toMidiBytes(): number[] };
-
 /*
  * PITCHES
  */
