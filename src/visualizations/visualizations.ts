@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score, ScoreTimelineFn } from '../types';
+import type { JSONValue, CanvasArg, CanvasArgOpts, SVGOpts, ScoreCanvasOpts, Score } from '../types';
 
 import * as transformations from '../transformations/transformations';
 
@@ -157,7 +157,7 @@ function getSVGFooter(): string {
     return '</svg>\n';
 }
 
-export function scoreTo2DSVG(score: Score, fn: ScoreTimelineFn, options: SVGOpts = {}): string {
+export function scoreTo2DSVG(score: Score, fn: (s: Score) => [ number[], number[][] ], options: SVGOpts = {}): string {
     const fixedscore = score.withAllTicksExact();
 
     const [ timeline, data ] = fn(fixedscore);

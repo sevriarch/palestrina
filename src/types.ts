@@ -311,9 +311,6 @@ export type PitchMapperFn = (p: number[], i: number) => PitchArgument;
 export type CtrlTypeFn<T> = (me: T) => T;
 export type CtrlBoolFn<T> = (me: T) => boolean;
 
-// Functions that can be used to transform a score for SVG/canvas creation
-export type ScoreTimelineFn = (s: Score) => [ number[], number[][] ];
-
 /*
  * SVG/CANVAS TYPES
  */
