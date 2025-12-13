@@ -1,4 +1,4 @@
-import type { AnySeq, SeqMember, SeqMemberArgument, SeqIndices, PitchArgument, MapperFn, FilterFn, ArrayFinderFn, PitchMapperFn, GamutOpts } from '../types';
+import type { SeqMember, SeqMemberArgument, SeqIndices, PitchArgument, MapperFn, FilterFn, ArrayFinderFn, PitchMapperFn, GamutOpts } from '../types';
 
 import NumSeq from './number';
 import NoteSeq from './note';
@@ -11,6 +11,8 @@ import NoteSeqMember from './members/note';
 import ChordSeqMember from './members/chord';
 
 const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
+
+type AnySeq = NumSeq | NoteSeq | ChordSeq | Melody;
 
 describe('Sequence.appendItems()', () => {
     const table: [ string, AnySeq, SeqMemberArgument[], AnySeq ][] = [

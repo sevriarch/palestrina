@@ -42,8 +42,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             }
 
             contents = seq.contents;
-        } else {
+        } else if (Array.isArray(seq)) {
             contents = seq;
+        } else {
+            throw new Error(`invalid argument to build(): ${dumpOneLine(seq)}`);
         }
 
         return new SeqClass(contents.map(MemberClass.from), Metadata.from(metadata));
@@ -66,17 +68,17 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     protected override replacer<FromT>(r: Replacer<FromT, ET>, curr: FromT, i: number): ET[] {
         const retval = typeof r === 'function' ? r(curr, i) : r;
     
-        if (retval instanceof Sequence) {
+        if (Array.isArray(retval)) {
+            return retval.map(this.constructMember);
+        }
+    
+        if (typeof retval === 'object' && retval !== null && 'contents' in retval) {
             // Avoid unnecessary calls if retval is the same type of Sequence
             if (this.constructor === retval.constructor) {
                 return retval.contents as ET[];
             }
 
             return retval.contents.map(this.constructMember);
-        }
-    
-        if (Array.isArray(retval)) {
-            return retval.map(this.constructMember);
         }
     
         return [ this.constructMember(retval) ];

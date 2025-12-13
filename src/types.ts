@@ -230,15 +230,9 @@ export type MelodyMemberData = {
  */
 
 /**
- * A type representing any type of Sequence
- */
-// TODO: This probably should be cleaner
-export type AnySeq = NumSeq | NoteSeq | ChordSeq | Melody;
-
-/**
  * A type representing the data required to construct a Sequence of any kind
  */
-export type SeqArgument = AnySeq | SeqMemberArgument[];
+export type SeqArgument = { contents: SeqMemberArgument[] } | SeqMemberArgument[];
 
 /**
  * A type representing methods to pass an index or indices to a Sequence method
@@ -252,7 +246,7 @@ export type SeqIndices = NumSeq | number | number[];
 /**
  * A type representing how we represent replacements for existing value(s) within Collections and Sequences
  */
-export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (TypeOrArray<SeqMemberArgument> | AnySeq) : Collection<T>);
+export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (TypeOrArray<SeqMemberArgument> | { contents: SeqMemberArgument[] }) : Collection<T>);
 
 /**
  * A type representing how we convert existing value(s) within Collections and Sequences into their replacements
@@ -483,7 +477,7 @@ export interface ISequence<T> extends CollectionWithMetadata<T> {
     padRight(v: SeqMemberArgument, ct: number): this;
     padRightTo(v: SeqMemberArgument, ct: number): this;
     withPitch(pitch: PitchArgument): this;
-    withPitches(pitch: PitchArgument[] | AnySeq): this;
+    withPitches(pitch: PitchArgument[] | { toPitches: () => number[][] }): this;
     mapPitches(fn: (p: number[], i: number) => PitchArgument): this;
     mapPitch(fn: MapperFn<number | null>): this;
     mapEachPitch(fn: (p: number, i: number) => number | null): this;

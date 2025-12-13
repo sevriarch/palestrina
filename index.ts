@@ -1,7 +1,7 @@
 export type {
     ISequence, ISingleValuedSequence, ISeqMember, // interfaces
     JSONValue, TypeOrArray, // generic types
-    Sequence, SeqMember, SeqArgument, SeqIndices, SeqMemberArgument, AnySeq, // generic sequence-related types
+    Sequence, SeqMember, SeqArgument, SeqIndices, SeqMemberArgument, // generic sequence-related types
     NumSeq, NumSeqMember, // numeric sequence-related types
     NoteSeq, NoteSeqMember, // note sequence-related types
     ChordSeq, ChordSeqMember, // chord sequence-related types
