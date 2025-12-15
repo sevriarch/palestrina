@@ -1,4 +1,4 @@
-import type { TimedEntity } from '../types';
+import type { Timed, TimedEntity } from '../types';
 
 import * as fs from 'fs';
 
@@ -21,17 +21,24 @@ jest.mock('fs', () => {
 
 const BAD_ENTITY = {
     metadata: Metadata.from({ ticks_per_quarter: 128 }),
-    toOrderedEntitiesWithMetadata: () => 123 as unknown as [ TimedEntity[], Metadata ][]
+    toOrderedChordsWithMetadata: () => 123 as unknown as [ Timed<MelodyMember>[], Metadata ][],
+    toOrderedEntitiesWithMetadata: () => 123 as unknown as [ TimedEntity[], Metadata ][],
 };
 
 const VALID_ENTITY = {
     metadata: Metadata.from({ ticks_per_quarter: 96 }),
+    toOrderedChordsWithMetadata: () => ([
+        [
+            [ MelodyMember.from({ pitch: [ 60 ], velocity: 64, duration: 32, at: 0 }) ], 
+            Metadata.from({ ticks_per_quarter: 96 }),
+        ] 
+    ] as [ Timed<MelodyMember>[], Metadata ][]),
     toOrderedEntitiesWithMetadata: () => ([
         [
             [ MelodyMember.from({ pitch: [ 60 ], velocity: 64, duration: 32, at: 0 }) ], 
             Metadata.from({ ticks_per_quarter: 96 }),
         ]
-    ] as [ TimedEntity[], Metadata ][])
+    ] as [ TimedEntity[], Metadata ][]),
 };
 
 describe('midiWriter.writeToFile() tests', () => {

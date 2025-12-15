@@ -487,14 +487,6 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     }
 
     /**
-     * Returns just the chords in this Melody, in a temporally ordered array of MelodyMembers, with an
-     * exact tick applied to each member.
-     */
-    toOrderedChords(): Timed<MelodyMember>[] {
-        return (this.withAllTicksExact().contents as Timed<MelodyMember>[]).slice().sort((a, b) => a.at - b.at);
-    }
-
-    /**
      * Return an array of length 1 containing a tuple containing an array and metadata.
      *
      * The array contains everything in this melody, in a temporally ordered array, with an exact tick applied to
@@ -509,6 +501,27 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      */
     toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][] {
         return [ [ this.toOrderedEntities(), this.metadata ] ];
+    }
+
+    /**
+     * Returns just the chords in this Melody, in a temporally ordered array of MelodyMembers, with an exact tick
+     * applied to each member.
+     */
+    toOrderedChords(): Timed<MelodyMember>[] {
+        return (this.withAllTicksExact().contents as Timed<MelodyMember>[]).slice().sort((a, b) => a.at - b.at);
+    }
+
+    /**
+     * Return an array of length 1 containing a tuple containing an array and metadata.
+     *
+     * The array contains just the chords in this Melody, in a temporally ordered array of MelodyMembers, with an
+     * exact tick applied to each member.
+     * each member.
+     *
+     * This is to provide a common interface with the behaviour of this method in Scores.
+     */
+    toOrderedChordsWithMetadata(): [ Timed<MelodyMember>[], Metadata ][] {
+        return [ [ this.toOrderedChords(), this.metadata ] ];
     }
 
     /**

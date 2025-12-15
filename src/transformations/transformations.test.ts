@@ -99,8 +99,11 @@ describe('transformations.scoreToNotes()', () => {
     const m4 = Melody.from([]);
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
-    test('throws if not a Score', () => {
-        expect(() => transformations.scoreToNotes(m1 as unknown as Score)).toThrow();
+    test('returns as expected if a melody passed', () => {
+        expect(transformations.scoreToNotes(m3)).toStrictEqual([
+            [ 0, 96, 192, 288, 384 ],
+            [ [ 71, 75 ], [], [], [ 72 ], [] ]
+        ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
@@ -133,8 +136,11 @@ describe('transformation.scoreToGamut()', () => {
     const m4 = Melody.from([]);
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
-    test('throws if not a Score', () => {
-        expect(() => transformations.scoreToGamut(m1 as unknown as Score)).toThrow();
+    test('returns as expected if a Melody passed', () => {
+        expect(transformations.scoreToGamut(m3)).toStrictEqual([
+            [ 0, 96, 192, 288, 384 ],
+            [ [ 3, 11 ], [], [], [ 0 ], [] ]
+        ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
@@ -167,8 +173,11 @@ describe('transformations.scoreToIntervals()', () => {
     const m4 = Melody.from([]);
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
-    test('throws if not a Score', () => {
-        expect(() => transformations.scoreToIntervals(m1 as unknown as Score)).toThrow();
+    test('returns as expected if a melody passed', () => {
+        expect(transformations.scoreToIntervals(m3)).toStrictEqual([
+            [ 0, 96, 192, 288, 384 ],
+            [ [ 4 ], [], [], [], [] ]
+        ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
@@ -201,8 +210,11 @@ describe('transformations.scoreToIntervalGamut()', () => {
     const m4 = Melody.from([]);
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
-    test('throws if not a Score', () => {
-        expect(() => transformations.scoreToIntervalGamut(m1 as unknown as Score)).toThrow();
+    test('returns as expected if a melody passed', () => {
+        expect(transformations.scoreToIntervalGamut(m3)).toStrictEqual([
+            [ 0, 96, 192, 288, 384 ],
+            [ [ 4 ], [], [], [], [] ]
+        ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
@@ -235,8 +247,11 @@ describe('transformations.scoreToPitchClasses()', () => {
     const m4 = Melody.from([]);
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
-    test('throws if not a Score', () => {
-        expect(() => transformations.scoreToPitchClasses(m1 as unknown as Score)).toThrow();
+    test('returns as expected if a melody passed', () => {
+        expect(transformations.scoreToPitchClasses(m3)).toStrictEqual([
+            [ 0, 96, 192, 288, 384 ],
+            [ '2-4', '0-1', '0-1', '1-1', '0-1' ]
+        ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
@@ -269,14 +284,14 @@ describe('transformations.scoreToNoteCount()', () => {
     const m4 = Melody.from([]);
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
-    test('throws if not a Score', () => {
-        expect(() => transformations.scoreToNoteCount(m1 as unknown as Score, 50)).toThrow();
-    });
-
     test('throws if granularity is not a positive integer', () => {
         expect(() => transformations.scoreToNoteCount(sc, 0)).toThrow();
         expect(() => transformations.scoreToNoteCount(sc, 54.5)).toThrow();
         expect(() => transformations.scoreToNoteCount(sc, '4' as unknown as number)).toThrow();
+    });
+
+    test('returns as expected if a melody passed', () => {
+        expect(transformations.scoreToNoteCount(m3, 50)).toStrictEqual([ 2, 0, 0, 0, 0, 1, 0, 0 ]);
     });
 
     test('returns empty array if an empty score passed', () => {
@@ -477,7 +492,7 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
     });
 });
 
-describe('transformations.scoreToBarTimeline', () => {
+describe('transformations.scoreToBarTimeline()', () => {
     test('empty score', () => {
         expect(transformations.scoreToBarTimeline(Score.from([]))).toStrictEqual([]);
     });

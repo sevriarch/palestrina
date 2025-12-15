@@ -1452,6 +1452,35 @@ describe('Melody.toOrderedEntities()', () => {
     });
 });
 
+describe('Melody.toOrderedEntitiesWithMetadata()', () => {
+    test('converts empty track to array containing an array of zero entities', () => {
+        expect(Melody.from([]).toOrderedEntitiesWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
+    });
+
+    test('converts non-empty track to expected entities', () => {
+        expect(Melody.from([ 
+            {
+                pitch: 60,
+                duration: 64,
+                velocity: 48,
+            }
+        ]).withTempo(120).toOrderedEntitiesWithMetadata()).toStrictEqual([
+            [
+                [
+                    MetaEvent.from({ event: 'tempo', value: 120, at: 0 }),
+                    MelodyMember.from({
+                        pitch: 60,
+                        duration: 64,
+                        velocity: 48,
+                        at: 0,
+                    }),
+                ],
+                Metadata.from({ tempo: 120 })
+            ],
+        ]);
+    });
+});
+
 describe('Melody.toOrderedChords()', () => {
     test('converts empty track to zero chords', () => {
         expect(Melody.from([]).toOrderedChords()).toStrictEqual([]);
@@ -1507,9 +1536,9 @@ describe('Melody.toOrderedChords()', () => {
     });
 });
 
-describe('Melody.toOrderedEntitiesWithMetadata()', () => {
+describe('Melody.toOrderedChordsWithMetadata()', () => {
     test('converts empty track to array containing an array of zero entities', () => {
-        expect(Melody.from([]).toOrderedEntitiesWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
+        expect(Melody.from([]).toOrderedChordsWithMetadata()).toStrictEqual([ [ [], Metadata.from({}) ] ]);
     });
 
     test('converts non-empty track to expected entities', () => {
@@ -1519,10 +1548,9 @@ describe('Melody.toOrderedEntitiesWithMetadata()', () => {
                 duration: 64,
                 velocity: 48,
             }
-        ]).withTempo(120).toOrderedEntitiesWithMetadata()).toStrictEqual([
+        ]).withTempo(120).toOrderedChordsWithMetadata()).toStrictEqual([
             [
                 [
-                    MetaEvent.from({ event: 'tempo', value: 120, at: 0 }),
                     MelodyMember.from({
                         pitch: 60,
                         duration: 64,

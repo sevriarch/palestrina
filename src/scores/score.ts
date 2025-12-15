@@ -289,16 +289,6 @@ export default class Score extends CollectionWithMetadata<Melody> {
     }
 
     /**
-     * Return an array with one member per each Melody within the score.
-     *
-     * Each contains just the notes/chords in the Melody, in a temporally ordered array of MelodyMembers, with an
-     * exact tick applied to each member.
-     */
-    toOrderedChords(): Timed<MelodyMember>[][] {
-        return this.contents.map(m => m.toOrderedChords());
-    }
-
-    /**
      * Return an array of tuples each containing an array and metadata.
      *
      * The array within each tuple contains everything in the corresponding Melody, in a temporally ordered array,
@@ -321,6 +311,24 @@ export default class Score extends CollectionWithMetadata<Melody> {
         }
 
         return tracks.map(tr => [ tr.toOrderedEntities(), tr.metadata ]);
+    }
+
+    /**
+     * Return an array with one member per each Melody within the score.
+     *
+     * Each contains just the notes/chords in the Melody, in a temporally ordered array of MelodyMembers, with an
+     * exact tick applied to each member.
+     */
+    toOrderedChordsWithMetadata(): [ Timed<MelodyMember>[], Metadata ][] {
+        const fixed = this.withAllTicksExact();
+
+        // Must copy as metadata in score needs to be applied to the first track
+        const tracks = fixed.contents.slice();
+        if (tracks.length) {
+            tracks[0] = tracks[0].mergeMetadataFrom(fixed);
+        }
+
+        return tracks.map(tr => [ tr.toOrderedChords(), tr.metadata ]);
     }
 
     /**

@@ -1,4 +1,4 @@
-import type { Timed, Score, MetaEvent, MetaEventValueMap } from '../types';
+import type { Timed, Score, Renderable, MetaEvent, MetaEventValueMap } from '../types';
 
 import * as timeSignature from '../helpers/time-signature';
 
@@ -23,10 +23,10 @@ function mapNotesToUnique(notes: number[], fn: (n: number) => number): number[] 
 /**
  * Return an object mapping midi ticks to tuples containing the notes that start and end during them.
  */
-function getOnOff(s: Score): Map<number, [ number[], number [] ]> {
+function getOnOff(music: Renderable): Map<number, [ number[], number [] ]> {
     const onoffmap: Map<number, [ number[], number[] ]> = new Map();
 
-    for (const chords of s.toOrderedChords()) {
+    for (const [ chords ] of music.toOrderedChordsWithMetadata()) {
         for (const chord of chords) {
             const start = chord.at;
             const stop  = chord.at + chord.duration;
@@ -70,7 +70,7 @@ export function notesToIntervals(notes: number[]): number[] {
         return [];
     }
 
-    const ret = new Set();
+    const ret: Set<number> = new Set();
 
     for (let i = 0; i < len; i++) {
         for (let j = i + 1; j < len; j++) {
@@ -78,7 +78,7 @@ export function notesToIntervals(notes: number[]): number[] {
         }
     }
 
-    return Array.from(ret).map(Number).sort((a, b) => a - b);
+    return Array.from(ret).sort((a, b) => a - b);
 }
 
 /**
@@ -110,12 +110,12 @@ export function notesToPitchClass(notes: number[]): string {
 
 /**
  * Given a Score, convert it to a tuple of two arrays of equal length.
- * The first, an array of Numbers, contains the MIDI ticks where notes either start or end.
- * The second, an array of arrays of Numbers, contains the notes that are playing at the end
+ * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
+ * The second, an array of arrays of numbers, contains the notes that are playing at the end
  * of that MIDI tick (no notes being represented by an empty array).
  */
-export function scoreToNotes(score: Score): [ number[], number[][] ] {
-    const onoffmap = getOnOff(score);
+export function scoreToNotes(music: Renderable): [ number[], number[][] ] {
+    const onoffmap = getOnOff(music);
     const times: number[] = [];
     const notes: number[][] = [];
     let curr: number[] = [];
@@ -136,12 +136,12 @@ export function scoreToNotes(score: Score): [ number[], number[][] ] {
  * the second argument passed. Then return an array containing the number of notes played in
  * each slice.
  */
-export function scoreToNoteCount(score: Score, increment: number): number[] {
+export function scoreToNoteCount(music: Renderable, increment: number): number[] {
     if (!isPosInt(increment)) {
         throw new Error(`transformations.scoreToNoteCount(): increment must be a positive number, wwas ${dumpOneLine(increment)}`);
     }
 
-    const onoffmap = getOnOff(score);
+    const onoffmap = getOnOff(music);
     const ret: number[] = [];
 
     for (const [ time, onoff ] of onoffmap) {
@@ -165,48 +165,48 @@ export function scoreToNoteCount(score: Score, increment: number): number[] {
 
 /**
  * Given a Score, convert it to a tuple of two arrays of equal length.
- * The first, an array of Numbers, contains the MIDI ticks where notes either start or end.
- * The second, an array of arrays of Numbers, contains a gamut of pitches that are playing
+ * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
+ * The second, an array of arrays of numbers, contains a gamut of pitches that are playing
  * at the end of that MIDI tick (no notes being represented by an empty array). In this gamut,
  * C is represented by 0, C# by 1, and so on up to B represented by 11.
  */
-export function scoreToGamut(score: Score): [ number[], number[][] ] {
-    const [ timeline, notes ] = scoreToNotes(score);
+export function scoreToGamut(music: Renderable): [ number[], number[][] ] {
+    const [ timeline, notes ] = scoreToNotes(music);
 
     return [ timeline, notes.map(n => notesToGamut(n)) ];
 }
 
 /**
  * Given a Score, convert it to a tuple of two arrays of equal length.
- * The first, an array of Numbers, contains the MIDI ticks where notes either start or end.
- * The second, an array of arrays of Numbers, contains all intervals between notes currently
+ * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
+ * The second, an array of arrays of numbers, contains all intervals between notes currently
  * playing at that MIDI tick.
  */
-export function scoreToIntervals(score: Score): [ number[], number[][] ] {
-    const [ timeline, notes ] = scoreToNotes(score);
+export function scoreToIntervals(music: Renderable): [ number[], number[][] ] {
+    const [ timeline, notes ] = scoreToNotes(music);
 
     return [ timeline, notes.map(n => notesToIntervals(n)) ];
 }
 
 /**
  * Given a Score, convert it to a tuple of two arrays of equal length.
- * The first, an array of Numbers, contains the MIDI ticks where notes either start or end.
- * The second, an array of arrays of Numbers, contains a gamut of all intervals between notes
+ * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
+ * The second, an array of arrays of numbers, contains a gamut of all intervals between notes
  * currently playing at that MIDI tick.
  */
-export function scoreToIntervalGamut(score: Score): [ number[], number[][] ] {
-    const [ timeline, notes ] = scoreToNotes(score);
+export function scoreToIntervalGamut(music: Renderable): [ number[], number[][] ] {
+    const [ timeline, notes ] = scoreToNotes(music);
 
     return [ timeline, notes.map(n => notesToIntervalGamut(n)) ];
 }
 
 /**
  * Given a Score, convert it to a tuple of two arrays of equal length.
- * The first, an array of Numbers, contains the MIDI ticks where notes either start or end.
+ * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of strings, contains the pitch classes of the notes playing at that tick.
  */
-export function scoreToPitchClasses(score: Score): [ number[], string[] ] {
-    const [ timeline, notes ] = scoreToNotes(score);
+export function scoreToPitchClasses(music: Renderable): [ number[], string[] ] {
+    const [ timeline, notes ] = scoreToNotes(music);
 
     return [ timeline, notes.map(n => notesToPitchClass(n)) ];
 }

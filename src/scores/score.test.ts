@@ -556,79 +556,6 @@ describe('Score.withChordsCombined()', () => {
     });
 });
 
-describe('Score.toOrderedChords()', () => {
-    test('converts empty score to empty array even though there is metadata present', () => {
-        expect(Score.from([]).withCopyright('test').toOrderedChords()).toStrictEqual([]);
-    });
-
-    test('converts non-empty score to expected entities', () => {
-        expect(Score.from([
-            Melody.from([ 
-                {
-                    pitch: 60,
-                    duration: 64,
-                    velocity: 48,
-                    before: MetaList.from([{ event: 'sustain', value: 1 }])
-                },
-                {
-                    pitch: [ 64 ],
-                    duration: 128,
-                    velocity: 64
-                },
-                {
-                    pitch: [ 67, 72 ],
-                    duration: 192,
-                    velocity: 80,
-                    after: MetaList.from([{ event: 'sustain', value: 0, offset: -256 }])
-                }
-            ]).withInstrument('violin')
-                .withNewEvent({ event: 'text', value: 'second test', at: 64 }),
-            Melody.from([
-                {
-                    pitch: 48,
-                    duration: 64,
-                    velocity: 384
-                }
-            ]).withInstrument('viola')
-        ]).withTempo(144)
-            .withTimeSignature('3/4')
-            .withNewEvent({ event: 'text', value: 'test', at: 32 })
-            .toOrderedChords()
-        ).toStrictEqual([
-            [
-                MelodyMember.from({
-                    pitch: 60,
-                    duration: 64,
-                    velocity: 48,
-                    before: MetaList.from([{ event: 'sustain', value: 1, at: 0 }]),
-                    at: 0,
-                }),
-                MelodyMember.from({
-                    pitch: [ 64 ],
-                    duration: 128,
-                    velocity: 64,
-                    at: 64,
-                }),
-                MelodyMember.from({
-                    pitch: [ 67, 72 ],
-                    duration: 192,
-                    velocity: 80,
-                    after: MetaList.from([{ event: 'sustain', value: 0, at: 128 }]),
-                    at: 192
-                }),
-            ],
-            [
-                MelodyMember.from({
-                    pitch: 48,
-                    duration: 64,
-                    velocity: 384,
-                    at: 0
-                }),
-            ]
-        ]);
-    });
-});
-
 describe('Score.toOrderedEntitiesWithMetadata()', () => {
     test('converts empty track to zero entities even though there is metadata present', () => {
         expect(Score.from([]).withCopyright('test').toOrderedEntitiesWithMetadata()).toStrictEqual([]);
@@ -711,6 +638,93 @@ describe('Score.toOrderedEntitiesWithMetadata()', () => {
             [
                 [
                     MetaEvent.from({ event: 'instrument', value: 'viola', at: 0 }),
+                    MelodyMember.from({
+                        pitch: 48,
+                        duration: 64,
+                        velocity: 384,
+                        at: 0
+                    }),
+                ],
+                Metadata.from({ instrument: 'viola' })
+            ]
+        ]);
+    });
+});
+
+describe('Score.toOrderedChordsWithMetadata()', () => {
+    test('converts empty score to empty array even though there is metadata present', () => {
+        expect(Score.from([]).withCopyright('test').toOrderedChordsWithMetadata()).toStrictEqual([]);
+    });
+
+    test('converts non-empty score to expected entities', () => {
+        expect(Score.from([
+            Melody.from([ 
+                {
+                    pitch: 60,
+                    duration: 64,
+                    velocity: 48,
+                    before: MetaList.from([{ event: 'sustain', value: 1 }])
+                },
+                {
+                    pitch: [ 64 ],
+                    duration: 128,
+                    velocity: 64
+                },
+                {
+                    pitch: [ 67, 72 ],
+                    duration: 192,
+                    velocity: 80,
+                    after: MetaList.from([{ event: 'sustain', value: 0, offset: -256 }])
+                }
+            ]).withInstrument('violin')
+                .withNewEvent({ event: 'text', value: 'second test', at: 64 }),
+            Melody.from([
+                {
+                    pitch: 48,
+                    duration: 64,
+                    velocity: 384
+                }
+            ]).withInstrument('viola')
+        ]).withTempo(144)
+            .withTimeSignature('3/4')
+            .withNewEvent({ event: 'text', value: 'test', at: 32 })
+            .toOrderedChordsWithMetadata()
+        ).toStrictEqual([
+            [
+                [
+                    MelodyMember.from({
+                        pitch: 60,
+                        duration: 64,
+                        velocity: 48,
+                        before: MetaList.from([{ event: 'sustain', value: 1, at: 0 }]),
+                        at: 0,
+                    }),
+                    MelodyMember.from({
+                        pitch: [ 64 ],
+                        duration: 128,
+                        velocity: 64,
+                        at: 64,
+                    }),
+                    MelodyMember.from({
+                        pitch: [ 67, 72 ],
+                        duration: 192,
+                        velocity: 80,
+                        after: MetaList.from([{ event: 'sustain', value: 0, at: 128 }]),
+                        at: 192
+                    }),
+                ],
+                Metadata.from({
+                    instrument: 'violin',
+                    before: MetaList.from([
+                        { event: 'text', value: 'test', at: 32 },
+                        { event: 'text', value: 'second test', at: 64 }
+                    ]),
+                    tempo: 144,
+                    time_signature: '3/4',
+                }),
+            ],
+            [
+                [
                     MelodyMember.from({
                         pitch: 48,
                         duration: 64,
