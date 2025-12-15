@@ -58,6 +58,17 @@ export type Timed<X> = X & { at: number };
  */
 export type TimedEntity = Timed<MetaEvent<keyof MetaEventValueMap> | MelodyMember>;
 
+/**
+ * An entity that can be rendered as MIDI, SVG, MusicXML etc
+ */
+export type Renderable = {
+    metadata: Metadata,
+    withAllTicksExact(): Renderable;
+    toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][];
+    toOrderedChordsWithMetadata(): [ Timed<MelodyMember>[], Metadata ][];
+    lastTick(): number;
+};
+
 /*
  * METADATA
  */
@@ -134,21 +145,6 @@ export type MetaEventData = MetaEventDef<keyof MetaEventValueMap> & { timing: Ti
  * The type used to pass multiple MetaEvents to Score, Melody, MelodyMember, Metadata and MetaList
  */
 export type MetaListArg = MetaList | (MetaEvent<keyof MetaEventValueMap> | MetaEventArg)[];
-
-/*
- * MIDI
- */
-
-/**
- * An entity that can be rendered as MIDI, SVG, MusicXML etc
- */
-export type Renderable = {
-    metadata: Metadata,
-    withAllTicksExact(): Renderable;
-    toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][];
-    toOrderedChordsWithMetadata(): [ Timed<MelodyMember>[], Metadata ][];
-    lastTick(): number;
-}
 
 /*
  * PITCHES
