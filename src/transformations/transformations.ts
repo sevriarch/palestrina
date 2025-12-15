@@ -1,4 +1,4 @@
-import type { Timed, Melody, Score, MetaEvent, MetaEventValueMap } from '../types';
+import type { Timed, Score, MetaEvent, MetaEventValueMap } from '../types';
 
 import * as timeSignature from '../helpers/time-signature';
 
