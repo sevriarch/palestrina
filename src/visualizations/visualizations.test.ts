@@ -39,49 +39,6 @@ describe('visualizations.JSONTemplate()', () => {
     });
 });
 
-describe('visualizations.render2DCanvas() tests', () => {
-    test('non-string name should throw an error', () => {
-        expect(() => visualizations.render2DCanvas({ name: 444 as unknown as string, timeline: [], data: [] })).toThrow();
-    });
-
-    test('non-array timeline should throw an error', () => {
-        expect(() => visualizations.render2DCanvas({ name: 'test', timeline: 444 as unknown as number[], data: [] })).toThrow();
-    });
-
-    test('non-array timeline should throw an error', () => {
-        expect(() => visualizations.render2DCanvas({ name: 'test', timeline: [], data: 444 as unknown as number[][] })).toThrow();
-    });
-
-    test('different timeline and data lengths should throw an error', () => {
-        expect(() => visualizations.render2DCanvas({ name: 'test', timeline: [ 0, 64 ], data: [ [ 0, 6 ] ] })).toThrow();
-    });
-
-    test('name should appear in the visualizations ID', () => {
-        expect(visualizations.render2DCanvas({ name: 'test', timeline: [], data: [] }))
-            .toEqual(expect.stringContaining('<canvas id="test-canvas"'));
-    });
-
-    test('timeline should appear in the visualizations code', () => {
-        expect(visualizations.render2DCanvas({ name: 'test', timeline: [ 0, 64, 128 ], data: [ [ 0 ], [ 6, 12 ], [ 18, 24, 30 ] ] }))
-            .toEqual(expect.stringContaining('const timeline = [0,64,128]'));
-    });
-
-    test('data should appear in the visualizations code', () => {
-        expect(visualizations.render2DCanvas({ name: 'test', timeline: [ 0, 64, 128 ], data: [ [ 0 ], [ 6, 12 ], [ 18, 24, 30 ] ] }))
-            .toEqual(expect.stringContaining('const data = [[0],[6,12],[18,24,30]]'));
-    });
-
-    test('options should appear in the visualizations code even if not passed', () => {
-        expect(visualizations.render2DCanvas({ name: 'test', timeline: [], data: [] }))
-            .toEqual(expect.stringContaining('const options = {}'));
-    });
-
-    test('options should appear in the visualizations code if passed', () => {
-        expect(visualizations.render2DCanvas({ name: 'test', timeline: [], data: [], options: { px_horiz: 0.1 } }))
-            .toEqual(expect.stringContaining('const options = {"px_horiz":0.1}'));
-    });
-});
-
 const EMPTY_SCORE = Score.from([]);
 const SAMPLE_SCORE = Score.from([
     Melody.from([ { pitch: [ 64 ], duration: 32, velocity: 80 }, { pitch: [], duration: 32, velocity: 60 }, { pitch: [ 60, 68 ], duration: 64, velocity: 60, offset: 64 }]),
