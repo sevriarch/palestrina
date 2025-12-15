@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, Score, Renderable, MetaEvent } from '../types';
+import type { Timed, TimedEntity, Renderable, MetaEvent } from '../types';
 
 import * as timeSignature from '../helpers/time-signature';
 
@@ -214,7 +214,7 @@ export function toPitchClasses(music: Renderable): [ number[], string[] ] {
 /**
  * Given a renderable entity, extract specific matching events from it.
  */
-export function toMatchingTimedEvents(music: Renderable, fn: (evs: TimedEntity) => boolean): TimedEntity[] {
+export function getMatchingTimedEvents(music: Renderable, fn: (evs: TimedEntity) => boolean): TimedEntity[] {
     return music.toOrderedEntitiesWithMetadata()
         .map(v => v[0])
         .flat()
@@ -223,31 +223,14 @@ export function toMatchingTimedEvents(music: Renderable, fn: (evs: TimedEntity) 
 }
 
 /**
- * Given a Score, return an array of the ticks each bar begins at.
+ * Given a renderable entity, return an array of the ticks each bar begins at.
  */
-export function scoreToBarTimeline(score: Score): number[] {
-    const ret: number[] = [];
-    const lasttick = score.lastTick();
-    const tpq = score.metadata.ticks_per_quarter;
-    const tsigevts = toMatchingTimedEvents(score, e => 'event' in e && e.event === 'time-signature') as Timed<MetaEvent<'time-signature'>>[];
-    const sigs: [ number, number ][] = tsigevts.map(e => [ e.at, timeSignature.toQuarterNotes(e.value) ]);
-
-    if (!score.length) {
-        return [];
-    }
-
-    /*
-    if (score.metadata.time_signature) {
-        sigs.unshift([ 0, timeSignature.toQuarterNotes(score.metadata.time_signature) ]);
-    }
-
-    score.each(mel => {
-        if (mel.metadata.time_signature) {
-            sigs.unshift([ 0, timeSignature.toQuarterNotes(mel.metadata.time_signature) ]);
-        }
-    });
-    */
-
+export function toBarTimeline(music: Renderable): number[] {
+    const fixed = music.withAllTicksExact(); // precalculate and cache ticks for this entity
+    const lasttick = fixed.lastTick();
+    const tpq = fixed.metadata.ticks_per_quarter;
+    const events = getMatchingTimedEvents(fixed, e => 'event' in e && e.event === 'time-signature') as Timed<MetaEvent<'time-signature'>>[];
+    const sigs: [ number, number ][] = events.map(e => [ e.at, timeSignature.toQuarterNotes(e.value) ]);
     const numix = sigs.length;
 
     // MIDI defaults to 4/4 as a time signature
@@ -255,6 +238,7 @@ export function scoreToBarTimeline(score: Score): number[] {
     let currix = 0;
     let currtick = 0;
 
+    const ret: number[] = [];
     while (currtick < lasttick) {
         ret.push(currtick);
 

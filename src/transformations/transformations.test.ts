@@ -312,9 +312,9 @@ describe('transformations.toNoteCount()', () => {
     });
 });
 
-describe('transformations.toMatchingTimedEvents()', () => {
+describe('transformations.getMatchingTimedEvents()', () => {
     test('no events if no tracks', () => {
-        expect(transformations.toMatchingTimedEvents(Score.from([],
+        expect(transformations.getMatchingTimedEvents(Score.from([],
             Metadata.from({
                 time_signature: '4/4',
                 before: MetaList.from([
@@ -329,7 +329,7 @@ describe('transformations.toMatchingTimedEvents()', () => {
     });
 
     test('extracts from melody metadata', () => { // TODO
-        expect(transformations.toMatchingTimedEvents(Melody.from([],
+        expect(transformations.getMatchingTimedEvents(Melody.from([],
             Metadata.from({
                 time_signature: '4/4',
                 before: MetaList.from([
@@ -347,7 +347,7 @@ describe('transformations.toMatchingTimedEvents()', () => {
     });
 
     test('extracts from score metadata', () => {
-        expect(transformations.toMatchingTimedEvents(Score.from([ Melody.from([]) ],
+        expect(transformations.getMatchingTimedEvents(Score.from([ Melody.from([]) ],
             Metadata.from({
                 time_signature: '4/4',
                 before: MetaList.from([
@@ -365,7 +365,7 @@ describe('transformations.toMatchingTimedEvents()', () => {
     });
 
     test('filters from score metadata', () => {
-        expect(transformations.toMatchingTimedEvents(Score.from([ Melody.from([]) ],
+        expect(transformations.getMatchingTimedEvents(Score.from([ Melody.from([]) ],
             Metadata.from({
                 time_signature: '4/4',
                 before: MetaList.from([
@@ -382,7 +382,7 @@ describe('transformations.toMatchingTimedEvents()', () => {
     });
 
     test('extracts from notes and metadata', () => {
-        expect(transformations.toMatchingTimedEvents(Score.from([
+        expect(transformations.getMatchingTimedEvents(Score.from([
             Melody.from([
                 {
                     pitch: [ 60 ],
@@ -450,7 +450,7 @@ describe('transformations.toMatchingTimedEvents()', () => {
     });
 
     test('filters from notes and metadata', () => {
-        expect(transformations.toMatchingTimedEvents(Score.from([
+        expect(transformations.getMatchingTimedEvents(Score.from([
             Melody.from([
                 {
                     pitch: [ 60 ],
@@ -532,13 +532,13 @@ describe('transformations.toMatchingTimedEvents()', () => {
     });
 });
 
-describe('transformations.scoreToBarTimeline()', () => {
+describe('transformations.toBarTimeline()', () => {
     test('empty score', () => {
-        expect(transformations.scoreToBarTimeline(Score.from([]))).toStrictEqual([]);
+        expect(transformations.toBarTimeline(Score.from([]))).toStrictEqual([]);
     });
 
     test('empty score with adjusted last tick', () => {
-        expect(transformations.scoreToBarTimeline(
+        expect(transformations.toBarTimeline(
             Score.from([
                 Melody.from([]).withNewEvent('sustain', 0, { at: 4096 })
             ])
@@ -546,7 +546,7 @@ describe('transformations.scoreToBarTimeline()', () => {
     });
 
     test('empty score with adjusted ticks per quarter and last tick', () => {
-        expect(transformations.scoreToBarTimeline(
+        expect(transformations.toBarTimeline(
             Score.from([
                 Melody.from([]).withNewEvent('sustain', 0, { at: 4096 })
             ]).withTicksPerQuarter(256)
@@ -554,7 +554,7 @@ describe('transformations.scoreToBarTimeline()', () => {
     });
 
     test('empty score with time signature and adjusted last tick', () => {
-        expect(transformations.scoreToBarTimeline(
+        expect(transformations.toBarTimeline(
             Score.from([
                 Melody.from([]).withNewEvent('sustain', 0, { at: 4096 })
             ]).withTimeSignature('3/4')
@@ -562,7 +562,7 @@ describe('transformations.scoreToBarTimeline()', () => {
     });
 
     test('empty score with time signatures in score and melody and adjusted last tick', () => {
-        expect(transformations.scoreToBarTimeline(
+        expect(transformations.toBarTimeline(
             Score.from([
                 Melody.from([]).withNewEvent('sustain', 0, { at: 4096 }).withTimeSignature('3/2')
             ]).withTimeSignature('3/4')
@@ -570,7 +570,7 @@ describe('transformations.scoreToBarTimeline()', () => {
     });
 
     test('score with no initial time signature but adjusted time signature later on', () => {
-        expect(transformations.scoreToBarTimeline(
+        expect(transformations.toBarTimeline(
             Score.from([
                 Melody.from([ 60, 61, 62, { pitch: [ 63 ], after: [ { event: 'time-signature', value: '3/4' } ] }, 64, 65, 66, 67, 68, 69, 70 ]).withDuration(192)
             ])
@@ -578,7 +578,7 @@ describe('transformations.scoreToBarTimeline()', () => {
     });
 
     test('score with no initial time signature but multiple adjusted time signatures later on', () => {
-        expect(transformations.scoreToBarTimeline(
+        expect(transformations.toBarTimeline(
             Score.from([
                 Melody.from([
                     60, 61, 62,
@@ -589,6 +589,19 @@ describe('transformations.scoreToBarTimeline()', () => {
                     68, 69, 70
                 ]).withDuration(192)
             ])
+        )).toStrictEqual([ 0, 768, 1152, 1536, 1728, 1920 ]);
+    });
+
+    test('the same, but as a melody', () => {
+        expect(transformations.toBarTimeline(
+            Melody.from([
+                60, 61, 62,
+                { pitch: [ 63 ], after: [ { event: 'time-signature', value: '3/4' } ] }, 
+                { pitch: [ 64 ], before: [ { event: 'time-signature', value: '2/4' } ] },
+                65, 66,
+                { pitch: [ 67 ], before: [ { event: 'time-signature', value: '1/4' } ] },
+                68, 69, 70
+            ]).withDuration(192)
         )).toStrictEqual([ 0, 768, 1152, 1536, 1728, 1920 ]);
     });
 });

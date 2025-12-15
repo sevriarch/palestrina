@@ -224,7 +224,7 @@ export function scoreTo2DSVG(score: Score, fn: (s: Score) => [ number[], number[
     // Annotate with barlines and sub-bar-lines
     if (lineRepeatPx) {
         const beatPx = lineRepeatPx / beats;
-        const bartimeline = transformations.scoreToBarTimeline(fixedscore);
+        const bartimeline = transformations.toBarTimeline(fixedscore);
 
         for (let i = LEFTPAD; i < width; i += lineRepeatPx) {
             const tick = (i - LEFTPAD) / horizPx;

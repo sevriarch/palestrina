@@ -144,8 +144,10 @@ export type MetaListArg = MetaList | (MetaEvent<keyof MetaEventValueMap> | MetaE
  */
 export type Renderable = {
     metadata: Metadata,
+    withAllTicksExact(): Renderable;
     toOrderedEntitiesWithMetadata(): [ TimedEntity[], Metadata ][];
     toOrderedChordsWithMetadata(): [ Timed<MelodyMember>[], Metadata ][];
+    lastTick(): number;
 }
 
 /*

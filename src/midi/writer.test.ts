@@ -21,12 +21,15 @@ jest.mock('fs', () => {
 
 const BAD_ENTITY = {
     metadata: Metadata.from({ ticks_per_quarter: 128 }),
+    withAllTicksExact: () => BAD_ENTITY,
     toOrderedChordsWithMetadata: () => 123 as unknown as [ Timed<MelodyMember>[], Metadata ][],
     toOrderedEntitiesWithMetadata: () => 123 as unknown as [ TimedEntity[], Metadata ][],
+    lastTick: () => 128,
 };
 
 const VALID_ENTITY = {
     metadata: Metadata.from({ ticks_per_quarter: 96 }),
+    withAllTicksExact: () => VALID_ENTITY,
     toOrderedChordsWithMetadata: () => ([
         [
             [ MelodyMember.from({ pitch: [ 60 ], velocity: 64, duration: 32, at: 0 }) ], 
@@ -39,6 +42,7 @@ const VALID_ENTITY = {
             Metadata.from({ ticks_per_quarter: 96 }),
         ]
     ] as [ TimedEntity[], Metadata ][]),
+    lastTick: () => 32,
 };
 
 describe('midiWriter.writeToFile() tests', () => {
