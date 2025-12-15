@@ -266,62 +266,6 @@ export function scoreTo2DSVG(score: Score, fn: (s: Score) => [ number[], number[
 }
 
 /**
- * Given a Score, create an HTML canvas showing the notes in the Score.
- */
-export function scoreToNotesCanvas(score: Score, opts: CanvasArgOpts = {}, name = 'notes' ): string {
-    const [ timeline, data ] = transformations.toNotes(score);
-
-    return render2DCanvas({
-        name,
-        timeline,
-        data,
-        options: { color_rule: 'mod12', value_rule: 'note', header: 'Notes', ...opts }
-    });
-}
-
-/**
- * Given a Score, return an HTML canvas showing the gamut used in the Score.
- */
-export function scoreToGamutCanvas(score: Score, opts: CanvasArgOpts = {}): string {
-    const [ timeline, data ] = transformations.toGamut(score);
-
-    return render2DCanvas({
-        name: 'gamut',
-        timeline,
-        data,
-        options: { color_rule: 'mod12', value_rule: 'gamut', header: 'Gamut', ...opts }
-    });
-}
-
-/**
- * Given a Score, return an HTML canvas showing intervals in the Score.
- */
-export function scoreToIntervalsCanvas(score: Score, opts: CanvasArgOpts = {}): string {
-    const [ timeline, data ] = transformations.toIntervals(score);
-
-    return render2DCanvas({
-        name: 'intervals',
-        timeline,
-        data,
-        options: { color_rule: 'mod12', value_rule: 'number', header: 'Intervals', ...opts }
-    });
-}
-
-/**
- * Given a Score, return an HTML canvas showing interval gamuts in the Score.
- */
-export function scoreToIntervalGamutCanvas(score: Score, opts: CanvasArgOpts = {}): string {
-    const [ timeline, data ] = transformations.toIntervalGamut(score);
-
-    return render2DCanvas({
-        name: 'interval_gamut',
-        timeline,
-        data,
-        options: { color_rule: 'mod12', value_rule: 'gamut', header: 'Interval Gamut', ...opts }
-    });
-}
-
-/**
  * Returns an HTML canvas visualisation of the Score. Will attempt to size the canvas
  * as close as possible to the sizes supplied.
  * 
