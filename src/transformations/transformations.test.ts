@@ -241,7 +241,7 @@ describe('transformations.toIntervalGamut()', () => {
     });
 });
 
-describe('transformations.scoreToPitchClasses()', () => {
+describe('transformations.toPitchClasses()', () => {
     const m1 = Melody.from([ 60, 62, 64, 68, 70, 72 ]).withDuration(64);
     const m2 = Melody.from([ 83, null, 77, 72 ]).withDuration(96);
     const m3 = Melody.from([ [ 71, 75 ], [], [], [ 72 ] ]).withDuration(96);
@@ -249,29 +249,29 @@ describe('transformations.scoreToPitchClasses()', () => {
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
     test('returns as expected if a melody passed', () => {
-        expect(transformations.scoreToPitchClasses(m3)).toStrictEqual([
+        expect(transformations.toPitchClasses(m3)).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ '2-4', '0-1', '0-1', '1-1', '0-1' ]
         ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
-        expect(transformations.scoreToPitchClasses(Score.from([]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toPitchClasses(Score.from([]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns empty array if a score with only empty tracks passed', () => {
-        expect(transformations.scoreToPitchClasses(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toPitchClasses(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns as expected if a score with one track passed', () => {
-        expect(transformations.scoreToPitchClasses(Score.from([ m3 ]))).toStrictEqual([
+        expect(transformations.toPitchClasses(Score.from([ m3 ]))).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ '2-4', '0-1', '0-1', '1-1', '0-1' ]
         ]);
     });
 
     test('returns expected timeline and intervals', () => {
-        expect(transformations.scoreToPitchClasses(sc)).toStrictEqual([
+        expect(transformations.toPitchClasses(sc)).toStrictEqual([
             [ 0, 64, 96, 128, 192, 256, 288, 320, 384 ],
             [ '3-3A', '3-3B', '1-1', '1-1', '2-3', '2-5', '2-2', '1-1', '0-1' ]
         ]);

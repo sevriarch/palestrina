@@ -205,7 +205,7 @@ export function toIntervalGamut(music: Renderable): [ number[], number[][] ] {
  * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of strings, contains the pitch classes of the notes playing at that tick.
  */
-export function scoreToPitchClasses(music: Renderable): [ number[], string[] ] {
+export function toPitchClasses(music: Renderable): [ number[], string[] ] {
     const [ timeline, notes ] = toNotes(music);
 
     return [ timeline, notes.map(n => notesToPitchClass(n)) ];
