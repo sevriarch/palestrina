@@ -4,7 +4,7 @@ import * as timeSignature from '../helpers/time-signature';
 
 import { PITCH_CLASS_MAP } from '../constants';
 
-import { isInt } from '../helpers/validation';
+import { isPosInt } from '../helpers/validation';
 import { dedupe, arraySubtract } from '../helpers/arrays';
 import { dumpOneLine } from '../dump/dump';
 
@@ -23,23 +23,29 @@ function mapNotesToUnique(notes: number[], fn: (n: number) => number): number[] 
 /**
  * Return an object mapping midi ticks to tuples containing the notes that start and end during them.
  */
-function getOnOff(mels: Melody[]): { [k: number]: [ number[], number[] ] } {
-    const onoff: { [k: number]: [ number[], number[] ] } = {};
+function getOnOff(s: Score): Map<number, [ number[], number [] ]> {
+    const onoffmap: Map<number, [ number[], number[] ]> = new Map();
 
-    mels.forEach(m => {
-        m.toOrderedChords().forEach(event => {
-            const start = event.at;
-            const stop  = event.at + event.duration;
+    for (const chords of s.toOrderedChords()) {
+        for (const chord of chords) {
+            const start = chord.at;
+            const stop  = chord.at + chord.duration;
 
-            if (!onoff[start]) { onoff[start] = [ [], [] ]; }
-            if (!onoff[stop]) { onoff[stop] = [ [], [] ]; }
+            if (onoffmap.has(start)) {
+                (onoffmap.get(start) as [ number[], number[] ])[0].push(...chord.pitches());
+            } else {
+                onoffmap.set(start, [ chord.pitches().slice(), [] ]);
+            }
 
-            onoff[start][0].push(...event.pitches());
-            onoff[stop][1].push(...event.pitches());
-        });
-    });
+            if (onoffmap.has(stop)) {
+                (onoffmap.get(stop) as [ number[], number[] ])[1].push(...chord.pitches());
+            } else {
+                onoffmap.set(stop, [ [], chord.pitches().slice() ]);
+            }
+        }
+    }
 
-    return onoff;
+    return onoffmap;
 }
 
 /**
@@ -109,22 +115,20 @@ export function notesToPitchClass(notes: number[]): string {
  * of that MIDI tick (no notes being represented by an empty array).
  */
 export function scoreToNotes(score: Score): [ number[], number[][] ] {
-    const onoff = getOnOff(score.contents);
-    const times = Object.keys(onoff).map(v => Number(v)).sort((a, b) => a - b);
-    const len = times.length;
-    const ret: number[][] = new Array(len);
-
+    const onoffmap = getOnOff(score);
+    const times: number[] = [];
+    const notes: number[][] = [];
     let curr: number[] = [];
 
-    for (let i = 0; i < len; i++) {
-        const [ on, off ] = onoff[times[i]];
+    const ordered = [...onoffmap.entries()].sort((a, b) => a[0] - b[0]);
 
-        curr = arraySubtract(curr, off).concat(on).sort((a, b) => a - b);
-
-        ret[i] = curr;
+    for (const [ time, onoff ] of ordered) {
+        curr = arraySubtract(curr, onoff[1]).concat(onoff[0]).sort((a, b) => a - b);
+        times.push(time);
+        notes.push(curr);
     }
 
-    return [ times, ret ];
+    return [ times, notes ];
 }
 
 /**
@@ -133,22 +137,27 @@ export function scoreToNotes(score: Score): [ number[], number[][] ] {
  * each slice.
  */
 export function scoreToNoteCount(score: Score, increment: number): number[] {
-    if (!isInt(increment)) {
-        throw new Error(`transformations.scoreToNoteCount(): increment must be a number, wwas ${dumpOneLine(increment)}`);
+    if (!isPosInt(increment)) {
+        throw new Error(`transformations.scoreToNoteCount(): increment must be a positive number, wwas ${dumpOneLine(increment)}`);
     }
 
-    const onoff = getOnOff(score.contents);
-    const times = Object.keys(onoff).map(v => Number(v)).sort((a, b) => a - b);
-    const len = times.length;
+    const onoffmap = getOnOff(score);
+    const ret: number[] = [];
 
-    if (len === 0) {
-        return [];
+    for (const [ time, onoff ] of onoffmap) {
+        const ix = Math.floor(time / increment);
+
+        if (ret[ix]) {
+            ret[ix] += onoff[0].length;
+        } else {
+            ret[ix] = onoff[0].length;
+        }
     }
 
-    const ret = new Array(Math.ceil((1 + times[len - 1]) / increment)).fill(0);
-
-    for (let i = 0; i < len; i++) {
-        ret[Math.floor(times[i] / increment)] += onoff[times[i]][0].length;
+    for (let ix = 0; ix < ret.length; ix++) {
+        if (!ret[ix]) {
+            ret[ix] = 0;
+        }
     }
 
     return ret;
