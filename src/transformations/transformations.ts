@@ -1,4 +1,4 @@
-import type { Timed, Score, Renderable, MetaEvent, MetaEventValueMap } from '../types';
+import type { Timed, TimedEntity, Score, Renderable, MetaEvent } from '../types';
 
 import * as timeSignature from '../helpers/time-signature';
 
@@ -109,12 +109,12 @@ export function notesToPitchClass(notes: number[]): string {
 }
 
 /**
- * Given a Score, convert it to a tuple of two arrays of equal length.
+ * Given a renderable entity, convert it to a tuple of two arrays of equal length.
  * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of arrays of numbers, contains the notes that are playing at the end
  * of that MIDI tick (no notes being represented by an empty array).
  */
-export function scoreToNotes(music: Renderable): [ number[], number[][] ] {
+export function toNotes(music: Renderable): [ number[], number[][] ] {
     const onoffmap = getOnOff(music);
     const times: number[] = [];
     const notes: number[][] = [];
@@ -132,13 +132,13 @@ export function scoreToNotes(music: Renderable): [ number[], number[][] ] {
 }
 
 /**
- * Given a Score, split it into slices lasting 'increment' MIDI ticks, where 'increment' is
- * the second argument passed. Then return an array containing the number of notes played in
- * each slice.
+ * Given a renderable entity, split it into slices lasting 'increment' MIDI ticks, where
+ * 'increment' is * the second argument passed. Then return an array containing the number
+ * of notes played in each slice.
  */
-export function scoreToNoteCount(music: Renderable, increment: number): number[] {
+export function toNoteCount(music: Renderable, increment: number): number[] {
     if (!isPosInt(increment)) {
-        throw new Error(`transformations.scoreToNoteCount(): increment must be a positive number, wwas ${dumpOneLine(increment)}`);
+        throw new Error(`transformations.toNoteCount(): increment must be a positive number, wwas ${dumpOneLine(increment)}`);
     }
 
     const onoffmap = getOnOff(music);
@@ -164,83 +164,62 @@ export function scoreToNoteCount(music: Renderable, increment: number): number[]
 }
 
 /**
- * Given a Score, convert it to a tuple of two arrays of equal length.
+ * Given a renderable entity, convert it to a tuple of two arrays of equal length.
  * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of arrays of numbers, contains a gamut of pitches that are playing
  * at the end of that MIDI tick (no notes being represented by an empty array). In this gamut,
  * C is represented by 0, C# by 1, and so on up to B represented by 11.
  */
-export function scoreToGamut(music: Renderable): [ number[], number[][] ] {
-    const [ timeline, notes ] = scoreToNotes(music);
+export function toGamut(music: Renderable): [ number[], number[][] ] {
+    const [ timeline, notes ] = toNotes(music);
 
     return [ timeline, notes.map(n => notesToGamut(n)) ];
 }
 
 /**
- * Given a Score, convert it to a tuple of two arrays of equal length.
+ * Given a renderable entity, convert it to a tuple of two arrays of equal length.
  * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of arrays of numbers, contains all intervals between notes currently
  * playing at that MIDI tick.
  */
-export function scoreToIntervals(music: Renderable): [ number[], number[][] ] {
-    const [ timeline, notes ] = scoreToNotes(music);
+export function toIntervals(music: Renderable): [ number[], number[][] ] {
+    const [ timeline, notes ] = toNotes(music);
 
     return [ timeline, notes.map(n => notesToIntervals(n)) ];
 }
 
 /**
- * Given a Score, convert it to a tuple of two arrays of equal length.
+ * Given a renderable entity, convert it to a tuple of two arrays of equal length.
  * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of arrays of numbers, contains a gamut of all intervals between notes
  * currently playing at that MIDI tick.
  */
-export function scoreToIntervalGamut(music: Renderable): [ number[], number[][] ] {
-    const [ timeline, notes ] = scoreToNotes(music);
+export function toIntervalGamut(music: Renderable): [ number[], number[][] ] {
+    const [ timeline, notes ] = toNotes(music);
 
     return [ timeline, notes.map(n => notesToIntervalGamut(n)) ];
 }
 
 /**
- * Given a Score, convert it to a tuple of two arrays of equal length.
+ * Given a renderable entity, convert it to a tuple of two arrays of equal length.
  * The first, an array of numbers, contains the MIDI ticks where notes either start or end.
  * The second, an array of strings, contains the pitch classes of the notes playing at that tick.
  */
 export function scoreToPitchClasses(music: Renderable): [ number[], string[] ] {
-    const [ timeline, notes ] = scoreToNotes(music);
+    const [ timeline, notes ] = toNotes(music);
 
     return [ timeline, notes.map(n => notesToPitchClass(n)) ];
 }
 
 /**
- * Given a score, extract specific matching events from it.
+ * Given a renderable entity, extract specific matching events from it.
  */
-export function scoreToMatchingTimedEvents(score: Score, fn: (evs: MetaEvent<keyof MetaEventValueMap>) => boolean): Timed<MetaEvent<keyof MetaEventValueMap>>[] {
-    const timed = score.withAllTicksExact();
-    const ret = timed.metadata.before.contents.filter(fn);
-
-    timed.each(mel => {
-        const meta = mel.metadata.before.contents.filter(fn);
-        if (meta) {
-            ret.push(...meta);
-        }
-
-        mel.each(mm => {
-            const before = mm.before.contents.filter(fn);
-
-            if (before.length) {
-                ret.push(...before);
-            }
-
-            const after = mm.after.contents.filter(fn);
-
-            if (after.length) {
-                ret.push(...after);
-            }
-        });
-    });
-
-    // as score.withAllTicksExact() has been called, at should always have a value
-    return (ret as Timed<MetaEvent<keyof MetaEventValueMap>>[]).sort((a, b) => a.at - b.at);
+export function toMatchingTimedEvents(music: Renderable, fn: (evs: TimedEntity) => boolean): TimedEntity[] {
+    return music.toOrderedEntitiesWithMetadata()
+        .map(v => v[0])
+        .flat()
+        .filter(fn)
+        .sort((a, b) => a.at - b.at);
 }
 
 /**
@@ -250,13 +229,14 @@ export function scoreToBarTimeline(score: Score): number[] {
     const ret: number[] = [];
     const lasttick = score.lastTick();
     const tpq = score.metadata.ticks_per_quarter;
-    const sigs: [ number, number ][] = scoreToMatchingTimedEvents(score, e => e.event === 'time-signature')
-        .map(e => [ e.at as number, timeSignature.toQuarterNotes(e.value as string) ]);
+    const tsigevts = toMatchingTimedEvents(score, e => 'event' in e && e.event === 'time-signature') as Timed<MetaEvent<'time-signature'>>[];
+    const sigs: [ number, number ][] = tsigevts.map(e => [ e.at, timeSignature.toQuarterNotes(e.value) ]);
 
     if (!score.length) {
         return [];
     }
 
+    /*
     if (score.metadata.time_signature) {
         sigs.unshift([ 0, timeSignature.toQuarterNotes(score.metadata.time_signature) ]);
     }
@@ -266,6 +246,7 @@ export function scoreToBarTimeline(score: Score): number[] {
             sigs.unshift([ 0, timeSignature.toQuarterNotes(mel.metadata.time_signature) ]);
         }
     });
+    */
 
     const numix = sigs.length;
 

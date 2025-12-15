@@ -234,7 +234,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         const filename = file.endsWith('.svg') ? file : `${file}.svg`;
 
         fs.writeFileSync(filename,
-            visualizations.scoreTo2DSVG(this, transformations.scoreToNotes,
+            visualizations.scoreTo2DSVG(this, transformations.toNotes,
                 { color_rule: 'mod12', value_rule: 'note', id: 'notes_svg', header: 'Notes', ...opts }
             )
         );
@@ -257,7 +257,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         const filename = file.endsWith('.svg') ? file : `${file}.gamut.svg`;
     
         fs.writeFileSync(filename,
-            visualizations.scoreTo2DSVG(this, transformations.scoreToGamut,
+            visualizations.scoreTo2DSVG(this, transformations.toGamut,
                 { color_rule: 'mod12', value_rule: 'gamut', id: 'gamut_svg', header: 'Gamut', ...opts }
             )
         );
@@ -280,7 +280,7 @@ export default class Score extends CollectionWithMetadata<Melody> {
         const filename = file.endsWith('.svg') ? file : `${file}.intervals.svg`;
     
         fs.writeFileSync(filename,
-            visualizations.scoreTo2DSVG(this, transformations.scoreToIntervals,
+            visualizations.scoreTo2DSVG(this, transformations.toIntervals,
                 { color_rule: 'mod12', value_rule: 'interval', id: 'intervals_svg', leftpad: 24, header: 'Intervals', ...opts }
             )
         );

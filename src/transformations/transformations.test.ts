@@ -2,6 +2,7 @@ import Score from '../scores/score';
 import Metadata from '../metadata/metadata';
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
+import MelodyEvent from '../sequences/members/melody';
 
 import { Melody } from '../sequences/sequences';
 
@@ -92,7 +93,7 @@ describe('transformations.notesToIntervalGamut()', () => {
     });
 });
 
-describe('transformations.scoreToNotes()', () => {
+describe('transformations.toNotes()', () => {
     const m1 = Melody.from([ 60, 62, 64, 68, 70, 72 ]).withDuration(64);
     const m2 = Melody.from([ 83, null, 77, 72 ]).withDuration(96);
     const m3 = Melody.from([ [ 71, 75 ], [], [], [ 72 ] ]).withDuration(96);
@@ -100,36 +101,36 @@ describe('transformations.scoreToNotes()', () => {
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
     test('returns as expected if a melody passed', () => {
-        expect(transformations.scoreToNotes(m3)).toStrictEqual([
+        expect(transformations.toNotes(m3)).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 71, 75 ], [], [], [ 72 ], [] ]
         ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
-        expect(transformations.scoreToNotes(Score.from([]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toNotes(Score.from([]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns empty array if a score with only empty tracks passed', () => {
-        expect(transformations.scoreToNotes(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toNotes(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns as expected if a score with one track passed', () => {
-        expect(transformations.scoreToNotes(Score.from([ m3 ]))).toStrictEqual([
+        expect(transformations.toNotes(Score.from([ m3 ]))).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 71, 75 ], [], [], [ 72 ], [] ]
         ]);
     });
 
     test('returns expected timeline and intervals', () => {
-        expect(transformations.scoreToNotes(sc)).toStrictEqual([
+        expect(transformations.toNotes(sc)).toStrictEqual([
             [ 0, 64, 96, 128, 192, 256, 288, 320, 384 ],
             [ [ 60, 71, 75, 83 ], [ 62, 71, 75, 83 ], [ 62 ], [ 64 ], [ 68, 77 ], [ 70, 77 ], [ 70, 72, 72 ], [ 72, 72, 72 ], [] ]
         ]);
     });
 });
 
-describe('transformation.scoreToGamut()', () => {
+describe('transformation.toGamut()', () => {
     const m1 = Melody.from([ 60, 62, 64, 68, 70, 72 ]).withDuration(64);
     const m2 = Melody.from([ 83, null, 77, 72 ]).withDuration(96);
     const m3 = Melody.from([ [ 71, 75 ], [], [], [ 72 ] ]).withDuration(96);
@@ -137,36 +138,36 @@ describe('transformation.scoreToGamut()', () => {
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
     test('returns as expected if a Melody passed', () => {
-        expect(transformations.scoreToGamut(m3)).toStrictEqual([
+        expect(transformations.toGamut(m3)).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 3, 11 ], [], [], [ 0 ], [] ]
         ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
-        expect(transformations.scoreToGamut(Score.from([]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toGamut(Score.from([]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns empty array if a score with only empty tracks passed', () => {
-        expect(transformations.scoreToGamut(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toGamut(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns as expected if a score with one track passed', () => {
-        expect(transformations.scoreToGamut(Score.from([ m3 ]))).toStrictEqual([
+        expect(transformations.toGamut(Score.from([ m3 ]))).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 3, 11 ], [], [], [ 0 ], [] ]
         ]);
     });
 
     test('returns expected timeline and intervals', () => {
-        expect(transformations.scoreToGamut(sc)).toStrictEqual([
+        expect(transformations.toGamut(sc)).toStrictEqual([
             [ 0, 64, 96, 128, 192, 256, 288, 320, 384 ],
             [ [ 0, 3, 11 ], [ 2, 3, 11 ], [ 2 ], [ 4 ], [ 5, 8 ], [ 5, 10 ], [ 0, 10 ], [ 0 ], [] ]
         ]);
     });
 });
 
-describe('transformations.scoreToIntervals()', () => {
+describe('transformations.toIntervals()', () => {
     const m1 = Melody.from([ 60, 62, 64, 68, 70, 72 ]).withDuration(64);
     const m2 = Melody.from([ 83, null, 77, 72 ]).withDuration(96);
     const m3 = Melody.from([ [ 71, 75 ], [], [], [ 72 ] ]).withDuration(96);
@@ -174,36 +175,36 @@ describe('transformations.scoreToIntervals()', () => {
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
     test('returns as expected if a melody passed', () => {
-        expect(transformations.scoreToIntervals(m3)).toStrictEqual([
+        expect(transformations.toIntervals(m3)).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 4 ], [], [], [], [] ]
         ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
-        expect(transformations.scoreToIntervals(Score.from([]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toIntervals(Score.from([]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns empty array if a score with only empty tracks passed', () => {
-        expect(transformations.scoreToIntervals(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toIntervals(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns as expected if a score with one track passed', () => {
-        expect(transformations.scoreToIntervals(Score.from([ m3 ]))).toStrictEqual([
+        expect(transformations.toIntervals(Score.from([ m3 ]))).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 4 ], [], [], [], [] ]
         ]);
     });
 
     test('returns expected timeline and intervals', () => {
-        expect(transformations.scoreToIntervals(sc)).toStrictEqual([
+        expect(transformations.toIntervals(sc)).toStrictEqual([
             [ 0, 64, 96, 128, 192, 256, 288, 320, 384 ],
             [ [ 4, 8, 11, 12, 15, 23 ], [ 4, 8, 9, 12, 13, 21 ], [], [], [ 9 ], [ 7 ], [ 0, 2 ], [ 0 ], [] ]
         ]);
     });
 });
 
-describe('transformations.scoreToIntervalGamut()', () => {
+describe('transformations.toIntervalGamut()', () => {
     const m1 = Melody.from([ 60, 62, 64, 68, 70, 72 ]).withDuration(64);
     const m2 = Melody.from([ 83, null, 77, 72 ]).withDuration(96);
     const m3 = Melody.from([ [ 71, 75 ], [], [], [ 72 ] ]).withDuration(96);
@@ -211,29 +212,29 @@ describe('transformations.scoreToIntervalGamut()', () => {
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
     test('returns as expected if a melody passed', () => {
-        expect(transformations.scoreToIntervalGamut(m3)).toStrictEqual([
+        expect(transformations.toIntervalGamut(m3)).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 4 ], [], [], [], [] ]
         ]);
     });
 
     test('returns empty arrays if an empty score passed', () => {
-        expect(transformations.scoreToIntervalGamut(Score.from([]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toIntervalGamut(Score.from([]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns empty array if a score with only empty tracks passed', () => {
-        expect(transformations.scoreToIntervalGamut(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
+        expect(transformations.toIntervalGamut(Score.from([ m4, m4 ]))).toStrictEqual([ [], [] ]);
     });
 
     test('returns as expected if a score with one track passed', () => {
-        expect(transformations.scoreToIntervalGamut(Score.from([ m3 ]))).toStrictEqual([
+        expect(transformations.toIntervalGamut(Score.from([ m3 ]))).toStrictEqual([
             [ 0, 96, 192, 288, 384 ],
             [ [ 4 ], [], [], [], [] ]
         ]);
     });
 
     test('returns expected timeline and intervals', () => {
-        expect(transformations.scoreToIntervalGamut(sc)).toStrictEqual([
+        expect(transformations.toIntervalGamut(sc)).toStrictEqual([
             [ 0, 64, 96, 128, 192, 256, 288, 320, 384 ],
             [ [ 0, 3, 4, 8, 11 ], [ 0, 1, 4, 8, 9 ], [], [], [ 9 ], [ 7 ], [ 0, 2 ], [ 0 ], [] ]
         ]);
@@ -277,7 +278,7 @@ describe('transformations.scoreToPitchClasses()', () => {
     });
 });
 
-describe('transformations.scoreToNoteCount()', () => {
+describe('transformations.toNoteCount()', () => {
     const m1 = Melody.from([ 60, 62, 64, 68, 70, 72 ]).withDuration(64);
     const m2 = Melody.from([ 83, null, 77, 72 ]).withDuration(96);
     const m3 = Melody.from([ [ 71, 75 ], [], [], [ 72 ] ]).withDuration(96);
@@ -285,46 +286,71 @@ describe('transformations.scoreToNoteCount()', () => {
     const sc = Score.from([ m1, m2, m3, m4 ]);
 
     test('throws if granularity is not a positive integer', () => {
-        expect(() => transformations.scoreToNoteCount(sc, 0)).toThrow();
-        expect(() => transformations.scoreToNoteCount(sc, 54.5)).toThrow();
-        expect(() => transformations.scoreToNoteCount(sc, '4' as unknown as number)).toThrow();
+        expect(() => transformations.toNoteCount(sc, 0)).toThrow();
+        expect(() => transformations.toNoteCount(sc, 54.5)).toThrow();
+        expect(() => transformations.toNoteCount(sc, '4' as unknown as number)).toThrow();
     });
 
     test('returns as expected if a melody passed', () => {
-        expect(transformations.scoreToNoteCount(m3, 50)).toStrictEqual([ 2, 0, 0, 0, 0, 1, 0, 0 ]);
+        expect(transformations.toNoteCount(m3, 50)).toStrictEqual([ 2, 0, 0, 0, 0, 1, 0, 0 ]);
     });
 
     test('returns empty array if an empty score passed', () => {
-        expect(transformations.scoreToNoteCount(Score.from([]), 50)).toStrictEqual([]);
+        expect(transformations.toNoteCount(Score.from([]), 50)).toStrictEqual([]);
     });
 
     test('returns empty array if a score with only empty tracks passed', () => {
-        expect(transformations.scoreToNoteCount(Score.from([ m4, m4 ]), 50)).toStrictEqual([]);
+        expect(transformations.toNoteCount(Score.from([ m4, m4 ]), 50)).toStrictEqual([]);
     });
 
     test('returns expected values (increment is a factor of the length)', () => {
-        expect(transformations.scoreToNoteCount(sc, 32)).toStrictEqual([ 4, 0, 1, 0, 1, 0, 2, 0, 1, 2, 1, 0, 0 ]);
+        expect(transformations.toNoteCount(sc, 32)).toStrictEqual([ 4, 0, 1, 0, 1, 0, 2, 0, 1, 2, 1, 0, 0 ]);
     });
 
     test('returns expected values (increment is not a factor of the length)', () => {
-        expect(transformations.scoreToNoteCount(sc, 50)).toStrictEqual([ 4, 1, 1, 2, 0, 3, 1, 0 ]);
+        expect(transformations.toNoteCount(sc, 50)).toStrictEqual([ 4, 1, 1, 2, 0, 3, 1, 0 ]);
     });
 });
 
-describe('transformations.scoreToMatchingTimedEvents()', () => {
+describe('transformations.toMatchingTimedEvents()', () => {
     test('no events if no tracks', () => {
-        expect(transformations.scoreToMatchingTimedEvents(Score.from([]), () => true)).toStrictEqual([]);
-    });
-
-    test('extracts from score metadata', () => {
-        expect(transformations.scoreToMatchingTimedEvents(Score.from([],
+        expect(transformations.toMatchingTimedEvents(Score.from([],
             Metadata.from({
+                time_signature: '4/4',
                 before: MetaList.from([
                     {
                         event: 'time-signature',
-                        value: '4/4',
-                        at: 0
+                        value: '3/4',
+                        at: 1024 
                     },
+                ])
+            })
+        ), () => true)).toStrictEqual([]);
+    });
+
+    test('extracts from melody metadata', () => { // TODO
+        expect(transformations.toMatchingTimedEvents(Melody.from([],
+            Metadata.from({
+                time_signature: '4/4',
+                before: MetaList.from([
+                    {
+                        event: 'time-signature',
+                        value: '3/4',
+                        at: 1024 
+                    },
+                ])
+            })
+        ), () => true)).toStrictEqual([
+            MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
+        ]);
+    });
+
+    test('extracts from score metadata', () => {
+        expect(transformations.toMatchingTimedEvents(Score.from([ Melody.from([]) ],
+            Metadata.from({
+                time_signature: '4/4',
+                before: MetaList.from([
                     {
                         event: 'time-signature',
                         value: '3/4',
@@ -339,14 +365,10 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
     });
 
     test('filters from score metadata', () => {
-        expect(transformations.scoreToMatchingTimedEvents(Score.from([],
+        expect(transformations.toMatchingTimedEvents(Score.from([ Melody.from([]) ],
             Metadata.from({
+                time_signature: '4/4',
                 before: MetaList.from([
-                    {
-                        event: 'time-signature',
-                        value: '4/4',
-                        at: 0
-                    },
                     {
                         event: 'time-signature',
                         value: '3/4',
@@ -354,13 +376,13 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
                     },
                 ])
             })
-        ), (ev) => ev.value !== '4/4')).toStrictEqual([
+        ), (ev) => 'value' in ev && ev.value !== '4/4')).toStrictEqual([
             MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
         ]);
     });
 
     test('extracts from notes and metadata', () => {
-        expect(transformations.scoreToMatchingTimedEvents(Score.from([
+        expect(transformations.toMatchingTimedEvents(Score.from([
             Melody.from([
                 {
                     pitch: [ 60 ],
@@ -414,7 +436,7 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
             before: MetaList.from([
                 { event: 'copyright', value: 'this test suite' },
             ])
-        })), () => true)).toStrictEqual([
+        })), e => 'event' in e)).toStrictEqual([
             MetaEvent.from({ event: 'copyright', value: 'this test suite', at: 0 }),
             MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
             MetaEvent.from({ event: 'key-signature', value: 'F', at: 0 }),
@@ -428,7 +450,7 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
     });
 
     test('filters from notes and metadata', () => {
-        expect(transformations.scoreToMatchingTimedEvents(Score.from([
+        expect(transformations.toMatchingTimedEvents(Score.from([
             Melody.from([
                 {
                     pitch: [ 60 ],
@@ -485,8 +507,26 @@ describe('transformations.scoreToMatchingTimedEvents()', () => {
         })), e => e.at as number < 96)).toStrictEqual([
             MetaEvent.from({ event: 'copyright', value: 'this test suite', at: 0 }),
             MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
+            MelodyEvent.from({
+                pitch: [ 60 ],
+                duration: 32,
+                before: [ { event: 'time-signature', value: '4/4', at: 0 } ],
+                at: 0
+            }),
             MetaEvent.from({ event: 'key-signature', value: 'F', at: 0 }),
+            MelodyEvent.from({
+                pitch: [ 62 ],
+                duration: 32,
+                after: [ { event: 'time-signature', value: '2/4', at: 64 } ],
+                at: 32
+            }),
             MetaEvent.from({ event: 'time-signature', value: '2/4', at: 64 }),
+            MelodyEvent.from({
+                pitch: [ 64 ],
+                duration: 32,
+                before: [ { event: 'time-signature', value: '7/8', at: 112 } ],
+                at: 64
+            }),
             MetaEvent.from({ event: 'time-signature', value: '3/4', at: 80 }),
         ]);
     });
@@ -524,8 +564,8 @@ describe('transformations.scoreToBarTimeline()', () => {
     test('empty score with time signatures in score and melody and adjusted last tick', () => {
         expect(transformations.scoreToBarTimeline(
             Score.from([
-                Melody.from([]).withNewEvent('sustain', 0, { at: 4096 }).withTimeSignature('3/4')
-            ]).withTimeSignature('3/2')
+                Melody.from([]).withNewEvent('sustain', 0, { at: 4096 }).withTimeSignature('3/2')
+            ]).withTimeSignature('3/4')
         )).toStrictEqual([ 0, 1152, 2304, 3456 ]);
     });
 
