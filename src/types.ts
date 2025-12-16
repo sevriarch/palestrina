@@ -207,7 +207,6 @@ export type MelodyMemberArg = {
     at?: number,
     before?: MetaListArg,
     after?: MetaListArg,
-    timing?: Timing,
 };
 
 /**

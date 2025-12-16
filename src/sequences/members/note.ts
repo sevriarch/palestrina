@@ -1,9 +1,34 @@
-import type { SeqMemberArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
+import type { SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
 
 import SeqMember from './generic';
 
 import { isNumber } from '../../helpers/validation';
 import { dumpOneLine } from '../../dump/dump';
+
+/**
+ * Return a numeric value or throw.
+ */
+export function nullableNumericValueOrThrow(arg: PitchArgument): number | null {
+    if (isNumber(arg)) {
+        return arg as number;
+    }
+
+    if (arg === null) {
+        return null;
+    }
+
+    if (Array.isArray(arg)) {
+        switch (arg.length) {
+        case 0: return null;
+        case 1:
+            if (isNumber(arg[0])) {
+                return arg[0];
+            }
+        }
+    }
+
+    throw new Error(`pitch must contain a single number or null, was ${arg}`);
+}
 
 /**
  * Class representing a member of a {@link NoteSeq}, whose value is a number or the absence of one.
@@ -13,10 +38,6 @@ export default class NoteSeqMember extends SeqMember<number | null> implements I
      * Extract a single pitch from a null, number, array of numbers, object or SeqMember.
      */
     static toPitch(val: SeqMemberArgument): null | number {
-        if (isNumber(val)) {
-            return val as number;
-        }
-
         if (typeof val === 'object') {
             if (val === null) {
                 return val;
@@ -29,21 +50,9 @@ export default class NoteSeqMember extends SeqMember<number | null> implements I
             if ('pitch' in val) {
                 return NoteSeqMember.toPitch(val.pitch);
             }
-
-            if (Array.isArray(val)) {
-                switch (val.length) {
-                case 0:
-                    return null;
-                case 1:
-                    if (isNumber(val[0])) {
-                        return val[0];
-                    }
-                    break;
-                }
-            }
         }
 
-        throw new Error(`NoteSeqMember.toPitch(): value must contain a single pitch or a null; was ${dumpOneLine(val)}`);
+        return nullableNumericValueOrThrow(val);
     }
 
     /**
@@ -109,7 +118,11 @@ export default class NoteSeqMember extends SeqMember<number | null> implements I
             return this;
         }
 
-        return this.construct(NoteSeqMember.toPitch(fn(this._val)));
+        return this.construct(fn(this._val));
+    }
+
+    setPitches(p: PitchArgument): this {
+        return this.construct(nullableNumericValueOrThrow(p));
     }
 
     toJSON(): JSONValue {

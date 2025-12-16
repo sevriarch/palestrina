@@ -169,10 +169,6 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
         return this._val.pitch.mean();
     }
 
-    override setPitches(p: PitchArgument): this {
-        return this.construct({ ...this._val, pitch: ChordSeqMember.from(p) });
-    }
-
     toJSON(): JSONValue {
         return JSON.parse(JSON.stringify(this._val));
     }
@@ -191,6 +187,16 @@ export default class MelodyMember extends SeqMember<MelodyMemberData> implements
             timing: v.timing,
             before: v.before,
             after: v.after
+        });
+    }
+
+    setPitches(p: PitchArgument): this {
+        return this.construct({
+            pitch: ChordSeqMember.from(p),
+            velocity: this.velocity,
+            timing: this.timing,
+            before: this.before,
+            after: this.after
         });
     }
 

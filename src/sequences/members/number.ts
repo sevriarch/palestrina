@@ -1,9 +1,24 @@
-import type { SeqMemberArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
+import type { SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
 
 import SeqMember from './generic';
 
 import { isNumber } from '../../helpers/validation';
 import { dumpOneLine } from '../../dump/dump';
+
+/**
+ * Return a numeric value or throw.
+ */
+export function numericValueOrThrow(arg: PitchArgument): number {
+    if (isNumber(arg)) {
+        return arg as number;
+    }
+
+    if (Array.isArray(arg) && arg.length === 1 && isNumber(arg[0])) {
+        return arg[0];
+    }
+
+    throw new Error(`pitch must contain a single number, was: ${dumpOneLine(arg)}`);
+}
 
 /**
  * Class representing a member of a {@link NumSeq}, whose value is a number.
@@ -13,29 +28,21 @@ export default class NumSeqMember extends SeqMember<number> implements ISeqMembe
      * Extract a single pitch from a null, number, array of numbers, object or SeqMember.
      */
     static toPitch(val: SeqMemberArgument): number {
-        if (isNumber(val)) {
-            return val as number;
-        }
-
         if (typeof val === 'object') {
             if (val instanceof SeqMember) {
                 return val.numericValue();
             }
 
             if (val === null) {
-                throw new Error('NumSeqMember.toPitch(): value was null but must contain a pitch');
+                throw new Error('value must contain a single number, was: null');
             }
 
             if ('pitch' in val) {
                 return NumSeqMember.toPitch(val.pitch);
             }
-
-            if (Array.isArray(val) && val.length === 1 && isNumber(val[0])) {
-                return val[0];
-            }
         }
 
-        throw new Error(`NumSeqMember.toPitch(): value must contain a single pitch; was ${dumpOneLine(val)}`);
+        return numericValueOrThrow(val);
     }
 
     /**
@@ -94,6 +101,10 @@ export default class NumSeqMember extends SeqMember<number> implements ISeqMembe
 
     mapPitches(fn: (v: number) => number): this {
         return this.construct(fn(this._val));
+    }
+
+    setPitches(p: PitchArgument): this {
+        return this.construct(numericValueOrThrow(p));
     }
 
     toJSON(): JSONValue {

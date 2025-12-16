@@ -6,6 +6,24 @@ import { isNumber } from '../../helpers/validation';
 import { sum } from '../../helpers/calculations';
 import { dumpOneLine } from '../../dump/dump';
 
+export function arrayOfNumericValuesOrThrow(arg: PitchArgument): number[] {
+    if (isNumber(arg)) {
+        return [ arg as number ];
+    }
+
+    if (Array.isArray(arg)) {
+        if (arg.every(isNumber)) {
+            return arg.slice().sort((a, b) => a - b);
+        }
+    }
+
+    if (arg === null) {
+        return [];
+    }
+
+    throw new Error(`pitch must contain zero or more pitches or a null; was ${dumpOneLine(arg)}`);
+}
+
 /**
  * Class representing a member of a {@link ChordSeq}, whose value is an array of zero or more numbers.
  */
@@ -15,20 +33,12 @@ export default class ChordSeqMember extends SeqMember<number[]> implements ISeqM
      */
     static toPitch(val: SeqMemberArgument): number[] {
         if (typeof val === 'object') {
-            if (Array.isArray(val)) {
-                if (!val.every(isNumber)) {
-                    throw new Error(`ChordSeqMember.toPitch(): value must not contain non-numeric values; was ${dumpOneLine(val)}`);
-                }
-
-                return val.slice().sort((a, b) => a - b);
+            if (val instanceof SeqMember) {
+                return val.pitches();
             }
 
             if (val === null) {
                 return [];
-            }
-
-            if (val instanceof SeqMember) {
-                return val.pitches();
             }
 
             if ('pitch' in val) {
@@ -36,11 +46,7 @@ export default class ChordSeqMember extends SeqMember<number[]> implements ISeqM
             }
         }
 
-        if (isNumber(val)) {
-            return [ val as number ];
-        }
-
-        throw new Error(`ChordSeqMember.toPitch(): value must contain zero or more pitches or a null; was ${dumpOneLine(val)}`);
+        return arrayOfNumericValuesOrThrow(val);
     }
 
     /**
@@ -134,6 +140,10 @@ export default class ChordSeqMember extends SeqMember<number[]> implements ISeqM
         }
 
         return this.setPitches(ret);
+    }
+
+    setPitches(p: PitchArgument): this {
+        return this.construct(arrayOfNumericValuesOrThrow(p));
     }
 
     toJSON(): JSONValue {

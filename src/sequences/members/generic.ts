@@ -19,8 +19,8 @@ export default abstract class SeqMember<T> implements ISeqMember<T> {
     /**
      * Return a new SeqMember of the same class as this one.
      */
-    protected construct(arg: SeqMemberArgument): this {
-        const Ctor = this.constructor as new (arg: SeqMemberArgument) => this;
+    protected construct(arg: T): this {
+        const Ctor = this.constructor as new (arg: T) => this;
 
         return new Ctor(arg);
     }
@@ -100,9 +100,7 @@ export default abstract class SeqMember<T> implements ISeqMember<T> {
     /**
      * Return a new entity with the set pitches.
      */
-    setPitches(p: PitchArgument): this {
-        return this.construct(p);
-    }
+    abstract setPitches(p: PitchArgument): this;
 
     /**
      * Return a new entity, but with no pitches played.
