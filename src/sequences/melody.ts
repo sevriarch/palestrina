@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MapperFn, SeqIndices, Metadata, MetaEventValueMap, MetaEventOpts, MetaEventArg, ISequence } from '../types';
+import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MapperFn, SeqIndices, Metadata, MetaEventValueMap, EventTiming, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -313,7 +313,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // 2-argument format: release sustain pedal 1024 ticks after note 100 begins
      * myMelody.withEventBefore([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
-    withEventBefore<Event extends keyof MetaEventValueMap>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: MetaEventOpts): this {
+    withEventBefore<Event extends keyof MetaEventValueMap>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
         return this.replaceIndices(pos, e => e.withEventBefore(event, value, opts));
     }
 
@@ -329,7 +329,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // 2-argument format: release sustain pedal 1024 ticks after note 100 ends
      * myMelody.withEventAfter([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
-    withEventAfter<Event extends keyof MetaEventValueMap>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: MetaEventOpts): this {
+    withEventAfter<Event extends keyof MetaEventValueMap>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
         return this.replaceIndices(pos, e => e.withEventAfter(event, value, opts));
     }
 
@@ -450,7 +450,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // Add a lyric at the start of note 60
      * myMelody.withTextBefore([ 60 ], 'merciful', lyric')
      */
-    withTextBefore(pos: SeqIndices, val: string, typeOrOpts?: string | MetaEventOpts, opts?: MetaEventOpts) {
+    withTextBefore(pos: SeqIndices, val: string, typeOrOpts?: string | EventTiming, opts?: EventTiming) {
         return this.replaceIndices(pos, e => e.withTextBefore(val, typeOrOpts, opts));
     }
 
@@ -464,7 +464,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // Add a lyric at the end of note 60
      * myMelody.withTextAfter([ 60 ], 'merciful', 'lyric')
      */
-    withTextAfter(pos: SeqIndices, val: string, typeOrOpts?: string | MetaEventOpts, opts?: MetaEventOpts) {
+    withTextAfter(pos: SeqIndices, val: string, typeOrOpts?: string | EventTiming, opts?: EventTiming) {
         return this.replaceIndices(pos, e => e.withTextAfter(val, typeOrOpts, opts));
     }
 

@@ -34,10 +34,10 @@ MIDI:
 - Potential enhancement: midi-reader could attempt to associate events with the related note(s)
 
 VISUALISATIONS:
-- The original Score canvas could use some love and some compatibility with the 2D canvas style
+- The original Score canvas could use some love and some compatibility with the 2D SVG style
 
 CLEANLINESS:
-- Pitch helpers are the only ones exported, which feels weird.
+- Helpers are inconsistent; pitch ones are targeted at the end user, all others are used only within Sibelius and not exported
 
 ONGOING
 - Review docs, compile checklist of things to rereview

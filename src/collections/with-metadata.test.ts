@@ -215,8 +215,12 @@ describe('Collection.withInstrument() tests', () => {
 describe('Collection.withNewEvent() tests', () => {
     const meta = new Collection([], Metadata.EMPTY_METADATA);
 
-    test('invalid arguments throw an error', () => {
-        expect(() => meta.withNewEvent(5000 as unknown as MetaEventArg)).toThrow();
+    test('invalid event throws an error', () => {
+        expect(() => meta.withNewEvent(5000 as unknown as MetaEventArg, 100)).toThrow();
+    });
+
+    test('one-event form with no value throws an error', () => {
+        expect(() => meta.withNewEvent('lyric')).toThrow();
     });
 
     test('adding one event using two-argument form works', () => {

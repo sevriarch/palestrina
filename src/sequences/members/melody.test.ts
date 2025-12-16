@@ -1,4 +1,4 @@
-import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, MetaEventOpts, MetaListArg, MetaEventValueMap } from '../../types';
+import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, EventTiming, MetaListArg, MetaEventValueMap } from '../../types';
 
 import NumSeqMember from './number';
 import NoteSeqMember from './note';
@@ -804,14 +804,14 @@ describe('MelodyMember.withTextBefore()', () => {
         before: MetaList.from([ { event: 'sustain', value: 0 }])
     });
 
-    const errortable: [ string, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined ][] = [
+    const errortable: [ string, string, string | EventTiming | undefined, EventTiming | undefined ][] = [
         [ 'value not a string', 5000 as unknown as string, undefined, undefined ],
         [ 'invalid text type passed', 'testing', 'tempo', undefined ],
-        [ 'invalid options passed in 2nd arg', '3/4', 'foo' as unknown as MetaEventOpts, undefined ],
-        [ 'non-existent option passed in 2nd arg', '3/4', { cat: 555 } as unknown as MetaEventOpts, undefined ],
+        [ 'invalid options passed in 2nd arg', '3/4', 'foo' as unknown as EventTiming, undefined ],
+        [ 'non-existent option passed in 2nd arg', '3/4', { cat: 555 } as unknown as EventTiming, undefined ],
         [ 'invalid option value passed in 2nd arg', '3/4', { at: '555' as unknown as number }, undefined ],
-        [ 'invalid options passed in 3rd arg', '3/4', undefined, 'foo' as unknown as MetaEventOpts ],
-        [ 'non-existent option passed in 3rd arg', '3/4', undefined, { cat: 555 } as unknown as MetaEventOpts ],
+        [ 'invalid options passed in 3rd arg', '3/4', undefined, 'foo' as unknown as EventTiming ],
+        [ 'non-existent option passed in 3rd arg', '3/4', undefined, { cat: 555 } as unknown as EventTiming ],
         [ 'invalid option value passed in 3rd arg', '3/4', undefined, { at: '555' as unknown as number } ],
     ];
 
@@ -819,7 +819,7 @@ describe('MelodyMember.withTextBefore()', () => {
         expect(() => e1.withTextBefore(val, arg2, arg3)).toThrow();
     });
 
-    const table: [ string, MelodyMember, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined, MelodyMember ][] = [
+    const table: [ string, MelodyMember, string, string | EventTiming | undefined, EventTiming | undefined, MelodyMember ][] = [
         [
             'with default type and no options',
             e1,
@@ -895,14 +895,14 @@ describe('MelodyMember.withTextAfter()', () => {
         after: MetaList.from([ { event: 'sustain', value: 0 }])
     });
 
-    const errortable: [ string, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined ][] = [
+    const errortable: [ string, string, string | EventTiming | undefined, EventTiming | undefined ][] = [
         [ 'value not a string', 5000 as unknown as string, undefined, undefined ],
         [ 'invalid text type passed', 'testing', 'tempo', undefined ],
-        [ 'invalid options passed in 2nd arg', '3/4', 'foo' as unknown as MetaEventOpts, undefined ],
-        [ 'non-existent option passed in 2nd arg', '3/4', { cat: 555 } as unknown as MetaEventOpts, undefined ],
+        [ 'invalid options passed in 2nd arg', '3/4', 'foo' as unknown as EventTiming, undefined ],
+        [ 'non-existent option passed in 2nd arg', '3/4', { cat: 555 } as unknown as EventTiming, undefined ],
         [ 'invalid option value passed in 2nd arg', '3/4', { at: '555' as unknown as number }, undefined ],
-        [ 'invalid options passed in 3rd arg', '3/4', undefined, 'foo' as unknown as MetaEventOpts ],
-        [ 'non-existent option passed in 3rd arg', '3/4', undefined, { cat: 555 } as unknown as MetaEventOpts ],
+        [ 'invalid options passed in 3rd arg', '3/4', undefined, 'foo' as unknown as EventTiming ],
+        [ 'non-existent option passed in 3rd arg', '3/4', undefined, { cat: 555 } as unknown as EventTiming ],
         [ 'invalid option value passed in 3rd arg', '3/4', undefined, { at: '555' as unknown as number } ],
     ];
 
@@ -910,7 +910,7 @@ describe('MelodyMember.withTextAfter()', () => {
         expect(() => e1.withTextAfter(val, arg2, arg3)).toThrow();
     });
 
-    const table: [ string, MelodyMember, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined, MelodyMember ][] = [
+    const table: [ string, MelodyMember, string, string | EventTiming | undefined, EventTiming | undefined, MelodyMember ][] = [
         [
             'with default type and no options',
             e1,
@@ -1106,7 +1106,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
     const e1 = makeEventWithDefaults({});
     const e2 = makeEventWithDefaults({ before: [ META_SUSTAIN_ON ], after: [ META_SUSTAIN_ON ] });
 
-    const errortable: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, MetaEventOpts | undefined ][] = [
+    const errortable: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, EventTiming | undefined ][] = [
         [
             'adding an invalid MetaEvent',
             e1,
@@ -1135,7 +1135,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         });
     });
 
-    const table: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, MetaEventOpts | undefined, MetaListArg ][] = [
+    const table: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, EventTiming | undefined, MetaListArg ][] = [
         [
             'adding one MetaEvent using three-argument form to an event without MetaEvents',
             e1,

@@ -129,7 +129,6 @@ function pitchBendEventToMidiBytes(val: number, channel: number) {
  * Convert a MetaEvent to the MIDI bytes representing it.
  */
 export function metaEventToMidiBytes(event: MetaEvent<keyof MetaEventValueMap>, channel = 1): number[] {
-    // TODO: Takes MetaEventArg because MetaEvent is less strictly typed than MetaEvent
     if (!isMidiChannel(channel)) {
         throw new Error(`channel should be a valid MIDI channel; was ${dumpOneLine(channel)}`);
     }

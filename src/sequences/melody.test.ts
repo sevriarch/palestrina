@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import type { MapperFn, SeqIndices, MetaEventOpts, MetaEventArg } from '../types';
+import type { MapperFn, SeqIndices, EventTiming, MetaEventArg } from '../types';
 
 import { Melody, NumSeq } from './sequences';
 
@@ -1274,19 +1274,19 @@ describe('Melody.withStartTick()', () => {
 describe('Melody.withTextBefore()', () => {
     const m = Melody.from([60, 64, 67, 72]);
 
-    const errortable: [string, SeqIndices, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined][] = [
+    const errortable: [string, SeqIndices, string, string | EventTiming | undefined, EventTiming | undefined][] = [
         ['invalid indices passed', '55' as unknown as SeqIndices, 'test text', 'text', undefined],
         ['invalid text passed', 0, 0 as unknown as string, 'text', undefined],
         ['invalid event type passed', 0, 'test text', 'test event', undefined],
-        ['invalid opts in 2nd arg', 0, 'test text', { foo: 'bar' } as unknown as MetaEventOpts, undefined],
-        ['invalid opts in 3rd arg', 0, 'test text', 'text', { foo: 'bar' } as unknown as MetaEventOpts],
+        ['invalid opts in 2nd arg', 0, 'test text', { foo: 'bar' } as unknown as EventTiming, undefined],
+        ['invalid opts in 3rd arg', 0, 'test text', 'text', { foo: 'bar' } as unknown as EventTiming],
     ];
 
     test.each(errortable)('throws when %s', (_, ix, txt, arg2, arg3) => {
         expect(() => m.withTextBefore(ix, txt, arg2, arg3)).toThrow();
     });
 
-    const table: [string, SeqIndices, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined, Melody][] = [
+    const table: [string, SeqIndices, string, string | EventTiming | undefined, EventTiming | undefined, Melody][] = [
         [
             'single index passed with default text type and no options',
             0,
@@ -1334,19 +1334,19 @@ describe('Melody.withTextBefore()', () => {
 describe('Melody.withTextAfter()', () => {
     const m = Melody.from([60, 64, 67, 72]);
 
-    const errortable: [string, SeqIndices, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined][] = [
+    const errortable: [string, SeqIndices, string, string | EventTiming | undefined, EventTiming | undefined][] = [
         ['invalid indices passed', '55' as unknown as SeqIndices, 'test text', 'text', undefined],
         ['invalid text passed', 0, 0 as unknown as string, 'text', undefined],
         ['invalid event type passed', 0, 'test text', 'test event', undefined],
-        ['invalid opts in 2nd arg', 0, 'test text', { foo: 'bar' } as unknown as MetaEventOpts, undefined],
-        ['invalid opts in 3rd arg', 0, 'test text', 'text', { foo: 'bar' } as unknown as MetaEventOpts],
+        ['invalid opts in 2nd arg', 0, 'test text', { foo: 'bar' } as unknown as EventTiming, undefined],
+        ['invalid opts in 3rd arg', 0, 'test text', 'text', { foo: 'bar' } as unknown as EventTiming],
     ];
 
     test.each(errortable)('throws when %s', (_, ix, txt, arg2, arg3) => {
         expect(() => m.withTextAfter(ix, txt, arg2, arg3)).toThrow();
     });
 
-    const table: [string, SeqIndices, string, string | MetaEventOpts | undefined, MetaEventOpts | undefined, Melody][] = [
+    const table: [string, SeqIndices, string, string | EventTiming | undefined, EventTiming | undefined, Melody][] = [
         [
             'single index passed with default text type and no options',
             0,

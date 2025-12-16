@@ -187,7 +187,7 @@ describe('conversions.metaEventToMidiBytes()', () => {
         [ { event: 'pitch-bend', value: 0 }, 17 ],
         [ { event: 'pitch-bend', value: 8192 }, 1 ],
         [ { event: 'pitch-bend', value: -8193 }, 1 ],
-        [ { event: 'does-not-exist', value: 16 } as unknown as MetaEventData, 1 ],
+        [ { event: 'does-not-exist', value: 16 } as unknown as MetaEventArg, 1 ],
     ];
 
     test.each(errortable)('%s', (e, chan) => {

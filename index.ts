@@ -1,16 +1,16 @@
 export type {
     ISequence, ISingleValuedSequence, ISeqMember, // interfaces
-    JSONValue, TypeOrArray, Renderable,// generic types
+    JSONValue, TypeOrArray, Renderable, EventTiming, // general types
     Sequence, SeqMember, SeqArgument, SeqIndices, SeqMemberArgument, // generic sequence-related types
     NumSeq, NumSeqMember, // numeric sequence-related types
     NoteSeq, NoteSeqMember, // note sequence-related types
     ChordSeq, ChordSeqMember, // chord sequence-related types
     Melody, MelodyMember, MelodyMemberData, MelodyMemberArg, // melody-related types
-    Score, CanvasArg, CanvasArgOpts, ScoreCanvasOpts, // score-related types
+    Score, ScoreCanvasOpts, // score-related types
     PitchArgument, PitchMutatorFn, PitchMapperFn, GamutOpts, NumericValidator, // pitch-related types
     Metadata, MetadataData, // metadata-related types
     MetaList, MetaListArg, // meta-list-related types
-    MetaEvent, MetaEventArg, MetaEventOpts, // meta-event-related types
+    MetaEvent, MetaEventArg, // meta-event-related types
     Replacer, ReplacerFn, // replacer-related types
     CtrlTypeFn, CtrlBoolFn, // control-flow function types
     FilterFn, FinderFn, ArrayFinderFn, GrouperFn, MapperFn, FlatMapperFn, ValidatorFn, // general method types

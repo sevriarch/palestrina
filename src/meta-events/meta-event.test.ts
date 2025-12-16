@@ -124,7 +124,7 @@ describe('MetaEvent constructor/.val() tests', () => {
             expect(() => MetaEvent.from(meta)).toThrow();
         } else {
             const m1 = MetaEvent.from(meta);
-            const cmp = {
+            const cmp: MetaEventArg = {
                 offset: 0,
                 ...meta
             };
