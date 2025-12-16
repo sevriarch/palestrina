@@ -79,11 +79,6 @@ export type EventTiming = {
     offset?: number;
 };
 
-export type DurationalEventTiming = EventTiming & {
-    duration: number;
-    delay?: number;
-};
-
 /*
  * METADATA
  */
@@ -200,11 +195,11 @@ export type SeqMemberArgument = PitchArgument | MelodyMemberArg | SeqMember<unkn
  */
 export type MelodyMemberArg = {
     pitch: ChordSeqMember | PitchArgument,
-    duration?: number,
     velocity?: number,
+    duration?: number,
     delay?: number,
-    offset?: number,
     at?: number,
+    offset?: number,
     before?: MetaListArg,
     after?: MetaListArg,
 };
@@ -232,7 +227,7 @@ export type SeqArgument = { contents: SeqMemberArgument[] } | SeqMemberArgument[
 /**
  * A type representing methods to pass an index or indices to a Sequence method
  */
-export type SeqIndices = NumSeq | number | number[];
+export type SeqIndices = number | number[] | { toNumericValues(): number[] };
 
 /*
  * REPLACEMENTS
@@ -241,7 +236,7 @@ export type SeqIndices = NumSeq | number | number[];
 /**
  * A type representing how we represent replacements for existing value(s) within Collections and Sequences
  */
-export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (TypeOrArray<SeqMemberArgument> | { contents: SeqMemberArgument[] }) : Collection<T>);
+export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (TypeOrArray<SeqMemberArgument> | { contents: SeqMemberArgument[] }) : { contents: T[] });
 
 /**
  * A type representing how we convert existing value(s) within Collections and Sequences into their replacements
