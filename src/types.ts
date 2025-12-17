@@ -21,7 +21,6 @@ import type MetaEvent from './meta-events/meta-event';
 import type MetaList from './meta-events/meta-list';
 import type Metadata from './metadata/metadata';
 import type NumericValidator from './validation/numeric';
-import type Timing from './timing/timing';
 
 export type { MetaEvent, MetaList, Metadata, NumericValidator };
 
