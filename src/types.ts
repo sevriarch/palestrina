@@ -141,11 +141,6 @@ type MetaEventDef<Event extends keyof MetaEventValueMap> = {
 export type MetaEventArg = MetaEvent<keyof MetaEventValueMap> | (MetaEventDef<keyof MetaEventValueMap> & EventTiming);
 
 /**
- * How a MetaEvent is stored internally
- */
-export type MetaEventData = MetaEventDef<keyof MetaEventValueMap> & { timing: Timing };
-
-/**
  * The type used to pass multiple MetaEvents to Score, Melody, MelodyMember, Metadata and MetaList
  */
 export type MetaListArg = MetaList | (MetaEvent<keyof MetaEventValueMap> | MetaEventArg)[];
@@ -205,10 +200,6 @@ export type MelodyMemberArg = {
     before?: MetaListArg,
     after?: MetaListArg,
 };
-
-/**
- * A type representing how data is represented within a MelodyMember
- */
 
 /*
  * SEQUENCES

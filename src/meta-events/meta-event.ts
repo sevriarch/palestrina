@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventValueMap, MetaEventData } from '../types';
+import type { MetaEventArg, MetaEventValueMap } from '../types';
 
 import Timing from '../timing/timing';
 
@@ -127,7 +127,7 @@ export default class MetaEvent<Event extends keyof MetaEventValueMap> {
      * Creates a new MetaEvent
      * @hidden
      */
-    constructor(ob: MetaEventData) {
+    constructor(ob: MetaEventArg & { timing: Timing }) {
         this.event = ob.event;
         this.timing = ob.timing;
         this.value = ob.value as MetaEventValueMap[Event];

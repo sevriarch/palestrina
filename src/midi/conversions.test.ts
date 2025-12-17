@@ -1,6 +1,7 @@
-import type { MetaEventArg, MetaEventData } from '../types';
+import type { MetaEventArg } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
+import Timing from '../timing/timing';
 
 import * as conversions from './conversions';
 
@@ -190,10 +191,11 @@ describe('conversions.metaEventToMidiBytes()', () => {
         [ { event: 'does-not-exist', value: 16 } as unknown as MetaEventArg, 1 ],
     ];
 
+    const timing = new Timing(0, 0);
     test.each(errortable)('%s', (e, chan) => {
         // using new MetaEvent() to bypass value checking in MetaEvent.from(),
         // allowing values of invalid types to be tested against.
-        expect(() => conversions.metaEventToMidiBytes(new MetaEvent(e as MetaEventData), chan)).toThrow();
+        expect(() => conversions.metaEventToMidiBytes(new MetaEvent({ ...e, timing }), chan)).toThrow();
     });
 
     const table: [ MetaEventArg, number | undefined, number[] ][] = [
