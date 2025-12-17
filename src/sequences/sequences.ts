@@ -5,13 +5,13 @@
 //
 // Also provides the lowercase method wrappers that are exported from the main module.
 
-import { SeqArgument, Metadata, ValidatorFn, ISequence } from '../types';
+import { SeqArgument, ValidatorFn, ISequence } from '../types';
 
 import NumSeq from './number';
 import NoteSeq from './note';
 import ChordSeq from './chord';
 import Melody from './melody';
-
+import Metadata from '../metadata/metadata';
 import NumericValidator from '../validation/numeric';
 
 class Conversions {
@@ -70,20 +70,24 @@ function getValidator(type: string, custom?: ValidatorFn): NumericValidator {
     }
 }
 
+function getMetadata(type: string, custom?: ValidatorFn): Metadata {
+    return Metadata.from({ validator: getValidator(type, custom) });
+}
+
 export function numseq(s: SeqArgument, type = 'int', custom?: ValidatorFn): NumSeq {
-    return NumSeq.from(s, { validator: getValidator(type, custom) });
+    return NumSeq.from(s, getMetadata(type, custom));
 }
 
 export function noteseq(s: SeqArgument, type = 'int', custom?: ValidatorFn): NoteSeq {
-    return NoteSeq.from(s, { validator: getValidator(type, custom) });
+    return NoteSeq.from(s, getMetadata(type, custom));
 }
 
 export function chordseq(s: SeqArgument, type = 'int', custom?: ValidatorFn): ChordSeq {
-    return ChordSeq.from(s, { validator: getValidator(type, custom) });
+    return ChordSeq.from(s, getMetadata(type, custom));
 }
 
 export function melody(s: SeqArgument, type = 'int', custom?: ValidatorFn): Melody {
-    return Melody.from(s, { validator: getValidator(type, custom) });
+    return Melody.from(s, getMetadata(type, custom));
 }
 
 export { NumSeq, NoteSeq, ChordSeq, Melody };
