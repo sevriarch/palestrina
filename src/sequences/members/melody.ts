@@ -1,4 +1,4 @@
-import type { MetaEventValueMap, EventTiming, MetaEventArg, MelodyMemberArg, MelodyMemberData, SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
+import type { MetaEventValueMap, EventTiming, MetaEventArg, MelodyMemberArg, SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
 
 import MetaList from '../../meta-events/meta-list';
 import Timing from '../../timing/timing';
@@ -11,6 +11,14 @@ import { dumpOneLine } from '../../dump/dump';
 
 const DEFAULT_TIMING = new Timing(undefined, undefined, undefined, DEFAULTS.NOTE_DURATION);
 const INVALID_KEYS = new Set([ 'pitch', 'duration', 'velocity', 'delay', 'offset', 'at', 'before', 'after' ]);
+
+type MelodyMemberData = {
+    pitch: ChordSeqMember,
+    velocity: number,
+    before: MetaList,
+    after: MetaList,
+    timing: Timing,
+};
 
 function pitchToMelodyMemberData(pitch: PitchArgument | ChordSeqMember): MelodyMemberData {
     return {

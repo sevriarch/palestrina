@@ -209,13 +209,6 @@ export type MelodyMemberArg = {
 /**
  * A type representing how data is represented within a MelodyMember
  */
-export type MelodyMemberData = {
-    pitch: ChordSeqMember,
-    velocity: number,
-    before: MetaList,
-    after: MetaList,
-    timing: Timing,
-};
 
 /*
  * SEQUENCES
