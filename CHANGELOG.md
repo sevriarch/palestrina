@@ -10,6 +10,7 @@ This is a new major release with some significant behind-the-scenes changes to e
 * Sequence creation methods beginning with "microtonal" are no longer available as separate methods. Instead the optional second argument "microtonal" should be used, eg: `melody(notes, 'microtonal')` instead of `microtonalmelody(notes)`.
 * MIDI file creation has been redesigned so as to be based on ordered lists of everything that happens during a Score (in a parallel flow to MusicXML file creation). This, in some cases, will result in small differences in the order of events that occur on the same MIDI tick in the same track. These should not affect any kind of audio rendering but will result in a change in the hash checksum generated for the file.
 * Meta-events are now typed more restrictively, with the type of the value being dependent on the type of the event. This will lead to more errors being caught at the compilation stage if the end user is using TypeScript.
+* The default note duration has changed to be more useful. This may break existing code that relied on the previous not-very-useful value.
 
 ### Features
 * Score and Melody now have additional methods listing the contents of the entity in temporal order:
@@ -23,13 +24,14 @@ This is a new major release with some significant behind-the-scenes changes to e
 * The `visualizations` module is no longer exported as all functionality within it is implemented in `Score`. The 2D canvas methods formerly included in it (`scoreToNotesCanvas()`, `scoreToGamutCanvas()`, `scoreToIntervalCanvas()` and `scoreToIntervalGamutCanvas()` have been removed).
 * The legacy `Melody.toSummary()` method is no longer available.
 * Exported microtonal sequence creation methods are now supported using a second argument instead of a separate method.
-* Some deprecated types are no longer exported.
+* Some types which are either deprecated or which relate only to internal details of the software are no longer exported.
 
 ### Enhancements
 * The MIDI creation flow has been cleaned up significantly.
 * The sequence-to-sequence methods have been cleaned up and are now implemented using a mixin.
 * Dependencies have been updated.
 * Some documentation errors have been fixed.
+* The default note length has been changed to 192, which is the same as the default midi ticks per quarter length. This means that a note with no duration defined is a quarter note, as opposed to the very un-useful default of a 1/48th note .
 
 ## 0.9.2
 
