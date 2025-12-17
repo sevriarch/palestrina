@@ -11,7 +11,7 @@ import Timing from '../../timing/timing';
 import { fromMidiBytes } from '../../helpers/key-signature';
 
 type MelodyMemberPatcher = {
-    pitch?: ChordSeqMember | number[],
+    pitch?: number[],
     duration?: number,
     velocity?: number,
     delay?: number,
@@ -63,10 +63,7 @@ describe('MelodyMember.from() static method tests', () => {
         [ 'a MelodyMember with two members', MelodyMember.from([ 1, 5 ]), [ 1, 5 ] ],
         [ 'an object containing a pitch array with no members', { pitch: [], duration: 16, velocity: 64 }, [] ],
         [ 'an object containing a pitch array with one member', { pitch: [ 15 ], duration: 16, velocity: 64 }, [ 15 ] ],
-        [ 'an object containing a pitch array with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 16, velocity: 64 }, [ 1, 5 ] ],
-        [ 'an object containing a silent ChordSeqMember', { pitch: ChordSeqMember.from(null), duration: 16, velocity: 64 }, [] ],
-        [ 'an object containing a ChordSeqMember with one member', { pitch: ChordSeqMember.from([ 15 ]), duration: 16, velocity: 64 }, [ 15 ] ],
-        [ 'an object containing a ChordSeqMember with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 16, velocity: 64 }, [ 1, 5 ] ],
+        [ 'an object containing a pitch array with two members', { pitch: [ 1, 5 ], duration: 16, velocity: 64 }, [ 1, 5 ] ],
     ];
 
     test.each(table)('passing %s creates frozen MelodyMember as expected', (_, val, ret) => {
@@ -132,7 +129,6 @@ describe('MelodyMember constructor/.val() tests', () => {
         [ { pitch: 60 as unknown as number[], duration: 16, velocity: 16 }, true ],
         [ { pitch: '60' as unknown as number[], duration: 16, velocity: 16 }, false ],
         [ { pitch: [ 60 ], duration: 16, velocity: 16 }, true ],
-        [ { pitch: new ChordSeqMember([ 60 ]), duration: 16, velocity: 16 }, true ],
         [ { pitch: [], duration: 16, velocity: 16 }, true ],
         [ { pitch: [ -1, 61, 62 ], duration: 16, velocity: 16 }, true ],
         [ { pitch: [ 60, 61, 128 ], duration: 16, velocity: 16 }, true ],
@@ -260,7 +256,7 @@ describe('MelodyMember constructor/.val() tests', () => {
 
 describe('MelodyMember getter tests', () => {
     const e = MelodyMember.from({
-        pitch: ChordSeqMember.from([ 40, 45, 50 ]),
+        pitch: [ 40, 45, 50 ],
         velocity: 61,
         duration: 45,
         delay: 16,
@@ -490,7 +486,7 @@ describe('MelodyMember.setPitches() tests', () => {
     ];
 
     test.each(table)('works when %s', (_, arg, ret) => {
-        expect(e.setPitches(arg)).toStrictEqual(MelodyMember.from({ pitch: new ChordSeqMember(ret), duration: 50, velocity: 60 }));
+        expect(e.setPitches(arg)).toStrictEqual(MelodyMember.from({ pitch: ret, duration: 50, velocity: 60 }));
     });
 });
 

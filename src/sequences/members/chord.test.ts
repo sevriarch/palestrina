@@ -30,9 +30,8 @@ describe('ChordSeqMember.toPitch()', () => {
         [ 'a silent MelodyMember', MelodyMember.from(null), [] ],
         [ 'a MelodyMember with one member', MelodyMember.from([ 15 ]), [ 15 ] ],
         [ 'a MelodyMember with two members', MelodyMember.from([ 1, 5 ]), [ 1, 5 ] ],
+        [ 'an object containing a null pitch', { pitch: null, duration: 64, velocity: 64 }, [] ],
         [ 'an object containing a valid pitch with two members', { pitch: [ 1, 5 ], duration: 64, velocity: 64 }, [ 1, 5 ] ],
-        [ 'an object containing a silent ChordSeqMember', { pitch: ChordSeqMember.from(null), duration: 64, velocity: 64 }, [] ],
-        [ 'an object containing a ChordSeqMember with one member', { pitch: ChordSeqMember.from([ 15 ]), duration: 64, velocity: 64 }, [ 15 ] ],
     ];
 
     test.each(table)('passing %s extracts expected value', (_, val, ret) => {
@@ -68,10 +67,7 @@ describe('ChordSeqMember.from() static method tests', () => {
         [ 'a MelodyMember with two members', MelodyMember.from([ 1, 5 ]), [ 1, 5 ] ],
         [ 'an object containing a pitch array with no members', { pitch: [], duration: 64, velocity: 64 }, [] ],
         [ 'an object containing a pitch array with one member', { pitch: [ 15 ], duration: 64, velocity: 64 }, [ 15 ] ],
-        [ 'an object containing a pitch array with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 64, velocity: 64 }, [ 1, 5 ] ],
-        [ 'an object containing a silent ChordSeqMember', { pitch: ChordSeqMember.from(null), duration: 64, velocity: 64 }, [] ],
-        [ 'an object containing a ChordSeqMember with one member', { pitch: ChordSeqMember.from([ 15 ]), duration: 64, velocity: 64 }, [ 15 ] ],
-        [ 'an object containing a ChordSeqMember with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 64, velocity: 64 }, [ 1, 5 ] ],
+        [ 'an object containing a pitch array with two members', { pitch: [ 1, 5 ], duration: 64, velocity: 64 }, [ 1, 5 ] ],
     ];
 
     test.each(table)('passing %s creates frozen ChordSeqMember as expected', (_, val, ret) => {

@@ -1,4 +1,3 @@
-import type Collection from './collections/without-metadata';
 import type CollectionWithMetadata from './collections/with-metadata';
 
 import type Sequence from './sequences/generic';
@@ -74,6 +73,9 @@ export type Renderable = {
  * TIMING
  */
 
+/**
+ * Minimal timing information for anything that happens at a specific time.
+ */
 export type EventTiming = {
     at?: number;
     offset?: number;
@@ -194,7 +196,7 @@ export type SeqMemberArgument = PitchArgument | MelodyMemberArg | SeqMember<unkn
  * A type representing input required when constructing a MelodyMember
  */
 export type MelodyMemberArg = {
-    pitch: ChordSeqMember | PitchArgument,
+    pitch: PitchArgument,
     velocity?: number,
     duration?: number,
     delay?: number,
@@ -222,7 +224,7 @@ export type MelodyMemberData = {
 /**
  * A type representing the data required to construct a Sequence of any kind
  */
-export type SeqArgument = { contents: SeqMemberArgument[] } | SeqMemberArgument[];
+export type SeqArgument = SeqMemberArgument[] | { contents: SeqMemberArgument[] };
 
 /**
  * A type representing methods to pass an index or indices to a Sequence method
@@ -236,7 +238,7 @@ export type SeqIndices = number | number[] | { toNumericValues(): number[] };
 /**
  * A type representing how we represent replacements for existing value(s) within Collections and Sequences
  */
-export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (TypeOrArray<SeqMemberArgument> | { contents: SeqMemberArgument[] }) : { contents: T[] });
+export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (SeqMemberArgument | SeqArgument) : { contents: T[] });
 
 /**
  * A type representing how we convert existing value(s) within Collections and Sequences into their replacements

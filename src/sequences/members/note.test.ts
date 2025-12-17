@@ -14,7 +14,7 @@ describe('NoteSeqMember.toPitch() static method tests', () => {
         [ 'an array with two members', [ 1, 5 ] ],
         [ 'a ChordSeqMember with two members', ChordSeqMember.from([ 1, 5 ])],
         [ 'a MelodyMember with two members', MelodyMember.from([ 1, 5 ])],
-        [ 'an object containing a ChordSeqMember with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 64, velocity: 64 } ],
+        [ 'an object containing a pitch with two members', { pitch: [ 1, 5 ], duration: 64, velocity: 64 } ],
     ];
 
     test.each(errortable)('passing %s throws an error', (_, val) => {
@@ -33,9 +33,8 @@ describe('NoteSeqMember.toPitch() static method tests', () => {
         [ 'a ChordSeqMember with one member', ChordSeqMember.from([ 15 ]), 15 ],
         [ 'a silent MelodyMember', MelodyMember.from(null), null ],
         [ 'a MelodyMember with one member', MelodyMember.from([ 15 ]), 15 ],
+        [ 'an object containing an empty pitch', { pitch: null, duration: 64, velocity: 64 }, null ],
         [ 'an object containing a valid pitch', { pitch: [ 15 ], duration: 64, velocity: 64 }, 15 ],
-        [ 'an object containing a silent ChordSeqMember', { pitch: ChordSeqMember.from(null), duration: 64, velocity: 64 }, null ],
-        [ 'an object containing a ChordSeqMember with one member', { pitch: ChordSeqMember.from([ 15 ]), duration: 64, velocity: 64 }, 15 ],
     ];
 
     test.each(table)('passing %s extracts expected value', (_, val, ret) => {
@@ -51,8 +50,7 @@ describe('NoteSeqMember.from() static method tests', () => {
         [ 'a ChordSeqMember with two members', ChordSeqMember.from([ 1, 5 ])],
         [ 'a MelodyMember with two members', MelodyMember.from([ 1, 5 ]) ],
         [ 'an object containing an invalid pitch', { pitch: [ 'string' as unknown as number ], duration: 64, velocity: 64 }],
-        [ 'an object containing a pitch array with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 64, velocity: 64 } ],
-        [ 'an object containing a ChordSeqMember with two members', { pitch: ChordSeqMember.from([ 1, 5 ]), duration: 64, velocity: 64 } ],
+        [ 'an object containing two pitches', { pitch: [ 1, 5 ], duration: 64, velocity: 64 } ],
     ];
 
     test.each(errortable)('creating from %s throws an error', (_, val) => {
@@ -73,8 +71,6 @@ describe('NoteSeqMember.from() static method tests', () => {
         [ 'a MelodyMember with one member', MelodyMember.from([ 15 ]), 15 ],
         [ 'an object containing a pitch array with no members', { pitch: [], duration: 64, velocity: 64 }, null ],
         [ 'an object containing a pitch array with one member', { pitch: [ 15 ], duration: 64, velocity: 64 }, 15 ],
-        [ 'an object containing a silent ChordSeqMember', { pitch: ChordSeqMember.from(null), duration: 64, velocity: 64 }, null ],
-        [ 'an object containing a ChordSeqMember with one member', { pitch: ChordSeqMember.from([ 15 ]), duration: 64, velocity: 64 }, 15 ],
     ];
 
     test.each(table)('passing %s creates NoteSeqMember as expected', (_, val, ret) => {
