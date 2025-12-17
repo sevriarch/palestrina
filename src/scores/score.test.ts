@@ -536,13 +536,13 @@ describe('Score.withChordsCombined()', () => {
 
     describe('does not eliminate duplicated notes', () => {
         expect(Score.from([
-            Melody.from([ 54, 56, 58 ]),
-            Melody.from([ 54, 60, 58 ])
+            Melody.from([ 54, 56, 58 ]).withDuration(16),
+            Melody.from([ 54, 60, 58 ]).withDuration(16),
         ]).withChordsCombined()).toStrictEqual(Score.from([
             Melody.from([ 
                 { pitch: [ 54, 54 ], duration: 16, velocity: 64, at: 0 },
                 { pitch: [ 56, 60 ], duration: 16, velocity: 64, at: 16 },
-                { pitch: [ 58, 58 ], duration: 16, velocity: 64, at: 32 }
+                { pitch: [ 58, 58 ], duration: 16, velocity: 64, at: 32 },
             ])
         ]));
     });
@@ -1499,11 +1499,11 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
 // inherited from CollectionWithMetadata
 describe('Score.describe', () => {
     test('describes as expected', () => {
-        expect(Score.from([ Melody.from([ 1, [ 2, 3 ] ]) ]).withTempo(144).describe())
+        expect(Score.from([ Melody.from([ 1, [ 2, 3 ] ]).withDuration(96) ]).withTempo(144).describe())
             .toStrictEqual(`Score(length=1,metadata=Metadata({tempo=144}))([
     0: Melody(length=2,metadata=Metadata({}))([
-        0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
-        1: MelodyMember({pitch:ChordSeqMember([2,3]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
+        0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:96,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
+        1: MelodyMember({pitch:ChordSeqMember([2,3]),velocity:64,duration:96,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
     ]),
 ])`);
     });

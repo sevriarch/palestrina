@@ -174,8 +174,11 @@ describe('dump.dumpMultiLine()', () => {
         [
             'Score',
             Score.from([
-                Melody.from([ 1, 4, 6, 19 ]).withInstrument('violin'),
-                Melody.from([ 12, { pitch: [ 6 ], before: [ { event: 'text', value: 'test' } ] } ]).withInstrument('cello'),
+                Melody.from([ 1, 4, 6, 19 ]).withVolume(64).withDuration(16).withInstrument('violin'),
+                Melody.from([
+                    { pitch: [ 12 ], velocity: 80, duration: 32 },
+                    { pitch: [ 6 ], before: [ { event: 'text', value: 'test' } ], velocity: 72, duration: 128 }
+                ]).withInstrument('cello'),
             ], Metadata.from({ tempo: 144, time_signature: '3/8' })),
             4,
             `Score(length=2,metadata=Metadata({tempo=144,time_signature=\"3/8\"}))([
@@ -186,8 +189,8 @@ describe('dump.dumpMultiLine()', () => {
             3: MelodyMember({pitch:ChordSeqMember([19]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
         ]),
         1: Melody(length=2,metadata=Metadata({instrument=\"cello\"}))([
-            0: MelodyMember({pitch:ChordSeqMember([12]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
-            1: MelodyMember({pitch:ChordSeqMember([6]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=1)([0: MetaEvent({event:\"text\",value:\"test\",at:undefined,offset:undefined}),]),after:MetaList(length=0)([])}),
+            0: MelodyMember({pitch:ChordSeqMember([12]),velocity:80,duration:32,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
+            1: MelodyMember({pitch:ChordSeqMember([6]),velocity:72,duration:128,at:undefined,offset:0,delay:0,before:MetaList(length=1)([0: MetaEvent({event:\"text\",value:\"test\",at:undefined,offset:undefined}),]),after:MetaList(length=0)([])}),
         ]),
     ])`
         ]

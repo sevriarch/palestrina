@@ -8,7 +8,6 @@ import MelodyMember from './melody';
 import MetaList from '../../meta-events/meta-list';
 import MetaEvent from '../../meta-events/meta-event';
 import Timing from '../../timing/timing';
-import { fromMidiBytes } from '../../helpers/key-signature';
 
 type MelodyMemberPatcher = {
     pitch?: number[],
@@ -22,7 +21,7 @@ type MelodyMemberPatcher = {
 };
 
 function makeEventWithDefaults(ob: MelodyMemberPatcher) {
-    const DEFAULTS = { pitch: [ 60 ], duration: 8, velocity: 64 };
+    const DEFAULTS = { pitch: [ 60 ], duration: 192, velocity: 64 };
 
     return MelodyMember.from({ ...DEFAULTS, ...ob });
 }
@@ -61,9 +60,9 @@ describe('MelodyMember.from() static method tests', () => {
         [ 'a silent MelodyMember', MelodyMember.from(null), [] ],
         [ 'a MelodyMember with one member', MelodyMember.from([ 15 ]), [ 15 ] ],
         [ 'a MelodyMember with two members', MelodyMember.from([ 1, 5 ]), [ 1, 5 ] ],
-        [ 'an object containing a pitch array with no members', { pitch: [], duration: 16, velocity: 64 }, [] ],
-        [ 'an object containing a pitch array with one member', { pitch: [ 15 ], duration: 16, velocity: 64 }, [ 15 ] ],
-        [ 'an object containing a pitch array with two members', { pitch: [ 1, 5 ], duration: 16, velocity: 64 }, [ 1, 5 ] ],
+        [ 'an object containing a pitch array with no members', { pitch: [], duration: 192, velocity: 64 }, [] ],
+        [ 'an object containing a pitch array with one member', { pitch: [ 15 ], duration: 192, velocity: 64 }, [ 15 ] ],
+        [ 'an object containing a pitch array with two members', { pitch: [ 1, 5 ], duration: 192, velocity: 64 }, [ 1, 5 ] ],
     ];
 
     test.each(table)('passing %s creates frozen MelodyMember as expected', (_, val, ret) => {
@@ -232,20 +231,20 @@ describe('MelodyMember constructor/.val() tests', () => {
     });
 
     test('null event applies defaults', () => {
-        expect(MelodyMember.from(null)).toStrictEqual(MelodyMember.from({ pitch: [], velocity: 64, duration: 16 }));
+        expect(MelodyMember.from(null)).toStrictEqual(MelodyMember.from({ pitch: [], velocity: 64, duration: 192 }));
     });
 
     test('note event applies defaults', () => {
-        expect(MelodyMember.from(55)).toStrictEqual(MelodyMember.from({ pitch: [ 55 ], velocity: 64, duration: 16 }));
+        expect(MelodyMember.from(55)).toStrictEqual(MelodyMember.from({ pitch: [ 55 ], velocity: 64, duration: 192 }));
     });
 
     test('array event applies defaults', () => {
-        expect(MelodyMember.from([ 55, 66 ])).toStrictEqual(MelodyMember.from({ pitch: [ 55, 66 ], velocity: 64, duration: 16 }));
+        expect(MelodyMember.from([ 55, 66 ])).toStrictEqual(MelodyMember.from({ pitch: [ 55, 66 ], velocity: 64, duration: 192 }));
     });
 
     test('missing duration applies defaults', () => {
         expect(MelodyMember.from({ pitch: [ 60 ], velocity: 48 } as unknown as MelodyMemberArg))
-            .toStrictEqual(MelodyMember.from({ pitch: [ 60 ], velocity: 48, duration: 16 }));
+            .toStrictEqual(MelodyMember.from({ pitch: [ 60 ], velocity: 48, duration: 192 }));
     });
 
     test('missing velocity applies defaults', () => {
@@ -1263,7 +1262,11 @@ describe('MelodyMember.validate() tests', () => {
 
 describe('MelodyMember.describe() tests', () => {
     test('describes correctly', () => {
-        expect(MelodyMember.from([14,15,16]).describe())
+        expect(MelodyMember.from({
+            pitch: [14,15,16],
+            velocity: 64,
+            duration: 16,
+        }).describe())
             .toStrictEqual('MelodyMember({pitch:ChordSeqMember([14,15,16]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])})');
         expect(MelodyMember.from({
             pitch: [],

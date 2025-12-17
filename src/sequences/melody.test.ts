@@ -636,7 +636,7 @@ describe('Melody.toMidiBytes()', () => {
         ],
         [
             'four notes, three of them microtonal',
-            Melody.from([60.5, 59.75, 59, 58.25], MICROTONAL),
+            Melody.from([60.5, 59.75, 59, 58.25], MICROTONAL).withDuration(16),
             [
                 0x4d, 0x54, 0x68, 0x64, // file header
                 0x00, 0x00, 0x00, 0x06, // header data length
@@ -1564,7 +1564,7 @@ describe('Melody.toDataURI()', () => {
     });
 
     test('Non-empty melody data URI as expected', () => {
-        expect(Melody.from([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
+        expect(Melody.from([ 60, 63, 67, 72 ]).withDuration(16).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
     });
 });
 
@@ -1597,28 +1597,18 @@ describe('Melody.toOrderedEntitiesWithMetadata()', () => {
     });
 });
 
-describe('Melody.toDataURI()', () => {
-    test('Empty melody data URI as expected', () => {
-        expect(Melody.from([]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAABAD/LwA=');
-    });
-
-    test('Non-empty melody data URI as expected', () => {
-        expect(Melody.from([ 60, 63, 67, 72 ]).toDataURI()).toStrictEqual('data:audio/midi;base64,TVRoZAAAAAYAAQABAMBNVHJrAAAAJACQPEAQgDxAAJA/QBCAP0AAkENAEIBDQACQSEAQgEhAAP8vAA==');
-    });
-});
-
 describe('Melody.toHash()', () => {
     test('Empty melody hash as expected', () => {
         expect(Melody.from([]).toHash()).toStrictEqual('6a614850f0493b0cbff25166f12dc7e2');
     });
 
     test('Non-empty melody hash as expected', () => {
-        expect(Melody.from([ 60, 63, 67, 72 ]).toHash()).toStrictEqual('d7927d4732948cf44bd2d586d3ca621e');
+        expect(Melody.from([ 60, 63, 67, 72 ]).withDuration(16).toHash()).toStrictEqual('d7927d4732948cf44bd2d586d3ca621e');
     });
 });
 
 describe('Melody.expectHash()', () => {
-    const m = Melody.from([ 60, 63, 67, 72 ]);
+    const m = Melody.from([ 60, 63, 67, 72 ]).withDuration(16);
 
     test('does not throw when expected hash passed', () => {
         expect(() => m.expectHash('d7927d4732948cf44bd2d586d3ca621e')).not.toThrow();
@@ -1658,10 +1648,10 @@ describe('Melody.writeMidi()', () => {
 // inherited from CollectionWithMetadata
 describe('Melody.describe()', () => {
     test('describes as expected', () => {
-        expect(Melody.from([1, [2, 3]], Metadata.from({ tempo: 144 })).describe())
+        expect(Melody.from([1, [2, 3]]).withDuration(96).withTempo(144).describe())
             .toStrictEqual(`Melody(length=2,metadata=Metadata({tempo=144}))([
-    0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
-    1: MelodyMember({pitch:ChordSeqMember([2,3]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
+    0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:96,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
+    1: MelodyMember({pitch:ChordSeqMember([2,3]),velocity:64,duration:96,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
 ])`);
     });
 });
