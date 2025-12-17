@@ -1,4 +1,4 @@
-import type { SeqArgument, SeqMemberArgument, MetadataData, ISingleValuedSequence } from '../types';
+import type { SeqArgument, SeqMemberArgument, Metadata, ISingleValuedSequence } from '../types';
 
 import Sequence from './generic';
 import NoteSeqMember from './members/note';
@@ -9,7 +9,7 @@ import { xorshift } from '../imports/imports';
  * Class representing a Sequence of {@link NoteSeqMember}s, each of which contains a number or a null value.
  */
 export default class NoteSeq extends Sequence<NoteSeqMember> implements ISingleValuedSequence<NoteSeqMember> {
-    static from(v: SeqArgument, metadata?: MetadataData) {
+    static from(v: SeqArgument, metadata?: Metadata) {
         return Sequence.build(NoteSeq, NoteSeqMember, v, metadata);
     }
 

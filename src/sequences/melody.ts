@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MetadataData, MapperFn, SeqIndices, Metadata, MetaEventValueMap, EventTiming, MetaEventArg, ISequence } from '../types';
+import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MapperFn, SeqIndices, Metadata, MetaEventValueMap, EventTiming, MetaEventArg, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -17,7 +17,7 @@ type TransientMelodyMetadata = {
  * plus non-pitch timing information and metadata.
  */
 export default class Melody extends Sequence<MelodyMember> implements ISequence<MelodyMember> {
-    static from(v: SeqArgument, metadata?: MetadataData) {
+    static from(v: SeqArgument, metadata?: Metadata) {
         return Sequence.build(Melody, MelodyMember, v, metadata);
     }
 
@@ -251,7 +251,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     augmentRhythm(n: number): this {
         return this.map(e => e.augmentRhythm(n))
             .if(this.metadata.before !== MetaList.EMPTY_META_LIST)
-            .then(m => m.withMetadataValues({ before: this.metadata.before.augmentRhythm(n) }));
+            .then(m => m.withMetadata(m.metadata.withValues({ before: this.metadata.before.augmentRhythm(n) })));
     }
 
     /**
@@ -260,7 +260,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
     diminishRhythm(n: number): this {
         return this.map(e => e.diminishRhythm(n))
             .if(this.metadata.before !== MetaList.EMPTY_META_LIST)
-            .then(m => m.withMetadataValues({ before: this.metadata.before.diminishRhythm(n) }));
+            .then(m => m.withMetadata(m.metadata.withValues({ before: this.metadata.before.diminishRhythm(n) })));
     }
 
     /**

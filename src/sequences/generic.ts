@@ -1,4 +1,4 @@
-import type { GamutOpts, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument, MetadataData } from '../types';
+import type { GamutOpts, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
 
 import type SeqMember from './members/generic';
 import Metadata from '../metadata/metadata';
@@ -32,12 +32,12 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a Sequence of the specified class and member class.
      * @hidden
      */
-    static build<T extends Sequence<MT>, MT extends SeqMember<unknown>>(SeqClass: SeqCtor<T, MT>, MemberClass: MemberClass<MT>, seq: SeqArgument, metadata?: MetadataData): T {
+    static build<T extends Sequence<MT>, MT extends SeqMember<unknown>>(SeqClass: SeqCtor<T, MT>, MemberClass: MemberClass<MT>, seq: SeqArgument, metadata = Metadata.EMPTY_METADATA): T {
         let contents: SeqMemberArgument[];
 
         if (seq instanceof Sequence) {
             // Reuse existing object if same constructor and no metadata passed.
-            if (seq instanceof SeqClass && !metadata) {
+            if (seq instanceof SeqClass && metadata === Metadata.EMPTY_METADATA) {
                 return seq;
             }
 
@@ -48,7 +48,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             throw new Error(`invalid argument to build(): ${dumpOneLine(seq)}`);
         }
 
-        return new SeqClass(contents.map(MemberClass.from), Metadata.from(metadata));
+        return new SeqClass(contents.map(MemberClass.from), metadata);
     }
 
     constructor(contents: ET[], metadata: Metadata) {

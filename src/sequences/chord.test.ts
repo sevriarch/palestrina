@@ -1,5 +1,6 @@
 import { ChordSeq } from './sequences';
 
+import Metadata from '../metadata/metadata';
 import NumericValidator from '../validation/numeric';
 
 describe('ChordSeq.from()', () => {
@@ -10,7 +11,7 @@ describe('ChordSeq.from()', () => {
     });
 
     test('ChordSeq.from() with melody argument and different validator returns different object with same contents', () => {
-        const c2 = ChordSeq.from(c, { validator: NumericValidator.NOOP_VALIDATOR });
+        const c2 = ChordSeq.from(c, Metadata.from({ validator: NumericValidator.NOOP_VALIDATOR }));
 
         expect(c2).not.toBe(c);
         expect(c2.contents).toStrictEqual(c.contents);
@@ -64,7 +65,7 @@ describe('ChordSeq.keepBottomPitches()', () => {
 // inherited from CollectionWithMetadata
 describe('ChordSeq.describe', () => {
     test('describes as expected', () => {
-        expect(ChordSeq.from([ [ 1, 2 ], null ], { tempo: 144 }).describe())
+        expect(ChordSeq.from([ [ 1, 2 ], null ]).withTempo(144).describe())
             .toStrictEqual('ChordSeq(length=2,metadata=Metadata({tempo=144}))([\n    0: ChordSeqMember([1,2]),\n    1: ChordSeqMember([]),\n])');
     });
 });

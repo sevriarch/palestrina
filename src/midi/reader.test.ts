@@ -1,8 +1,10 @@
-import type { MetaEventArg, MelodyMemberArg } from '../types';
+import { MetaEventArg, MelodyMemberArg } from '../types';
 
 import MidiReader from './reader';
+
 import Melody from '../sequences/melody';
 import MetaList from '../meta-events/meta-list';
+import Metadata from '../metadata/metadata';
 
 import { MIDI } from '../constants';
 
@@ -60,7 +62,7 @@ describe('MidiReader creation', () => {
         expect(reader.contents).toStrictEqual(data);
         expect(ret).toStrictEqual([
             [
-                Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00, } ], {})
+                Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00, } ])
             ],
             192
         ]);
@@ -74,7 +76,7 @@ describe('MidiReader creation', () => {
         expect(reader.contents).toStrictEqual(data);
         expect(ret).toStrictEqual([
             [
-                Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00, } ], {})
+                Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00, } ])
             ],
             192
         ]);
@@ -674,13 +676,13 @@ describe('extractMidiTrackEvents()', () => {
 
 describe('extractMidiTrack()', () => {
     test('extract an empty track successfully', () => {
-        expect(new MidiReader([]).extractMidiTrack()).toStrictEqual(Melody.from([], {}));
+        expect(new MidiReader([]).extractMidiTrack()).toStrictEqual(Melody.from([]));
     });
 
     test('extracting a track containing only an end track event removes that event', () => {
         const arr = [ 0x40, 0xff, 0x2f, 0x00 ];
 
-        expect(new MidiReader(arr).extractMidiTrack()).toStrictEqual(Melody.from([], {}));
+        expect(new MidiReader(arr).extractMidiTrack()).toStrictEqual(Melody.from([]));
     });
 
     test('extract a track containing note on and off events but with end track event missing', () => {
@@ -691,7 +693,7 @@ describe('extractMidiTrack()', () => {
 
         expect(new MidiReader(arr).extractMidiTrack()).toStrictEqual(Melody.from([
             { pitch: [ 0x40 ], velocity: 0x60, at: 0x00, duration: 0x40 }
-        ], { midichannel: 6 }));
+        ]).withMidiChannel(6));
     });
 
     test('extract a track containing note on and off events on two channels, keeps events and does not set track channel', () => {
@@ -709,7 +711,7 @@ describe('extractMidiTrack()', () => {
             { pitch: [ 0x40 ], velocity: 0x60, at: 0x00, duration: 0x40 },
             { pitch: [ 0x4c ], velocity: 0x60, at: 0x40, duration: 0x80 },
             { pitch: [ 0x50 ], velocity: 0x60, at: 0x40, duration: 0x80 }
-        ], {}));
+        ]));
     });
 
     test('extract a track containing more events', () => {
@@ -723,11 +725,11 @@ describe('extractMidiTrack()', () => {
 
         expect(new MidiReader(arr).extractMidiTrack()).toStrictEqual(Melody.from([
             { pitch: [ 0x30 ], velocity: 0x30, at: 0x00, duration: 0x100 },
-        ], {
+        ], Metadata.from({
             midichannel: 5,
             copyright: 'Test',
             instrument: 'trumpet'
-        }));
+        })));
     });
 });
 
@@ -785,7 +787,7 @@ describe('toScoreContents()', () => {
 
         expect(new MidiReader(arr).toScoreContents()).toStrictEqual([
             [
-                Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00, } ], {})
+                Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00, } ])
             ],
             384
         ]);
@@ -808,7 +810,7 @@ describe('toScoreContents()', () => {
         expect(() => new MidiReader(arr).toScoreContents()).toThrow();
     });
 
-    test('extract three tracks, one with no notes', () => {
+    test('extract three tracks, one with no notes, and add to each relevant metadata supplied in reader creation', () => {
         const arr = [
             0x4d, 0x54, 0x68, 0x64,
             0x00, 0x00, 0x00, 0x06,
@@ -832,17 +834,22 @@ describe('toScoreContents()', () => {
             0x50, 0xff, 0x2f, 0x00
         ];
 
-        expect(new MidiReader(arr).toScoreContents()).toStrictEqual([
+        const metadata = Metadata.from({
+            key_signature: 'F',
+        });
+
+        expect(new MidiReader(arr, metadata).toScoreContents()).toStrictEqual([
             [
                 Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00 } ],
-                    {
+                    Metadata.from({
+                        key_signature: 'F',
                         before: MetaList.from([
                             { event: 'sustain', value: 1, at: 0x00 },
                             { event: 'sustain', value: 0, at: 0x80 },
                         ])
-                    }),
-                Melody.from([ { pitch: [ 0x50 ], velocity: 0x40, duration: 0x40, at: 0x00 } ], { midichannel: 2 }),
-                Melody.from([], {}),
+                    })),
+                Melody.from([ { pitch: [ 0x50 ], velocity: 0x40, duration: 0x40, at: 0x00 } ]).withMidiChannel(2).withKeySignature('F'),
+                Melody.from([]).withKeySignature('F'),
             ],
             192
         ]);

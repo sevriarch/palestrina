@@ -1,4 +1,4 @@
-import type { MetadataData, MetaEventValueMap, MetaListArg, EventTiming, MetaEventArg } from '../types';
+import type { MetaEventValueMap, MetaListArg, EventTiming, MetaEventArg } from '../types';
 
 import CollectionWithoutMetadata from './without-metadata';
 
@@ -38,15 +38,11 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
         return new Ctor(this.contents, metadata);
     }
 
-    protected withMetadataValues(ob: MetadataData): this {
-        return this.withMetadata(this.metadata.withValues(ob));
-    }
-
     /**
      * Return a copy of this Collection with copyright metadata set to the passed value.
      */
     withCopyright(s: string): this {
-        return this.withMetadataValues({ copyright: s });
+        return this.withMetadata(this.metadata.withValues({ copyright: s }));
     }
 
     /**
@@ -54,7 +50,7 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
      * Return a copy of this Collection with track name metadata set to the passed value.
      */
     withTrackName(s: string): this {
-        return this.withMetadataValues({ trackname: s });
+        return this.withMetadata(this.metadata.withValues({ trackname: s }));
     }
 
     /**
@@ -62,35 +58,35 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
      * Return a copy of this Collection with MIDI ticks per quarter metadata set to the passed value.
      */
     withTicksPerQuarter(ticks: number): this {
-        return this.withMetadataValues({ ticks_per_quarter: ticks });
+        return this.withMetadata(this.metadata.withValues({ ticks_per_quarter: ticks }));
     }
 
     /**
      * Return a copy of this Collection with MIDI channel metadata set to the passed value.
      */
     withMidiChannel(n: number): this {
-        return this.withMetadataValues({ midichannel: n });
+        return this.withMetadata(this.metadata.withValues({ midichannel: n }));
     }
 
     /**
      * Return a copy of this Collection with time signature metadata set to the passed value.
      */
     withTimeSignature(s: string): this {
-        return this.withMetadataValues({ time_signature: s });
+        return this.withMetadata(this.metadata.withValues({ time_signature: s }));
     }
 
     /**
      * Return a copy of this Collection with time signature metadata set to the passed value.
      */
     withKeySignature(s: string): this {
-        return this.withMetadataValues({ key_signature: s });
+        return this.withMetadata(this.metadata.withValues({ key_signature: s }));
     }
 
     /**
      * Return a copy of this Collection with the tempo metadata set to the passed value.
      */
     withTempo(t: number): this {
-        return this.withMetadataValues({ tempo: t });
+        return this.withMetadata(this.metadata.withValues({ tempo: t }));
     }
 
     /**
@@ -98,7 +94,7 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
      */
     withInstrument(inst: string | number): this {
         if (typeof inst === 'string') {
-            return this.withMetadataValues({ instrument: inst });
+            return this.withMetadata(this.metadata.withValues({ instrument: inst }));
         }
 
         const istr = this.metadata.midichannel === 10 ? toPercussionInstrument(inst) : toInstrument(inst);
@@ -107,7 +103,7 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
             throw new Error(`${this.constructor.name}.withInstrument(): invalid instrument: ${dumpOneLine(inst)}`);
         }
 
-        return this.withMetadataValues({ instrument: istr });
+        return this.withMetadata(this.metadata.withValues({ instrument: istr }));
     }
 
     /**
@@ -125,14 +121,14 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
             newevent = event;
         }
 
-        return this.withMetadataValues({ before: this.metadata.before.withNewEvent(newevent) });
+        return this.withMetadata(this.metadata.withValues({ before: this.metadata.before.withNewEvent(newevent) }));
     }
 
     /**
      * Return a copy of this Collection with new meta-events added.
      */
     withNewEvents(events: MetaListArg): this {
-        return this.withMetadataValues({ before: this.metadata.before.withNewEvents(events) });
+        return this.withMetadata(this.metadata.withValues({ before: this.metadata.before.withNewEvents(events) }));
     }
 
     /**

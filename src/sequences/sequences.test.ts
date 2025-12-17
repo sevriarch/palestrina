@@ -2,7 +2,10 @@ import { ValidatorFn, SeqArgument } from '../types';
 
 import { NumSeq, numseq, NoteSeq, noteseq, ChordSeq, chordseq, Melody, melody } from './sequences';
 
+import Metadata from '../metadata/metadata';
 import NumericValidator from '../validation/numeric';
+
+const MICROTONAL = Metadata.from({ validator: NumericValidator.NOOP_VALIDATOR });
 
 describe('numseq()', () => {
     const errortable: [ string, SeqArgument, string | undefined, ValidatorFn | undefined ][] = [
@@ -38,13 +41,13 @@ describe('numseq()', () => {
         ],
         [
             'invalid value in quartertone sequence; shows that new validator overrides existing',
-            NumSeq.from([ 1, 1.25, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 1.25, 1.5 ], MICROTONAL),
             'quartertone',
             undefined
         ],
         [
             'invalid value in sixthtone sequence; shows that new validator overrides existing',
-            NoteSeq.from([ 1, 1.25, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 1.25, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined
         ],
@@ -89,24 +92,24 @@ describe('numseq()', () => {
         ],
         [
             'valid values in quartertone sequence',
-            NumSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 2.5, 1.5 ], MICROTONAL),
             'quartertone',
             undefined,
-            NumSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.FRACTION_VALIDATOR(2) }),
+            NumSeq.from([ 1, 2.5, 1.5 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(2) })),
         ],
         [
             'valid values in sixthtone sequence',
-            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined,
-            NumSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.FRACTION_VALIDATOR(3) }),
+            NumSeq.from([ 1, 5 / 3, 4 / 3 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(3) })),
         ],
         [
             'valid values in custom sequence',
             ChordSeq.from([ 1, 5, 9 ]),
             'custom',
             v => v % 4 !== 0,
-            NumSeq.from([ 1, 5, 9 ], { validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) }),
+            NumSeq.from([ 1, 5, 9 ], Metadata.from({ validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) })),
         ],
     ];
 
@@ -149,13 +152,13 @@ describe('noteseq()', () => {
         ],
         [
             'invalid value in quartertone sequence; shows that new validator overrides existing',
-            NumSeq.from([ 1, 1.25, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 1.25, 1.5 ], MICROTONAL),
             'quartertone',
             undefined
         ],
         [
             'invalid value in sixthtone sequence; shows that new validator overrides existing',
-            NoteSeq.from([ 1, 1.25, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 1.25, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined
         ],
@@ -201,24 +204,24 @@ describe('noteseq()', () => {
         ],
         [
             'valid values in quartertone sequence',
-            NumSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 2.5, 1.5 ], MICROTONAL),
             'quartertone',
             undefined,
-            NoteSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.FRACTION_VALIDATOR(2) }),
+            NoteSeq.from([ 1, 2.5, 1.5 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(2) })),
         ],
         [
             'valid values in sixthtone sequence',
-            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined,
-            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.FRACTION_VALIDATOR(3) }),
+            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(3) })),
         ],
         [
             'valid values in custom sequence',
             ChordSeq.from([ 1, 5, 9 ]),
             'custom',
             v => v % 4 !== 0,
-            NoteSeq.from([ 1, 5, 9 ], { validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) }),
+            NoteSeq.from([ 1, 5, 9 ], Metadata.from({ validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) })),
         ],
     ];
 
@@ -261,13 +264,13 @@ describe('chordseq()', () => {
         ],
         [
             'invalid value in quartertone sequence; shows that new validator overrides existing',
-            NumSeq.from([ 1, 1.25, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 1.25, 1.5 ], MICROTONAL),
             'quartertone',
             undefined
         ],
         [
             'invalid value in sixthtone sequence; shows that new validator overrides existing',
-            NoteSeq.from([ 1, 1.25, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 1.25, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined
         ],
@@ -307,24 +310,24 @@ describe('chordseq()', () => {
         ],
         [
             'valid values in quartertone sequence',
-            NumSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 2.5, 1.5 ], MICROTONAL),
             'quartertone',
             undefined,
-            ChordSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.FRACTION_VALIDATOR(2) }),
+            ChordSeq.from([ 1, 2.5, 1.5 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(2) })),
         ],
         [
             'valid values in sixthtone sequence',
-            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined,
-            ChordSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.FRACTION_VALIDATOR(3) }),
+            ChordSeq.from([ 1, 5 / 3, 4 / 3 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(3) })),
         ],
         [
             'valid values in custom sequence',
             ChordSeq.from([ 1, 5, 9 ]),
             'custom',
             v => v % 4 !== 0,
-            ChordSeq.from([ 1, 5, 9 ], { validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) }),
+            ChordSeq.from([ 1, 5, 9 ], Metadata.from({ validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) })),
         ],
         [
             'multiple values present',
@@ -374,13 +377,13 @@ describe('melody()', () => {
         ],
         [
             'invalid value in quartertone sequence; shows that new validator overrides existing',
-            NumSeq.from([ 1, 1.25, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 1.25, 1.5 ], MICROTONAL),
             'quartertone',
             undefined
         ],
         [
             'invalid value in sixthtone sequence; shows that new validator overrides existing',
-            NoteSeq.from([ 1, 1.25, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 1.25, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined
         ],
@@ -420,24 +423,24 @@ describe('melody()', () => {
         ],
         [
             'valid values in quartertone sequence',
-            NumSeq.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NumSeq.from([ 1, 2.5, 1.5 ], MICROTONAL),
             'quartertone',
             undefined,
-            Melody.from([ 1, 2.5, 1.5 ], { validator: NumericValidator.FRACTION_VALIDATOR(2) }),
+            Melody.from([ 1, 2.5, 1.5 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(2) })),
         ],
         [
             'valid values in sixthtone sequence',
-            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.NOOP_VALIDATOR }),
+            NoteSeq.from([ 1, 5 / 3, 4 / 3 ], MICROTONAL),
             'sixthtone',
             undefined,
-            Melody.from([ 1, 5 / 3, 4 / 3 ], { validator: NumericValidator.FRACTION_VALIDATOR(3) }),
+            Melody.from([ 1, 5 / 3, 4 / 3 ], Metadata.from({ validator: NumericValidator.FRACTION_VALIDATOR(3) })),
         ],
         [
             'valid values in custom sequence',
             ChordSeq.from([ 1, 5, 9 ]),
             'custom',
             v => v % 4 !== 0,
-            Melody.from([ 1, 5, 9 ], { validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) }),
+            Melody.from([ 1, 5, 9 ], Metadata.from({ validator: NumericValidator.CUSTOM_VALIDATOR(v => v % 4 !== 0) })),
         ],
         [
             'multiple values present',

@@ -104,15 +104,15 @@ describe('Score construction tests', () => {
         expect(sc.metadata.ticks_per_quarter).toEqual(192);
     });
 
-    test('expect score with a {} second argument to take default ticks_per_quarter', () => {
-        const sc = Score.from([], {});
+    test('expect score with empty metadata to take default ticks_per_quarter', () => {
+        const sc = Score.from([], Metadata.EMPTY_METADATA);
 
         expect(sc.contents).toStrictEqual([]);
         expect(sc.metadata.ticks_per_quarter).toEqual(192);
     });
 
     test('expect score with defined metadata to use that metadata', () => {
-        const sc = Score.from([], { ticks_per_quarter: 128, copyright: 'mine' });
+        const sc = Score.from([]).withTicksPerQuarter(128).withCopyright('mine');
 
         expect(sc.contents).toStrictEqual([]);
         expect(sc.metadata.ticks_per_quarter).toEqual(128);
@@ -213,10 +213,10 @@ describe('Score.keepSlice()', () => {
             Score.from([ ]).withTicksPerQuarter(64)
         ],
         [
-            Score.from([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
+            Score.from([ T0, T1, T2, T3, T4 ]).withMidiChannel(10),
             1,
             2,
-            Score.from([ T1 ], { midichannel: 10 })
+            Score.from([ T1 ]).withMidiChannel(10),
         ],
         [
             Score.from([ T0, T1, T2, T3, T4 ]),
@@ -253,10 +253,10 @@ describe('Score.dropSlice()', () => {
             Score.from([ T0, T1, T2, T3, T4 ]).withTicksPerQuarter(64)
         ],
         [
-            Score.from([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
+            Score.from([ T0, T1, T2, T3, T4 ]).withMidiChannel(10),
             1,
             2,
-            Score.from([ T0, T2, T3, T4 ], { midichannel: 10 })
+            Score.from([ T0, T2, T3, T4 ]).withMidiChannel(10), 
         ],
         [
             Score.from([ T0, T1, T2, T3, T4 ]),
@@ -290,9 +290,9 @@ describe('Score.dropIndices()', () => {
             Score.from([ T0, T3, T4 ]).withTicksPerQuarter(64)
         ],
         [
-            Score.from([ T0, T1, T2, T3, T4 ], { midichannel: 10 }),
+            Score.from([ T0, T1, T2, T3, T4 ]).withMidiChannel(10),
             [ 0, 1, 2 ],
-            Score.from([ T3, T4 ], { midichannel: 10 })
+            Score.from([ T3, T4 ]).withMidiChannel(10),
         ],
         [
             Score.from([ T0, T1, T2, T3, T4 ]),
@@ -452,23 +452,15 @@ describe('Score.withAllTicksExact() tests', () => {
         Melody.from([
             { pitch: [ 64 ], duration: 4, velocity: 45 },
             { pitch: [ 52 ], duration: 4, velocity: 40 },
-        ], {
-            before: MetaList.from([ { event: 'text', value: 'test', offset: 64 } ])
-        })
-    ], {
-        before: MetaList.from([ { event: 'tempo', value: 144, offset: 512 } ])
-    });
+        ], Metadata.from({ before: MetaList.from([ { event: 'text', value: 'test', offset: 64 } ]) }))
+    ], Metadata.from({ before: MetaList.from([ { event: 'tempo', value: 144, offset: 512 } ]) }));
     const S1RET = Score.from([
         T0,
         Melody.from([
             { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
             { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
-        ], {
-            before: MetaList.from([ { event: 'text', value: 'test', at: 64 } ])
-        })
-    ], {
-        before: MetaList.from([ { event: 'tempo', value: 144, at: 512 } ])
-    });
+        ], Metadata.from({ before: MetaList.from([ { event: 'text', value: 'test', at: 64 } ]) }))
+    ], Metadata.from({ before: MetaList.from([ { event: 'tempo', value: 144, at: 512 } ]) }));
 
     test('test that this does not create additional entities for an empty Score', () => {
         expect(S0.withAllTicksExact()).toStrictEqual(Score.from([]));
@@ -739,10 +731,6 @@ describe('Score.toOrderedChordsWithMetadata()', () => {
 });
 
 describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() tests', () => {
-    describe('should throw if ticks_per_quarter is invalid', () => {
-        expect(() => Score.from([], { ticks_per_quarter: 65536 }).toMidiBytes()).toThrow();
-    });
-
     describe('should throw if a pitch is too low', () => {
         expect(() => Score.from([ 
             Melody.from([ 1, 2, 3, [ 4, 25 ], -1 ])
@@ -779,7 +767,7 @@ describe('Score.toMidiBytes()/.writeMidi()/.toHash()/.expectHash()/.toDataURI() 
         ],
         [
             'a score with an empty track and one MetaEvent, with a non-default ticks per quarter value',
-            Score.from([ T0 ], { ticks_per_quarter: 128 }).withNewEvent('sustain', 1),
+            Score.from([ T0 ]).withTicksPerQuarter(128).withNewEvent('sustain', 1),
             'b30e8fda9dcc60c8ca977933017b0724',
             [77,84,104,100,0,0,0,6,0,1,0,1,0,128,77,84,114,107,0,0,0,8,0,176,64,127,0,255,47,0],
             'data:audio/midi;base64,TVRoZAAAAAYAAQABAIBNVHJrAAAACACwQH8A/y8A'
@@ -1511,7 +1499,7 @@ describe('Score.toCanvas()/.writeCanvas() tests', () => {
 // inherited from CollectionWithMetadata
 describe('Score.describe', () => {
     test('describes as expected', () => {
-        expect(Score.from([ Melody.from([ 1, [ 2, 3 ] ]) ], { tempo: 144 }).describe())
+        expect(Score.from([ Melody.from([ 1, [ 2, 3 ] ]) ]).withTempo(144).describe())
             .toStrictEqual(`Score(length=1,metadata=Metadata({tempo=144}))([
     0: Melody(length=2,metadata=Metadata({}))([
         0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),

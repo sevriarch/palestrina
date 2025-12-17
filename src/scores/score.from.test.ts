@@ -1,8 +1,10 @@
+import * as fs from 'fs';
+
 import Score from './score';
+
 import Melody from '../sequences/melody';
 import MetaList from '../meta-events/meta-list';
-
-import * as fs from 'fs';
+import Metadata from '../metadata/metadata';
 
 // This needs to be in a separate file so that the readFileSync mock doesn't
 // clobber the use of that method during canvas rendering
@@ -32,9 +34,8 @@ describe('Score.from() with file argument', () => {
                     { pitch: [ 0x3c ], velocity: 0x40, duration: 0x10, at: 0x00 },
                     { pitch: [ 0x43 ], velocity: 0x40, duration: 0x10, at: 0x10 },
                     { pitch: [ 0x48 ], velocity: 0x40, duration: 0x10, at: 0x20 }
-                ], { before: MetaList.from([ { event: 'sustain', value: 1, at: 0 } ]) })
-            ],
-            { ticks_per_quarter: 192 }
-        ));
+                ], Metadata.from({ before: MetaList.from([ { event: 'sustain', value: 1, at: 0 } ]) }))
+            ]
+        ).withTicksPerQuarter(192));
     });
 });

@@ -1,4 +1,4 @@
-import type { SeqArgument, SeqMemberArgument, MetadataData, ISingleValuedSequence } from '../types';
+import type { SeqArgument, SeqMemberArgument, Metadata, ISingleValuedSequence } from '../types';
 
 import Sequence from './generic';
 import NumSeqMember from './members/number';
@@ -9,7 +9,7 @@ import { xorshift } from '../imports/imports';
  * Class representing a Sequence of {@link NumSeqMember}s, each of which contains a numeric value.
  */
 export default class NumSeq extends Sequence<NumSeqMember> implements ISingleValuedSequence<NumSeqMember> {
-    static from(v: SeqArgument, metadata?: MetadataData) {
+    static from(v: SeqArgument, metadata?: Metadata) {
         return Sequence.build(NumSeq, NumSeqMember, v, metadata);
     }
 

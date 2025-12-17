@@ -5,12 +5,14 @@ import NoteSeq from './note';
 import ChordSeq from './chord';
 import Melody from './melody';
 
-import NumericValidator from '../validation/numeric';
 import NumSeqMember from './members/number';
 import NoteSeqMember from './members/note';
 import ChordSeqMember from './members/chord';
 
-const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
+import Metadata from '../metadata/metadata';
+import NumericValidator from '../validation/numeric';
+
+const MICROTONAL = Metadata.from({ validator: NumericValidator.NOOP_VALIDATOR });
 
 type AnySeq = NumSeq | NoteSeq | ChordSeq | Melody;
 

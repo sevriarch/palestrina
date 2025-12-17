@@ -4,14 +4,14 @@ import type { MapperFn, SeqIndices, EventTiming, MetaEventArg } from '../types';
 
 import { Melody, NumSeq } from './sequences';
 
-import NumericValidator from '../validation/numeric';
-
 import MelodyMember from './members/melody';
+
+import Metadata from '../metadata/metadata';
+import NumericValidator from '../validation/numeric';
 import MetaList from '../meta-events/meta-list';
 import MetaEvent from '../meta-events/meta-event';
-import Metadata from '../metadata/metadata';
 
-const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
+const MICROTONAL = Metadata.from({ validator: NumericValidator.NOOP_VALIDATOR });
 
 // Mocking fs is ugly but without it jest.spyOn(fs, 'writeFileSync') doesn't work
 // in TypeScript, throwing: TypeError: Cannot redefine property: writeFileSync
@@ -723,13 +723,12 @@ describe('Melody.augmentRhythm()', () => {
         { pitch: [66], duration: 50, velocity: 60, delay: 50 },
         { pitch: [69], duration: 150, velocity: 50, at: 40 },
         { pitch: [72], duration: 100, velocity: 60, after: [{ event: 'sustain', value: 0, at: 600 }] },
-    ],
-    {
+    ], Metadata.from({
         before: MetaList.from([
             { event: 'sustain', value: 1, at: 50 },
             { event: 'sustain', value: 0, at: 150 }
         ])
-    });
+    }));
 
     test('throws if argument is not a non-negative number', () => {
         expect(() => s.augmentRhythm(-1)).toThrow();
@@ -746,13 +745,12 @@ describe('Melody.augmentRhythm()', () => {
             { pitch: [66], duration: 25, velocity: 60, delay: 25 },
             { pitch: [69], duration: 75, velocity: 50, at: 20 },
             { pitch: [72], duration: 50, velocity: 60, after: [{ event: 'sustain', value: 0, at: 300 }] },
-        ],
-        {
+        ], Metadata.from({
             before: MetaList.from([
                 { event: 'sustain', value: 1, at: 25 },
                 { event: 'sustain', value: 0, at: 75 }
             ])
-        }));
+        })));
     });
 
     test('increases durations, offsets and delays', () => {
@@ -762,13 +760,12 @@ describe('Melody.augmentRhythm()', () => {
             { pitch: [66], duration: 250, velocity: 60, delay: 250 },
             { pitch: [69], duration: 750, velocity: 50, at: 200 },
             { pitch: [72], duration: 500, velocity: 60, after: [{ event: 'sustain', value: 0, at: 3000 }] },
-        ],
-        {
+        ], Metadata.from({
             before: MetaList.from([
                 { event: 'sustain', value: 1, at: 250 },
                 { event: 'sustain', value: 0, at: 750 }
             ])
-        }));
+        })));
     });
 });
 
@@ -779,13 +776,12 @@ describe('Melody.diminishRhythm()', () => {
         { pitch: [66], duration: 50, velocity: 60, delay: 50 },
         { pitch: [69], duration: 150, velocity: 50, at: 40 },
         { pitch: [72], duration: 100, velocity: 60, after: [{ event: 'sustain', value: 0, at: 600 }] },
-    ],
-    {
+    ], Metadata.from({
         before: MetaList.from([
             { event: 'sustain', value: 1, at: 50 },
             { event: 'sustain', value: 0, at: 150 }
         ])
-    });
+    }));
 
     test('throws if argument is not a positive number', () => {
         expect(() => s.diminishRhythm(0)).toThrow();
@@ -802,13 +798,12 @@ describe('Melody.diminishRhythm()', () => {
             { pitch: [66], duration: 25, velocity: 60, delay: 25 },
             { pitch: [69], duration: 75, velocity: 50, at: 20 },
             { pitch: [72], duration: 50, velocity: 60, after: [{ event: 'sustain', value: 0, at: 300 }] },
-        ],
-        {
+        ], Metadata.from({
             before: MetaList.from([
                 { event: 'sustain', value: 1, at: 25 },
                 { event: 'sustain', value: 0, at: 75 }
             ])
-        }));
+        })));
     });
 
     test('increases durations, offsets and delays', () => {
@@ -818,13 +813,12 @@ describe('Melody.diminishRhythm()', () => {
             { pitch: [66], duration: 250, velocity: 60, delay: 250 },
             { pitch: [69], duration: 750, velocity: 50, at: 200 },
             { pitch: [72], duration: 500, velocity: 60, after: [{ event: 'sustain', value: 0, at: 3000 }] },
-        ],
-        {
+        ], Metadata.from({
             before: MetaList.from([
                 { event: 'sustain', value: 1, at: 250 },
                 { event: 'sustain', value: 0, at: 750 }
             ])
-        }));
+        })));
     });
 });
 
@@ -1158,13 +1152,13 @@ describe('MelodyMember.withAllTicksExact()', () => {
                 ]),
             }),
             MelodyMember.from({ pitch: [ 69 ], duration: 128 }),
-        ], {
+        ], Metadata.from({
             before: MetaList.from([
                 { event: 'text', value: 'test 1' },
                 { event: 'text', value: 'test 2', offset: 64 },
                 { event: 'text', value: 'test 3', at: 128, offset: 64 }
             ])
-        }).withAllTicksExact()).toStrictEqual(Melody.from([
+        })).withAllTicksExact()).toStrictEqual(Melody.from([
             MelodyMember.from({ pitch: [ 60 ], duration: 8, at: 0 }),
             MelodyMember.from({ pitch: [ 61 ], duration: 128, at: 56 }),
             MelodyMember.from({ pitch: [ 62 ], duration: 8, at: 200 }),
@@ -1219,13 +1213,13 @@ describe('MelodyMember.withAllTicksExact()', () => {
                 ]),
             }),
             MelodyMember.from({ pitch: [ 69 ], duration: 128, at: 1160 }),
-        ], {
+        ], Metadata.from({
             before: MetaList.from([
                 { event: 'text', value: 'test 1', at: 0 },
                 { event: 'text', value: 'test 2', at: 64 },
                 { event: 'text', value: 'test 3', at: 192 }
             ])
-        }));
+        })));
     });
 });
 
@@ -1664,7 +1658,7 @@ describe('Melody.writeMidi()', () => {
 // inherited from CollectionWithMetadata
 describe('Melody.describe()', () => {
     test('describes as expected', () => {
-        expect(Melody.from([1, [2, 3]], { tempo: 144 }).describe())
+        expect(Melody.from([1, [2, 3]], Metadata.from({ tempo: 144 })).describe())
             .toStrictEqual(`Melody(length=2,metadata=Metadata({tempo=144}))([
     0: MelodyMember({pitch:ChordSeqMember([1]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),
     1: MelodyMember({pitch:ChordSeqMember([2,3]),velocity:64,duration:16,at:undefined,offset:0,delay:0,before:MetaList(length=0)([]),after:MetaList(length=0)([])}),

@@ -1,4 +1,4 @@
-import type { Timed, MetaEventArg, MetaEventValueMap, MetadataData, MelodyMemberArg } from '../types';
+import type { Timed, MetaEventArg, MetaEventValueMap, MelodyMemberArg } from '../types';
 
 import * as fs from 'fs';
 
@@ -30,14 +30,14 @@ class MidiReader {
     currentbyte = 0;
     currenttick = 0;
     channel = -2;
-    metadata: MetadataData;
+    metadata: Metadata;
     contents!: number[];
     otherEvents: Timed<MetaEventArg>[] = [];
     noteOnEvents: Record<number, Timed<MelodyMemberArg>[]> = {};
     notes: Timed<MelodyMemberArg>[] = [];
     length!: number;
 
-    constructor(arg: string | number[], metadata: MetadataData = {}) {
+    constructor(arg: string | number[], metadata = Metadata.EMPTY_METADATA) {
         if (typeof arg === 'string') {
             const buf = fs.readFileSync(arg);
             const len = buf.length;

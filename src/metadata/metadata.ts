@@ -1,4 +1,4 @@
-import type { Timed, MetadataData, TypeOrArray, MetaEventArg, MetaEventValueMap } from '../types';
+import type { Timed, TypeOrArray, MetaEventArg, MetaEventValueMap } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
@@ -11,6 +11,19 @@ import { dumpOneLine } from '../dump/dump';
 import * as keySignature from '../helpers/key-signature';
 import * as timeSignature from '../helpers/time-signature';
 import * as instrument from '../helpers/instrument';
+
+type MetadataData = {
+    copyright?: string,
+    trackname?: string,
+    time_signature?: string,
+    key_signature?: string,
+    tempo?: number,
+    midichannel?: number,
+    before?: MetaList,
+    ticks_per_quarter?: number,
+    instrument?: string,
+    validator?: NumericValidator,
+};
 
 const VALID_KEYS = new Set([ 'tempo', 'time_signature', 'key_signature', 'copyright', 'trackname', 'midichannel', 'before', 'ticks_per_quarter', 'instrument', 'validator' ]);
 

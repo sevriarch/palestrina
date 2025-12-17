@@ -1,10 +1,11 @@
-import type { ValidatorFn, ISeqMember } from '../types';
+import { type ValidatorFn, type ISeqMember } from '../types';
 
+import Metadata from '../metadata/metadata';
 import NumericValidator from './numeric';
 
 import { NumSeq, ChordSeq } from '../sequences/sequences';
 
-const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
+const MICROTONAL = Metadata.from({ validator: NumericValidator.NOOP_VALIDATOR });
 
 class MockMember {
     val: number;

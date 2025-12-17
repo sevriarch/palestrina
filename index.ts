@@ -8,7 +8,7 @@ export type {
     Melody, MelodyMember, MelodyMemberArg, // melody-related types
     Score, ScoreCanvasOpts, // score-related types
     PitchArgument, PitchMutatorFn, PitchMapperFn, GamutOpts, NumericValidator, // pitch-related types
-    Metadata, MetadataData, // metadata-related types
+    Metadata, // metadata-related types
     MetaList, MetaListArg, // meta-list-related types
     MetaEvent, MetaEventArg, // meta-event-related types
     Replacer, ReplacerFn, // replacer-related types

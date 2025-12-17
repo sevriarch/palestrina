@@ -1,8 +1,9 @@
 import { NumSeq, NoteSeq } from './sequences';
 
+import Metadata from '../metadata/metadata';
 import NumericValidator from '../validation/numeric';
 
-const MICROTONAL = { validator: NumericValidator.NOOP_VALIDATOR };
+const MICROTONAL = Metadata.from({ validator: NumericValidator.NOOP_VALIDATOR });
 
 describe('NumSeq.from()', () => {
     const c = NumSeq.from([ 1, 2, 3 ]);
@@ -271,7 +272,7 @@ describe('numseq.exchangeValuesIncreasing() tests', () => {
 // inherited from CollectionWithMetadata
 describe('NumSeq.describe()', () => {
     test('describes as expected', () => {
-        expect(NumSeq.from([ 1, 2 ], { tempo: 144 }).describe())
+        expect(NumSeq.from([ 1, 2 ], Metadata.from({ tempo: 144 })).describe())
             .toStrictEqual('NumSeq(length=2,metadata=Metadata({tempo=144}))([\n    0: NumSeqMember(1),\n    1: NumSeqMember(2),\n])');
     });
 });
