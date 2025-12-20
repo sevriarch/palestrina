@@ -50,7 +50,7 @@ export type TypeOrArray<T> = T | T[];
 /**
  * A type that has a guarantee that a field named 'at' is set to a number
  */
-export type Timed<X> = X & { at: number };
+export type Timed<T> = T & { at: number };
 
 /**
  * A type that represents a MelodyMember or MetaEvent that as has a defined tick
@@ -78,26 +78,6 @@ export type Renderable = {
 export type EventTiming = {
     at?: number;
     offset?: number;
-};
-
-/*
- * METADATA
- */
-
-/**
- * Data within a Metadata object
- */
-export type MetadataData = {
-    copyright?: string,
-    trackname?: string,
-    time_signature?: string,
-    key_signature?: string,
-    tempo?: number,
-    midichannel?: number,
-    before?: MetaList,
-    ticks_per_quarter?: number,
-    instrument?: string,
-    validator?: NumericValidator,
 };
 
 /*
@@ -142,7 +122,7 @@ export type MetaEventArg = MetaEvent<keyof MetaEventValueMap> | (MetaEventDef<ke
 /**
  * The type used to pass multiple MetaEvents to Score, Melody, MelodyMember, Metadata and MetaList
  */
-export type MetaListArg = MetaList | (MetaEvent<keyof MetaEventValueMap> | MetaEventArg)[];
+export type MetaListArg = MetaList | MetaEventArg[];
 
 /*
  * PITCHES

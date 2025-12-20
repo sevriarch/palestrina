@@ -1,4 +1,4 @@
-import type { MetadataData, MetaEventArg } from '../types';
+import type { MetaEventArg } from '../types';
 
 import Metadata from './metadata';
 import MetaEvent from '../meta-events/meta-event';
@@ -6,6 +6,19 @@ import MetaList from '../meta-events/meta-list';
 
 import NumericValidator from '../validation/numeric';
 import { DEFAULTS } from '../constants';
+
+type MetadataData = {
+    copyright?: string,
+    trackname?: string,
+    time_signature?: string,
+    key_signature?: string,
+    tempo?: number,
+    midichannel?: number,
+    before?: MetaList,
+    ticks_per_quarter?: number,
+    instrument?: string,
+    validator?: NumericValidator,
+};
 
 describe('Metadata.from() tests', () => {
     test('Metadata.from(metadata) returns passed argument', () => {
