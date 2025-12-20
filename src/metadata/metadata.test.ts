@@ -268,11 +268,11 @@ describe('Metadata.withoutValues()', () => {
     const m = new Metadata({ tempo: 144, key_signature: 'E', time_signature: '4/4' });
 
     test('removing field that is not present returns same values', () => {
-        expect(m.withoutValues('midichannel')).toStrictEqual(m);
+        expect(m.withoutValues([ 'midichannel' ])).toStrictEqual(m);
     });
 
-    test('removing field that is not present returns without associated value', () => {
-        expect(m.withoutValues('tempo')).toStrictEqual(new Metadata({ key_signature: 'E', time_signature: '4/4' }));
+    test('removing field that is present returns without associated value', () => {
+        expect(m.withoutValues([ 'tempo' ])).toStrictEqual(new Metadata({ key_signature: 'E', time_signature: '4/4' }));
     });
 
     test('removing multiple fields, some of which are present, removes values for those that were present', () => {

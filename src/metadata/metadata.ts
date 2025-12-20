@@ -1,4 +1,4 @@
-import type { Timed, TypeOrArray, MetaEventKind, MetaEventValueMap } from '../types';
+import type { Timed, MetaEventKind, MetaEventValueMap } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
@@ -222,15 +222,11 @@ export default class Metadata {
     /**
      * Return a copy of this metadata with a field or fields removed.
      */
-    withoutValues(key: TypeOrArray<keyof MetadataData>): this {
+    withoutValues(key: (keyof MetadataData)[]): this {
         const data = { ...this.metadata };
 
-        if (Array.isArray(key)) {
-            for (const k of key) {
-                delete data[k];
-            }
-        } else {
-            delete data[key];
+        for (const k of key) {
+            delete data[k];
         }
 
         return this.construct(data);
