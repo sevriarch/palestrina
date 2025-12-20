@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventValueMap, MetaListArg } from '../types';
+import type { MetaEventArg, MetaEventKind, MetaListArg } from '../types';
 
 import CollectionWithoutMetadata from '../collections/without-metadata';
 import MetaEvent from './meta-event';
@@ -12,7 +12,7 @@ import { dumpOneLine } from '../dump/dump';
  * at the start and end of MelodyMembers, at the start of Melodies and Scores, and is used
  * during the creation and reading of MIDI files.
  */
-export default class MetaList extends CollectionWithoutMetadata<MetaEvent<keyof MetaEventValueMap>> {
+export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEventKind>> {
     static EMPTY_META_LIST = new MetaList([]);
 
     /**
@@ -40,7 +40,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<keyof 
     /**
      * Constructor. Takes an array of MetaEvents and creates a MetaList from them.
      */
-    constructor(ob: MetaEvent<keyof MetaEventValueMap>[]) {
+    constructor(ob: MetaEvent<MetaEventKind>[]) {
         super(ob);
 
         Object.freeze(this);

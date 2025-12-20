@@ -48,16 +48,6 @@ export type JSONValue = string | number | boolean | null | JSONValue[] | { [k: s
 export type TypeOrArray<T> = T | T[];
 
 /**
- * A type that has a guarantee that a field named 'at' is set to a number
- */
-export type Timed<T> = T & { at: number };
-
-/**
- * A type that represents a MelodyMember or MetaEvent that as has a defined tick
- */
-export type TimedEntity = Timed<MetaEvent<keyof MetaEventValueMap> | MelodyMember>;
-
-/**
  * An entity that can be rendered as MIDI, SVG, MusicXML etc
  */
 export type Renderable = {
@@ -79,6 +69,16 @@ export type EventTiming = {
     at?: number;
     offset?: number;
 };
+
+/**
+ * A type that has a guarantee that a field named 'at' is set to a number
+ */
+export type Timed<T> = T & { at: number };
+
+/**
+ * A type that represents a MelodyMember or MetaEvent that as has a defined tick
+ */
+export type TimedEntity = Timed<MetaEvent<MetaEventKind> | MelodyMember>;
 
 /*
  * META-EVENTS AND META-LISTS
@@ -107,9 +107,14 @@ export type MetaEventValueMap = {
 };
 
 /**
+ * Any one of the possible "event" values in a MetaEvent.
+ */
+export type MetaEventKind = keyof MetaEventValueMap;
+
+/**
  * Required contents of a MetaEvent object
  */
-type MetaEventDef<Event extends keyof MetaEventValueMap> = {
+type MetaEventDef<Event extends MetaEventKind> = {
     event: keyof MetaEventValueMap;
     value: MetaEventValueMap[Event];
 };
@@ -117,7 +122,7 @@ type MetaEventDef<Event extends keyof MetaEventValueMap> = {
 /**
  * The type used to pass the contents of a MetaEvent before the event has been created
  */
-export type MetaEventArg = MetaEvent<keyof MetaEventValueMap> | (MetaEventDef<keyof MetaEventValueMap> & EventTiming);
+export type MetaEventArg = MetaEvent<MetaEventKind> | (MetaEventDef<MetaEventKind> & EventTiming);
 
 /**
  * The type used to pass multiple MetaEvents to Score, Melody, MelodyMember, Metadata and MetaList

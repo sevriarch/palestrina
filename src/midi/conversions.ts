@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, MetaEvent, MetaEventValueMap, MelodyMember, Renderable } from '../types';
+import type { Timed, TimedEntity, MetaEvent, MetaEventKind, MelodyMember, Renderable } from '../types';
 
 import { MIDI } from '../constants';
 import { isInt, isNumber, isMidiChannel, isNBitInt, is7BitInt, isNonnegInt, isPosInt } from '../helpers/validation';
@@ -128,7 +128,7 @@ function pitchBendEventToMidiBytes(val: number, channel: number) {
 /**
  * Convert a MetaEvent to the MIDI bytes representing it.
  */
-export function metaEventToMidiBytes(event: MetaEvent<keyof MetaEventValueMap>, channel = 1): number[] {
+export function metaEventToMidiBytes(event: MetaEvent<MetaEventKind>, channel = 1): number[] {
     if (!isMidiChannel(channel)) {
         throw new Error(`channel should be a valid MIDI channel; was ${dumpOneLine(channel)}`);
     }

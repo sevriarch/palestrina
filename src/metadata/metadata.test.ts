@@ -1,4 +1,4 @@
-import type { MetaEventValueMap } from '../types';
+import type { MetaEventKind } from '../types';
 
 import Metadata from './metadata';
 import MetaEvent from '../meta-events/meta-event';
@@ -49,7 +49,7 @@ describe('MetaList.fromMetaEventArray()', () => {
     const EVT_INSTRUMENT = MetaEvent.from({ event: 'instrument', value: 'viola' });
     const EVT_INSTRUMENT_NUMERIC = MetaEvent.from({ event: 'instrument', value: 41 });
 
-    const table: [ string, MetaEvent<keyof MetaEventValueMap>[], MetadataData ][] = [
+    const table: [ string, MetaEvent<MetaEventKind>[], MetadataData ][] = [
         [
             'empty MetaList',
             [],

@@ -1,4 +1,4 @@
-import type { MetaEventValueMap, MetaListArg, EventTiming, MetaEventArg } from '../types';
+import type { MetaEventKind, MetaEventValueMap, MetaListArg, EventTiming, MetaEventArg } from '../types';
 
 import CollectionWithoutMetadata from './without-metadata';
 
@@ -109,7 +109,7 @@ export default class CollectionWithMetadata<T> extends CollectionWithoutMetadata
     /**
      * Return a copy of this Collection with a new meta-event pushed onto its start.
      */
-    withNewEvent<Event extends keyof MetaEventValueMap>(event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
+    withNewEvent<Event extends MetaEventKind>(event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
         let newevent: MetaEventArg;
         if (typeof event === 'string') {
             if (value === undefined) {

@@ -1,4 +1,4 @@
-import type { Timed, TypeOrArray, MetaEventValueMap } from '../types';
+import type { Timed, TypeOrArray, MetaEventKind, MetaEventValueMap } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
@@ -98,7 +98,7 @@ export default class Metadata {
      * Assign it to the `before` field of the metadata object
      * Return the object containing metadata.
      */
-    static fromMetaEventArray(eventdata: MetaEvent<keyof MetaEventValueMap>[]): Metadata {
+    static fromMetaEventArray(eventdata: MetaEvent<MetaEventKind>[]): Metadata {
         const metadata: MetadataData = {};
 
         // Move events that should be in metadata to metadata object.
@@ -250,11 +250,11 @@ export default class Metadata {
     /**
      * Return all entities contained within this Metadata.
      */
-    toOrderedEntities(): Timed<MetaEvent<keyof MetaEventValueMap>>[] {
+    toOrderedEntities(): Timed<MetaEvent<MetaEventKind>>[] {
         const fixed = this.withAllTicksExact();
-        const ret: Timed<MetaEvent<keyof MetaEventValueMap>>[] = [];
+        const ret: Timed<MetaEvent<MetaEventKind>>[] = [];
 
-        function maybePush<Event extends keyof MetaEventValueMap>(event: Event, value?: MetaEventValueMap[Event]) {
+        function maybePush<Event extends MetaEventKind>(event: Event, value?: MetaEventValueMap[Event]) {
             if (value !== undefined) {
                 ret.push(MetaEvent.from({ event, value, at: 0 }) as Timed<MetaEvent<Event>>);
             }
@@ -267,7 +267,7 @@ export default class Metadata {
         maybePush('tempo', fixed.tempo);
         maybePush('instrument', fixed.instrument);
 
-        ret.push(...fixed.before.contents as Timed<MetaEvent<keyof MetaEventValueMap>>[]);
+        ret.push(...fixed.before.contents as Timed<MetaEvent<MetaEventKind>>[]);
 
         return ret.sort((a, b) => a.at - b.at);
     }

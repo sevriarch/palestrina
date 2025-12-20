@@ -1,4 +1,4 @@
-import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, EventTiming, MetaListArg, MetaEventValueMap } from '../../types';
+import type { SeqMemberArgument, MelodyMemberArg, PitchArgument, MetaEventArg, EventTiming, MetaListArg, MetaEventKind } from '../../types';
 
 import NumSeqMember from './number';
 import NoteSeqMember from './note';
@@ -111,7 +111,7 @@ describe('MelodyMember.from() static method tests', () => {
 
 describe('MelodyMember constructor/.val() tests', () => {
     const EVENT_GOOD = MetaEvent.from({ event: 'sustain', value: 1, offset: 0 });
-    const EVENT_BAD = { event: 'sustain', value: 1, banana: true } as unknown as MetaEvent<keyof MetaEventValueMap>;
+    const EVENT_BAD = { event: 'sustain', value: 1, banana: true } as unknown as MetaEvent<MetaEventKind>;
 
     const table: [ MelodyMemberArg, boolean ][] = [
         // Invalid argument format
@@ -1101,7 +1101,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
     const e1 = makeEventWithDefaults({});
     const e2 = makeEventWithDefaults({ before: [ META_SUSTAIN_ON ], after: [ META_SUSTAIN_ON ] });
 
-    const errortable: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, EventTiming | undefined ][] = [
+    const errortable: [ string, MelodyMember, MetaEventKind | MetaEventArg, number | undefined, EventTiming | undefined ][] = [
         [
             'adding an invalid MetaEvent',
             e1,
@@ -1112,7 +1112,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         [
             'adding a non-existent MetaEvent',
             e2,
-            'meow' as keyof MetaEventValueMap,
+            'meow' as MetaEventKind,
             1,
             undefined,
         ],
@@ -1130,7 +1130,7 @@ describe('MelodyMember.withEventAfter/MelodyMember.withEventAfter() tests', () =
         });
     });
 
-    const table: [ string, MelodyMember, keyof MetaEventValueMap | MetaEventArg, number | undefined, EventTiming | undefined, MetaListArg ][] = [
+    const table: [ string, MelodyMember, MetaEventKind | MetaEventArg, number | undefined, EventTiming | undefined, MetaListArg ][] = [
         [
             'adding one MetaEvent using three-argument form to an event without MetaEvents',
             e1,

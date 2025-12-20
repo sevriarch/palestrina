@@ -1,4 +1,4 @@
-import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MapperFn, SeqIndices, Metadata, MetaEventValueMap, EventTiming, MetaEventArg, ISequence } from '../types';
+import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MapperFn, SeqIndices, Metadata, MetaEventValueMap, MetaEventKind, MetaEventArg, EventTiming, ISequence } from '../types';
 
 import Sequence from './generic';
 import MelodyMember from './members/melody';
@@ -313,7 +313,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // 2-argument format: release sustain pedal 1024 ticks after note 100 begins
      * myMelody.withEventBefore([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
-    withEventBefore<Event extends keyof MetaEventValueMap>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
+    withEventBefore<Event extends MetaEventKind>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
         return this.replaceIndices(pos, e => e.withEventBefore(event, value, opts));
     }
 
@@ -329,7 +329,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * // 2-argument format: release sustain pedal 1024 ticks after note 100 ends
      * myMelody.withEventAfter([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
-    withEventAfter<Event extends keyof MetaEventValueMap>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
+    withEventAfter<Event extends MetaEventKind>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
         return this.replaceIndices(pos, e => e.withEventAfter(event, value, opts));
     }
 

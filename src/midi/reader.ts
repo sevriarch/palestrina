@@ -1,4 +1,4 @@
-import { Timed, MetaEventValueMap } from '../types';
+import { Timed, MetaEventKind } from '../types';
 
 import * as fs from 'fs';
 
@@ -33,7 +33,7 @@ class MidiReader {
     currenttick = 0;
     channel = -2;
     contents!: number[];
-    otherEvents: Timed<MetaEvent<keyof MetaEventValueMap>>[] = [];
+    otherEvents: Timed<MetaEvent<MetaEventKind>>[] = [];
     noteOnEvents: Record<number, { pitch: number, velocity: number, at: number }[]> = {};
     notes: Timed<MelodyMember>[] = [];
     length!: number;
@@ -159,7 +159,7 @@ class MidiReader {
      * initial 0xff byte has already been removed.
      * Removes the bytes corresponding to this event from the passed byte array.
      */
-    protected extractNextMetaEvent(): MetaEvent<keyof MetaEventValueMap> | undefined {
+    protected extractNextMetaEvent(): MetaEvent<MetaEventKind> | undefined {
         const [ byte ] = this.slurp(1);
 
         const numbytes = this.extractNumberFromVariableBytes();
@@ -208,7 +208,7 @@ class MidiReader {
         }
 
         if (byte >= 0x01 && byte <= 0x07) {
-            let evtype: keyof MetaEventValueMap;
+            let evtype: MetaEventKind;
             
             switch (byte) {
             case 0x01:
@@ -279,7 +279,7 @@ class MidiReader {
         this.noteOnEvents[pitch].push({ pitch, velocity, at: this.currenttick });
     }
 
-    protected extractNextChannelEvent(): MetaEvent<keyof MetaEventValueMap> | undefined {
+    protected extractNextChannelEvent(): MetaEvent<MetaEventKind> | undefined {
         const type = this.runningstatus & 0xf0;
 
         if (type === 0xa0) {
@@ -292,7 +292,7 @@ class MidiReader {
 
         if (type === 0xb0) {
             const [ ctrl, val ] = this.slurp(2);
-            let event: keyof MetaEventValueMap, value: number;
+            let event: MetaEventKind, value: number;
 
             if (ctrl > 0x7f) {
                 throw new Error(`controller number out of range: ${dumpHex(ctrl, val)}`);
@@ -394,13 +394,13 @@ class MidiReader {
                 const event = this.extractNextChannelEvent();
 
                 if (event) {
-                    this.otherEvents.push(event as Timed<MetaEvent<keyof MetaEventValueMap>>);
+                    this.otherEvents.push(event as Timed<typeof event>);
                 }
             } else if (first === 0xff) {
                 const event = this.extractNextMetaEvent();
 
                 if (event) {
-                    this.otherEvents.push(event as Timed<MetaEvent<keyof MetaEventValueMap>>);
+                    this.otherEvents.push(event as Timed<typeof event>);
                 }
             } else {
                 this.runningstatus = 0;

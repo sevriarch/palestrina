@@ -1,4 +1,4 @@
-import { MetaEventValueMap } from '../types';
+import { MetaEventKind } from '../types';
 
 import MidiReader from './reader';
 
@@ -264,7 +264,7 @@ describe('extractMidiTrackEvents()', () => {
         expect(() => reader.extractMidiTrackEvents()).toThrow(errmsg);
     });
 
-    const table: [ string, number[], MelodyMember[], MetaEvent<keyof MetaEventValueMap>[], number ][] = [
+    const table: [ string, number[], MelodyMember[], MetaEvent<MetaEventKind>[], number ][] = [
         [
             'discards byte that implies a non-existent running status',
             [ 0x00, 0x20 ],
@@ -477,7 +477,7 @@ describe('extractMidiTrackEvents()', () => {
         expect(reader.channel).toStrictEqual(channel);
     });
 
-    const chandata: [ number[], undefined | MetaEvent<keyof MetaEventValueMap>[] ][] = [
+    const chandata: [ number[], undefined | MetaEvent<MetaEventKind>[] ][] = [
         [
             [ 0xb0, MIDI.SUSTAIN_CONTROLLER, MIDI.EVENT_ON_VALUE ],
             [ MetaEvent.from({ event: 'sustain', value: 1, at: 0 }) ],
@@ -585,7 +585,7 @@ describe('extractMidiTrackEvents()', () => {
         expect(reader.channel).toStrictEqual(1);
     });
 
-    const combined: [ string, number[], MelodyMember[], MetaEvent<keyof MetaEventValueMap>[], number ][] = [
+    const combined: [ string, number[], MelodyMember[], MetaEvent<MetaEventKind>[], number ][] = [
         [
             'an empty track successfully',
             [],

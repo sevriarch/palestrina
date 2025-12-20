@@ -1,4 +1,4 @@
-import type { MetaEventArg, MetaEventValueMap } from '../types';
+import type { MetaEventArg, MetaEventKind, MetaEventValueMap } from '../types';
 
 import Timing from '../timing/timing';
 
@@ -21,12 +21,12 @@ const INVALID_KEYS = new Set([ 'event', 'value', 'offset', 'at' ]);
  * an array of events that occur at the start of the Melody, by Score for the same
  * reason, and is used during the creation and reading of MIDI files.
  */
-export default class MetaEvent<Event extends keyof MetaEventValueMap> {
-    readonly event: keyof MetaEventValueMap;   // the type of event
-    readonly value!: MetaEventValueMap[Event]; // the value associated with the event, if any
-    readonly timing: Timing;                   // timing information
+export default class MetaEvent<Event extends MetaEventKind> {
+    readonly event: MetaEventKind;            // the kind of event
+    readonly value: MetaEventValueMap[Event]; // the value associated with the event
+    readonly timing: Timing;                  // timing information
 
-    static from(ob: MetaEventArg | MetaEvent<keyof MetaEventValueMap>): MetaEvent<keyof MetaEventValueMap> {
+    static from(ob: MetaEventArg | MetaEvent<MetaEventKind>): MetaEvent<MetaEventKind> {
         if (ob instanceof MetaEvent) {
             return ob;
         }
