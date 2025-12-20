@@ -1,9 +1,11 @@
-import { MetaEventArg, MelodyMemberArg } from '../types';
+import { MetaEventValueMap } from '../types';
 
 import MidiReader from './reader';
 
 import Melody from '../sequences/melody';
+import MelodyMember from '../sequences/members/melody';
 import MetaList from '../meta-events/meta-list';
+import MetaEvent from '../meta-events/meta-event';
 import Metadata from '../metadata/metadata';
 
 import { MIDI } from '../constants';
@@ -253,6 +255,7 @@ describe('extractMidiTrackEvents()', () => {
         [ 'throws if a key signature has a too-high 2nd byte',[ 0x00, 0xff, 0x59, 0x02, 0x08, 0x00 ], 'invalid first byte of key signature event' ],
         [ 'throws if a key signature has a too-low 2nd byte', [ 0x00, 0xff, 0x59, 0x02, 0xf8, 0x00 ], 'invalid first byte of key signature event' ],
         [ 'throws if a key signature has a too-high 3rd byte', [ 0x00, 0xff, 0x59, 0x02, 0x00, 0x02 ], 'second byte of key signature event must be 0x00 or 0x01' ],
+        [ 'throws when instrument is unknown', [ 0x00, 0xc5, 0x7f ], '' ],
     ];
 
     test.each(errortable)('throws if %s', (_, bytes, errmsg) => {
@@ -261,7 +264,7 @@ describe('extractMidiTrackEvents()', () => {
         expect(() => reader.extractMidiTrackEvents()).toThrow(errmsg);
     });
 
-    const table: [ string, number[], MelodyMemberArg[], MetaEventArg[], number ][] = [
+    const table: [ string, number[], MelodyMember[], MetaEvent<keyof MetaEventValueMap>[], number ][] = [
         [
             'discards byte that implies a non-existent running status',
             [ 0x00, 0x20 ],
@@ -291,7 +294,7 @@ describe('extractMidiTrackEvents()', () => {
             1
         ],
         [
-            'note events discarde if velocity is out of range',
+            'note events discarded if velocity is out of range',
             [ 0x40, 0x80, 0x20, 0x80, 0x20, 0x80, 0x20, 0x80 ],
             [],
             [],
@@ -300,14 +303,14 @@ describe('extractMidiTrackEvents()', () => {
         [
             'note events on channel 1',
             [ 0x00, 0x90, 0x30, 0x20, 0x20, 0x80, 0x30, 0x20 ],
-            [ { pitch: 0x30, velocity: 0x20, at: 0x00, duration: 0x20 } ],
+            [ MelodyMember.from({ pitch: [ 0x30 ], velocity: 0x20, at: 0x00, duration: 0x20 }) ],
             [],
             1
         ],
         [
             'note events on channel 16',
             [ 0x81, 0x00, 0x9f, 0x40, 0x30, 0x40, 0x8f, 0x40, 0x30 ],
-            [ { pitch: 0x40, velocity: 0x30, at: 0x80, duration: 0x40 } ],
+            [ MelodyMember.from({ pitch: [ 0x40 ], velocity: 0x30, at: 0x80, duration: 0x40 }) ],
             [],
             16
         ],
@@ -322,9 +325,9 @@ describe('extractMidiTrackEvents()', () => {
                 0x20, 0x80, 0x34, 0x24
             ],
             [
-                { pitch: 0x30, velocity: 0x20, at: 0x00, duration: 0x40 },
-                { pitch: 0x30, velocity: 0x20, at: 0x30, duration: 0x20 },
-                { pitch: 0x34, velocity: 0x24, at: 0x10, duration: 0x60 },
+                MelodyMember.from({ pitch: [ 0x30 ], velocity: 0x20, at: 0x00, duration: 0x40 }),
+                MelodyMember.from({ pitch: [ 0x30 ], velocity: 0x20, at: 0x30, duration: 0x20 }),
+                MelodyMember.from({ pitch: [ 0x34 ], velocity: 0x24, at: 0x10, duration: 0x60 }),
             ],
             [],
             1
@@ -337,24 +340,10 @@ describe('extractMidiTrackEvents()', () => {
             1
         ],
         [
-            'an unknown instrument on channel 6',
-            [ 0x00, 0xc5, 0x7f ],
-            [],
-            [ { event: 'instrument', value: 127, at: 0x00 } ],
-            6
-        ],
-        [
-            'an instrument event on channel 10',
-            [ 0x00, 0xc9, 0x41 ],
-            [],
-            [ { event: 'instrument', value: 'high timbale', at: 0x00 } ],
-            10 
-        ],
-        [
             'an instrument event on channel 9',
             [ 0x88, 0x81, 0x00, 0xc8, 0x29 ],
             [],
-            [ { event: 'instrument', value: 'viola', at: 0x20080 } ],
+            [ MetaEvent.from({ event: 'instrument', value: 'viola', at: 0x20080 }) ],
             9
         ],
         [
@@ -368,14 +357,14 @@ describe('extractMidiTrackEvents()', () => {
             'a pitch bend event on channel 1',
             [ 0x00, 0xe0, 0x02, 0x00 ],
             [],
-            [ { event: 'pitch-bend', value: 256, at: 0x00 } ],
+            [ MetaEvent.from({ event: 'pitch-bend', value: 256, at: 0x00 }) ],
             1
         ],
         [
             'a pitch bend event on channel 16',
             [ 0x00, 0xef, 0x40, 0x80 ],
             [],
-            [ { event: 'pitch-bend', value: 8320, at: 0x00 } ],
+            [ MetaEvent.from({ event: 'pitch-bend', value: 8320, at: 0x00 }) ],
             16
         ],
         [
@@ -389,49 +378,49 @@ describe('extractMidiTrackEvents()', () => {
             'a text event',
             [ 0x00, 0xff, 0x01, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'text', value: 'hi!', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'text', value: 'hi!', at: 0x00 }) ],
             1
         ],
         [
             'a copyright event',
             [ 0x00, 0xff, 0x02, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'copyright', value: 'hi!', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'copyright', value: 'hi!', at: 0x00 }) ],
             1
         ],
         [
             'a track name event',
             [ 0x00, 0xff, 0x03, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'track-name', value: 'hi!', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'track-name', value: 'hi!', at: 0x00 }) ],
             1
         ],
         [
             'an instrument name event',
             [ 0x60, 0xff, 0x04, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'instrument-name', value: 'hi!', at: 0x60 } ],
+            [ MetaEvent.from({ event: 'instrument-name', value: 'hi!', at: 0x60 }) ],
             1
         ],
         [
             'a lyric event',
             [ 0x00, 0xff, 0x05, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'lyric', value: 'hi!', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'lyric', value: 'hi!', at: 0x00 }) ],
             1
         ],
         [
             'a marker event',
             [ 0x00, 0xff, 0x06, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'marker', value: 'hi!', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'marker', value: 'hi!', at: 0x00 }) ],
             1
         ],
         [
             'a cue point event',
             [ 0x00, 0xff, 0x07, 0x03, 0x68, 0x69, 0x21 ],
             [],
-            [ { event: 'cue-point', value: 'hi!', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'cue-point', value: 'hi!', at: 0x00 }) ],
             1
         ],
         [
@@ -445,28 +434,28 @@ describe('extractMidiTrackEvents()', () => {
             'a tempo of 144',
             [ 0x00, 0xff, 0x51, 0x03, 0x06, 0x5b, 0x9b ],
             [],
-            [ { event: 'tempo', value: 144, at: 0x00 } ],
+            [ MetaEvent.from({ event: 'tempo', value: 144, at: 0x00 }) ],
             1
         ],
         [
             'a tempo of 60',
             [ 0x82, 0x02, 0xff, 0x51, 0x03, 0x0f, 0x42, 0x40 ],
             [],
-            [ { event: 'tempo', value: 60, at: 0x102 } ],
+            [ MetaEvent.from({ event: 'tempo', value: 60, at: 0x102 }) ],
             1
         ],
         [
             'a 2/1 time signature',
             [ 0x00, 0xff, 0x58, 0x04, 0x02, 0x00, 0x18, 0x08 ],
             [],
-            [ { event: 'time-signature', value: '2/1', at: 0x00 } ],
+            [ MetaEvent.from({ event: 'time-signature', value: '2/1', at: 0x00 }) ],
             1
         ],
         [
             'a 9/8 time signature',
             [ 0x81, 0x40, 0xff, 0x58, 0x04, 0x09, 0x03, 0x18, 0x08 ],
             [],
-            [ { event: 'time-signature', value: '9/8', at: 0xc0 } ],
+            [ MetaEvent.from({ event: 'time-signature', value: '9/8', at: 0xc0 }) ],
             1
         ],
         [
@@ -488,38 +477,38 @@ describe('extractMidiTrackEvents()', () => {
         expect(reader.channel).toStrictEqual(channel);
     });
 
-    const chandata: [ number[], undefined | MetaEventArg[] ][] = [
+    const chandata: [ number[], undefined | MetaEvent<keyof MetaEventValueMap>[] ][] = [
         [
             [ 0xb0, MIDI.SUSTAIN_CONTROLLER, MIDI.EVENT_ON_VALUE ],
-            [ { event: 'sustain', value: 1, at: 0 } ],
+            [ MetaEvent.from({ event: 'sustain', value: 1, at: 0 }) ],
         ],
         [
             [ 0xb1, MIDI.SUSTAIN_CONTROLLER, MIDI.EVENT_OFF_VALUE ],
-            [ { event: 'sustain', value: 0, at: 0 } ],
+            [ MetaEvent.from({ event: 'sustain', value: 0, at: 0 }) ],
         ],
         [
             [ 0xb2, MIDI.VOLUME_CONTROLLER, 0x00 ],
-            [ { event: 'volume', value: 0, at: 0 } ],
+            [ MetaEvent.from({ event: 'volume', value: 0, at: 0 }) ],
         ],
         [
             [ 0xb3, MIDI.VOLUME_CONTROLLER, 0x7f ],
-            [ { event: 'volume', value: 127, at: 0 } ],
+            [ MetaEvent.from({ event: 'volume', value: 127, at: 0 }) ],
         ],
         [
             [ 0xb4, MIDI.PAN_CONTROLLER, 0x00 ],
-            [ { event: 'pan', value: 0, at: 0 } ],
+            [ MetaEvent.from({ event: 'pan', value: 0, at: 0 }) ],
         ],
         [
             [ 0xb5, MIDI.PAN_CONTROLLER, 0x7f ],
-            [ { event: 'pan', value: 127, at: 0 } ],
+            [ MetaEvent.from({ event: 'pan', value: 127, at: 0 }) ],
         ],
         [
             [ 0xb6, MIDI.BALANCE_CONTROLLER, 0x00 ],
-            [ { event: 'balance', value: 0, at: 0 } ],
+            [ MetaEvent.from({ event: 'balance', value: 0, at: 0 }) ],
         ],
         [
             [ 0xb7, MIDI.BALANCE_CONTROLLER, 0x7f ],
-            [ { event: 'balance', value: 127, at: 0 } ],
+            [ MetaEvent.from({ event: 'balance', value: 127, at: 0 }) ],
         ],
         [
             [ 0xb0, 0x09, 0x00 ],
@@ -563,7 +552,7 @@ describe('extractMidiTrackEvents()', () => {
         reader.extractMidiTrackEvents();
 
         expect(reader.notes).toStrictEqual([]);
-        expect(reader.otherEvents).toEqual([ { event: 'key-signature', value: key, at: 0x00 } ]);
+        expect(reader.otherEvents).toEqual([ MetaEvent.from({ event: 'key-signature', value: key, at: 0x00 }) ]);
         expect(reader.channel).toStrictEqual(1);
     });
 
@@ -592,11 +581,11 @@ describe('extractMidiTrackEvents()', () => {
         reader.extractMidiTrackEvents();
 
         expect(reader.notes).toStrictEqual([]);
-        expect(reader.otherEvents).toEqual([ { event: 'key-signature', value: key, at: 0x00 } ]);
+        expect(reader.otherEvents).toEqual([ MetaEvent.from({ event: 'key-signature', value: key, at: 0x00 }) ]);
         expect(reader.channel).toStrictEqual(1);
     });
 
-    const combined: [ string, number[], MelodyMemberArg[], MetaEventArg[], number ][] = [
+    const combined: [ string, number[], MelodyMember[], MetaEvent<keyof MetaEventValueMap>[], number ][] = [
         [
             'an empty track successfully',
             [],
@@ -619,7 +608,7 @@ describe('extractMidiTrackEvents()', () => {
                 0x10, 0xff, 0x2f, 0x00, // end track
             ],
             [
-                { pitch: 0x40, velocity: 0x60, at: 0x00, duration: 0x40 },
+                MelodyMember.from({ pitch: [ 0x40 ], velocity: 0x60, at: 0x00, duration: 0x40 }),
             ],
             [],
             1,
@@ -636,9 +625,9 @@ describe('extractMidiTrackEvents()', () => {
                 0x10, 0xff, 0x2f, 0x00, // end track
             ],
             [
-                { pitch: 0x40, velocity: 0x60, at: 0x00, duration: 0x40 },
-                { pitch: 0x50, velocity: 0x60, at: 0x00, duration: 0x40 },
-                { pitch: 0x60, velocity: 0x60, at: 0x00, duration: 0x40 },
+                MelodyMember.from({ pitch: [ 0x40 ], velocity: 0x60, at: 0x00, duration: 0x40 }),
+                MelodyMember.from({ pitch: [ 0x50 ], velocity: 0x60, at: 0x00, duration: 0x40 }),
+                MelodyMember.from({ pitch: [ 0x60 ], velocity: 0x60, at: 0x00, duration: 0x40 }),
             ],
             [],
             1,
@@ -653,11 +642,11 @@ describe('extractMidiTrackEvents()', () => {
                 0x00, 0xff, 0x2f, 0x00
             ],
             [
-                { pitch: 0x30, velocity: 0x30, at: 0x00, duration: 0x100 },
+                MelodyMember.from({ pitch: [ 0x30 ], velocity: 0x30, at: 0x00, duration: 0x100 }),
             ],
             [
-                { event: 'copyright', value: 'Test', at: 0 },
-                { event: 'instrument', value: 'violin', at: 0 },
+                MetaEvent.from({ event: 'copyright', value: 'Test', at: 0 }),
+                MetaEvent.from({ event: 'instrument', value: 'violin', at: 0 }),
             ],
             5
         ],

@@ -1,8 +1,10 @@
-import type { Timed, MetaEventArg, MetaEventValueMap, MelodyMemberArg } from '../types';
+import { Timed, MetaEventValueMap } from '../types';
 
 import * as fs from 'fs';
 
 import Metadata from '../metadata/metadata';
+import MetaEvent from '../meta-events/meta-event';
+import MelodyMember from '../sequences/members/melody';
 import Melody from '../sequences/melody';
 
 import { MIDI } from '../constants';
@@ -12,7 +14,7 @@ import { dumpOneLine, dumpHex } from '../dump/dump';
 
 import * as keySignature from '../helpers/key-signature';
 import * as timeSignature from '../helpers/time-signature';
-import { toInstrument, toPercussionInstrument } from '../helpers/instrument';
+import { toInstrument } from '../helpers/instrument';
 
 function compareBytes(arr1: number[], arr2: number[]) {
     for (let i = 0; i < arr1.length; i++) {
@@ -32,9 +34,9 @@ class MidiReader {
     channel = -2;
     metadata: Metadata;
     contents!: number[];
-    otherEvents: Timed<MetaEventArg>[] = [];
-    noteOnEvents: Record<number, Timed<MelodyMemberArg>[]> = {};
-    notes: Timed<MelodyMemberArg>[] = [];
+    otherEvents: Timed<MetaEvent<keyof MetaEventValueMap>>[] = [];
+    noteOnEvents: Record<number, { pitch: number, velocity: number, at: number }[]> = {};
+    notes: Timed<MelodyMember>[] = [];
     length!: number;
 
     constructor(arg: string | number[], metadata = Metadata.EMPTY_METADATA) {
@@ -160,7 +162,7 @@ class MidiReader {
      * initial 0xff byte has already been removed.
      * Removes the bytes corresponding to this event from the passed byte array.
      */
-    protected extractNextMetaEvent(): Timed<MetaEventArg> | undefined {
+    protected extractNextMetaEvent(): MetaEvent<keyof MetaEventValueMap> | undefined {
         const [ byte ] = this.slurp(1);
 
         const numbytes = this.extractNumberFromVariableBytes();
@@ -185,7 +187,7 @@ class MidiReader {
 
             const tempo = Math.round(6e10 / fixedBytesToNumber(metabytes)) / 1e3;
 
-            return { event: 'tempo', value: tempo, at: this.currenttick };
+            return MetaEvent.from({ event: 'tempo', value: tempo, at: this.currenttick });
         }
 
         if (byte === 0x58) {
@@ -199,13 +201,13 @@ class MidiReader {
 
             const ts = timeSignature.fromMidiBytes(metabytes);
 
-            return { event: 'time-signature', value: ts, at: this.currenttick };
+            return MetaEvent.from({ event: 'time-signature', value: ts, at: this.currenttick });
         }
 
         if (byte === 0x59) {
             const key = keySignature.fromMidiBytes(metabytes);
 
-            return { event: 'key-signature', value: key, at: this.currenttick };
+            return MetaEvent.from({ event: 'key-signature', value: key, at: this.currenttick });
         }
 
         if (byte >= 0x01 && byte <= 0x07) {
@@ -237,7 +239,7 @@ class MidiReader {
 
             const txt = fixedBytesToString(metabytes);
 
-            return { event: evtype, value: txt, at: this.currenttick };
+            return MetaEvent.from({ event: evtype, value: txt, at: this.currenttick });
         }
 
         console.warn(`unsupported meta-event: ${dumpHex(byte)}(${numbytes}) -> ${fixedBytesToString(metabytes)}; omitting`);
@@ -258,15 +260,19 @@ class MidiReader {
         }
 
         if (type === 0x80 || velocity === 0) {
-            if (!this.noteOnEvents[pitch]?.length) {
+            const note = this.noteOnEvents[pitch]?.shift();
+
+            if (!note) {
                 console.warn(`note-off event ${dumpHex(this.runningstatus, pitch, velocity)} without corresponding note-on event; omitting`);
                 return;
             }
 
-            const note = this.noteOnEvents[pitch].shift() as Timed<MelodyMemberArg>;
-
-            note.duration = this.currenttick - note.at;
-            this.notes.push(note);
+            this.notes.push(MelodyMember.from({
+                pitch: [ pitch ],
+                velocity,
+                at: note.at,
+                duration: this.currenttick - note.at,
+            }) as Timed<MelodyMember>);
             return;
         }
 
@@ -276,7 +282,7 @@ class MidiReader {
         this.noteOnEvents[pitch].push({ pitch, velocity, at: this.currenttick });
     }
 
-    protected extractNextChannelEvent(): Timed<MetaEventArg> | undefined {
+    protected extractNextChannelEvent(): MetaEvent<keyof MetaEventValueMap> | undefined {
         const type = this.runningstatus & 0xf0;
 
         if (type === 0xa0) {
@@ -321,7 +327,7 @@ class MidiReader {
                 return;
             }
 
-            return { event, value, at: this.currenttick };
+            return MetaEvent.from({ event, value, at: this.currenttick });
         }
 
         if (type === 0xc0) {
@@ -332,9 +338,7 @@ class MidiReader {
             }
 
             // Convert to a string value if known, otherwise keep as int to avoid obstructive errors
-            const strvalue = (this.runningstatus & 0x0f) === 0x09 ? toPercussionInstrument(value) : toInstrument(value);
-
-            return { event: 'instrument', value: strvalue ?? value, at: this.currenttick };
+            return MetaEvent.from({ event: 'instrument', value: toInstrument(value) ?? value, at: this.currenttick });
         }
 
         if (type === 0xd0) {
@@ -347,7 +351,7 @@ class MidiReader {
         if (type === 0xe0) {
             const [ b1, b2 ] = this.slurp(2);
 
-            return { event: 'pitch-bend', value: b1 << 7 | b2, at: this.currenttick };
+            return MetaEvent.from({ event: 'pitch-bend', value: b1 << 7 | b2, at: this.currenttick });
         }
     }
 
@@ -393,13 +397,13 @@ class MidiReader {
                 const event = this.extractNextChannelEvent();
 
                 if (event) {
-                    this.otherEvents.push(event);
+                    this.otherEvents.push(event as Timed<MetaEvent<keyof MetaEventValueMap>>);
                 }
             } else if (first === 0xff) {
                 const event = this.extractNextMetaEvent();
 
                 if (event) {
-                    this.otherEvents.push(event);
+                    this.otherEvents.push(event as Timed<MetaEvent<keyof MetaEventValueMap>>);
                 }
             } else {
                 this.runningstatus = 0;
@@ -424,7 +428,7 @@ class MidiReader {
         this.extractMidiTrackEvents();
 
         const notes = Melody.from(this.notes.sort((a, b) => a.at - b.at));
-        const trackmeta = Metadata.fromMetaEventArg(this.otherEvents).mergeFrom(Metadata.from(this.metadata));
+        const trackmeta = Metadata.fromMetaEventArray(this.otherEvents).mergeFrom(Metadata.from(this.metadata));
 
         return Melody.from(notes, trackmeta)
             .if(this.channel !== 1)

@@ -1,4 +1,4 @@
-import type { MetaEventArg } from '../types';
+import type { MetaEventValueMap } from '../types';
 
 import Metadata from './metadata';
 import MetaEvent from '../meta-events/meta-event';
@@ -36,20 +36,20 @@ describe('Metadata.from() tests', () => {
     });
 });
 
-describe('MetaList.fromMetaEventArg()', () => {
-    const EVT_SUS1: MetaEventArg = { event: 'sustain', value: 0 };
-    const EVT_SUS2: MetaEventArg = { event: 'sustain', value: 1, offset: 32 }; 
-    const EVT_NAME: MetaEventArg = { event: 'track-name', value: 'test' };
-    const EVT_NAME_DELAYED: MetaEventArg = { event: 'track-name', value: 'west', at: 64 };
-    const EVT_COPY: MetaEventArg = { event: 'copyright', value: 'best' };
-    const EVT_COPY_DELAYED: MetaEventArg = { event: 'copyright', value: 'fest', at: 64 };
-    const EVT_TSIG: MetaEventArg = { event: 'time-signature', value: '3/4' };
-    const EVT_KSIG: MetaEventArg = { event: 'key-signature', value: 'E' };
-    const EVT_TEMPO: MetaEventArg = { event: 'tempo', value: 152 };
-    const EVT_INSTRUMENT: MetaEventArg = { event: 'instrument', value: 'viola' };
-    const EVT_INSTRUMENT_NUMERIC: MetaEventArg = { event: 'instrument', value: 41 };
+describe('MetaList.fromMetaEventArray()', () => {
+    const EVT_SUS1 = MetaEvent.from({ event: 'sustain', value: 0 });
+    const EVT_SUS2 = MetaEvent.from({ event: 'sustain', value: 1, offset: 32 }); 
+    const EVT_NAME = MetaEvent.from({ event: 'track-name', value: 'test' });
+    const EVT_NAME_DELAYED = MetaEvent.from({ event: 'track-name', value: 'west', at: 64 });
+    const EVT_COPY = MetaEvent.from({ event: 'copyright', value: 'best' });
+    const EVT_COPY_DELAYED = MetaEvent.from({ event: 'copyright', value: 'fest', at: 64 });
+    const EVT_TSIG = MetaEvent.from({ event: 'time-signature', value: '3/4' });
+    const EVT_KSIG = MetaEvent.from({ event: 'key-signature', value: 'E' });
+    const EVT_TEMPO = MetaEvent.from({ event: 'tempo', value: 152 });
+    const EVT_INSTRUMENT = MetaEvent.from({ event: 'instrument', value: 'viola' });
+    const EVT_INSTRUMENT_NUMERIC = MetaEvent.from({ event: 'instrument', value: 41 });
 
-    const table: [ string, MetaEventArg[], MetadataData ][] = [
+    const table: [ string, MetaEvent<keyof MetaEventValueMap>[], MetadataData ][] = [
         [
             'empty MetaList',
             [],
@@ -83,7 +83,7 @@ describe('MetaList.fromMetaEventArg()', () => {
     ];
 
     test.each(table)('works when MetaList has %s', (_, events, metadata) => {
-        expect(Metadata.fromMetaEventArg(events)).toEqual(Metadata.from(metadata));
+        expect(Metadata.fromMetaEventArray(events)).toEqual(Metadata.from(metadata));
     });
 });
 

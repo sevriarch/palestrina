@@ -1,4 +1,4 @@
-import type { Timed, TypeOrArray, MetaEventArg, MetaEventValueMap } from '../types';
+import type { Timed, TypeOrArray, MetaEventValueMap } from '../types';
 
 import MetaEvent from '../meta-events/meta-event';
 import MetaList from '../meta-events/meta-list';
@@ -98,7 +98,7 @@ export default class Metadata {
      * Assign it to the `before` field of the metadata object
      * Return the object containing metadata.
      */
-    static fromMetaEventArg(eventdata: MetaEventArg[]): Metadata {
+    static fromMetaEventArray(eventdata: MetaEvent<keyof MetaEventValueMap>[]): Metadata {
         const metadata: MetadataData = {};
 
         // Move events that should be in metadata to metadata object.
