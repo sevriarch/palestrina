@@ -32,14 +32,13 @@ class MidiReader {
     currentbyte = 0;
     currenttick = 0;
     channel = -2;
-    metadata: Metadata;
     contents!: number[];
     otherEvents: Timed<MetaEvent<keyof MetaEventValueMap>>[] = [];
     noteOnEvents: Record<number, { pitch: number, velocity: number, at: number }[]> = {};
     notes: Timed<MelodyMember>[] = [];
     length!: number;
 
-    constructor(arg: string | number[], metadata = Metadata.EMPTY_METADATA) {
+    constructor(arg: string | number[]) {
         if (typeof arg === 'string') {
             const buf = fs.readFileSync(arg);
             const len = buf.length;
@@ -51,7 +50,6 @@ class MidiReader {
 
             this.contents = arr;
             this.length = len;
-            this.metadata = metadata;
         } else if (Array.isArray(arg)) {
             const failed = validateArray(arg, v => isIntBetween(v, 0, 255));
 
@@ -63,7 +61,6 @@ class MidiReader {
 
             this.contents = arg;
             this.length = arg.length;
-            this.metadata = metadata;
         } else {
             throw new Error(`MidiReader only takes a filename or an array of byte values between 0 and 255; got ${dumpOneLine(arg)}`);
         }
@@ -428,7 +425,7 @@ class MidiReader {
         this.extractMidiTrackEvents();
 
         const notes = Melody.from(this.notes.sort((a, b) => a.at - b.at));
-        const trackmeta = Metadata.fromMetaEventArray(this.otherEvents).mergeFrom(Metadata.from(this.metadata));
+        const trackmeta = Metadata.fromMetaEventArray(this.otherEvents);
 
         return Melody.from(notes, trackmeta)
             .if(this.channel !== 1)
@@ -461,7 +458,7 @@ class MidiReader {
 
         const tracks: Melody[] = [];
         for (let i = 0; i < numtrax; i++) {
-            const reader = new MidiReader(this.extractTrackBytes(), this.metadata);
+            const reader = new MidiReader(this.extractTrackBytes());
 
             tracks.push(reader.extractMidiTrack());
         }

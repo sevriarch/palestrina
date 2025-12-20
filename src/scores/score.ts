@@ -28,24 +28,24 @@ type TransientScoreMetadata = {
  * Can write MIDI files or HTML canvas representations of the Melodies.
  */
 export default class Score extends CollectionWithMetadata<Melody> {
-    static from(arg: Melody[] | string, metadata = Metadata.EMPTY_METADATA) {
+    static from(arg: Melody[] | string) {
         if (typeof arg === 'string') {
-            const [ tracks, ticks ] = new MidiReader(arg, metadata).toScoreContents();
+            const [ tracks, ticks ] = new MidiReader(arg).toScoreContents();
 
-            return new Score(tracks, metadata.withValues({ ticks_per_quarter: ticks }));
+            return new Score(tracks, Metadata.from({ ticks_per_quarter: ticks }));
         }
 
         if (!Array.isArray(arg)) {
-            throw new Error('Score.from(): first argument must be a filename or an array of Melodies');
+            throw new Error('Score.from(): argument must be a filename or an array of Melodies');
         }
 
         const failed = validateArray(arg, m => m instanceof Melody);
 
         if (failed.length) {
-            throw new Error(`Score.from(): first argument indices [${failed.map(m => m[0]).join(',')}] were not Melodies`);
+            throw new Error(`Score.from(): argument indices [${failed.map(m => m[0]).join(',')}] were not Melodies`);
         }
 
-        return new Score(arg.slice(), Metadata.from(metadata));
+        return new Score(arg.slice(), Metadata.EMPTY_METADATA);
     }
 
     #transientMetadata: TransientScoreMetadata = {};

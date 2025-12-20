@@ -11,6 +11,7 @@ This is a new major release with some significant behind-the-scenes changes to e
 * MIDI file creation has been redesigned so as to be based on ordered lists of everything that happens during a Score (in a parallel flow to MusicXML file creation). This, in some cases, will result in small differences in the order of events that occur on the same MIDI tick in the same track. These should not affect any kind of audio rendering but will result in a change in the hash checksum generated for the file.
 * Meta-events are now typed more restrictively, with the type of the value being dependent on the type of the event. This will lead to more errors being caught at the compilation stage if the end user is using TypeScript.
 * The default note duration has changed to be more useful. This may break existing code that relied on the previous not-very-useful value.
+* The metadata second argument to the exported `score()` method is no longer offered; instead one may use available methods to set metadata field by field.
 
 ### Features
 * Score and Melody now have additional methods listing the contents of the entity in temporal order:

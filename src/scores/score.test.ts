@@ -104,26 +104,12 @@ describe('Score construction tests', () => {
         expect(sc.metadata.ticks_per_quarter).toEqual(192);
     });
 
-    test('expect score with empty metadata to take default ticks_per_quarter', () => {
-        const sc = Score.from([], Metadata.EMPTY_METADATA);
-
-        expect(sc.contents).toStrictEqual([]);
-        expect(sc.metadata.ticks_per_quarter).toEqual(192);
-    });
-
-    test('expect score with defined metadata to use that metadata', () => {
-        const sc = Score.from([]).withTicksPerQuarter(128).withCopyright('mine');
-
-        expect(sc.contents).toStrictEqual([]);
-        expect(sc.metadata.ticks_per_quarter).toEqual(128);
-        expect(sc.metadata.copyright).toEqual('mine');
-    });
-
     test('expect score and tracks to be immutable', () => {
-        const sc = Score.from([ T1, T2, T3, T4 ]);
+        const sc = Score.from([ T1, T2, T3, T4 ]).withTicksPerQuarter(128);
 
         expect(Object.isFrozen(sc)).toBeTruthy();
         expect(Object.isFrozen(sc.contents)).toBeTruthy();
+        expect(Object.isFrozen(sc.metadata)).toBeTruthy();
     });
 });
 
@@ -453,14 +439,14 @@ describe('Score.withAllTicksExact() tests', () => {
             { pitch: [ 64 ], duration: 4, velocity: 45 },
             { pitch: [ 52 ], duration: 4, velocity: 40 },
         ], Metadata.from({ before: MetaList.from([ { event: 'text', value: 'test', offset: 64 } ]) }))
-    ], Metadata.from({ before: MetaList.from([ { event: 'tempo', value: 144, offset: 512 } ]) }));
+    ]).withNewEvent({ event: 'tempo', value: 144, offset: 512 });
     const S1RET = Score.from([
         T0,
         Melody.from([
             { pitch: [ 64 ], duration: 4, velocity: 45, at: 0 },
             { pitch: [ 52 ], duration: 4, velocity: 40, at: 4 },
         ], Metadata.from({ before: MetaList.from([ { event: 'text', value: 'test', at: 64 } ]) }))
-    ], Metadata.from({ before: MetaList.from([ { event: 'tempo', value: 144, at: 512 } ]) }));
+    ]).withNewEvent({ event: 'tempo', value: 144, at: 512 });
 
     test('test that this does not create additional entities for an empty Score', () => {
         expect(S0.withAllTicksExact()).toStrictEqual(Score.from([]));

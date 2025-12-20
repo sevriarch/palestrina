@@ -4,7 +4,6 @@ import MetaList from '../meta-events/meta-list';
 import NoteSeq from '../sequences/note';
 import Melody from '../sequences/melody';
 import Score from '../scores/score';
-import Metadata from '../metadata/metadata';
 
 describe('dump.dumpMultiLine()', () => {
     const table: [ string, unknown, number | undefined, string ][] = [
@@ -179,7 +178,7 @@ describe('dump.dumpMultiLine()', () => {
                     { pitch: [ 12 ], velocity: 80, duration: 32 },
                     { pitch: [ 6 ], before: [ { event: 'text', value: 'test' } ], velocity: 72, duration: 128 }
                 ]).withInstrument('cello'),
-            ], Metadata.from({ tempo: 144, time_signature: '3/8' })),
+            ]).withTempo(144).withTimeSignature('3/8'),
             4,
             `Score(length=2,metadata=Metadata({tempo=144,time_signature=\"3/8\"}))([
         0: Melody(length=4,metadata=Metadata({instrument=\"violin\"}))([

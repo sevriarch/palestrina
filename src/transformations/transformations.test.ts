@@ -313,22 +313,28 @@ describe('transformations.toNoteCount()', () => {
 });
 
 describe('transformations.getMatchingTimedEvents()', () => {
-    test('no events if no tracks', () => {
-        expect(transformations.getMatchingTimedEvents(Score.from([],
-            Metadata.from({
-                time_signature: '4/4',
-                before: MetaList.from([
-                    {
-                        event: 'time-signature',
-                        value: '3/4',
-                        at: 1024 
-                    },
-                ])
-            })
-        ), () => true)).toStrictEqual([]);
+    test('no events if score with metadata but no tracks passed', () => {
+        expect(
+            transformations.getMatchingTimedEvents(
+                Score.from([]).withTimeSignature('4/4').withNewEvent({ event: 'time-signature', value: '3/4', at: 1024 }),
+                () => true
+            )
+        ).toStrictEqual([]);
     });
 
-    test('extracts from melody metadata', () => { // TODO
+    test('events if score with metadata and an empty track passed', () => {
+        expect(
+            transformations.getMatchingTimedEvents(
+                Score.from([ Melody.from([]) ]).withTimeSignature('4/4').withNewEvent({ event: 'time-signature', value: '3/4', at: 1024 }),
+                () => true
+            )
+        ).toStrictEqual([
+            MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
+            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
+        ]);
+    });
+
+    test('events if melody with metadata passed', () => { // TODO
         expect(transformations.getMatchingTimedEvents(Melody.from([],
             Metadata.from({
                 time_signature: '4/4',
@@ -346,26 +352,8 @@ describe('transformations.getMatchingTimedEvents()', () => {
         ]);
     });
 
-    test('extracts from score metadata', () => {
-        expect(transformations.getMatchingTimedEvents(Score.from([ Melody.from([]) ],
-            Metadata.from({
-                time_signature: '4/4',
-                before: MetaList.from([
-                    {
-                        event: 'time-signature',
-                        value: '3/4',
-                        at: 1024 
-                    },
-                ])
-            })
-        ), () => true)).toStrictEqual([
-            MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
-            MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
-        ]);
-    });
-
     test('filters from score metadata', () => {
-        expect(transformations.getMatchingTimedEvents(Score.from([ Melody.from([]) ],
+        expect(transformations.getMatchingTimedEvents(Melody.from([],
             Metadata.from({
                 time_signature: '4/4',
                 before: MetaList.from([
@@ -376,12 +364,12 @@ describe('transformations.getMatchingTimedEvents()', () => {
                     },
                 ])
             })
-        ), (ev) => 'value' in ev && ev.value !== '4/4')).toStrictEqual([
+        ), ev => 'value' in ev && ev.value !== '4/4')).toStrictEqual([
             MetaEvent.from({ event: 'time-signature', value: '3/4', at: 1024 }),
         ]);
     });
 
-    test('extracts from notes and metadata', () => {
+    test('extracts from notes and metadata when score passed', () => {
         expect(transformations.getMatchingTimedEvents(Score.from([
             Melody.from([
                 {
@@ -431,12 +419,7 @@ describe('transformations.getMatchingTimedEvents()', () => {
                     ])
                 })
             )
-        ],
-        Metadata.from({
-            before: MetaList.from([
-                { event: 'copyright', value: 'this test suite' },
-            ])
-        })), e => 'event' in e)).toStrictEqual([
+        ]).withNewEvent({ event: 'copyright', value: 'this test suite' }), e => 'event' in e)).toStrictEqual([
             MetaEvent.from({ event: 'copyright', value: 'this test suite', at: 0 }),
             MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
             MetaEvent.from({ event: 'key-signature', value: 'F', at: 0 }),
@@ -449,7 +432,7 @@ describe('transformations.getMatchingTimedEvents()', () => {
         ]);
     });
 
-    test('filters from notes and metadata', () => {
+    test('filters from notes and metadata when score passed', () => {
         expect(transformations.getMatchingTimedEvents(Score.from([
             Melody.from([
                 {
@@ -499,12 +482,7 @@ describe('transformations.getMatchingTimedEvents()', () => {
                     ])
                 })
             )
-        ],
-        Metadata.from({
-            before: MetaList.from([
-                { event: 'copyright', value: 'this test suite' },
-            ])
-        })), e => e.at as number < 96)).toStrictEqual([
+        ]).withNewEvent({ event: 'copyright', value: 'this test suite' }), e => e.at as number < 96)).toStrictEqual([
             MetaEvent.from({ event: 'copyright', value: 'this test suite', at: 0 }),
             MetaEvent.from({ event: 'time-signature', value: '4/4', at: 0 }),
             MelodyEvent.from({

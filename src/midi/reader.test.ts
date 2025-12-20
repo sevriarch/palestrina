@@ -799,7 +799,7 @@ describe('toScoreContents()', () => {
         expect(() => new MidiReader(arr).toScoreContents()).toThrow();
     });
 
-    test('extract three tracks, one with no notes, and add to each relevant metadata supplied in reader creation', () => {
+    test('extract three tracks, one with no notes', () => {
         const arr = [
             0x4d, 0x54, 0x68, 0x64,
             0x00, 0x00, 0x00, 0x06,
@@ -823,22 +823,17 @@ describe('toScoreContents()', () => {
             0x50, 0xff, 0x2f, 0x00
         ];
 
-        const metadata = Metadata.from({
-            key_signature: 'F',
-        });
-
-        expect(new MidiReader(arr, metadata).toScoreContents()).toStrictEqual([
+        expect(new MidiReader(arr).toScoreContents()).toStrictEqual([
             [
                 Melody.from([ { pitch: [ 0x40 ], velocity: 0x60, duration: 0x40, at: 0x00 } ],
                     Metadata.from({
-                        key_signature: 'F',
                         before: MetaList.from([
                             { event: 'sustain', value: 1, at: 0x00 },
                             { event: 'sustain', value: 0, at: 0x80 },
                         ])
                     })),
-                Melody.from([ { pitch: [ 0x50 ], velocity: 0x40, duration: 0x40, at: 0x00 } ]).withMidiChannel(2).withKeySignature('F'),
-                Melody.from([]).withKeySignature('F'),
+                Melody.from([ { pitch: [ 0x50 ], velocity: 0x40, duration: 0x40, at: 0x00 } ]).withMidiChannel(2),
+                Melody.from([]),
             ],
             192
         ]);
