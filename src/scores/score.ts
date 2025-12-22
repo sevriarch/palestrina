@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-import type { Timed, TimedEntity, MelodyMember, MetaEvent, MetaEventKind, ScoreCanvasOpts, SVGOpts } from '../types';
+import type { Timed, TimedEntity, MelodyMember, MetaList, ScoreCanvasOpts, SVGOpts } from '../types';
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
@@ -89,25 +89,27 @@ export default class Score extends CollectionWithMetadata<Melody> {
      * If there are no events in the Score, this will be 0.
      */
     lastTick(): number {
-        function updateLastTick(event: MetaEvent<MetaEventKind>) {
-            if (event.at as number > last) { last = event.at as number; }
+        function updateLastTick(events: MetaList) {
+            for (const ev of events.contents) {
+                if (ev.at as number > last) { last = ev.at as number; }
+            }
         }
 
         const fixed = this.withAllTicksExact();
 
         let last = 0;
 
-        fixed.metadata.before.each(updateLastTick);
+        updateLastTick(fixed.metadata.before);
 
         fixed.each(m => {
-            m.metadata.before.each(updateLastTick);
+            updateLastTick(m.metadata.before);
 
             m.each(note => {
-                note.before.each(updateLastTick);
+                updateLastTick(note.before);
                 if ((note.at as number + note.duration) > last) {
                     last = note.at as number + note.duration;
                 }
-                note.after.each(updateLastTick);
+                updateLastTick(note.after);
             });
         });
 

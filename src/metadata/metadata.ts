@@ -202,7 +202,7 @@ export default class Metadata {
         const vals = { ...ob.metadata, ...this.metadata };
 
         if (this.metadata.before && ob.metadata.before) {
-            vals.before = ob.metadata.before.append(this.metadata.before);
+            vals.before = ob.metadata.before.withNewEvents(this.metadata.before);
         }
 
         return this.construct(vals);

@@ -1,6 +1,5 @@
 import type { MetaEventArg, MetaEventKind, MetaListArg } from '../types';
 
-import CollectionWithoutMetadata from '../collections/without-metadata';
 import MetaEvent from './meta-event';
 
 import { isNonNegNumber, isNonnegInt, isPosNumber } from '../helpers/validation';
@@ -12,7 +11,9 @@ import { dumpOneLine } from '../dump/dump';
  * at the start and end of MelodyMembers, at the start of Melodies and Scores, and is used
  * during the creation and reading of MIDI files.
  */
-export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEventKind>> {
+export default class MetaList {
+    contents: MetaEvent<MetaEventKind>[];
+
     static EMPTY_META_LIST = new MetaList([]);
 
     /**
@@ -41,9 +42,16 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
      * Constructor. Takes an array of MetaEvents and creates a MetaList from them.
      */
     constructor(ob: MetaEvent<MetaEventKind>[]) {
-        super(ob);
+        this.contents = ob.slice();
 
+        Object.freeze(this.contents);
         Object.freeze(this);
+    }
+
+    protected construct(contents: MetaEvent<MetaEventKind>[]): this {
+        const Ctor = this.constructor as new (contents: MetaEvent<MetaEventKind>[]) => this;
+
+        return new Ctor(contents);
     }
 
     /**
@@ -51,7 +59,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
      * Argument is passed as an array of events.
      */
     withNewEvent(event: MetaEventArg): this {
-        return this.appendItems(MetaEvent.from(event));
+        return this.construct([ ...this.contents, MetaEvent.from(event) ]);
     }
 
     /**
@@ -61,7 +69,7 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
     withNewEvents(events: MetaListArg) {
         const newevents = events instanceof MetaList ? events.contents : events.map(e => MetaEvent.from(e));
 
-        return this.construct(this.contents, newevents);
+        return this.construct([ ...this.contents, ...newevents ]);
     }
 
     /**
@@ -70,9 +78,9 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
     equals(ml: MetaList): boolean {
         if (!(ml instanceof MetaList)) { return false; }
 
-        if (this.length !== ml.length) { return false; }
+        if (this.contents.length !== ml.contents.length) { return false; }
 
-        for (let i = 0; i < this.length; i++) {
+        for (let i = 0; i < this.contents.length; i++) {
             if (!this.contents[i].equals(ml.contents[i])) { return false; }
         }
 
@@ -87,11 +95,11 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
             throw new Error(`MetaList.augmentRhythm(): must augment by a non-negative number; was ${dumpOneLine(i)}`);
         }
 
-        if (!this.length) {
+        if (!this.contents.length) {
             return this;
         }
 
-        return this.map(e => e.augment(i));
+        return this.construct(this.contents.map(e => e.augment(i)));
     }
 
     /**
@@ -102,11 +110,11 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
             throw new Error(`MetaList.diminishRhythm(): must diminish by a positive number; was ${dumpOneLine(i)}`);
         }
 
-        if (!this.length) {
+        if (!this.contents.length) {
             return this;
         }
 
-        return this.map(e => e.diminish(i));
+        return this.construct(this.contents.map(e => e.diminish(i)));
     }
 
     /**
@@ -117,10 +125,25 @@ export default class MetaList extends CollectionWithoutMetadata<MetaEvent<MetaEv
             throw new Error(`MetaList.withAllTicksExact(): current tick must be a non-negative integer; was ${dumpOneLine(curr)}`);
         }
 
-        if (!this.length) {
+        if (!this.contents.length) {
             return this;
         }
 
-        return this.map(e => e.withAllTicksExact(curr));
+        return this.construct(this.contents.map(e => e.withAllTicksExact(curr)));
+    }
+
+    /**
+     * Return a string description of this object.
+     */
+    describe(): string {
+        let ctdesc: string;
+
+        if (this.contents.length) {
+            ctdesc = this.contents.map((c, i) => `${i}: ${dumpOneLine(c)},`).join('');
+        } else {
+            ctdesc = '';
+        }
+
+        return `${this.constructor.name}(length=${this.contents.length})([${ctdesc}])`;
     }
 }
