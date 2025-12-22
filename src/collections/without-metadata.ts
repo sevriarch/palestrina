@@ -1,7 +1,9 @@
-import type { SeqIndices, MapperFn, FlatMapperFn, FinderFn, FilterFn, GrouperFn, CtrlBoolFn, CtrlTypeFn, ReplacerFn, Replacer } from '../types';
+import type {
+    SeqIndices, Replacer, ReplacerVal, ReplacerFn,
+    MapperFn, FlatMapperFn, FinderFn, FilterFn, GrouperFn, CtrlBoolFn, CtrlTypeFn
+} from '../types';
 
 import { isInt, isPosInt, isNonnegInt } from '../helpers/validation';
-import { sanitizeToArray } from '../helpers/arrays';
 import { dumpOneLine } from '../dump/dump';
 
 type ControlFlow<T> = {
@@ -60,10 +62,30 @@ export default class Collection<T> {
     /**
      * Calculate a replacement value, return it as an array of Collection contents.
      */
-    protected replacer<FromT>(r: Replacer<FromT, T>, curr: FromT, i: number): T[] {
-        const retval = typeof r === 'function' ? (r as ReplacerFn<FromT, T>)(curr, i) : r;
+    protected replacerValue(r: ReplacerVal<T>): T[] {
+        if (typeof r === 'object') {
+            if (Array.isArray(r)) {
+                return r as T[];
+            }
 
-        return (retval instanceof Collection ? retval.contents : sanitizeToArray(retval)) as T[];
+            if (r !== null && 'contents' in r) {
+                return r.contents as T[];
+            }
+        }
+
+        return [ r as T ];
+    }
+
+    protected replacerFn<FromT>(r: ReplacerFn<FromT, T>, curr: FromT, i: number): T[] {
+        return this.replacerValue(r(curr, i));
+    }
+
+    protected replacer<FromT>(r: Replacer<FromT, T>, curr: FromT, i: number): T[] {
+        if (typeof r === 'function') {
+            return this.replacerFn(r as ReplacerFn<FromT, T>, curr, i);
+        }
+
+        return this.replacerValue(r);
     }
 
     /*
@@ -813,8 +835,8 @@ export default class Collection<T> {
      * Replace a slice of the Collection with a new Collection while retaining the values
      * from the rest of the original Collection.
      * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * or a function taking a Collection and its starting location in the original Collection
+     * and returning a Collection, a Collection member, an array of Collection members,
      * 
      * @example
      * // returns intseq([ 1, 6, 7, 5 ])

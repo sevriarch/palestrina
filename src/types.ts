@@ -43,9 +43,8 @@ export type { MetaEvent, MetaList, Metadata, NumericValidator };
 export type JSONValue = string | number | boolean | null | JSONValue[] | { [k: string]: JSONValue };
 
 /**
- * A type or an array of that type
+ * A type, an array of that type, or an object with a 'contents' field that is an array of that type
  */
-export type TypeOrArray<T> = T | T[];
 
 /**
  * An entity that can be rendered as MIDI, SVG, MusicXML etc
@@ -107,7 +106,7 @@ export type MetaEventValueMap = {
 };
 
 /**
- * Any one of the possible "event" values in a MetaEvent.
+ * Any one of the possible kinds of event; corresponds to the value of the "event" field in a MetaEvent
  */
 export type MetaEventKind = keyof MetaEventValueMap;
 
@@ -125,7 +124,7 @@ type MetaEventDef<Event extends MetaEventKind> = {
 export type MetaEventArg = MetaEvent<MetaEventKind> | (MetaEventDef<MetaEventKind> & EventTiming);
 
 /**
- * The type used to pass multiple MetaEvents to Score, Melody, MelodyMember, Metadata and MetaList
+ * The type used to pass multiple MetaEvents to entities containing them
  */
 export type MetaListArg = MetaList | MetaEventArg[];
 
@@ -192,7 +191,7 @@ export type MelodyMemberArg = {
 /**
  * A type representing the data required to construct a Sequence of any kind
  */
-export type SeqArgument = SeqMemberArgument[] | { contents: SeqMemberArgument[] };
+export type SeqArgument = SeqMemberArgument[] | { contents: SeqMember<unknown>[] };
 
 /**
  * A type representing methods to pass an index or indices to a Sequence method
@@ -206,7 +205,7 @@ export type SeqIndices = number | number[] | { toNumericValues(): number[] };
 /**
  * A type representing how we represent replacements for existing value(s) within Collections and Sequences
  */
-export type ReplacerVal<T> = TypeOrArray<T> | (T extends SeqMember<unknown> ? (SeqMemberArgument | SeqArgument) : { contents: T[] });
+export type ReplacerVal<T> = T | T[] | (T extends SeqMember<unknown> ? (SeqMemberArgument | SeqArgument) : { contents: T[] });
 
 /**
  * A type representing how we convert existing value(s) within Collections and Sequences into their replacements
@@ -245,7 +244,7 @@ export type MapperFn<T> = (e: T, i: number) => T;
 /**
  * A type representing a function that transforms Collection members in a one-to-many correspondance
  */
-export type FlatMapperFn<T> = (e: T, i: number) => TypeOrArray<T>;
+export type FlatMapperFn<T> = (e: T, i: number) => T | T[];
 
 /**
  * A type representing a function that filters Collection members
