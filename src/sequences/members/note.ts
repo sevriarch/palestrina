@@ -27,7 +27,7 @@ export function nullableNumericValueOrThrow(arg: PitchArgument): number | null {
         }
     }
 
-    throw new Error(`pitch must contain a single number or null, was ${arg}`);
+    throw new Error(`pitch must contain a single number or null, was ${dumpOneLine(arg)}`);
 }
 
 /**

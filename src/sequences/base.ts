@@ -38,8 +38,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
         if (seq instanceof Sequence) {
             // Reuse existing object if same constructor and no metadata passed.
-            if (seq instanceof SeqClass && metadata === Metadata.EMPTY_METADATA) {
-                return seq;
+            if (seq.constructor === SeqClass && metadata === Metadata.EMPTY_METADATA) {
+                return seq as T;
             }
 
             contents = seq.contents;
