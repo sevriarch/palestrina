@@ -1,4 +1,4 @@
-import type CollectionWithMetadata from './collections/with-metadata';
+import type Collection from './collections/without-metadata';
 
 import type Sequence from './sequences/generic';
 import type NumSeq from './sequences/number';
@@ -354,7 +354,7 @@ export interface ISeqMember<T> {
 /**
  * An interface for Sequences
  */
-export interface ISequence<T> extends CollectionWithMetadata<T> {
+export interface ISequence<T> extends Collection<T> {
     // Extract contents or information relating to contents
     toPitches(): number[][];
     toFlatPitches(): number[];

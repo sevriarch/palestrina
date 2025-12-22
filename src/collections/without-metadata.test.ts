@@ -1,20 +1,9 @@
 import type { SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn, CtrlTypeFn, CtrlBoolFn, Replacer } from '../types';
 
 import Collection from './without-metadata';
+import Metadata from '../metadata/metadata';
 
 import { NumSeq } from '../sequences/sequences';
-
-describe('Collection.toString()', () => {
-    class C1 extends Collection<unknown> {}
-
-    test('returns as expected', () => {
-        expect(new Collection([ 1, 3, 5 ]).toString()).toEqual('Collection(length=3)([0: 1,1: 3,2: 5,])');
-    });
-
-    test('More complex derived class returns as expected', () => {
-        expect(new C1([ {a:1,b:[2,3]}, 'foo', null, true ]).toString()).toEqual('C1(length=4)([0: {"a":1,"b":[2,3]},1: "foo",2: null,3: true,])');
-    });
-});
 
 describe('Collection.index()', () => {
     const c0 = new Collection([]);
@@ -1756,11 +1745,27 @@ describe('Collection.each()', () => {
 
 describe('Collection.describe()', () => {
     test('empty collection', () => {
-        expect(new Collection([]).describe()).toStrictEqual('Collection(length=0)([])');
+        expect(new Collection([]).describe()).toStrictEqual('Collection(length=0,metadata=Metadata({}))([])');
     });
 
     test('collection with mixed members', () => {
-        expect(new Collection([ 5, [ 6, 7 ], { describe: 'cat', clearly: 'not cat' }, { describe: () => 'ObjectWithDescribe()' } ]).describe())
-            .toStrictEqual('Collection(length=4)([0: 5,1: [6,7],2: {"describe":"cat","clearly":"not cat"},3: ObjectWithDescribe(),])');
+        expect(new Collection([ 5, [ 6, 7 ], { describe: 'cat', clearly: 'not cat' }, { describe: () => 'ObjectWithDescribe()' } ], Metadata.from({ trackname: 'test', tempo: 144 })).describe())
+            .toStrictEqual(`Collection(length=4,metadata=Metadata({tempo=144,trackname="test"}))([
+    0: 5,
+    1: Array(len=2)[
+      0: 6
+      1: 7
+    ],
+    2: {
+      "describe": "cat"
+      "clearly": "not cat"
+    },
+    3: ObjectWithDescribe(),
+])`);
+    });
+
+    class C1 extends Collection<unknown> {}
+    test('returns as expected when derived class and called via .toString()', () => {
+        expect(new C1([ 1, 3, 5 ]).toString()).toEqual('C1(length=3,metadata=Metadata({}))([\n    0: 1,\n    1: 3,\n    2: 5,\n])');
     });
 });

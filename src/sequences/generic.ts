@@ -3,7 +3,7 @@ import type { GamutOpts, ReplacerVal, Replacer, ReplacerFn, MapperFn, ArrayFinde
 import type SeqMember from './members/generic';
 import Metadata from '../metadata/metadata';
 
-import CollectionWithMetadata from '../collections/with-metadata';
+import Collection from '../collections/without-metadata';
 
 import * as mutators from '../mutators/mutators';
 
@@ -27,7 +27,7 @@ function fillarray<T>(len: number, val: T) {
 
 type SeqCtor<T, MT> = new (contents: MT[], metadata: Metadata) => T;
 type MemberClass<MT> = { from: (val: SeqMemberArgument) => MT };
-export default abstract class Sequence<ET extends SeqMember<unknown>> extends CollectionWithMetadata<ET> implements ISequence<ET> {
+export default abstract class Sequence<ET extends SeqMember<unknown>> extends Collection<ET> implements ISequence<ET> {
     /**
      * Return a Sequence of the specified class and member class.
      * @hidden

@@ -4,7 +4,7 @@ import type { Timed, TimedEntity, MelodyMember, MetaList, ScoreCanvasOpts, SVGOp
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
-import CollectionWithMetadata from '../collections/with-metadata';
+import Collection from '../collections/without-metadata';
 
 import * as transformations from '../transformations/transformations';
 import * as visualizations from '../visualizations/visualizations';
@@ -27,7 +27,7 @@ type TransientScoreMetadata = {
  * 
  * Can write MIDI files or HTML canvas representations of the Melodies.
  */
-export default class Score extends CollectionWithMetadata<Melody> {
+export default class Score extends Collection<Melody> {
     static from(arg: Melody[] | string) {
         if (typeof arg === 'string') {
             const [ tracks, ticks ] = new MidiReader(arg).toScoreContents();
