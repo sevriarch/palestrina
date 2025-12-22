@@ -125,11 +125,7 @@ export default class Metadata {
                 metadata.time_signature = event.value as string;
                 return false;
             case 'instrument':
-                if (typeof event.value === 'number') {
-                    metadata.instrument = instrument.toInstrument(event.value);
-                } else {
-                    metadata.instrument = event.value;
-                }
+                metadata.instrument = event.value as string;
                 return false;
             default:
                 return true;
