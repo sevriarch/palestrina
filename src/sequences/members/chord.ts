@@ -6,7 +6,7 @@ import { isNumber } from '../../helpers/validation';
 import { sum } from '../../helpers/calculations';
 import { dumpOneLine } from '../../dump/dump';
 
-export function arrayOfNumericValuesOrThrow(arg: PitchArgument): number[] {
+function toArrayOfNumericValuesOrThrow(arg: PitchArgument): number[] {
     if (isNumber(arg)) {
         return [ arg as number ];
     }
@@ -46,7 +46,7 @@ export default class ChordSeqMember extends SeqMember<number[]> implements ISeqM
             }
         }
 
-        return arrayOfNumericValuesOrThrow(val);
+        return toArrayOfNumericValuesOrThrow(val);
     }
 
     /**
@@ -143,7 +143,7 @@ export default class ChordSeqMember extends SeqMember<number[]> implements ISeqM
     }
 
     setPitches(p: PitchArgument): this {
-        return this.construct(arrayOfNumericValuesOrThrow(p));
+        return this.construct(toArrayOfNumericValuesOrThrow(p));
     }
 
     toJSON(): JSONValue {

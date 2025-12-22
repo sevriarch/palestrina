@@ -8,7 +8,7 @@ import { dumpOneLine } from '../../dump/dump';
 /**
  * Return a numeric value or throw.
  */
-export function nullableNumericValueOrThrow(arg: PitchArgument): number | null {
+function toNullableNumericValueOrThrow(arg: PitchArgument): number | null {
     if (isNumber(arg)) {
         return arg as number;
     }
@@ -52,7 +52,7 @@ export default class NoteSeqMember extends SeqMember<number | null> implements I
             }
         }
 
-        return nullableNumericValueOrThrow(val);
+        return toNullableNumericValueOrThrow(val);
     }
 
     /**
@@ -122,7 +122,7 @@ export default class NoteSeqMember extends SeqMember<number | null> implements I
     }
 
     setPitches(p: PitchArgument): this {
-        return this.construct(nullableNumericValueOrThrow(p));
+        return this.construct(toNullableNumericValueOrThrow(p));
     }
 
     toJSON(): JSONValue {

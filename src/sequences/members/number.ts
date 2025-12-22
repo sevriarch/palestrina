@@ -8,7 +8,7 @@ import { dumpOneLine } from '../../dump/dump';
 /**
  * Return a numeric value or throw.
  */
-export function numericValueOrThrow(arg: PitchArgument): number {
+function toNumericValueOrThrow(arg: PitchArgument): number {
     if (isNumber(arg)) {
         return arg as number;
     }
@@ -42,7 +42,7 @@ export default class NumSeqMember extends SeqMember<number> implements ISeqMembe
             }
         }
 
-        return numericValueOrThrow(val);
+        return toNumericValueOrThrow(val);
     }
 
     /**
@@ -104,7 +104,7 @@ export default class NumSeqMember extends SeqMember<number> implements ISeqMembe
     }
 
     setPitches(p: PitchArgument): this {
-        return this.construct(numericValueOrThrow(p));
+        return this.construct(toNumericValueOrThrow(p));
     }
 
     toJSON(): JSONValue {
