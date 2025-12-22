@@ -1,6 +1,6 @@
 import type { SeqMemberArgument } from '../../types';
 
-import type SeqMember from './generic';
+import type SeqMember from './base';
 
 import NumSeqMember from './number';
 import NoteSeqMember from './note';

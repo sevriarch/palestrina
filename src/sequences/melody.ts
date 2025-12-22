@@ -1,6 +1,6 @@
 import type { Timed, TimedEntity, SeqArgument, SeqMemberArgument, MapperFn, SeqIndices, Metadata, MetaEventValueMap, MetaEventKind, MetaEventArg, EventTiming, ISequence } from '../types';
 
-import Sequence from './generic';
+import Sequence from './base';
 import MelodyMember from './members/melody';
 import MetaList from '../meta-events/meta-list';
 

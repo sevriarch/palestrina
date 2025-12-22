@@ -1,6 +1,6 @@
 import type { SeqMemberArgument, ISequence, SeqArgument, Metadata } from '../types';
 
-import Sequence from './generic';
+import Sequence from './base';
 import ChordSeqMember from './members/chord';
 
 /**

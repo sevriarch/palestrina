@@ -2,7 +2,7 @@ import type { MetaEventKind, MetaEventValueMap, EventTiming, MetaEventArg, Melod
 
 import MetaList from '../../meta-events/meta-list';
 import Timing from '../../timing/timing';
-import SeqMember from './generic';
+import SeqMember from './base';
 import ChordSeqMember from './chord';
 
 import { DEFAULTS } from '../../constants';
@@ -111,7 +111,8 @@ function toMelodyMemberData(val: SeqMemberArgument): MelodyMemberData {
 }
 
 /**
- * Class representing a member of a {@link Melody}, whose value represents a single note, chord or silence.
+ * Class representing a member of a {@link Melody}, which represents a single note, chord or silence,
+ * plus non-note events that may occur before or after it.
  */
 export default class MelodyMember extends SeqMember<MelodyMemberData> implements ISeqMember<MelodyMemberData> {
     get pitch(): ChordSeqMember { return this._val.pitch; }

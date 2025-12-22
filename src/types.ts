@@ -1,6 +1,6 @@
 import type Collection from './collections/collection';
 
-import type Sequence from './sequences/generic';
+import type Sequence from './sequences/base';
 import type NumSeq from './sequences/number';
 import type NoteSeq from './sequences/note';
 import type ChordSeq from './sequences/chord';
@@ -9,7 +9,7 @@ import type Score from './scores/score';
 
 export type { Sequence, NumSeq, NoteSeq, ChordSeq, Melody, Score };
 
-import type SeqMember from './sequences/members/generic';
+import type SeqMember from './sequences/members/base';
 import type NumSeqMember from './sequences/members/number';
 import type NoteSeqMember from './sequences/members/note';
 import type ChordSeqMember from './sequences/members/chord';

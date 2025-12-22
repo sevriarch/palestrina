@@ -1,6 +1,6 @@
 import type { SeqMemberArgument, PitchArgument, JSONValue, ISeqMember, ValidatorFn } from '../../types';
 
-import SeqMember from './generic';
+import SeqMember from './base';
 
 import { isNumber } from '../../helpers/validation';
 import { dumpOneLine } from '../../dump/dump';

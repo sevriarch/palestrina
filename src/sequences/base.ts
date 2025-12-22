@@ -1,6 +1,6 @@
 import type { GamutOpts, ReplacerVal, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
 
-import type SeqMember from './members/generic';
+import type SeqMember from './members/base';
 import Metadata from '../metadata/metadata';
 
 import Collection from '../collections/collection';

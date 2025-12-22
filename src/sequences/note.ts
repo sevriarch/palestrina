@@ -1,6 +1,6 @@
 import type { SeqArgument, SeqMemberArgument, Metadata, ISingleValuedSequence } from '../types';
 
-import Sequence from './generic';
+import Sequence from './base';
 import NoteSeqMember from './members/note';
 
 import { xorshift } from '../imports/imports';
