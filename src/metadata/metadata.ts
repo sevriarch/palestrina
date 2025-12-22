@@ -75,7 +75,7 @@ function fieldsFailingValidation(ob: MetadataData): string[] {
 }
 
 /**
- * Class representing the metadata associated with a Collection or similar entity.
+ * Class representing the metadata associated with a Score or Sequence (ie: a Collection).
  */
 export default class Metadata {
     metadata: MetadataData;

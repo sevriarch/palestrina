@@ -24,8 +24,8 @@ type TransientScoreMetadata = {
 
 /**
  * A container for zero or more Melodies.
- * 
- * Can write MIDI files or HTML canvas representations of the Melodies.
+ *
+ * Can write MIDI files or HTML canvas or SVG representations of the Melodies.
  */
 export default class Score extends Collection<Melody> {
     static from(arg: Melody[] | string) {

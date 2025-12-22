@@ -12,14 +12,9 @@ import { dumpOneLine } from '../dump/dump';
 const INVALID_KEYS = new Set([ 'event', 'value', 'offset', 'at' ]);
 
 /**
- * Class representing data required to create a Midi event.
+ * Class representing a non-note event in a musical score.
  *
- * Used by MetaList, which contains an array of these entities.
- * 
- * MetaList is used by MelodyMember to define an array of events that occur before
- * the MelodyMember and an array of events that occur after it, by Melody to define
- * an array of events that occur at the start of the Melody, by Score for the same
- * reason, and is used during the creation and reading of MIDI files.
+ * Used in MetaList which is a wrapper around an array of MetaEvents.
  */
 export default class MetaEvent<Event extends MetaEventKind> {
     readonly event: MetaEventKind;            // the kind of event

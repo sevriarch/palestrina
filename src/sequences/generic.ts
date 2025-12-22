@@ -17,12 +17,13 @@ function fillarray<T>(len: number, val: T) {
 }
 
 /**
- * Abstract class defining a generic Sequence. A variety of methods ae defined
+ * Abstract class defining a base Sequence. A variety of methods are defined
  * here that can act on contents that implement the ISeqMember interface.
  * This class is inherited by derived classes: NumSeq, NoteSeq ChordSeq, Melody
  *
  * Sequence contents are an array of member class objects, which correspond to
- * the derived class: NumSeqMember, NoteSeqMember, ChordSeqMember, MelodyMember
+ * the derived class: NumSeqMember, NoteSeqMember, ChordSeqMember, MelodyMember.
+ * Sequences also contain Metadata.
  */
 
 type SeqCtor<T, MT> = new (contents: MT[], metadata: Metadata) => T;

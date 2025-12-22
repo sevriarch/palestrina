@@ -7,9 +7,10 @@ import { isNonNegNumber, isNonnegInt, isPosNumber } from '../helpers/validation'
 import { dumpOneLine } from '../dump/dump';
 
 /**
- * Class representing a list of Meta events. This functionality is used in a number of places
- * at the start and end of MelodyMembers, at the start of Melodies and Scores, and is used
- * during the creation and reading of MIDI files.
+ * Class representing a list of non-note events (MetaEvents).
+ * 
+ * Used at the beginning and end of each note/chord in a Melody or a Score, and also
+ * used in Metadata.
  */
 export default class MetaList {
     contents: MetaEvent<MetaEventKind>[];

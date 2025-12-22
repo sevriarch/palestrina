@@ -40,7 +40,8 @@ function index(i: number, len: number, max = len): number | undefined {
 }
 
 /**
- * Class representing a Collection that has metadata.
+ * Class representing a Collection, which contains an ordered list of entities, plus Metadata,
+ * and implements a variety of methods that may be used to manipulate those entities.
  */
 export default class Collection<T> {
     readonly contents: T[];
