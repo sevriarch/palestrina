@@ -1,4 +1,4 @@
-import type { GamutOpts, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
+import type { GamutOpts, ReplacerVal, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
 
 import type SeqMember from './members/generic';
 import Metadata from '../metadata/metadata';
@@ -65,23 +65,22 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * OVERRIDES
      */
 
-    protected override replacer<FromT>(r: Replacer<FromT, ET>, curr: FromT, i: number): ET[] {
-        const retval = typeof r === 'function' ? r(curr, i) : r;
-    
-        if (Array.isArray(retval)) {
-            return retval.map(this.constructMember);
-        }
-    
-        if (typeof retval === 'object' && retval !== null && 'contents' in retval) {
-            // Avoid unnecessary calls if retval is the same type of Sequence
-            if (this.constructor === retval.constructor) {
-                return retval.contents as ET[];
+    protected override replacerValue(r: ReplacerVal<SeqMemberArgument>): ET[] {
+        if (typeof r === 'object') {
+            if (Array.isArray(r)) {
+                return r.map(this.constructMember);
             }
 
-            return retval.contents.map(this.constructMember);
+            if (r !== null && 'contents' in r) {
+                if (r.constructor === this.constructor) {
+                    return r.contents as ET[];
+                }
+
+                return r.contents.map(this.constructMember);
+            }
         }
-    
-        return [ this.constructMember(retval) ];
+
+        return [ this.constructMember(r) ];
     }
 
     /**
