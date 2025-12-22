@@ -3,7 +3,7 @@ import type { GamutOpts, ReplacerVal, Replacer, ReplacerFn, MapperFn, ArrayFinde
 import type SeqMember from './members/generic';
 import Metadata from '../metadata/metadata';
 
-import Collection from '../collections/without-metadata';
+import Collection from '../collections/collection';
 
 import * as mutators from '../mutators/mutators';
 

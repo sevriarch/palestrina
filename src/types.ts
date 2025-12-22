@@ -1,4 +1,4 @@
-import type Collection from './collections/without-metadata';
+import type Collection from './collections/collection';
 
 import type Sequence from './sequences/generic';
 import type NumSeq from './sequences/number';

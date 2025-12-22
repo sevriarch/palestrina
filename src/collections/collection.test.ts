@@ -1,6 +1,6 @@
 import type { MetaEventArg, SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn, CtrlTypeFn, CtrlBoolFn, Replacer } from '../types';
 
-import Collection from './without-metadata';
+import Collection from './collection';
 import Metadata from '../metadata/metadata';
 
 import MetaList from '../meta-events/meta-list';

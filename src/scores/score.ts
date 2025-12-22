@@ -4,7 +4,7 @@ import type { Timed, TimedEntity, MelodyMember, MetaList, ScoreCanvasOpts, SVGOp
 
 import Melody from '../sequences/melody';
 import Metadata from '../metadata/metadata';
-import Collection from '../collections/without-metadata';
+import Collection from '../collections/collection';
 
 import * as transformations from '../transformations/transformations';
 import * as visualizations from '../visualizations/visualizations';
