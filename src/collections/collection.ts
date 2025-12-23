@@ -305,12 +305,12 @@ export default class Collection<T> {
      * // returns 3
      * intseq([ 1, 2, 3, 4, 5 ]).findFirstIndex(v => v.val() > 3)
      */
-    findFirstIndex(fn: FinderFn<T>): number | null {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.findFirstIndex() requires a function`);
+    findFirstIndex(finder: FinderFn<T>): number | null {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.findFirstIndex() requires a finder function`);
         }
 
-        const ret = this.contents.findIndex(fn);
+        const ret = this.contents.findIndex(finder);
 
         return ret === -1 ? null : ret;
     }
@@ -324,16 +324,16 @@ export default class Collection<T> {
      * // returns 4
      * intseq([ 1, 2, 3, 4, 5 ]).findLastIndex(v => v.val() > 3)
      */
-    findLastIndex(fn: FinderFn<T>): number | null {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.findLastIndex() requires a function`);
+    findLastIndex(finder: FinderFn<T>): number | null {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.findLastIndex() requires a finder function`);
         }
 
         // This implementation because Array.findLastIndex() not yet supported in Typescript
         let i = this.length;
 
         while (i--) {
-            if (fn(this.contents[i], i)) {
+            if (finder(this.contents[i], i)) {
                 return i;
             }
         }
@@ -350,15 +350,15 @@ export default class Collection<T> {
      * // returns [ 3, 4 ]
      * intseq([ 1, 2, 3, 4, 5 ]).findIndices(v => v.val() > 3)
      */
-    findIndices(fn: FinderFn<T>): number[] {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.findIndices() requires a function`);
+    findIndices(finder: FinderFn<T>): number[] {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.findIndices() requires a finder function`);
         }
 
         const ret = [];
 
         for (let i = 0; i < this.length; i++) {
-            if (fn(this.contents[i], i)) {
+            if (finder(this.contents[i], i)) {
                 ret.push(i);
             }
         }
@@ -713,8 +713,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 6, 3, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
-    replaceFirstIndex(fn: FinderFn<T>, rep: Replacer<T, T>): this {
-        if (typeof fn !== 'function') {
+    replaceFirstIndex(finder: FinderFn<T>, rep: Replacer<T, T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a finder function`);
         }
 
@@ -724,7 +724,7 @@ export default class Collection<T> {
             throw new Error(`${cname}.replaceFirstIndex(): replacer functions are no longer supported; use ${cname}.mapFirstIndex() or ${cname}.flatMapFirstIndex() instead`);
         }
 
-        const ix = this.findFirstIndex(fn);
+        const ix = this.findFirstIndex(finder);
  
         return ix === null ? this : this.replaceIndices(ix, rep);
     }
@@ -737,8 +737,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 6, 3, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
-    mapFirstIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
-        if (typeof findfn !== 'function') {
+    mapFirstIndex(finder: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.mapFirstIndex() requires a finder function`);
         }
 
@@ -746,7 +746,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.mapFirstIndex() requires a mapper function`);
         }
 
-        const ix = this.findFirstIndex(findfn);
+        const ix = this.findFirstIndex(finder);
  
         return ix === null ? this : this.mapIndices(ix, mapfn);
     }
@@ -759,8 +759,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 6, 2, 3, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).flatMapFirstIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
      */
-    flatMapFirstIndex(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
-        if (typeof findfn !== 'function') {
+    flatMapFirstIndex(finder: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.flatMapFirstIndex() requires a finder function`);
         }
 
@@ -768,7 +768,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.flatMapFirstIndex() requires a mapper function`);
         }
 
-        const ix = this.findFirstIndex(findfn);
+        const ix = this.findFirstIndex(finder);
  
         return ix === null ? this : this.flatMapIndices(ix, mapfn);
     }
@@ -786,8 +786,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 3, 8, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
-    replaceLastIndex(fn: FinderFn<T>, rep: Replacer<T, T>): this {
-        if (typeof fn !== 'function') {
+    replaceLastIndex(finder: FinderFn<T>, rep: Replacer<T, T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceLastIndex() requires a finder function`);
         }
 
@@ -797,7 +797,7 @@ export default class Collection<T> {
             throw new Error(`${cname}.replaceLastIndex(): replacer functions are no longer supported; use ${cname}.mapLastIndex() or ${cname}.flatMapLastIndex() instead`);
         }
 
-        const ix = this.findLastIndex(fn);
+        const ix = this.findLastIndex(finder);
  
         return ix === null ? this : this.replaceIndices(ix, rep);
     }
@@ -810,8 +810,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 3, 8, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).mapLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
-    mapLastIndex(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
-        if (typeof findfn !== 'function') {
+    mapLastIndex(finder: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.mapLastIndex() requires a finder function`);
         }
 
@@ -819,7 +819,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.mapLastIndex() requires a mapper function`);
         }
 
-        const ix = this.findLastIndex(findfn);
+        const ix = this.findLastIndex(finder);
  
         return ix === null ? this : this.mapIndices(ix, mapfn);
     }
@@ -832,8 +832,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 3, 4, 8, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).flatMapLastIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
      */
-    flatMapLastIndex(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
-        if (typeof findfn !== 'function') {
+    flatMapLastIndex(finder: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.flatMapLastIndex() requires a finder function`);
         }
 
@@ -841,7 +841,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.flatMapLastIndex() requires a mapper function`);
         }
 
-        const ix = this.findLastIndex(findfn);
+        const ix = this.findLastIndex(finder);
  
         return ix === null ? this : this.flatMapIndices(ix, mapfn);
     }
@@ -859,8 +859,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 6, 3, 8, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, v => v.transpose(4))
      */
-    replaceIf(fn: FinderFn<T>, rep: Replacer<T, T>): this {
-        if (typeof fn !== 'function') {
+    replaceIf(finder: FinderFn<T>, rep: Replacer<T, T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceIf() requires a function`);
         }
 
@@ -870,7 +870,7 @@ export default class Collection<T> {
             throw new Error(`${cname}.replaceIf(): replacer functions are no longer supported; use ${cname}.mapIf() or ${cname}.flatMapIf() instead`);
         }
 
-        return this.replaceIndices(this.findIndices(fn), rep);
+        return this.replaceIndices(this.findIndices(finder), rep);
     }
 
     /**
@@ -881,8 +881,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 6, 3, 8, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).mapIf(v => v.val() % 2 === 0, v => v.transpose(4))
      */
-    mapIf(findfn: FinderFn<T>, mapfn: MapperFn<T>): this {
-        if (typeof findfn !== 'function') {
+    mapIf(finder: FinderFn<T>, mapfn: MapperFn<T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.mapIf() requires a finder function`);
         }
 
@@ -890,7 +890,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.mapIf() requires a mapper function`);
         }
 
-        return this.mapIndices(this.findIndices(findfn), mapfn);
+        return this.mapIndices(this.findIndices(finder), mapfn);
     }
 
     /**
@@ -901,8 +901,8 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 6, 2, 3, 4, 8, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).flatMapIf(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
      */
-    flatMapIf(findfn: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
-        if (typeof findfn !== 'function') {
+    flatMapIf(finder: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
+        if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.flatMapIf() requires a finder function`);
         }
 
@@ -910,7 +910,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.flatMapIf() requires a mapper function`);
         }
 
-        return this.flatMapIndices(this.findIndices(findfn), mapfn);
+        return this.flatMapIndices(this.findIndices(finder), mapfn);
     }
 
     /**

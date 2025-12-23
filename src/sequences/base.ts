@@ -600,16 +600,16 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * // returns [ 1, 4 ]
      * intseq([ 1, 2, 2, 3, 4, 4, 5 ]).findIfWindow(2, 1, m => m[0].val() === m[1].val())
      */
-    findIfWindow(size: number, step: number, fn: ArrayFinderFn<ET>): number[] {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.findIfWindow(): requires a function`);
+    findIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>): number[] {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.findIfWindow(): requires a finder function`);
         }
 
         const max = this.length - size + 1;
         const ret = [];
 
         for (let i = 0; i < max; i += step) {
-            if (fn(this.contents.slice(i, i + size), i)) {
+            if (finder(this.contents.slice(i, i + size), i)) {
                 ret.push(i);
             }
         }
@@ -628,9 +628,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * // returns [ 5, 2 ]
      * intseq([ 1, 2, 2, 3, 4, 4, 5 ]).findIfReverseWindow(2, 1, m => m[0].val() === m[1].val())
      */
-    findIfReverseWindow(size: number, step: number, fn: ArrayFinderFn<ET>): number[] {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.findIfReverseWindow(): requires a function`);
+    findIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>): number[] {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.findIfReverseWindow(): requires a finder function`);
         }
 
         const vals = this.val();
@@ -639,7 +639,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         for (let i = this.length - size; i >= 0; i -= step) {
             const slice = vals.slice(i, i + size);
 
-            if (fn(slice, i)) {
+            if (finder(slice, i)) {
                 ret.push(i);
             }
         }
@@ -667,9 +667,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *     m => m[0].invert(5)
      * )
      */
-    replaceIfWindow(size: number, step: number, fn: ArrayFinderFn<ET>, rep: Replacer<ET[], ET>): this {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceIfWindow(): requires a function`);
+    replaceIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>, rep: Replacer<ET[], ET>): this {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.replaceIfWindow(): requires a finder function`);
         }
 
         const vals = this.val();
@@ -681,7 +681,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             if (loc < size) { continue; }
 
             const slice = vals.slice(loc - size, loc);
-            if (fn(slice, loc - size)) {
+            if (finder(slice, loc - size)) {
                 vals.splice(loc - size, size, ...this.replacer(rep, slice, loc));
             }
         }
@@ -705,9 +705,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *     m => m[0].invert(5)
      * )
      */
-    replaceIfReverseWindow(size: number, step: number, fn: ArrayFinderFn<ET>, rep: Replacer<ET[], ET>): this {
-        if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceIfReverseWindow(): requires a function`);
+    replaceIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>, rep: Replacer<ET[], ET>): this {
+        if (typeof finder !== 'function') {
+            throw new Error(`${this.constructor.name}.replaceIfReverseWindow(): requires a finder function`);
         }
 
         const vals = this.val();
@@ -718,7 +718,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             if (i + size > vals.length) { continue; }
 
             const slice = vals.slice(i, i + size);
-            if (fn(slice, i)) {
+            if (finder(slice, i)) {
                 vals.splice(i, size, ...this.replacer(rep, slice, i));
             }
         }
