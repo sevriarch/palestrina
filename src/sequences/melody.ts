@@ -279,7 +279,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * ])
      */
     withEventsBefore(pos: SeqIndices, events: MetaEventArg[]): this {
-        return this.replaceIndices(pos, e => e.withEventsBefore(events));
+        return this.mapIndices(pos, e => e.withEventsBefore(events));
     }
 
     /**
@@ -298,7 +298,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * ])
      */
     withEventsAfter(pos: SeqIndices, events: MetaEventArg[]): this {
-        return this.replaceIndices(pos, e => e.withEventsAfter(events));
+        return this.mapIndices(pos, e => e.withEventsAfter(events));
     }
 
     /**
@@ -314,7 +314,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * myMelody.withEventBefore([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
     withEventBefore<Event extends MetaEventKind>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
-        return this.replaceIndices(pos, e => e.withEventBefore(event, value, opts));
+        return this.mapIndices(pos, e => e.withEventBefore(event, value, opts));
     }
 
     /**
@@ -330,7 +330,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * myMelody.withEventAfter([ 100 ], { event: 'sustain', value: 0, offset: 1024 })
      */
     withEventAfter<Event extends MetaEventKind>(pos: SeqIndices, event: Event | MetaEventArg, value?: MetaEventValueMap[Event], opts?: EventTiming): this {
-        return this.replaceIndices(pos, e => e.withEventAfter(event, value, opts));
+        return this.mapIndices(pos, e => e.withEventAfter(event, value, opts));
     }
 
     /**
@@ -339,7 +339,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * delay is added to the existing one.
      */
     addDelayAt(pos: SeqIndices, val: number): this {
-        return this.replaceIndices(pos, e => e.addDelay(val));
+        return this.mapIndices(pos, e => e.addDelay(val));
     }
 
     /**
@@ -348,7 +348,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * offset is added to the existing one.
      */
     addOffsetAt(pos: SeqIndices, val: number): this {
-        return this.replaceIndices(pos, e => e.addOffset(val));
+        return this.mapIndices(pos, e => e.addOffset(val));
     }
 
     /**
@@ -356,35 +356,35 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * positions in the Melody.
      */
     withExactTickAt(pos: SeqIndices, tick: number): this {
-        return this.replaceIndices(pos, e => e.withExactTick(tick));
+        return this.mapIndices(pos, e => e.withExactTick(tick));
     }
 
     /**
      * Return a new Melody with a duration applied to the positions in the Melody.
      */
     withDelayAt(pos: SeqIndices, val: number): this {
-        return this.replaceIndices(pos, e => e.withDelay(val));
+        return this.mapIndices(pos, e => e.withDelay(val));
     }
 
     /**
      * Return a new Melody with a duration applied to the positions in the Melody.
      */
     withOffsetAt(pos: SeqIndices, val: number): this {
-        return this.replaceIndices(pos, e => e.withOffset(val));
+        return this.mapIndices(pos, e => e.withOffset(val));
     }
 
     /**
      * Return a new Melody with a duration applied to the positions in the Melody.
      */
     withDurationAt(pos: SeqIndices, val: number): this {
-        return this.replaceIndices(pos, e => e.withDuration(val));
+        return this.mapIndices(pos, e => e.withDuration(val));
     }
 
     /**
      * Return a new Melody with a duration applied to the positions in the Melody.
      */
     withVolumeAt(pos: SeqIndices, val: number): this {
-        return this.replaceIndices(pos, e => e.withVolume(val));
+        return this.mapIndices(pos, e => e.withVolume(val));
     }
 
     /**
@@ -451,7 +451,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * myMelody.withTextBefore([ 60 ], 'merciful', lyric')
      */
     withTextBefore(pos: SeqIndices, val: string, typeOrOpts?: string | EventTiming, opts?: EventTiming) {
-        return this.replaceIndices(pos, e => e.withTextBefore(val, typeOrOpts, opts));
+        return this.mapIndices(pos, e => e.withTextBefore(val, typeOrOpts, opts));
     }
 
     /**
@@ -465,7 +465,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
      * myMelody.withTextAfter([ 60 ], 'merciful', 'lyric')
      */
     withTextAfter(pos: SeqIndices, val: string, typeOrOpts?: string | EventTiming, opts?: EventTiming) {
-        return this.replaceIndices(pos, e => e.withTextAfter(val, typeOrOpts, opts));
+        return this.mapIndices(pos, e => e.withTextAfter(val, typeOrOpts, opts));
     }
 
     /**

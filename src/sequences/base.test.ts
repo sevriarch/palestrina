@@ -2286,20 +2286,8 @@ describe('Sequence.insertBefore()', () => {
         expect(NumSeq.from([ 1, 2, 3 ]).insertBefore(1, 5)).toStrictEqual(NumSeq.from([ 1, 5, 2, 3 ]));
     });
 
-    test('works when inserting a number via a function', () => {
-        expect(NumSeq.from([ 1, 2, 3 ]).insertBefore(1, e => e.val() - 4)).toStrictEqual(NumSeq.from([ 1, -2, 2, 3 ]));
-    });
-
     test('inserting number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ [ 4 ], [ 5 ], [ 1, 2 ], [ 3 ] ]));
-    });
-
-    test('inserting number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, e => [ e.val()[0] + 4, e.val()[1] - 5 ])).toStrictEqual(ChordSeq.from([ [ 5 ], [ -3 ], [ 1, 2 ], [ 3 ] ]));
-    });
-
-    test('inserting number[][] inserts multivalued members', () => {
-        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ [ 4, 5 ], [ 6, 7 ] ] )).toStrictEqual(Melody.from([ [ 4, 5 ], [ 6, 7 ], [ 1, 2 ], [ 3 ] ]));
     });
 
     test('inserting number[][] via a function inserts multivalued members', () => {
@@ -2312,24 +2300,12 @@ describe('Sequence.insertAfter()', () => {
         expect(NumSeq.from([ 1, 2, 3 ]).insertAfter(1, 5)).toStrictEqual(NumSeq.from([ 1, 2, 5, 3 ]));
     });
 
-    test('works when inserting a number via a function', () => {
-        expect(NumSeq.from([ 1, 2, 3 ]).insertAfter(1, e => e.val() - 4)).toStrictEqual(NumSeq.from([ 1, 2, -2, 3 ]));
-    });
-
     test('inserting number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 4 ], [ 5 ], [ 3 ] ]));
     });
 
-    test('inserting number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, e => [ e.val()[0] + 4, e.val()[1] - 5 ])).toStrictEqual(ChordSeq.from([ [ 1, 2 ], [ 5 ], [ -3 ], [ 3 ] ]));
-    });
-
     test('inserting number[][] inserts multivalued members', () => {
         expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, [ [ 4, 5 ], [ 6, 7 ] ] )).toStrictEqual(Melody.from([ [ 1, 2 ], [ 4, 5 ], [ 6, 7 ], [ 3 ] ]));
-    });
-
-    test('inserting number[][] via a function inserts multivalued members', () => {
-        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertAfter(0, e => [ [ e.pitches()[0] + 4, e.pitches()[1] - 5 ] ])).toStrictEqual(Melody.from([ [ 1, 2 ], [ -3, 5 ], [ 3 ] ]));
     });
 });
 
@@ -2338,24 +2314,12 @@ describe('Sequence.replaceIndices()', () => {
         expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], 0)).toStrictEqual(NumSeq.from([ 1, 0, 0, 4 ]));
     });
 
-    test('replaces with a number via a function', () => {
-        expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => e.val() + 3)).toStrictEqual(NumSeq.from([ 1, 5, 6, 4 ]));
-    });
-
     test('replacing with a number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 4, 5, 4, 5, 4 ]));
     });
 
-    test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 1, 5, -2, 6, -1, 4 ]));
-    });
-
     test('replacing with number[][] inserts multivalued members', () => {
         expect(Melody.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, [ 4, 5 ], [ 6, 7 ], [ 4, 5 ], [ 6, 7 ], 4 ]));
-    });
-
-    test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(Melody.from([ 1, 2, 3, 4 ]).replaceIndices([ 1, 2 ], e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ 1, [ -2, 5 ], [ -1, 6 ], 4 ]));
     });
 });
 
@@ -2366,24 +2330,12 @@ describe('Sequence.replaceFirstIndex()', () => {
         expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, 0)).toStrictEqual(NumSeq.from([ 1, 2, 0, 4 ]));
     });
 
-    test('replaces with a number via a function', () => {
-        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 7, 3, 2, 1 ]));
-    });
-
     test('replacing with a number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 2, 4, 5, 4 ]));
     });
 
-    test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 7, 0, 3, 2, 1 ]));
-    });
-
     test('replacing with number[][] inserts multivalued members', () => {
         expect(Melody.from([ 1, 2, 3, 4 ]).replaceFirstIndex(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, 2, [ 4, 5 ], [ 6, 7 ], 4 ]));
-    });
-
-    test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(Melody.from([ 4, 3, 2, 1 ]).replaceFirstIndex(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ [ 0, 7 ], 3, 2, 1 ]));
     });
 });
 
@@ -2394,24 +2346,12 @@ describe('Sequence.replaceLastIndex()', () => {
         expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceLastIndex(fn, 0)).toStrictEqual(NumSeq.from([ 1, 2, 3, 0 ]));
     });
 
-    test('replaces with a number via a function', () => {
-        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 4, 6, 2, 1 ]));
-    });
-
     test('replacing with a number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceLastIndex(fn, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 2, 3, 4, 5 ]));
     });
 
-    test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 4, 6, -1, 2, 1 ]));
-    });
-
     test('replacing with number[][] inserts multivalued members', () => {
         expect(Melody.from([ 1, 2, 3, 4 ]).replaceLastIndex(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, 2, 3, [ 4, 5 ], [ 6, 7 ] ]));
-    });
-
-    test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(Melody.from([ 4, 3, 2, 1 ]).replaceLastIndex(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ 4, [ -1, 6 ], 2, 1 ]));
     });
 });
 
@@ -2422,24 +2362,12 @@ describe('Sequence.replaceIf()', () => {
         expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceIf(fn, 0)).toStrictEqual(NumSeq.from([ 1, 0, 3, 0 ]));
     });
 
-    test('replaces with a number via a function', () => {
-        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceIf(fn, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 7, 3, 5, 1 ]));
-    });
-
     test('replacing with a number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceIf(fn, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 4, 5, 3, 4, 5 ]));
     });
 
-    test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceIf(fn, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 7, 0, 3, 5, -2, 1 ]));
-    });
-
     test('replacing with number[][] inserts multivalued members', () => {
         expect(Melody.from([ 1, 2, 3, 4 ]).replaceIf(fn, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, [ 4, 5 ], [ 6, 7 ], 3, [ 4, 5 ], [ 6, 7 ] ]));
-    });
-
-    test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(Melody.from([ 4, 3, 2, 1 ]).replaceIf(fn, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ [ 0, 7 ], 3, [ -2, 5 ], 1 ]));
     });
 });
 
@@ -2448,24 +2376,12 @@ describe('Sequence.replaceNth()', () => {
         expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceNth(2, 0)).toStrictEqual(NumSeq.from([ 0, 2, 0, 4 ]));
     });
 
-    test('replaces with a number via a function', () => {
-        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceNth(2, e => e.val() + 3)).toStrictEqual(NumSeq.from([ 7, 3, 5, 1 ]));
-    });
-
     test('replacing with a number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceNth(2, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 4, 5, 2, 4, 5, 4 ]));
     });
 
-    test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceNth(2, e => [ e.val()[0] + 3, e.val()[0] - 4 ])).toStrictEqual(ChordSeq.from([ 7, 0, 3, 5, -2, 1 ]));
-    });
-
     test('replacing with number[][] inserts multivalued members', () => {
         expect(Melody.from([ 1, 2, 3, 4 ]).replaceNth(2, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ [ 4, 5 ], [ 6, 7 ], 2, [ 4, 5 ], [ 6, 7 ], 4 ]));
-    });
-
-    test('replacing with a number[][] via a function inserts multiple single values', () => {
-        expect(Melody.from([ 4, 3, 2, 1 ]).replaceNth(2, e => [ [ e.pitches()[0] + 3, e.pitches()[0] - 4 ] ])).toStrictEqual(Melody.from([ [ 0, 7 ], 3, [ -2, 5 ], 1 ]));
     });
 });
 
@@ -2474,24 +2390,11 @@ describe('Sequence.replaceSlice()', () => {
         expect(NumSeq.from([ 1, 2, 3, 4 ]).replaceSlice(1, 3, 0)).toStrictEqual(NumSeq.from([ 1, 0, 4 ]));
     });
 
-    test('replaces with a number via a function', () => {
-        expect(NumSeq.from([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => s.length)).toStrictEqual(NumSeq.from([ 4, 2, 1 ]));
-    });
-
     test('replacing with a number[] inserts multiple single values', () => {
         expect(ChordSeq.from([ 1, 2, 3, 4 ]).replaceSlice(1, 3, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ 1, 4, 5, 4 ]));
-    });
-
-    test('replacing with a number[] via a function inserts multiple single values', () => {
-        expect(ChordSeq.from([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => [ s.min(), s.max() ])).toStrictEqual(ChordSeq.from([ 4, 2, 3, 1 ]));
     });
 
     test('replacing with number[][] inserts multivalued members', () => {
         expect(Melody.from([ 1, 2, 3, 4 ]).replaceSlice(1, 3, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ 1, [ 4, 5 ], [ 6, 7 ], 4 ]));
     });
-
-    // TODO: Figure out typing issues with .replaceSlice() and determine if this particular example should be permitted
-    //test('replacing with a number[][] via a function inserts multiple single values', () => {
-    //    expect(Melody.from([ 4, 3, 2, 1 ]).replaceSlice(1, 3, s => [ [ s.min(), s.max() ] ])).toStrictEqual(Melody.from([ 4, [ 2, 3 ], 1 ]));
-    //});
 });

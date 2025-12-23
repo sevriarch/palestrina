@@ -625,6 +625,12 @@ export default class Collection<T> {
      * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ -1 ], v => v.transpose(4))
      */
     replaceIndices(pos: SeqIndices, rep: Replacer<T, T>): this {
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.replaceIndices(): replacer functions are no longer supported; use ${cname}.mapIndices() or ${cname}.flatMapIndices() instead`);
+        }
+
         return this.replaceRelative(pos, rep, 1, 0);
     }
 
@@ -638,7 +644,7 @@ export default class Collection<T> {
      */
     mapIndices(pos: SeqIndices, fn: MapperFn<T>): this {
         if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
+            throw new Error(`${this.constructor.name}.mapIndices() requires a mapper function`);
         }
 
         const locs = this.indices(pos);
@@ -668,7 +674,7 @@ export default class Collection<T> {
      */
     flatMapIndices(pos: SeqIndices, fn: FlatMapperFn<T>): this {
         if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.mapIndices() requires a function`);
+            throw new Error(`${this.constructor.name}.mapIndices() requires a flat mapper function`);
         }
 
         const locs = this.indices(pos);
@@ -709,7 +715,13 @@ export default class Collection<T> {
      */
     replaceFirstIndex(fn: FinderFn<T>, rep: Replacer<T, T>): this {
         if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a function`);
+            throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a finder function`);
+        }
+
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.replaceFirstIndex(): replacer functions are no longer supported; use ${cname}.mapFirstIndex() or ${cname}.flatMapFirstIndex() instead`);
         }
 
         const ix = this.findFirstIndex(fn);
@@ -776,7 +788,13 @@ export default class Collection<T> {
      */
     replaceLastIndex(fn: FinderFn<T>, rep: Replacer<T, T>): this {
         if (typeof fn !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceLastIndex() requires a function`);
+            throw new Error(`${this.constructor.name}.replaceLastIndex() requires a finder function`);
+        }
+
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.replaceLastIndex(): replacer functions are no longer supported; use ${cname}.mapLastIndex() or ${cname}.flatMapLastIndex() instead`);
         }
 
         const ix = this.findLastIndex(fn);
@@ -846,6 +864,12 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.replaceIf() requires a function`);
         }
 
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.replaceIf(): replacer functions are no longer supported; use ${cname}.mapIf() or ${cname}.flatMapIf() instead`);
+        }
+
         return this.replaceIndices(this.findIndices(fn), rep);
     }
 
@@ -905,6 +929,12 @@ export default class Collection<T> {
     replaceNth(n: number, rep: Replacer<T, T>, offset = 0): this {
         if (!isPosInt(n)) {
             throw new Error(`${this.constructor.name}.replaceNth(): argument must be a positive integer`);
+        }
+
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.replaceNth(): replacer functions are no longer supported; use ${cname}.mapNth() or ${cname}.flatMapNth() instead`);
         }
 
         if (!isNonnegInt(offset)) {
@@ -980,6 +1010,12 @@ export default class Collection<T> {
      */
     replaceSlice(start: number, end: number, rep: Replacer<this, T>): this {
         const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
+
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.replaceSlice(): replacer functions are no longer supported; use ${cname}.mapSlice() or ${cname}.flatMapSlice() instead`);
+        }
 
         return p1.append(this.construct(this.replacer(rep, p2, p1.length)), p3);
     }

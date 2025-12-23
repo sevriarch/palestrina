@@ -1,4 +1,4 @@
-import type { GamutOpts, ReplacerVal, Replacer, ReplacerFn, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
+import type { GamutOpts, ReplacerVal, Replacer, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
 
 import type SeqMember from './members/base';
 import Metadata from '../metadata/metadata';
@@ -988,7 +988,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * intseq([ 1, 2, 3]).withPitchesAt([ -1 ], 0)
      */
     withPitchesAt(pos: SeqIndices, rep: PitchArgument | PitchMapperFn): this {
-        let replacement: ReplacerFn<ET, ET>;
+        let replacement: MapperFn<ET>;
 
         if (typeof rep === 'function') {
             replacement = (e, i) => e.setPitches(rep(e.pitches(), i));
@@ -996,7 +996,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             replacement = e => e.setPitches(rep);
         }
 
-        return this.replaceIndices(pos, replacement);
+        return this.mapIndices(pos, replacement);
     }
 
     /**

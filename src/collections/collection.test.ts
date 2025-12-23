@@ -1016,6 +1016,10 @@ describe('Collection.insertAfter()', () => {
 describe('Collection.replaceIndices()', () => {
     const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
 
+    test('no longer supports function 2nd argument', () => {
+        expect(() => c.replaceIndices([], v => v + 8)).toThrow(/replacer functions are no longer supported/);
+    });
+
     const table: [ string, SeqIndices, Replacer<number, number>, number[] ][] = [
         [
             'with one value in no locations',
@@ -1036,22 +1040,10 @@ describe('Collection.replaceIndices()', () => {
             [ 8, 2, 3, 4, 5, 6 ]
         ],
         [
-            'with one value from a function with arity one at one location',
-            -6,
-            v => v + 8,
-            [ 9, 2, 3, 4, 5, 6 ]
-        ],
-        [
             'with multiple values at one location',
             -1,
             [ 9, 8, 7 ],
             [ 1, 2, 3, 4, 5, 9, 8, 7 ]
-        ],
-        [
-            'multiple values from a function with arity two at one location',
-            [ 5 ],
-            (v, i) => [ v, i ],
-            [ 1, 2, 3, 4, 5, 6, 5 ]
         ],
         [
             'with a collection at one location',
@@ -1060,9 +1052,9 @@ describe('Collection.replaceIndices()', () => {
             [ 1, 2, 3, 1, 2, 3, 4, 5, 6, 5, 6 ]
         ],
         [
-            'with a collection from a function at multiple locations',
+            'with a collection at multiple locations',
             [ 2, 4 ],
-            () => c,
+            c,
             [ 1, 2, 1, 2, 3, 4, 5, 6, 4, 1, 2, 3, 4, 5, 6, 6 ]
         ],
         [
@@ -1076,18 +1068,6 @@ describe('Collection.replaceIndices()', () => {
             NumSeq.from([ 1, 3, 5 ]),
             10,
             [ 1, 10, 3, 10, 5, 10 ]
-        ],
-        [
-            'with one value from a function with arity one at multiple locations',
-            [ -5, -3, -3, -1 ],
-            v => v + 8,
-            [ 1, 10, 3, 12, 5, 14 ]
-        ],
-        [
-            'with multiple values from a function with arity two at multiple locations',
-            [ -5, -3, -1 ],
-            (v, i) => [ v, i ],
-            [ 1, 2, 1, 3, 4, 3, 5, 6, 5 ]
         ],
     ];
 
@@ -1168,6 +1148,10 @@ describe('Collection.replaceFirstIndex()', () => {
         expect(() => c.replaceFirstIndex(555 as unknown as FinderFn<number>, 1)).toThrow();
     });
 
+    test('fails when a function passed as replacer', () => {
+        expect(() => c.replaceFirstIndex(v => v === 3, v => v + 1)).toThrow(/replacer functions are no longer supported/);
+    });
+
     test('nothing found or replaced when function never matches', () => {
         expect(c.replaceFirstIndex(v => v === 3, 10)).toBe(c);
     });
@@ -1175,7 +1159,7 @@ describe('Collection.replaceFirstIndex()', () => {
     const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds first matching item and replaces with one item', v => v === 4, 10, [ 1, 10, 6, 4, 5, 4 ] ],
-        [ 'finds first matching item and replaces with two items from function of arity two', v => v === 4, (v, i) => [ -v, -i ], [ 1, -4, -1, 6, 4, 5, 4 ] ],
+        [ 'finds first matching item and replaces with two items', v => v === 4, [ 2, 6 ], [ 1, 2, 6, 6, 4, 5, 4 ] ],
         [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
     ];
 
@@ -1244,6 +1228,10 @@ describe('Collection.replaceLastIndex()', () => {
         expect(() => c.replaceLastIndex(555 as unknown as FinderFn<number>, 1)).toThrow();
     });
 
+    test('fails when a function passed as replacer', () => {
+        expect(() => c.replaceLastIndex(v => v === 3, v => v + 1)).toThrow(/replacer functions are no longer supported/);
+    });
+
     test('nothing found or replaced when function never matches', () => {
         expect(c.replaceLastIndex(v => v === 3, 10)).toBe(c);
     });
@@ -1251,7 +1239,7 @@ describe('Collection.replaceLastIndex()', () => {
     const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds last matching item and replaces with one item', v => v === 4, 10, [ 1, 4, 6, 4, 5, 10 ] ],
-        [ 'finds last matching item and replaces with two items from function of arity two', v => v === 4, (v, i) => [ -v, -i ], [ 1, 4, 6, 4, 5, -4, -5 ] ],
+        [ 'finds last matching item and replaces with two items', v => v === 4, [ 2, 7 ], [ 1, 4, 6, 4, 5, 2, 7 ] ],
         [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
     ];
 
@@ -1320,14 +1308,17 @@ describe('Collection.replaceIf()', () => {
         expect(() => c.replaceIf(555 as unknown as FinderFn<number>, 1)).toThrow();
     });
 
+    test('fails when a function passed as replacer', () => {
+        expect(() => c.replaceIf(v => v > 10, v => v + 1)).toThrow(/replacer functions are no longer supported/);
+    });
+
     test('nothing found or replaced when function never matches', () => {
-        expect(c.replaceIf(v => v > 10, v => v + 4)).toBe(c);
+        expect(c.replaceIf(v => v > 10, 4)).toBe(c);
     });
 
     const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds matching items and replaces each with one item', v => v === 4, 10, [ 1, 10, 6, 10, 5, 10 ] ],
-        [ 'finds matching items and replaces with two items from function of arity two', v => v === 4, (v, i) => [ -v, -i ], [ 1, -4, -1, 6, -4, -3, 5, -4, -5 ] ],
         [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
     ];
 
@@ -1403,11 +1394,14 @@ describe('Collection.replaceNth()', () => {
         expect(() => c.replaceNth(n, 5, offset)).toThrow();
     });
 
+    test('fails when a function passed as replacer', () => {
+        expect(() => c.replaceNth(1, v => v + 1, 0)).toThrow(/replacer functions are no longer supported/);
+    });
+
     const table: [ string, number, Replacer<number, number>, number | undefined, number[] ][] = [
-        [ 'member with one item from function', 1, v => -v, undefined, [ -1, -5, -4, -2, -3, -6 ] ],
         [ 'member, with offset, with zero items', 1, [], 3, [ 1, 5, 4 ] ],
         [ 'second member with single item', 2, 10, undefined, [ 10, 5, 10, 2, 10, 6 ] ],
-        [ 'third member, with offset, with two items from function of arity two', 3, (v, i) => [ -v, -i ], 1, [ 1, -5, -1, 4, 2, -3, -4, 6] ],
+        [ 'third member, with offset, with two items', 3, [ 2, 7 ], 1, [ 1, 2, 7, 4, 2, 2, 7, 6] ],
         [ '100th member with a collection', 100, c, 0, [ 1, 5, 4, 2, 3, 6, 5, 4, 2, 3, 6 ] ],
     ];
 
@@ -1476,12 +1470,15 @@ describe('Collection.flatMapNth()', () => {
 describe('Collection.replaceSlice()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
+    test('fails when a function passed as replacer', () => {
+        expect(() => c.replaceSlice(1, 4, v => v.retrograde())).toThrow(/replacer functions are no longer supported/);
+    });
+
     const table: [ string, number, number, Replacer<Collection<number>, number>, number[] ][] = [
         [ 'first three members with empty array', 0, 3, [], [ 2, 3, 6 ] ],
         [ 'last three members with one item', 3, 6, 7, [ 1, 5, 4, 7 ] ],
         [ 'empty slice with an array of one item', 3, -3, [ 8 ], [ 1, 5, 4, 8, 2, 3, 6 ] ],
         [ 'entire collection with an array of two items', 0, 6, [ 10, 11 ], [ 10, 11 ] ],
-        [ 'middle two members with items from a function of arity two', 2, 4, (v, i) => [ i, ...v.contents, i ], [ 1, 5, 2, 4, 2, 2, 3, 6 ] ],
         [ 'four members with the same collection', 1, -1, c, [ 1, 1, 5, 4, 2, 3, 6, 6 ] ],
     ];
 
