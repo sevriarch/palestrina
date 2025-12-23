@@ -613,16 +613,14 @@ export default class Collection<T> {
     /**
      * Replace the value at the specified index or indices in the Collection.
      * Indices can be a number, an array of numbers or a Sequence containing numbers.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
      * // returns intseq([ 1, 6, 7, 3, 6, 7, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ 1, 3 ], intseq([ 6, 7 ])
      * 
      * // returns intseq([ 1, 2, 3, 4, 9 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ -1 ], v => v.transpose(4))
+     * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ -1 ], 9)
      */
     replaceIndices(pos: SeqIndices, rep: Replacer<T, T>): this {
         if (typeof rep === 'function') {
@@ -702,16 +700,14 @@ export default class Collection<T> {
 
     /**
      * Replace the first value in the Collection that matches the finder function.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
-     * 
+     * New values can be a Collection, a Collection member or an array of Collection members.
+     *
      * @example
      * // returns intseq([ 1, 6, 7, 3, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, intseq([ 6, 7 ])
      * 
      * // returns intseq([ 1, 6, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, 6)
      */
     replaceFirstIndex(finder: FinderFn<T>, rep: Replacer<T, T>): this {
         if (typeof finder !== 'function') {
@@ -775,16 +771,14 @@ export default class Collection<T> {
 
     /**
      * Replace the last value in the Collection that matches the finder function.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
      * // returns intseq([ 1, 2, 3, 6, 7, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, intseq([ 6, 7 ])
      * 
      * // returns intseq([ 1, 2, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, 8)
      */
     replaceLastIndex(finder: FinderFn<T>, rep: Replacer<T, T>): this {
         if (typeof finder !== 'function') {
@@ -848,16 +842,14 @@ export default class Collection<T> {
 
     /**
      * Replace all values in the Collection that match the finder function.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
      * // returns intseq([ 1, 6, 7, 3, 6, 7, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, intseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 6, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, v => v.transpose(4))
+     * // returns intseq([ 1, 4, 3, 4, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, 4)
      */
     replaceIf(finder: FinderFn<T>, rep: Replacer<T, T>): this {
         if (typeof finder !== 'function') {
@@ -915,16 +907,14 @@ export default class Collection<T> {
 
     /**
      * Replace every nth values in the Collection, optionally starting after an offset.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * New values can be a Collection, a Collection member, or an array of Collection members.
      * 
      * @example
      * // returns intseq([ 6, 7, 2, 3, 6, 7, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, intseq([ 6, 7 ])
      * 
-     * // returns intseq([ 5, 2, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, v => v.transpose(4))
+     * // returns intseq([ 8, 2, 3, 8, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, 8)
      */
     replaceNth(n: number, rep: Replacer<T, T>, offset = 0): this {
         if (!isPosInt(n)) {
@@ -995,18 +985,16 @@ export default class Collection<T> {
     }
 
     /**
-     * Replace a slice of the Collection with a new Collection while retaining the values
-     * from the rest of the original Collection.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection and its starting location in the original Collection
-     * and returning a Collection, a Collection member, an array of Collection members,
+     * Replace a slice of the Collection with a new Collection while retaining the rest of the
+     * original Collection.
+     * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
      * // returns intseq([ 1, 6, 7, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, intseq([ 6, 7 ])
      * 
      * // returns intseq([ 1, 4, 3, 2, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, s => s.retrograde(4))
+     * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, [ 4, 3, 2 ])
      */
     replaceSlice(start: number, end: number, rep: Replacer<this, T>): this {
         const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
