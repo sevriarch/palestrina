@@ -1072,6 +1072,13 @@ export default class Collection<T> {
      */
 
     /**
+     * Return a new Collection containing the new contents passed to this method.
+     */
+    replace(vals: ReplacerVal<T>): this {
+        return this.construct(this.replacerValue(vals));
+    }
+
+    /**
      * Return a new Collection containing the contents of this, passed through a mapper function.
      * 
      * @example

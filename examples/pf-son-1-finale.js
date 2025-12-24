@@ -51,10 +51,10 @@ function applyOverlay(seq) {
 
 // Function to generate the dynamics for the composition
 function makeVolume() {
-    const { PPP, PP, P, MP, MF, F, FF, FFF } = CONSTANTS.DYNAMICS
+    const { PP, P, MP, MF, F } = CONSTANTS.DYNAMICS
 
-    // Returns a function that generates a dynamic gradation over the length of the passed
-    // sequence
+    // Returns a function that generates a dynamic volume gradation over the
+    // length of the passed sequence
     function dy(from, to = from) { return s => numseq(imports.linear(s.length, from, to)) }
 
     return numseq(imports.constant(LEN, MF))

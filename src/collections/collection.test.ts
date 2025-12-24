@@ -1652,6 +1652,24 @@ describe('Collection.prependItems()', () => {
     });
 });
 
+describe('Collection.replace()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    test('replaces with a single value', () => {
+        expect(c.replace(5)).toStrictEqual(new Collection([ 5 ]));
+    });
+
+    test('replaces as expected when array passed; does not affect metadata', () => {
+        expect(c.withCopyright('test').replace([ 1, 2, 3 ]))
+            .toStrictEqual(new Collection([ 1, 2, 3 ]).withCopyright('test'));
+    });
+
+    test('replaces as expected when Collection passed; does not affect metadata', () => {
+        expect(c.withCopyright('test').replace(new Collection([ 1, 2, 3 ])))
+            .toStrictEqual(new Collection([ 1, 2, 3 ]).withCopyright('test'));
+    });
+});
+
 describe('Collection.map()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
