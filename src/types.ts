@@ -202,10 +202,12 @@ export type SeqIndices = number | number[] | { toNumericValues(): number[] };
  * REPLACEMENTS
  */
 
+type TypeArrayOrContents<T> = T | T[] | { contents: T[] };
+
 /**
  * A type representing how we represent replacements for existing value(s) within Collections and Sequences
  */
-export type ReplacerVal<T> = T | (T extends SeqMember<unknown> ? (SeqMemberArgument | SeqArgument) : (T[] | { contents: T[] }));
+export type ReplacerVal<T> = TypeArrayOrContents<T extends SeqMember<unknown> ? SeqMemberArgument : T>;
 
 /**
  * A type representing how we convert existing value(s) within Collections and Sequences into their replacements
