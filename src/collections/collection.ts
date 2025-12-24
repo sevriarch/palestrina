@@ -1002,10 +1002,33 @@ export default class Collection<T> {
         if (typeof rep === 'function') {
             const cname = this.constructor.name;
 
-            throw new Error(`${cname}.replaceSlice(): replacer functions are no longer supported; use ${cname}.mapSlice() or ${cname}.flatMapSlice() instead`);
+            throw new Error(`${cname}.replaceSlice(): replacer functions are no longer supported; use ${cname}.modifySlice(), ${cname}.mapSlice() or ${cname}.flatMapSlice() instead`);
         }
 
         return p1.append(this.construct(this.replacer(rep, p2, p1.length)), p3);
+    }
+
+    /**
+     * Replace a slice of the Collection with a new Collection while retaining the rest of the
+     * original Collection.
+     * 
+     * The third argument to this method is a function that returns a Collection of the same
+     * type as this one, and takes as first argument a Collection containing the slice to be
+     * replaced, and as second argument the index in the original Collection that this slice
+     * begins at.
+     * 
+     * @example
+     * // returns intseq([ 1, 4, 3, 2, 5 ])
+     * intseq([ 1, 2, 3, 4, 5 ]).modifySlice(1, -1, s => s.retrograde())
+     */
+    modifySlice(start: number, end: number, modifier: MapperFn<this>): this {
+        const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
+
+        if (typeof modifier !== 'function') {
+            throw new Error(`${this.constructor.name}.modifySlice(): must supply a modifier function`);
+        }
+
+        return p1.append(modifier(p2, p1.length), p3);
     }
 
     /**

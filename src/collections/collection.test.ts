@@ -1492,6 +1492,23 @@ describe('Collection.replaceSlice()', () => {
     });
 });
 
+describe('Collection.modifySlice()', () => {
+    const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
+
+    test('throws an error if a function is not passed', () => {
+        expect(() => c.modifySlice(1, 2, 555 as unknown as MapperFn<Collection<number>>)).toThrow();
+    });
+
+    test('modifies as expected using both arguments', () => {
+        expect(c.modifySlice(1, -1, (s, i) => s.map(v => v - i))).toStrictEqual(new Collection([ 1, 4, 3, 1, 2, 6 ]));
+    });
+
+    test('does not affect metadata', () => {
+        expect(new Collection([ 1, 2, 4, 5, 4 ], Metadata.from({ copyright: 'test' })).modifySlice(1, -1, s => s.retrograde()))
+            .toStrictEqual(new Collection([ 1, 5, 4, 2, 4 ], Metadata.from({ copyright: 'test' })));
+    });
+});
+
 describe('Collection.mapSlice()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
