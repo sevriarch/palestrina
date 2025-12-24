@@ -280,9 +280,9 @@ function melody2(n) {
         .pipe(s => sieve2(s, adds, trans))
         .if(!n).then(
             s => s.replaceIndices(24, 10)
-                .replaceSlice(0, 12, seq => seq.withPitches([ 10, null, null, null, 22, null, null, null, 34, null, null, null ]))
-                .replaceSlice(309, 325, s => s.repeat(3))
-                .replaceSlice(286, 302, s => s.repeat(3))
+                .modifySlice(0, 12, seq => seq.withPitches([ 10, null, null, null, 22, null, null, null, 34, null, null, null ]))
+                .modifySlice(309, 325, s => s.repeat(3))
+                .modifySlice(286, 302, s => s.repeat(3))
                 .dropRight(64)
         )
         .toMelody()
@@ -333,7 +333,7 @@ function arpeggio(n) {
             .do(s => {
                 const [ pitch, loc ] = drops.pop()
 
-                return s.replaceSlice(0, looplen - loc,
+                return s.modifySlice(0, looplen - loc,
                     seq => seq.replaceIf(v => v.val() % 12 === pitch % 12, null))
             })
         .toMelody()
@@ -460,8 +460,8 @@ function oct3ending(n) {
         .keepRight(len)
         .combine((a, b) => b.val() ? a : a.silence(), mek)
         .replaceIndices(len - 1178, null)
-        .replaceIndices([ len - 814, len - 812, len - 473 ], v => v.transpose(12))
-        .replaceSlice(...SILENCE, s => s.map(v => v.silence()))
+        .mapIndices([ len - 814, len - 812, len - 473 ], v => v.transpose(12))
+        .modifySlice(...SILENCE, s => s.map(v => v.silence()))
         .transpose(47 + 12 * n)
         .toMelody()
         .withDuration(rhy)
@@ -470,10 +470,10 @@ function oct3ending(n) {
         .withEventBefore(-NUM_BEATS, 'sustain', 0)
         .withEventBefore(loc_coda, 'sustain', 1)
         .if(n===3)
-            .then(s => s.replaceIndices(len - 735, e => e.setPitches([ 37, 103 ])))
-            .then(s => s.replaceIndices(len - 724, e => e.setPitches([ 40, 104 ])))
+            .then(s => s.mapIndices(len - 735, e => e.setPitches([ 37, 103 ])))
+            .then(s => s.mapIndices(len - 724, e => e.setPitches([ 40, 104 ])))
         .if(DEBUG)
-            .then(s => s.replaceSlice(0, loc_coda - 1,
+            .then(s => s.mapSlice(0, loc_coda - 1,
                 s => s.map((e, i) => e.isSilent() ? e : e.withEventBefore('text', String(len - i)))
             ))
         .addDelayAt(loc_p2, TICKS * 2)
