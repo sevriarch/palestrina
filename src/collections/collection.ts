@@ -622,7 +622,7 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 3, 4, 9 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ -1 ], 9)
      */
-    replaceIndices(pos: SeqIndices, rep: Replacer<T, T>): this {
+    replaceIndices(pos: SeqIndices, rep: ReplacerVal<T>): this {
         if (typeof rep === 'function') {
             const cname = this.constructor.name;
 
@@ -709,7 +709,7 @@ export default class Collection<T> {
      * // returns intseq([ 1, 6, 3, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, 6)
      */
-    replaceFirstIndex(finder: FinderFn<T>, rep: Replacer<T, T>): this {
+    replaceFirstIndex(finder: FinderFn<T>, rep: ReplacerVal<T>): this {
         if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceFirstIndex() requires a finder function`);
         }
@@ -780,7 +780,7 @@ export default class Collection<T> {
      * // returns intseq([ 1, 2, 3, 8, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, 8)
      */
-    replaceLastIndex(finder: FinderFn<T>, rep: Replacer<T, T>): this {
+    replaceLastIndex(finder: FinderFn<T>, rep: ReplacerVal<T>): this {
         if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceLastIndex() requires a finder function`);
         }
@@ -851,7 +851,7 @@ export default class Collection<T> {
      * // returns intseq([ 1, 4, 3, 4, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, 4)
      */
-    replaceIf(finder: FinderFn<T>, rep: Replacer<T, T>): this {
+    replaceIf(finder: FinderFn<T>, rep: ReplacerVal<T>): this {
         if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceIf() requires a function`);
         }
@@ -916,7 +916,7 @@ export default class Collection<T> {
      * // returns intseq([ 8, 2, 3, 8, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, 8)
      */
-    replaceNth(n: number, rep: Replacer<T, T>, offset = 0): this {
+    replaceNth(n: number, rep: ReplacerVal<T>, offset = 0): this {
         if (!isPosInt(n)) {
             throw new Error(`${this.constructor.name}.replaceNth(): argument must be a positive integer`);
         }
@@ -996,7 +996,7 @@ export default class Collection<T> {
      * // returns intseq([ 1, 4, 3, 2, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, [ 4, 3, 2 ])
      */
-    replaceSlice(start: number, end: number, rep: Replacer<this, T>): this {
+    replaceSlice(start: number, end: number, rep: ReplacerVal<T>): this {
         const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
 
         if (typeof rep === 'function') {

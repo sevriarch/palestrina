@@ -1,4 +1,4 @@
-import type { MetaEventArg, SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn, CtrlTypeFn, CtrlBoolFn, Replacer } from '../types';
+import type { MetaEventArg, SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn, CtrlTypeFn, CtrlBoolFn, Replacer, ReplacerVal } from '../types';
 
 import Collection from './collection';
 import Metadata from '../metadata/metadata';
@@ -1017,10 +1017,11 @@ describe('Collection.replaceIndices()', () => {
     const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
 
     test('no longer supports function 2nd argument', () => {
-        expect(() => c.replaceIndices([], v => v + 8)).toThrow(/replacer functions are no longer supported/);
+        expect(() => c.replaceIndices([], ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
     });
 
-    const table: [ string, SeqIndices, Replacer<number, number>, number[] ][] = [
+    const table: [ string, SeqIndices, ReplacerVal<number>, number[] ][] = [
         [
             'with one value in no locations',
             [],
@@ -1149,14 +1150,15 @@ describe('Collection.replaceFirstIndex()', () => {
     });
 
     test('fails when a function passed as replacer', () => {
-        expect(() => c.replaceFirstIndex(v => v === 3, v => v + 1)).toThrow(/replacer functions are no longer supported/);
+        expect(() => c.replaceFirstIndex(v => v === 3, ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
     });
 
     test('nothing found or replaced when function never matches', () => {
         expect(c.replaceFirstIndex(v => v === 3, 10)).toBe(c);
     });
 
-    const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
+    const table: [ string, FinderFn<number>, ReplacerVal<number>, number[] ][] = [
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds first matching item and replaces with one item', v => v === 4, 10, [ 1, 10, 6, 4, 5, 4 ] ],
         [ 'finds first matching item and replaces with two items', v => v === 4, [ 2, 6 ], [ 1, 2, 6, 6, 4, 5, 4 ] ],
@@ -1229,14 +1231,15 @@ describe('Collection.replaceLastIndex()', () => {
     });
 
     test('fails when a function passed as replacer', () => {
-        expect(() => c.replaceLastIndex(v => v === 3, v => v + 1)).toThrow(/replacer functions are no longer supported/);
+        expect(() => c.replaceLastIndex(v => v === 3, ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
     });
 
     test('nothing found or replaced when function never matches', () => {
         expect(c.replaceLastIndex(v => v === 3, 10)).toBe(c);
     });
 
-    const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
+    const table: [ string, FinderFn<number>, ReplacerVal<number>, number[] ][] = [
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds last matching item and replaces with one item', v => v === 4, 10, [ 1, 4, 6, 4, 5, 10 ] ],
         [ 'finds last matching item and replaces with two items', v => v === 4, [ 2, 7 ], [ 1, 4, 6, 4, 5, 2, 7 ] ],
@@ -1309,14 +1312,15 @@ describe('Collection.replaceIf()', () => {
     });
 
     test('fails when a function passed as replacer', () => {
-        expect(() => c.replaceIf(v => v > 10, v => v + 1)).toThrow(/replacer functions are no longer supported/);
+        expect(() => c.replaceIf(v => v > 10, ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
     });
 
     test('nothing found or replaced when function never matches', () => {
         expect(c.replaceIf(v => v > 10, 4)).toBe(c);
     });
 
-    const table: [ string, FinderFn<number>, Replacer<number, number>, number[] ][] = [
+    const table: [ string, FinderFn<number>, ReplacerVal<number>, number[] ][] = [
         [ 'finds by index and replaces with zero items', (_, i) => i === 4, [], [ 1, 4, 6, 4, 4 ] ],
         [ 'finds matching items and replaces each with one item', v => v === 4, 10, [ 1, 10, 6, 10, 5, 10 ] ],
         [ 'finds only matching item and replaces with a collection', v => v < 3, c, [ 1, 4, 6, 4, 5, 4, 4, 6, 4, 5, 4 ] ],
@@ -1395,10 +1399,11 @@ describe('Collection.replaceNth()', () => {
     });
 
     test('fails when a function passed as replacer', () => {
-        expect(() => c.replaceNth(1, v => v + 1, 0)).toThrow(/replacer functions are no longer supported/);
+        expect(() => c.replaceNth(1, ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
     });
 
-    const table: [ string, number, Replacer<number, number>, number | undefined, number[] ][] = [
+    const table: [ string, number, ReplacerVal<number>, number | undefined, number[] ][] = [
         [ 'member, with offset, with zero items', 1, [], 3, [ 1, 5, 4 ] ],
         [ 'second member with single item', 2, 10, undefined, [ 10, 5, 10, 2, 10, 6 ] ],
         [ 'third member, with offset, with two items', 3, [ 2, 7 ], 1, [ 1, 2, 7, 4, 2, 2, 7, 6] ],
@@ -1471,10 +1476,11 @@ describe('Collection.replaceSlice()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
     test('fails when a function passed as replacer', () => {
-        expect(() => c.replaceSlice(1, 4, v => v.retrograde())).toThrow(/replacer functions are no longer supported/);
+        expect(() => c.replaceNth(1, ((v: Collection<number>) => v.retrograde()) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
     });
 
-    const table: [ string, number, number, Replacer<Collection<number>, number>, number[] ][] = [
+    const table: [ string, number, number, ReplacerVal<number>, number[] ][] = [
         [ 'first three members with empty array', 0, 3, [], [ 2, 3, 6 ] ],
         [ 'last three members with one item', 3, 6, 7, [ 1, 5, 4, 7 ] ],
         [ 'empty slice with an array of one item', 3, -3, [ 8 ], [ 1, 5, 4, 8, 2, 3, 6 ] ],
