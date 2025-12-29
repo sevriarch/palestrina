@@ -2290,8 +2290,8 @@ describe('Sequence.insertBefore()', () => {
         expect(ChordSeq.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ 4, 5 ])).toStrictEqual(ChordSeq.from([ [ 4 ], [ 5 ], [ 1, 2 ], [ 3 ] ]));
     });
 
-    test('inserting number[][] via a function inserts multivalued members', () => {
-        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, e => [ [ e.pitches()[0] + 4, e.pitches()[1] - 5 ] ])).toStrictEqual(Melody.from([ [ 5, -3 ], [ 1, 2 ], [ 3 ] ]));
+    test('inserting number[][] inserts multivalued members', () => {
+        expect(Melody.from([ [ 1, 2 ], [ 3 ]]).insertBefore(0, [ [ 4, 5 ], [ 6, 7 ] ])).toStrictEqual(Melody.from([ [ 4, 5 ], [ 6, 7 ], [ 1, 2 ], [ 3 ] ]));
     });
 });
 

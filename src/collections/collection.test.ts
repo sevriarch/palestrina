@@ -1,4 +1,4 @@
-import type { MetaEventArg, SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn, CtrlTypeFn, CtrlBoolFn, Replacer, ReplacerVal } from '../types';
+import type { MetaEventArg, SeqIndices, MapperFn, FlatMapperFn, FilterFn, FinderFn, GrouperFn, CtrlTypeFn, CtrlBoolFn, ReplacerVal } from '../types';
 
 import Collection from './collection';
 import Metadata from '../metadata/metadata';
@@ -816,7 +816,7 @@ describe('Collection.dropNth()', () => {
 describe('Collection.insertBefore()', () => {
     const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
 
-    const table: [ string, SeqIndices, Replacer<number, number>, number[] ][] = [
+    const table: [ string, SeqIndices, ReplacerVal<number>, number[] ][] = [
         [
             'in no locations',
             [],
@@ -836,12 +836,6 @@ describe('Collection.insertBefore()', () => {
             [ 8, 1, 2, 3, 4, 5, 6 ]
         ],
         [
-            'one value from a function with arity one before one location',
-            -6,
-            v => v + 8,
-            [ 9, 1, 2, 3, 4, 5, 6 ]
-        ],
-        [
             'multiple values before one location',
             -1,
             [ 9, 8, 7 ],
@@ -854,27 +848,9 @@ describe('Collection.insertBefore()', () => {
             [ 1, 2, 3, 4, 5, 9, 8, 7, 6 ]
         ],
         [
-            'multiple values from a function with arity two before one location',
-            [ 5 ],
-            (v, i) => [ v, i ],
-            [ 1, 2, 3, 4, 5, 6, 5, 6 ]
-        ],
-        [
-            'a Collection from a function with arity two before one location',
-            [ 5 ],
-            (v, i) => new Collection([ v + i, v - i ]),
-            [ 1, 2, 3, 4, 5, 11, 1, 6 ]
-        ],
-        [
-            'a collection before one location',
-            [ 3 ],
-            c,
-            [ 1, 2, 3, 1, 2, 3, 4, 5, 6, 4, 5, 6 ]
-        ],
-        [
-            'a collection from a function before multiple locations',
+            'a collection before multiple locations',
             [ 2, 4 ],
-            () => c,
+            c,
             [ 1, 2, 1, 2, 3, 4, 5, 6, 3, 4, 1, 2, 3, 4, 5, 6, 5, 6 ]
         ],
         [
@@ -888,18 +864,6 @@ describe('Collection.insertBefore()', () => {
             NumSeq.from([ 1, 3, 5 ]),
             10,
             [ 1, 10, 2, 3, 10, 4, 5, 10, 6 ]
-        ],
-        [
-            'one value from a function with arity one before multiple locations',
-            [ -5, -3, -3, -1 ],
-            v => v + 8,
-            [ 1, 10, 2, 3, 12, 12, 4, 5, 14, 6 ]
-        ],
-        [
-            'multiple values from a function with arity two before multiple locations',
-            [ -5, -3, -1 ],
-            (v, i) => [ v, i ],
-            [ 1, 2, 1, 2, 3, 4, 3, 4, 5, 6, 5, 6 ]
         ],
     ];
 
@@ -916,7 +880,7 @@ describe('Collection.insertBefore()', () => {
 describe('Collection.insertAfter()', () => {
     const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
 
-    const table: [ string, SeqIndices, Replacer<number, number>, number[] ][] = [
+    const table: [ string, SeqIndices, ReplacerVal<number>, number[] ][] = [
         [
             'in no locations',
             [],
@@ -936,45 +900,21 @@ describe('Collection.insertAfter()', () => {
             [ 1, 8, 2, 3, 4, 5, 6 ]
         ],
         [
-            'one value from a function with arity one after one location',
-            -6,
-            v => v + 8,
-            [ 1, 9, 2, 3, 4, 5, 6 ]
-        ],
-        [
             'multiple values after one location',
             -1,
             [ 9, 8, 7 ],
             [ 1, 2, 3, 4, 5, 6, 9, 8, 7 ]
         ],
         [
-            'a Collection before one location',
+            'a Collection after one location',
             -1,
             new Collection([ 9, 8, 7 ]),
             [ 1, 2, 3, 4, 5, 6, 9, 8, 7 ]
         ],
         [
-            'multiple values from a function with arity two before one location',
-            [ 5 ],
-            (v, i) => [ v, i ],
-            [ 1, 2, 3, 4, 5, 6, 6, 5 ]
-        ],
-        [
-            'a Collection from a function with arity two before one location',
-            [ 5 ],
-            (v, i) => new Collection([ v + i, v - i ]),
-            [ 1, 2, 3, 4, 5, 6, 11, 1 ]
-        ],
-        [
-            'a collection after one location',
-            [ 3 ],
-            c,
-            [ 1, 2, 3, 4, 1, 2, 3, 4, 5, 6, 5, 6 ]
-        ],
-        [
-            'a collection from a function after multiple locations',
+            'a Collection after multiple locations',
             [ 2, 4 ],
-            () => c,
+            c,
             [ 1, 2, 3, 1, 2, 3, 4, 5, 6, 4, 5, 1, 2, 3, 4, 5, 6, 6 ]
         ],
         [
@@ -988,18 +928,6 @@ describe('Collection.insertAfter()', () => {
             NumSeq.from([ 1, 3, 5 ]),
             10,
             [ 1, 2, 10, 3, 4, 10, 5, 6, 10 ]
-        ],
-        [
-            'one value from a function with arity one after multiple locations',
-            [ -5, -3, -3, -1 ],
-            v => v + 8,
-            [ 1, 2, 10, 3, 4, 12, 12, 5, 6, 14 ]
-        ],
-        [
-            'multiple values from a function with arity two after multiple locations',
-            [ -5, -3, -1 ],
-            (v, i) => [ v, i ],
-            [ 1, 2, 2, 1, 3, 4, 4, 3, 5, 6, 6, 5 ]
         ],
     ];
 
@@ -1476,7 +1404,7 @@ describe('Collection.replaceSlice()', () => {
     const c = new Collection([ 1, 5, 4, 2, 3, 6 ]);
 
     test('fails when a function passed as replacer', () => {
-        expect(() => c.replaceNth(1, ((v: Collection<number>) => v.retrograde()) as unknown as ReplacerVal<number>))
+        expect(() => c.replaceSlice(1, 3, ((v: Collection<number>) => v.retrograde()) as unknown as ReplacerVal<number>))
             .toThrow(/replacer functions are no longer supported/);
     });
 

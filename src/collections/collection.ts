@@ -556,7 +556,7 @@ export default class Collection<T> {
      * PATCHING VALUES INTO COLLECTIONS
      */
 
-    protected replaceRelative(pos: SeqIndices, rep: Replacer<T, T>, len: number, offset: number): this {
+    protected replaceRelative(pos: SeqIndices, rep: ReplacerVal<T>, len: number, offset: number): this {
         const locs = this.indices(pos);
 
         if (!locs.length) {
@@ -568,7 +568,7 @@ export default class Collection<T> {
         const contents = this.val(); // make a shallow copy for splicing
 
         for (const ix of locs) {
-            contents.splice(ix + offset, len, ...this.replacer(rep, this.contents[ix], ix));
+            contents.splice(ix + offset, len, ...this.replacerValue(rep));
         }
 
         return this.construct(contents);
@@ -586,9 +586,9 @@ export default class Collection<T> {
      * intseq([ 1, 2, 3, 4, 5 ]).insertBefore([ 1, 3 ], intseq([ 6, 7 ])
      * 
      * // returns intseq([ 1, 2, 3, 4, 9, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).insertBefore([ -1 ], v => v.transpose(4))
+     * intseq([ 1, 2, 3, 4, 5 ]).insertBefore([ -1 ], 9)
      */
-    insertBefore(pos: SeqIndices, rep: Replacer<T, T>): this {
+    insertBefore(pos: SeqIndices, rep: ReplacerVal<T>): this {
         return this.replaceRelative(pos, rep, 0, 0);
     }
 
@@ -604,9 +604,9 @@ export default class Collection<T> {
      * intseq([ 1, 2, 3, 4, 5 ]).insertAfter([ 1, 3 ], intseq([ 6, 7 ])
      * 
      * // returns intseq([ 1, 2, 3, 4, 5, 9 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).insertAfter([ -1 ], v => v.transpose(4))
+     * intseq([ 1, 2, 3, 4, 5 ]).insertAfter([ -1 ], 9)
      */
-    insertAfter(pos: SeqIndices, rep: Replacer<T, T>): this {
+    insertAfter(pos: SeqIndices, rep: ReplacerVal<T>): this {
         return this.replaceRelative(pos, rep, 0, 1);
     }
 
@@ -931,7 +931,7 @@ export default class Collection<T> {
             throw new Error(`${this.constructor.name}.replaceNth(): offset must be a non-negative integer`);
         }
 
-        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacer(rep, v, i) : v);
+        return this.flatMap((v, i) => i >= offset && ((i - offset) % n) === 0 ? this.replacerValue(rep) : v);
     }
 
     /**
@@ -996,8 +996,9 @@ export default class Collection<T> {
      * // returns intseq([ 1, 4, 3, 2, 5 ])
      * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, [ 4, 3, 2 ])
      */
-    replaceSlice(start: number, end: number, rep: ReplacerVal<T>): this {
-        const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
+    replaceSlice(start: number, finish: number, rep: ReplacerVal<T>): this {
+        const p1 = this.keepSlice(0, start);
+        const p3 = this.keepSlice(finish);
 
         if (typeof rep === 'function') {
             const cname = this.constructor.name;
@@ -1005,7 +1006,7 @@ export default class Collection<T> {
             throw new Error(`${cname}.replaceSlice(): replacer functions are no longer supported; use ${cname}.modifySlice(), ${cname}.mapSlice() or ${cname}.flatMapSlice() instead`);
         }
 
-        return p1.append(this.construct(this.replacer(rep, p2, p1.length)), p3);
+        return p1.append(this.construct(this.replacerValue(rep)), p3);
     }
 
     /**
