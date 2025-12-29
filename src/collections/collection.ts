@@ -303,7 +303,7 @@ export default class Collection<T> {
      * 
      * @example
      * // returns 3
-     * intseq([ 1, 2, 3, 4, 5 ]).findFirstIndex(v => v.val() > 3)
+     * numseq([ 1, 2, 3, 4, 5 ]).findFirstIndex(v => v.val() > 3)
      */
     findFirstIndex(finder: FinderFn<T>): number | null {
         if (typeof finder !== 'function') {
@@ -322,7 +322,7 @@ export default class Collection<T> {
      * 
      * @example
      * // returns 4
-     * intseq([ 1, 2, 3, 4, 5 ]).findLastIndex(v => v.val() > 3)
+     * numseq([ 1, 2, 3, 4, 5 ]).findLastIndex(v => v.val() > 3)
      */
     findLastIndex(finder: FinderFn<T>): number | null {
         if (typeof finder !== 'function') {
@@ -348,7 +348,7 @@ export default class Collection<T> {
      * 
      * @example
      * // returns [ 3, 4 ]
-     * intseq([ 1, 2, 3, 4, 5 ]).findIndices(v => v.val() > 3)
+     * numseq([ 1, 2, 3, 4, 5 ]).findIndices(v => v.val() > 3)
      */
     findIndices(finder: FinderFn<T>): number[] {
         if (typeof finder !== 'function') {
@@ -391,8 +391,8 @@ export default class Collection<T> {
      * Return a new Collection containing only those members which pass a filter function.
      *
      * @example
-     * // returns intseq([ 1, 3, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).filter(v => v % 2 === 0)
+     * // returns numseq([ 1, 3, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).filter(v => v % 2 === 0)
      */
     filter(fn: FilterFn<T>): this {
         if (typeof fn !== 'function') {
@@ -407,11 +407,11 @@ export default class Collection<T> {
      * Second index is optional, negative indices are indexed from the right hand side.
      *
      * @example
-     * // returns intseq([ 3, 4 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).keepSlice(2, 4)
+     * // returns numseq([ 3, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).keepSlice(2, 4)
      * 
-     * // returns intseq([ 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).keepSlice(2)
+     * // returns numseq([ 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).keepSlice(2)
      */
     keepSlice(start: number, end?: number): this {
         return this.construct(this.contents.slice(start, end));
@@ -422,8 +422,8 @@ export default class Collection<T> {
      * Negative indices are indexed from the right hand side.
      * 
      * @example
-     * // returns intseq([ 1, 2 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).keep(2)
+     * // returns numseq([ 1, 2 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).keep(2)
      */
     keep(n = 1): this {
         return this.construct(this.contents.slice(0, n));
@@ -434,8 +434,8 @@ export default class Collection<T> {
      * Negative indices are indexed from the right hand side.
      * 
      * @example
-     * // returns intseq([ 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).keepRight(2)
+     * // returns numseq([ 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).keepRight(2)
      */
     keepRight(n = 1): this {
         const last = this.length - n;
@@ -448,8 +448,8 @@ export default class Collection<T> {
      * Negative indices are indexed from the right hand side.
      * 
      * @example
-     * // returns intseq([ 1, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).keepIndices([ 0, -1 ])
+     * // returns numseq([ 1, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).keepIndices([ 0, -1 ])
      */
     keepIndices(i: SeqIndices): this {
         const ix = this.indices(i);
@@ -462,8 +462,8 @@ export default class Collection<T> {
      * If a second argument is passed, start from that index.
      * 
      * @example
-     * // returns intseq([ 1, 4 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).keepNth(3)
+     * // returns numseq([ 1, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).keepNth(3)
      */
     keepNth(n: number, offset = 0): this {
         if (!isPosInt(n)) {
@@ -482,11 +482,11 @@ export default class Collection<T> {
      * Second index is optional, negative indices are indexed from the right hand side.
      *
      * @example
-     * // returns intseq([ 1, 2, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).dropSlice(2, 4)
+     * // returns numseq([ 1, 2, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).dropSlice(2, 4)
      * 
-     * // returns intseq([ 1, 2 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).dropSlice(2)
+     * // returns numseq([ 1, 2 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).dropSlice(2)
      */
     dropSlice(start: number, end = this.length + 1): this {
         return this.construct(this.contents.slice(0, start), this.contents.slice(end));
@@ -497,8 +497,8 @@ export default class Collection<T> {
      * Negative indices are indexed from the right hand side.
      * 
      * @example
-     * // returns intseq([ 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).drop(2)
+     * // returns numseq([ 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).drop(2)
      */
     drop(n = 1): this {
         return this.construct(this.contents.slice(n));
@@ -509,8 +509,8 @@ export default class Collection<T> {
      * Negative indices are indexed from the right hand side.
      * 
      * @example
-     * // returns intseq([ 1, 2, 3 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).dropRight(2) 
+     * // returns numseq([ 1, 2, 3 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).dropRight(2) 
      */
     dropRight(n = 1): this {
         const last = this.length - n;
@@ -523,8 +523,8 @@ export default class Collection<T> {
      * Negative indices are indexed from the right hand side.
      * 
      * @example
-     * // returns intseq([ 2, 3, 4 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).dropIndices([ 0, -1 ]) 
+     * // returns numseq([ 2, 3, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).dropIndices([ 0, -1 ]) 
      */
     dropIndices(i: SeqIndices): this {
         const ix = this.indices(i);
@@ -537,8 +537,8 @@ export default class Collection<T> {
      * If a second argument is passed, begin excluding only from that index.
      * 
      * @example
-     * // returns intseq([ 2, 3, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).dropNth(3) 
+     * // returns numseq([ 2, 3, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).dropNth(3) 
      */
     dropNth(n: number, offset = 0): this {
         if (!isPosInt(n)) {
@@ -582,11 +582,11 @@ export default class Collection<T> {
      * returning a Collection, a Collection member, an array of Collection members,
      * 
      * @example
-     * // returns intseq([ 1, 6, 7, 2, 3, 6, 7, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).insertBefore([ 1, 3 ], intseq([ 6, 7 ])
+     * // returns numseq([ 1, 6, 7, 2, 3, 6, 7, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).insertBefore([ 1, 3 ], numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 2, 3, 4, 9, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).insertBefore([ -1 ], 9)
+     * // returns numseq([ 1, 2, 3, 4, 9, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).insertBefore([ -1 ], 9)
      */
     insertBefore(pos: SeqIndices, rep: ReplacerVal<T>): this {
         return this.replaceRelative(pos, rep, 0, 0);
@@ -600,11 +600,11 @@ export default class Collection<T> {
      * returning a Collection, a Collection member, an array of Collection members,
      * 
      * @example
-     * // returns intseq([ 1, 2, 6, 7, 3, 4, 6, 7, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).insertAfter([ 1, 3 ], intseq([ 6, 7 ])
+     * // returns numseq([ 1, 2, 6, 7, 3, 4, 6, 7, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).insertAfter([ 1, 3 ], numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 2, 3, 4, 5, 9 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).insertAfter([ -1 ], 9)
+     * // returns numseq([ 1, 2, 3, 4, 5, 9 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).insertAfter([ -1 ], 9)
      */
     insertAfter(pos: SeqIndices, rep: ReplacerVal<T>): this {
         return this.replaceRelative(pos, rep, 0, 1);
@@ -616,11 +616,11 @@ export default class Collection<T> {
      * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
-     * // returns intseq([ 1, 6, 7, 3, 6, 7, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ 1, 3 ], intseq([ 6, 7 ])
+     * // returns numseq([ 1, 6, 7, 3, 6, 7, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ 1, 3 ], numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 2, 3, 4, 9 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ -1 ], 9)
+     * // returns numseq([ 1, 2, 3, 4, 9 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceIndices([ -1 ], 9)
      */
     replaceIndices(pos: SeqIndices, rep: ReplacerVal<T>): this {
         if (typeof rep === 'function') {
@@ -637,8 +637,8 @@ export default class Collection<T> {
      * been mapped through the supplied function. Other values are left unchanged.
      * 
      * @example
-     * // returns intseq([ 1, 6, 3, 4, 9 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
+     * // returns numseq([ 1, 6, 3, 4, 9 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
      */
     mapIndices(pos: SeqIndices, fn: MapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -667,8 +667,8 @@ export default class Collection<T> {
      * been flat mapped through the supplied function. Other values are left unchanged.
      * 
      * @example
-     * // returns intseq([ 1, 6, 3, 4, 9 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
+     * // returns numseq([ 1, 6, 3, 4, 9 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapIndices([ 1, -1 ], v => v.transpose(4))
      */
     flatMapIndices(pos: SeqIndices, fn: FlatMapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -703,11 +703,11 @@ export default class Collection<T> {
      * New values can be a Collection, a Collection member or an array of Collection members.
      *
      * @example
-     * // returns intseq([ 1, 6, 7, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, intseq([ 6, 7 ])
+     * // returns numseq([ 1, 6, 7, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 6, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, 6)
+     * // returns numseq([ 1, 6, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceFirstIndex(v => v.val() % 2 === 0, 6)
      */
     replaceFirstIndex(finder: FinderFn<T>, rep: ReplacerVal<T>): this {
         if (typeof finder !== 'function') {
@@ -730,8 +730,8 @@ export default class Collection<T> {
      * has been mapped through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 6, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     * // returns numseq([ 1, 6, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapFirstIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
     mapFirstIndex(finder: FinderFn<T>, mapfn: MapperFn<T>): this {
         if (typeof finder !== 'function') {
@@ -752,8 +752,8 @@ export default class Collection<T> {
      * has been flat mapped through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 2, 6, 2, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).flatMapFirstIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     * // returns numseq([ 1, 2, 6, 2, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).flatMapFirstIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
      */
     flatMapFirstIndex(finder: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
         if (typeof finder !== 'function') {
@@ -774,11 +774,11 @@ export default class Collection<T> {
      * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
-     * // returns intseq([ 1, 2, 3, 6, 7, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, intseq([ 6, 7 ])
+     * // returns numseq([ 1, 2, 3, 6, 7, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 2, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, 8)
+     * // returns numseq([ 1, 2, 3, 8, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceLastIndex(v => v.val() % 2 === 0, 8)
      */
     replaceLastIndex(finder: FinderFn<T>, rep: ReplacerVal<T>): this {
         if (typeof finder !== 'function') {
@@ -801,8 +801,8 @@ export default class Collection<T> {
      * has been mapped through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 2, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
+     * // returns numseq([ 1, 2, 3, 8, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapLastIndex(v => v.val() % 2 === 0, v => v.transpose(4))
      */
     mapLastIndex(finder: FinderFn<T>, mapfn: MapperFn<T>): this {
         if (typeof finder !== 'function') {
@@ -823,8 +823,8 @@ export default class Collection<T> {
      * has been flat mapped through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 2, 3, 4, 8, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).flatMapLastIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     * // returns numseq([ 1, 2, 3, 4, 8, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).flatMapLastIndex(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
      */
     flatMapLastIndex(finder: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
         if (typeof finder !== 'function') {
@@ -845,11 +845,11 @@ export default class Collection<T> {
      * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
-     * // returns intseq([ 1, 6, 7, 3, 6, 7, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, intseq([ 6, 7 ])
+     * // returns numseq([ 1, 6, 7, 3, 6, 7, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 4, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, 4)
+     * // returns numseq([ 1, 4, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceIf(v => v.val() % 2 === 0, 4)
      */
     replaceIf(finder: FinderFn<T>, rep: ReplacerVal<T>): this {
         if (typeof finder !== 'function') {
@@ -870,8 +870,8 @@ export default class Collection<T> {
      * through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 6, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapIf(v => v.val() % 2 === 0, v => v.transpose(4))
+     * // returns numseq([ 1, 6, 3, 8, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapIf(v => v.val() % 2 === 0, v => v.transpose(4))
      */
     mapIf(finder: FinderFn<T>, mapfn: MapperFn<T>): this {
         if (typeof finder !== 'function') {
@@ -890,8 +890,8 @@ export default class Collection<T> {
      * mapped through the mapper function.
      * 
      * @example
-     * // returns intseq([ 1, 2, 6, 2, 3, 4, 8, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).flatMapIf(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
+     * // returns numseq([ 1, 2, 6, 2, 3, 4, 8, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).flatMapIf(v => v.val() % 2 === 0, v => [ v, v.transpose(4), v ])
      */
     flatMapIf(finder: FinderFn<T>, mapfn: FlatMapperFn<T>): this {
         if (typeof finder !== 'function') {
@@ -910,11 +910,11 @@ export default class Collection<T> {
      * New values can be a Collection, a Collection member, or an array of Collection members.
      * 
      * @example
-     * // returns intseq([ 6, 7, 2, 3, 6, 7, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, intseq([ 6, 7 ])
+     * // returns numseq([ 6, 7, 2, 3, 6, 7, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 8, 2, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, 8)
+     * // returns numseq([ 8, 2, 3, 8, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceNth(3, 8)
      */
     replaceNth(n: number, rep: ReplacerVal<T>, offset = 0): this {
         if (!isPosInt(n)) {
@@ -940,8 +940,8 @@ export default class Collection<T> {
      * otherwise it starts at the first member of the collection.
      * 
      * @example
-     * // returns intseq([ 5, 2, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => v.transpose(4))
+     * // returns numseq([ 5, 2, 3, 8, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => v.transpose(4))
      */
     mapNth(n: number, fn: MapperFn<T>, offset = 0): this {
         if (typeof fn !== 'function') {
@@ -965,8 +965,8 @@ export default class Collection<T> {
      * otherwise it starts at the first member of the collection.
      * 
      * @example
-     * // returns intseq([ 1, 5, 1, 2, 3, 4, 8, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => [ v, v.transpose(4), v ])
+     * // returns numseq([ 1, 5, 1, 2, 3, 4, 8, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapNth(3, v => [ v, v.transpose(4), v ])
      */
     flatMapNth(n: number, fn: FlatMapperFn<T>, offset = 0): this {
         if (typeof fn !== 'function') {
@@ -990,11 +990,11 @@ export default class Collection<T> {
      * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
-     * // returns intseq([ 1, 6, 7, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, intseq([ 6, 7 ])
+     * // returns numseq([ 1, 6, 7, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, numseq([ 6, 7 ])
      * 
-     * // returns intseq([ 1, 4, 3, 2, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, [ 4, 3, 2 ])
+     * // returns numseq([ 1, 4, 3, 2, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).replaceSlice(1, -1, [ 4, 3, 2 ])
      */
     replaceSlice(start: number, finish: number, rep: ReplacerVal<T>): this {
         const p1 = this.keepSlice(0, start);
@@ -1019,8 +1019,8 @@ export default class Collection<T> {
      * begins at.
      * 
      * @example
-     * // returns intseq([ 1, 4, 3, 2, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).modifySlice(1, -1, s => s.retrograde())
+     * // returns numseq([ 1, 4, 3, 2, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).modifySlice(1, -1, s => s.retrograde())
      */
     modifySlice(start: number, end: number, modifier: MapperFn<this>): this {
         const [ p1, p2, p3 ] = this.splitAt([ start, end ]);
@@ -1037,8 +1037,8 @@ export default class Collection<T> {
      * values from the rest of the original Collection. Returns a new Collection.
      * 
      * @example
-     * // returns intseq([ 1, 6, 5, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapSlice(1, -1, m => m.invert(4))
+     * // returns numseq([ 1, 6, 5, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapSlice(1, -1, m => m.invert(4))
      */
     mapSlice(start: number, end: number, fn: MapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -1055,8 +1055,8 @@ export default class Collection<T> {
      * values from the rest of the original Collection. Return a new Collection.
      * 
      * @example
-     * // returns intseq([ 1, 2, 6, 2, 3, 5, 3, 4, 4, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).flatMapSlice(1, -1, [ m, m => m.invert(4), m ])
+     * // returns numseq([ 1, 2, 6, 2, 3, 5, 3, 4, 4, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).flatMapSlice(1, -1, m => [ m, m.invert(4), m ])
      */
     flatMapSlice(start: number, end: number, fn: FlatMapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -1083,8 +1083,8 @@ export default class Collection<T> {
      * Return a new Collection containing the contents of this, passed through a mapper function.
      * 
      * @example
-     * // returns intseq([ 9, 2, 7, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).map((m, i) => i % 2 === 0 ? m.invert(5) : m)
+     * // returns numseq([ 9, 2, 7, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).map((m, i) => i % 2 === 0 ? m.invert(5) : m)
      */
     map(fn: MapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -1099,8 +1099,8 @@ export default class Collection<T> {
      * and with the result flattened.
      * 
      * @example
-     * // returns intseq([ 1, 9, 2, 8, 3, 7, 4, 6, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).flatMap(m => [ m, m.invert(5) ])
+     * // returns numseq([ 1, 9, 2, 8, 3, 7, 4, 6, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).flatMap(m => [ m, m.invert(5) ])
      */
     flatMap(fn: FlatMapperFn<T>): this {
         if (typeof fn !== 'function') {
@@ -1114,8 +1114,8 @@ export default class Collection<T> {
      * Append zero or more Collections to this one. Return the resulting Collection.
      * 
      * @example
-     * // returns intseq([ 1, 2, 3, 4, 5 ])
-     * intseq([ 1 ]).append(intseq([ 2, 3, 4 ]), intseq([ 5 ]))
+     * // returns numseq([ 1, 2, 3, 4, 5 ])
+     * numseq([ 1 ]).append(numseq([ 2, 3, 4 ]), numseq([ 5 ]))
      */
     append(...coll: this[]): this {
         if (!this.isSameClassAs(...coll)) {
@@ -1136,8 +1136,8 @@ export default class Collection<T> {
      * Prepend zero or more Collections to this one. Return the resulting Collection.
      * 
      * @example
-     * // returns intseq([ 2, 3, 4, 5, 1 ])
-     * intseq([ 1 ]).prepend(intseq([ 2, 3, 4 ]), intseq([ 5 ]))
+     * // returns numseq([ 2, 3, 4, 5, 1 ])
+     * numseq([ 1 ]).prepend(numseq([ 2, 3, 4 ]), numseq([ 5 ]))
      */
     prepend(...coll: this[]): this {
         if (!this.isSameClassAs(...coll)) {
@@ -1162,8 +1162,8 @@ export default class Collection<T> {
      * Return a Sequence that is the retrograde of this one.
      * 
      * @example
-     * // returns intseq([ 5, 4, 3, 2, 1 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).retrograde();
+     * // returns numseq([ 5, 4, 3, 2, 1 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).retrograde();
      */
     retrograde(): this {
         return this.construct(this.val().reverse());
@@ -1174,8 +1174,8 @@ export default class Collection<T> {
      * arguments are accepted and processed in order.
      * 
      * @example
-     * // returns intseq([ 2, 1, 3, 5, 4 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).swapAt([ 0, 1 ], [ 3, 4 ]);
+     * // returns numseq([ 2, 1, 3, 5, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).swapAt([ 0, 1 ], [ 3, 4 ]);
      */
     swapAt(...swap: [ number, number ][]): this {
         const vals = this.val();
@@ -1199,8 +1199,8 @@ export default class Collection<T> {
      * Return an array of Collection, one for each chunk.
      * 
      * @example
-     * // returns [ intseq([]), intseq([ 1, 2, 3 ]), intseq([ 4, 5 ]) ]
-     * intseq([ 1, 2, 3, 4, 5 ]).splitAt([ 0, 3 ]);
+     * // returns [ numseq([]), numseq([ 1, 2, 3 ]), numseq([ 4, 5 ]) ]
+     * numseq([ 1, 2, 3, 4, 5 ]).splitAt([ 0, 3 ]);
      */
     splitAt(pos: SeqIndices): this[] {
         const ix = this.indices(pos, true).sort((a, b) => a - b);
@@ -1225,8 +1225,8 @@ export default class Collection<T> {
      * The second Collection contains all members for which the function returned false.
      * 
      * @example
-     * // returns [ intseq([ 1, 3, 5 ]), intseq([ 2, 4 ]) ],
-     * intseq([ 1, 2, 3, 4, 5 ]).partition(v => v.val() % 2 === 1)
+     * // returns [ numseq([ 1, 3, 5 ]), numseq([ 2, 4 ]) ],
+     * numseq([ 1, 2, 3, 4, 5 ]).partition(v => v.val() % 2 === 1)
      */
     partition(fn: FilterFn<T>): [ this, this ] {
         if (typeof fn !== 'function') {
@@ -1246,8 +1246,8 @@ export default class Collection<T> {
      * Each Collection contains all members for which the function returned a specific value.
      * 
      * @example
-     * // returns { 1: intseq([ 1, 4 ]), 2: intseq([ 2, 5 ]), 0: intseq([ 3 ]) },
-     * intseq([ 1, 2, 3, 4, 5 ]).groupBy(v => v.val() % 3)
+     * // returns { 1: numseq([ 1, 4 ]), 2: numseq([ 2, 5 ]), 0: numseq([ 3 ]) },
+     * numseq([ 1, 2, 3, 4, 5 ]).groupBy(v => v.val() % 3)
      */
     groupBy(fn: GrouperFn<T>): Record<string, this> {
         if (typeof fn !== 'function') {
@@ -1463,7 +1463,7 @@ export default class Collection<T> {
      * 
      * @example
      * // returns 5
-     * intseq([ 1, 2, 3, 4, 5 ]).pipe(s => s.len())
+     * numseq([ 1, 2, 3, 4, 5 ]).pipe(s => s.len())
      */
     pipe<TPipe>(fn: (coll: this) => TPipe): TPipe {
         if (typeof fn !== 'function') {
@@ -1477,8 +1477,8 @@ export default class Collection<T> {
      * Pass this Collection to a function. Return this Collection.
      * 
      * @example
-     * // prints '5', returns intseq([ 1, 2, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).tap(s => console.log(s.len())
+     * // prints '5', returns numseq([ 1, 2, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).tap(s => console.log(s.len())
      */
     tap(fn: (coll: this) => void): this {
         if (typeof fn !== 'function') {
@@ -1494,8 +1494,8 @@ export default class Collection<T> {
      * Call the passed function for every member of this Collection. Return this Collection.
      * 
      * @example
-     * // prints '1', '2', '3', '4', '5', returns intseq([ 1, 2, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).tap(s => console.log(s.val())
+     * // prints '1', '2', '3', '4', '5', returns numseq([ 1, 2, 3, 4, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).tap(s => console.log(s.val())
      */
     each(fn: (event: T) => void): this {
         if (typeof fn !== 'function') {

@@ -204,7 +204,7 @@ describe('numseq.exchangeValuesDecreasing() tests', () => {
 
     const table: [ string, NumSeq, NumSeq, NumSeq, NumSeq ][] = [
         [
-            'exchanges correctly for intseqs',
+            'exchanges correctly for numseqs',
             NumSeq.from([ 0, 1, 2, 3, 4, 5, -1, 6, 7 ]),
             NumSeq.from([ -1, 2, 1, 0, -1, 5, 6, 7, 2 ]),
             NumSeq.from([ 0, 2, 2, 3, 4, 5, 6, 7, 7 ]),
@@ -249,7 +249,7 @@ describe('numseq.exchangeValuesIncreasing() tests', () => {
 
     const table: [ string, NumSeq, NumSeq, NumSeq, NumSeq ][] = [
         [
-            'intseqs',
+            'numseqs',
             NumSeq.from([ 0, 1, 2, 3, 4, 5, -1, 6, 7 ]),
             NumSeq.from([ -1, 2, 1, 0, -1, 5, 6, 7, 2 ]),
             NumSeq.from([ -1, 1, 1, 0, -1, 5, -1, 6, 2 ]),

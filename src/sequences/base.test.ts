@@ -120,12 +120,12 @@ describe('Sequence.toNullableNumericValues()', () => {
 describe('Sequence.toPitchDistributionMap()', () => {
     const table: [ string, AnySeq, Map<number, number> ][] = [
         [
-            'an empty intseq',
+            'an empty numseq',
             NumSeq.from([]),
             new Map(),
         ],
         [
-            'an intseq',
+            'an numseq',
             NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ 1, 2 ], [ 2, 2 ], [ 3, 1 ], [ 4, 2 ], [ 5, 2 ], [ 8, 1 ] ]),
         ],
@@ -154,12 +154,12 @@ describe('Sequence.toPitchDistributionMap()', () => {
 describe('Sequence.toChordDistributionMap()', () => {
     const table: [ string, AnySeq, Map<number[], number> ][] = [
         [
-            'an empty intseq',
+            'an empty numseq',
             NumSeq.from([]),
             new Map(),
         ],
         [
-            'an intseq',
+            'an numseq',
             NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ [ 1 ], 2 ], [ [ 2 ], 2 ], [ [ 3 ], 1 ], [ [ 4 ], 2 ], [ [ 5 ], 2 ], [ [ 8 ], 1 ] ]),
         ],
@@ -188,12 +188,12 @@ describe('Sequence.toChordDistributionMap()', () => {
 describe('Sequence.toPitchLocationMap()', () => {
     const table: [ string, AnySeq, Map<number, number[]> ][] = [
         [
-            'an empty intseq',
+            'an empty numseq',
             NumSeq.from([]),
             new Map(),
         ],
         [
-            'an intseq',
+            'an numseq',
             NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ 1, [ 0, 4 ] ], [ 2, [ 1, 7 ] ], [ 3, [ 2 ] ], [ 4, [ 3, 6 ] ], [ 5, [ 5, 9 ] ], [ 8, [ 8 ] ] ]),
         ],
@@ -222,12 +222,12 @@ describe('Sequence.toPitchLocationMap()', () => {
 describe('Sequence.toChordLocationMap()', () => {
     const table: [ string, AnySeq, Map<number[], number[]> ][] = [
         [
-            'an empty intseq',
+            'an empty numseq',
             NumSeq.from([]),
             new Map(),
         ],
         [
-            'an intseq',
+            'an numseq',
             NumSeq.from([ 1, 2, 3, 4, 1, 5, 4, 2, 8, 5 ]),
             new Map([ [ [ 1 ], [ 0, 4 ] ], [ [ 2 ], [ 1, 7 ] ], [ [ 3 ], [ 2 ] ], [ [ 4 ], [ 3, 6 ] ], [ [ 5 ], [ 5, 9 ] ], [ [ 8 ], [ 8 ] ] ]),
         ],
@@ -1289,7 +1289,7 @@ describe('Sequence.mapPitches()', () => {
         expect(() => ChordSeq.from([ 1, null, 3 ]).mapPitches(((v: number[]) => v.length ? v : [ null ]) as unknown as MapperFn<number[]>)).toThrow();
     });
 
-    test('mapPitches() on intseq', () => {
+    test('mapPitches() on numseq', () => {
         expect(NumSeq.from([ 1, 4, 2, 3, 5 ]).mapPitches((p, i) => [ p[0] + i ])).toStrictEqual(NumSeq.from([ 1, 5, 4, 6, 9 ]));
     });
 
@@ -1430,7 +1430,7 @@ describe('Sequence.transpose()', () => {
         expect(() => s3.transpose('1' as unknown as number)).toThrow();
     });
 
-    test('fails when non-integer value passed for intseq', () => {
+    test('fails when non-integer value passed for numseq', () => {
         expect(() => s1.transpose(1.5)).toThrow();
     });
 
@@ -1457,7 +1457,7 @@ describe('Sequence.transposeToMax()', () => {
         expect(() => s3.transposeToMax('1' as unknown as number)).toThrow();
     });
 
-    test('fails when non-integer value passed for intseq', () => {
+    test('fails when non-integer value passed for numseq', () => {
         expect(() => s1.transposeToMax(1.5)).toThrow();
     });
 
@@ -1488,7 +1488,7 @@ describe('Sequence.transposeToMin()', () => {
         expect(() => s3.transposeToMin('1' as unknown as number)).toThrow();
     });
 
-    test('fails when non-integer value passed for intseq', () => {
+    test('fails when non-integer value passed for numseq', () => {
         expect(() => s1.transposeToMin(1.5)).toThrow();
     });
 
@@ -1518,7 +1518,7 @@ describe('Sequence.invert()', () => {
         expect(() => s3.invert('1' as unknown as number)).toThrow();
     });
 
-    test('fails when non-integer values generated for intseq', () => {
+    test('fails when non-integer values generated for numseq', () => {
         expect(() => s1.invert(1.25)).toThrow();
     });
 
@@ -1544,7 +1544,7 @@ describe('Sequence.augment()', () => {
         expect(() => s3.augment('1' as unknown as number)).toThrow();
     });
 
-    test('fails when non-integer values generated for intseq', () => {
+    test('fails when non-integer values generated for numseq', () => {
         expect(() => s1.augment(1.25)).toThrow();
     });
 
@@ -1570,7 +1570,7 @@ describe('Sequence.diminish()', () => {
         expect(() => s3.diminish('1' as unknown as number)).toThrow();
     });
 
-    test('fails when non-integer values generated for intseq', () => {
+    test('fails when non-integer values generated for numseq', () => {
         expect(() => s1.diminish(0.8)).toThrow();
     });
 
@@ -1763,7 +1763,7 @@ describe('Sequence.filterInPosition()', () => {
         expect(() => s1.partitionInPosition(e => e.val() > 2)).toThrow();
     });
 
-    test('works as expected on intseq', () => {
+    test('works as expected on numseq', () => {
         expect(s1.filterInPosition(e => e.val() < 5, new NumSeqMember(3))).toStrictEqual(NumSeq.from([ 0, -2, 3, 2, 4, 3 ]));
     });
 
@@ -1990,7 +1990,7 @@ describe('Sequence.untwine()', () => {
         expect(() => s2.untwine(5)).toThrow();
     });
 
-    test('succeeds on an intseq', () => {
+    test('succeeds on an numseq', () => {
         expect(s1.untwine(3)).toStrictEqual([
             NumSeq.from([ 0, 3, 5 ]), NumSeq.from([ 8, 2, 17 ]), NumSeq.from([ 1, 4, 6 ]),
         ]);

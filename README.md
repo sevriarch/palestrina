@@ -42,7 +42,7 @@ Palestrina works on the principle that some types of algorithmic music compositi
 The process of creating a composition within Palestrina involves creating one or more such series, performing appropriate manipulations on them, packing them together into a score, then generating MIDI or visualization output from this score.
 
 The types of series available within Palestrina:
-- intseq(): a series of integers
+- numseq(): a series of integers
 - floatseq(): a series of floating point numbers
 - noteseq(): a series of pitches (represented by numbers) or silences (represented by nulls)
 - microtonalnoteseq(): similarly, but for microtonal music

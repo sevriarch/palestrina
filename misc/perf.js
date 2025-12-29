@@ -74,7 +74,7 @@ function mangle(seq) {
 }
 
 function seqs() {
-	return [ P.intseq(series), P.chordseq(series), P.melody(series) ]
+	return [ P.numseq(series), P.chordseq(series), P.melody(series) ]
 }
 
 function timer(s) {

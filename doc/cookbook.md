@@ -148,7 +148,7 @@ const newmelody = oldmelody.replaceNth(3, n => n.augmentRhythm(2), 2); // last a
 
 The dark-light two-note version of Per Nørgård's infinity series as a numeric sequence:
 ```
-const darklight = intseq(imports.infinity).mod(2);
+const darklight = numseq(imports.infinity).mod(2);
 ```
 
 If any note is outside the supplied minimum or maximum, set it to those values:

@@ -88,8 +88,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Append zero or more items to this Sequence. Return the resulting Sequence.
      * 
      * @example
-     * // returns intseq([ 1, 2, 3, 4, 5 ])
-     * intseq([ 1, 2, 3 ]).appendItems(4, 5)
+     * // returns numseq([ 1, 2, 3, 4, 5 ])
+     * numseq([ 1, 2, 3 ]).appendItems(4, 5)
      */
     override appendItems(...items: SeqMemberArgument[]): this {
         return super.appendItems(...items.map(this.constructMember));
@@ -99,8 +99,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Prepend zero or more items to this Sequence. Return the resulting Sequence.
      * 
      * @example
-     * // returns intseq([ 4, 5, 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).prependItems(4, 5)
+     * // returns numseq([ 4, 5, 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).prependItems(4, 5)
      */
     override prependItems(...items: SeqMemberArgument[]): this {
         return super.prependItems(...items.map(this.constructMember));
@@ -115,7 +115,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * 
      * @example
      * // returns [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ])
-     * intseq([ 1, 2, 3, 4, 5 ]).toPitches()
+     * numseq([ 1, 2, 3, 4, 5 ]).toPitches()
      * 
      * // returns [ [ 1, 2 ], [], [ 3 ], [ 4, 5 ] ]
      * chordseq([ [ 1, 2 ], [], 3, [ 4, 5 ]).toPitches()
@@ -129,7 +129,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * 
      * @example
      * // returns [ 1, 2, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).toFlatPitches()
+     * numseq([ 1, 2, 3, 4, 5 ]).toFlatPitches()
      * 
      * // returns [ 1, 2, 3, 4, 5 ])
      * chordseq([ [ 1, 2 ], [], 3, [ 4, 5 ]).toFlatPitches()
@@ -147,7 +147,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * 
      * @example
      * // returns [ 1, 2, 3, 4, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).toNumericValues()
+     * numseq([ 1, 2, 3, 4, 5 ]).toNumericValues()
      * 
      * // throws an error
      * chordseq([ [ 1, 2 ], [], 3, [ 4, 5 ]).toNumericValues()
@@ -375,10 +375,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns true
-     * intseq([ 0, 1, 2 ]).isSubsetOf(intseq([ 0, 1, 1, 0, 2 ]))
+     * numseq([ 0, 1, 2 ]).isSubsetOf(numseq([ 0, 1, 1, 0, 2 ]))
      *
      * // returns false
-     * intseq([ 0, 1, 2 ]).isSubsetOf(intseq([ 0, 2, 1, 0, 1 ])
+     * numseq([ 0, 1, 2 ]).isSubsetOf(numseq([ 0, 2, 1, 0, 1 ])
      */
     isSubsetOf(seq: this): boolean {
         if (!this.isSameClassAs(seq)) { return false; }
@@ -408,10 +408,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns true
-     * intseq([ 0, 1, 1, 0, 2 ]).isSupersetOf(intseq([ 0, 1, 2 ]))
+     * numseq([ 0, 1, 1, 0, 2 ]).isSupersetOf(numseq([ 0, 1, 2 ]))
      *
      * // returns false
-     * intseq([ 0, 2, 1, 0, 1 ]).isSubsetOf(intseq([ 0, 1, 2 ]))
+     * numseq([ 0, 2, 1, 0, 1 ]).isSubsetOf(numseq([ 0, 1, 2 ]))
      */
     isSupersetOf(seq: this): boolean {
         return seq.isSubsetOf(this);
@@ -426,10 +426,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns true
-     * intseq([ 1, 2, 3, 4, 5 ]).isTransformationOf((a, b) => a + b, intseq([ 5, 4, 3, 2, 1 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isTransformationOf((a, b) => a + b, numseq([ 5, 4, 3, 2, 1 ])
      *
      * // returns false
-     * intseq([ 1, 2, 3, 4, 5 ]).isTransformationOf((a, b) => a * b, intseq([ 5, 4, 3, 2, 1 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isTransformationOf((a, b) => a * b, numseq([ 5, 4, 3, 2, 1 ])
      */
     isTransformationOf(fn: (p1: number, p2: number) => number, seq: this): boolean {
         if (typeof fn !== 'function') {
@@ -491,10 +491,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns false
-     * intseq([ 1, 2, 3, 4, 5 ]).isTranspositionOf(intseq([ 8, 7, 6, 5, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isTranspositionOf(numseq([ 8, 7, 6, 5, 4 ])
      *
      * // returns true
-     * intseq([ 1, 2, 3, 4, 5 ]).isTranspositionOf(intseq([ 4, 5, 6, 7, 8 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isTranspositionOf(numseq([ 4, 5, 6, 7, 8 ])
      */
     isTranspositionOf(seq: this): boolean {
         return this.isTransformationOf((a, b) => a - b, seq);
@@ -506,10 +506,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns true
-     * intseq([ 1, 2, 3, 4, 5 ]).isInversionOf(intseq([ 8, 7, 6, 5, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isInversionOf(numseq([ 8, 7, 6, 5, 4 ])
      *
      * // returns false
-     * intseq([ 1, 2, 3, 4, 5 ]).isInversionOf(intseq([ 4, 5, 6, 7, 8 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isInversionOf(numseq([ 4, 5, 6, 7, 8 ])
      */
     isInversionOf(seq: this): boolean {
         return this.isTransformationOf((a, b) => a + b, seq);
@@ -521,10 +521,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns true
-     * intseq([ 1, 2, 3, 4, 5 ]).isRetrogradeOf(intseq([ 8, 7, 6, 5, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isRetrogradeOf(numseq([ 8, 7, 6, 5, 4 ])
      *
      * // returns false
-     * intseq([ 1, 2, 3, 4, 5 ]).isRetrogradeOf(intseq([ 4, 5, 6, 7, 8 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isRetrogradeOf(numseq([ 4, 5, 6, 7, 8 ])
      */
     isRetrogradeOf(seq: this): boolean {
         return this.isTranspositionOf(seq.retrograde());
@@ -535,10 +535,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Test is based on pitches only.
      * @example
      * // returns false
-     * intseq([ 1, 2, 3, 4, 5 ]).isRetrogradeInversionOf(intseq([ 8, 7, 6, 5, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isRetrogradeInversionOf(numseq([ 8, 7, 6, 5, 4 ])
      *
      * // returns true
-     * intseq([ 1, 2, 3, 4, 5 ]).isRetrogradeInversionOf(intseq([ 4, 5, 6, 7, 8 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).isRetrogradeInversionOf(numseq([ 4, 5, 6, 7, 8 ])
      */
     isRetrogradeInversionOf(seq: this): boolean {
         return this.isInversionOf(seq.retrograde());
@@ -549,7 +549,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns true
-     * intseq([ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 ]).hasPeriodicityOf(3)
+     * numseq([ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 ]).hasPeriodicityOf(3)
      */
     hasPeriodicityOf(max: number): boolean {
         if (max * 2 > this.length) { return false; }
@@ -573,7 +573,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns 3
-     * intseq([ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 ]).hasPeriodicity()
+     * numseq([ 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3 ]).hasPeriodicity()
      */
     hasPeriodicity(): number {
         const max = Math.floor(this.length / 2);
@@ -598,7 +598,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns [ 1, 4 ]
-     * intseq([ 1, 2, 2, 3, 4, 4, 5 ]).findIfWindow(2, 1, m => m[0].val() === m[1].val())
+     * numseq([ 1, 2, 2, 3, 4, 4, 5 ]).findIfWindow(2, 1, m => m[0].val() === m[1].val())
      */
     findIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>): number[] {
         if (typeof finder !== 'function') {
@@ -626,7 +626,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *
      * @example
      * // returns [ 5, 2 ]
-     * intseq([ 1, 2, 2, 3, 4, 4, 5 ]).findIfReverseWindow(2, 1, m => m[0].val() === m[1].val())
+     * numseq([ 1, 2, 2, 3, 4, 4, 5 ]).findIfReverseWindow(2, 1, m => m[0].val() === m[1].val())
      */
     findIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>): number[] {
         if (typeof finder !== 'function') {
@@ -661,8 +661,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * first member of the series.
      *
      * @example
-     * // returns intseq([ 1, 8, 3, 6, 5 ])
-     * intseq([ 1, 2, 2, 3, 4, 4, 5 ]).replaceIfWindow(2, 1,
+     * // returns numseq([ 1, 8, 3, 6, 5 ])
+     * numseq([ 1, 2, 2, 3, 4, 4, 5 ]).replaceIfWindow(2, 1,
      *     m => m[0].val() === m[1].val(),
      *     m => m[0].invert(5)
      * )
@@ -699,8 +699,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * last member of the series.
      *
      * @example
-     * // returns intseq([ 1, 8, 3, 6, 5 ])
-     * intseq([ 1, 2, 2, 3, 4, 4, 5 ]).replaceIfReverseWindow(2, 1,
+     * // returns numseq([ 1, 8, 3, 6, 5 ])
+     * numseq([ 1, 2, 2, 3, 4, 4, 5 ]).replaceIfReverseWindow(2, 1,
      *     m => m[0].val() === m[1].val(),
      *     m => m[0].invert(5)
      * )
@@ -732,8 +732,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Returns a new Sequence.
      *
      * @example
-     * // returns intseq([ 1, 0, 0, 0, 5 ])
-     * intseq.setSlice(1, -1, 0)
+     * // returns numseq([ 1, 0, 0, 0, 5 ])
+     * numseq.setSlice(1, -1, 0)
      */
     setSlice(start: number | undefined, end: number | undefined, val: SeqMemberArgument): this {
         const [ p1, p2, p3 ] = this.splitAt([ start ?? 0, end ?? this.length ]);
@@ -751,8 +751,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * zero-indexed argument determines which member of the Sequence to start with.
      *
      * @example
-     * // returns intseq([ 2, 3, 1, 2, 3, 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).loop(8, 1)
+     * // returns numseq([ 2, 3, 1, 2, 3, 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).loop(8, 1)
      */
     loop(n: number, start = 0): this {
         if (!this.length) {
@@ -770,8 +770,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a Sequence containing n copies of the values in this one.
      *
      * @example
-     * // returns intseq([ 1, 2, 3, 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).repeat()
+     * // returns numseq([ 1, 2, 3, 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).repeat()
      */
     repeat(n = 2): this {
         return this.construct(...fillarray(n, this.contents));
@@ -781,8 +781,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence that contains all values repeated n times.
      *
      * @example
-     * // returns intseq([ 1, 1, 1, 2, 2, 2, 3, 3, 3 ])
-     * intseq([ 1, 2, 3 ]).dupe(3)
+     * // returns numseq([ 1, 1, 1, 2, 2, 2, 3, 3, 3 ])
+     * numseq([ 1, 2, 3 ]).dupe(3)
      */
     dupe(ct = 2): this {
         return this.flatMap(e => fillarray(ct, e));
@@ -792,8 +792,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence that contains all repeated values deduplicated.
      *
      * @example
-     * // returns intseq([ 1, 2, 3, 2, 1 ])
-     * intseq([ 1, 2, 2, 3, 3, 2, 2, 1 ]).dedupe()
+     * // returns numseq([ 1, 2, 3, 2, 1 ])
+     * numseq([ 1, 2, 2, 3, 3, 2, 2, 1 ]).dedupe()
      */
     dedupe(): this {
         const vals = this.contents.slice(0, 1);
@@ -813,8 +813,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * to the order in the passed argument.
      *
      * @example
-     * // returns intseq([ 2, 3, 1, 5, 6, 4, 8, 9, 7 ])
-     * intseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).shuffle([ 0, 2, 1 ])
+     * // returns numseq([ 2, 3, 1, 5, 6, 4, 8, 9, 7 ])
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).shuffle([ 0, 2, 1 ])
      */
     shuffle(order: number[]): this {
         const olen = order.length;
@@ -848,8 +848,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Sequence.
      *
      * @example
-     * // returns intseq([ 1, 1, 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).pad(1, 2);
+     * // returns numseq([ 1, 1, 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).pad(1, 2);
      */
     pad(v: SeqMemberArgument, ct = 1): this {
         if (!isNonnegInt(ct)) {
@@ -871,11 +871,11 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * ct or longer in length, no action is taken.
      *
      * @example
-     * // returns intseq([ 1, 1, 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).padTo(1, 5);
+     * // returns numseq([ 1, 1, 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).padTo(1, 5);
      *
-     * // returns intseq([ 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).padTo(1, 3);
+     * // returns numseq([ 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).padTo(1, 3);
      */
     padTo(v: SeqMemberArgument, ct: number): this {
         if (!isNonnegInt(ct)) {
@@ -892,8 +892,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * instances of v.
      *
      * @example
-     * // returns intseq([ 1, 2, 3, 1, 1 ])
-     * intseq([ 1, 2, 3 ]).pad(1, 2);
+     * // returns numseq([ 1, 2, 3, 1, 1 ])
+     * numseq([ 1, 2, 3 ]).pad(1, 2);
      */
     padRight(v: SeqMemberArgument, ct = 1): this {
         if (!isNonnegInt(ct)) {
@@ -915,11 +915,11 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * ct or longer in length, no action is taken.
      *
      * @example
-     * // returns intseq([ 1, 2, 3, 1, 1 ])
-     * intseq([ 1, 2, 3 ]).padRightTo(1, 5);
+     * // returns numseq([ 1, 2, 3, 1, 1 ])
+     * numseq([ 1, 2, 3 ]).padRightTo(1, 5);
      *
-     * // returns intseq([ 1, 2, 3 ])
-     * intseq([ 1, 2, 3 ]).padRightTo(1, 3);
+     * // returns numseq([ 1, 2, 3 ])
+     * numseq([ 1, 2, 3 ]).padRightTo(1, 3);
      */
     padRightTo(v: SeqMemberArgument, ct: number): this {
         if (!isNonnegInt(ct)) {
@@ -946,8 +946,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Change all pitches in this Sequence to the pitch supplied.
      *
      * @example
-     * // returns intseq([ 0, 0, 0 ])
-     * intseq([ 1, 2, 3]).withPitch(0);
+     * // returns numseq([ 0, 0, 0 ])
+     * numseq([ 1, 2, 3]).withPitch(0);
      */
     withPitch(pitch: PitchArgument): this {
         return this.map(e => e.setPitches(pitch));
@@ -959,8 +959,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a Sequence with the required changes.
      *
      * @example
-     * // returns intseq([ 4, 5, 6 ])
-     * intseq([ 1, 2, 3]).withPitch([ 4, 5, 6 ]);
+     * // returns numseq([ 4, 5, 6 ])
+     * numseq([ 1, 2, 3]).withPitch([ 4, 5, 6 ]);
      */
     withPitches(pitches: PitchArgument[] | { toPitches: () => number[][] }): this {
         if (Array.isArray(pitches)) {
@@ -984,8 +984,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * returns a pitch definition.
      *
      * @example
-     * // returns intseq([ 1, 2, 0 ])
-     * intseq([ 1, 2, 3]).withPitchesAt([ -1 ], 0)
+     * // returns numseq([ 1, 2, 0 ])
+     * numseq([ 1, 2, 3]).withPitchesAt([ -1 ], 0)
      */
     withPitchesAt(pos: SeqIndices, rep: PitchArgument | PitchMapperFn): this {
         let replacement: MapperFn<ET>;
@@ -1093,8 +1093,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence transposed by the passed value.
      *
      * @example
-     * // returns intseq([ 11, 12, 13, 14, 15 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).transpose(10)
+     * // returns numseq([ 11, 12, 13, 14, 15 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).transpose(10)
      */
     transpose(i: number): this {
         return this.mutatePitches(mutators.transposeFn(i));
@@ -1104,8 +1104,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence transposed so the lowest value is the passed one.
      *
      * @example
-     * // returns intseq([ 11, 12, 13, 14, 15 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).transposeToMin(11)
+     * // returns numseq([ 11, 12, 13, 14, 15 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).transposeToMin(11)
      */
     transposeToMin(i: number): this {
         if (!isNumber(i)) {
@@ -1121,8 +1121,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence transposed so the highest value is the passed one.
      *
      * @example
-     * // returns intseq([ 11, 12, 13, 14, 15 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).transposeToMax(15)
+     * // returns numseq([ 11, 12, 13, 14, 15 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).transposeToMax(15)
      */
     transposeToMax(i: number): this {
         if (!isNumber(i)) {
@@ -1138,8 +1138,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence inverted around the passed value.
      *
      * @example
-     * // returns intseq([ 9, 8, 7, 6, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).invert(5)
+     * // returns numseq([ 9, 8, 7, 6, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).invert(5)
      */
     invert(i: number): this {
         return this.mutatePitches(mutators.invertFn(i));
@@ -1149,8 +1149,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence augmented by the passed value.
      *
      * @example
-     * // returns intseq([ 2, 4, 6, 8, 10 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).augment(2)
+     * // returns numseq([ 2, 4, 6, 8, 10 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).augment(2)
      */
     augment(i: number): this {
         return this.mutatePitches(mutators.augmentFn(i));
@@ -1160,8 +1160,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence diminished by the passed value.
      *
      * @example
-     * // returns intseq([ 1, 2, 3, 4, 5 ])
-     * intseq([ 2, 4, 6, 8, 10 ]).augment(2)
+     * // returns numseq([ 1, 2, 3, 4, 5 ])
+     * numseq([ 2, 4, 6, 8, 10 ]).augment(2)
      */
     diminish(i: number): this {
         return this.mutatePitches(mutators.diminishFn(i));
@@ -1171,8 +1171,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence with a modulus operator applied.
      *
      * @example
-     * // returns intseq([ 1, 2, 0, 1, 2 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mod(3))
+     * // returns numseq([ 1, 2, 0, 1, 2 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mod(3))
      */
     mod(i: number): this {
         return this.mutatePitches(mutators.modFn(i));
@@ -1182,8 +1182,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence with upper and lower pitch limits applied.
      *
      * @example
-     * // returns intseq([ 2, 2, 3, 4, 4 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).trim(2, 4)
+     * // returns numseq([ 2, 2, 3, 4, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).trim(2, 4)
      */
     trim(min: number | null, max: number | null): this {
         return this.mutatePitches(mutators.trimFn(min, max));
@@ -1193,8 +1193,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return a new Sequence bounced between the min and max values passed.
      *
      * @example
-     * // returns intseq([ 3, 2, 3, 4, 3 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).trim(2, 4)
+     * // returns numseq([ 3, 2, 3, 4, 3 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).trim(2, 4)
      */
     bounce(min: number | null, max: number | null): this {
         return this.mutatePitches(mutators.bounceFn(min, max));
@@ -1206,8 +1206,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * A new Sequence is returned.
      *
      * @example
-     * // returns intseq([ 62, 64, 66, 67, 69 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).scale('lydian', 60)
+     * // returns numseq([ 62, 64, 66, 67, 69 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).scale('lydian', 60)
      */
     scale(scale: string | number[], zero: number, octave = 12): this {
         return this.mutatePitches(mutators.scaleFn(scale, zero, octave));
@@ -1225,8 +1225,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * A new Sequence is returned.
      *
      * @example
-     * // returns intseq([ 0, 20, 5, 0, 20 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).gamut([ 5, 0, 20 ])
+     * // returns numseq([ 0, 20, 5, 0, 20 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).gamut([ 5, 0, 20 ])
      */
     gamut(gamut: number[], opts: GamutOpts = {}): this {
         return this.mutatePitches(mutators.gamutFn(gamut, opts));
@@ -1240,8 +1240,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * argument.
      *
      * @example
-     * // returns intseq([ 1, 8, 3, 8, 5 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).filterInPosition(p => p.val() % 2 === 1, 8)
+     * // returns numseq([ 1, 8, 3, 8, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).filterInPosition(p => p.val() % 2 === 1, 8)
      */
     filterInPosition(fn: FilterFn<ET>, nullval: SeqMemberArgument = null): this {
         if (typeof fn !== 'function') {
@@ -1259,8 +1259,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * level. Incomplete windows are discarded.
      *
      * @example
-     * // returns intseq([ 3, 7 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).mapWindow(2, 2, p => p[0].transpose(p[1].val()))
+     * // returns numseq([ 3, 7 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapWindow(2, 2, p => p[0].transpose(p[1].val()))
      */
     mapWindow(size: number, step: number, fn: MapperFn<ET[]>): this {
         const [ windows ] = arrayToWindows(this.contents, size, step);
@@ -1274,8 +1274,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * level. Incomplete windows are discarded.
      *
      * @example
-     * // returns intseq([ 3, 4 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).filterWindow(2, 2, p => p[0].val() !== 1)
+     * // returns numseq([ 3, 4 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).filterWindow(2, 2, p => p[0].val() !== 1)
      */
     filterWindow(size: number, step: number, fn: FilterFn<ET[]>): this {
         const [ windows ] = arrayToWindows(this.contents, size, step);
@@ -1290,8 +1290,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * in place during the sort.
      *
      * @example
-     * // returns intseq([ 1, 2, 3, 4, 5 ])
-     * intseq([ 2, 1, 4, 3, 5 ]).sort((a, b) => a.val() - b.val())
+     * // returns numseq([ 1, 2, 3, 4, 5 ])
+     * numseq([ 2, 1, 4, 3, 5 ]).sort((a, b) => a.val() - b.val())
      */
     sort(fn: (a: ET, b: ET) => number, filter?: FilterFn<ET>): this {
         if (typeof fn !== 'function') {
@@ -1335,8 +1335,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Chop this Sequence into slices of length n. If the last slice is incomplete, discard it.
      *
      * @example
-     * // returns [ intseq([ 1, 2 ]), intseq([ 3, 4 ]) ]
-     * intseq([ 1, 2, 3, 4, 5 ]).chop(2)
+     * // returns [ numseq([ 1, 2 ]), numseq([ 3, 4 ]) ]
+     * numseq([ 1, 2, 3, 4, 5 ]).chop(2)
      */
     chop(n: number): this[] {
         if (!isPosInt(n)) {
@@ -1357,8 +1357,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * nullval supplied.
      *
      * @example
-     * // returns [ intseq([ 1, 8, 3, 8, 5 ]), intseq([ 8, 2, 8, 4, 8 ]) ]
-     * intseq([ 1, 2, 3, 4, 5 ]).partitionInPosition(m => m.val() % 2 === 1)
+     * // returns [ numseq([ 1, 8, 3, 8, 5 ]), numseq([ 8, 2, 8, 4, 8 ]) ]
+     * numseq([ 1, 2, 3, 4, 5 ]).partitionInPosition(m => m.val() % 2 === 1)
      */
     partitionInPosition(fn: FilterFn<ET>, nullval: SeqMemberArgument = null): [ this, this ] {
         if (typeof fn !== 'function') {
@@ -1388,8 +1388,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * nullval supplied.
      *
      * @example
-     * // returns { 1: intseq([ 1, 8, 8, 4, 8 ]), 2: intseq([ 8, 2, 8, 8, 5 ]), 0: intseq([ 8, 8, 3, 8, 8 ]) }
-     * intseq([ 1, 2, 3, 4, 5 ]).groupByInPosition(m => m.val() % 3)
+     * // returns { 1: numseq([ 1, 8, 8, 4, 8 ]), 2: numseq([ 8, 2, 8, 8, 5 ]), 0: numseq([ 8, 8, 3, 8, 8 ]) }
+     * numseq([ 1, 2, 3, 4, 5 ]).groupByInPosition(m => m.val() % 3)
      */
     groupByInPosition(fn: (e: ET, i?: number) => string, nullval: SeqMemberArgument = null): Record<string, this> {
         if (typeof fn !== 'function') {
@@ -1424,8 +1424,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * of n.
      *
      * @example
-     * // returns [ intseq([ 1, 4 ]), intseq([ 2, 5 ]), intseq([ 3, 6 ]) ]
-     * intseq([ 1, 2, 3, 4, 5, 6 ]).twine(3)
+     * // returns [ numseq([ 1, 4 ]), numseq([ 2, 5 ]), numseq([ 3, 6 ]) ]
+     * numseq([ 1, 2, 3, 4, 5, 6 ]).twine(3)
      */
     untwine(n: number): this[] {
         if (!isPosInt(n)) {
@@ -1461,8 +1461,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * an exception unless all Sequences are of the same length.
      *
      * @example
-     * // returns intseq([ 1, 4, 7, 2, 5, 8, 3, 6, 9 ])
-     * intseq([ 1, 2, 3 ]).twine(intseq([ 4, 5, 6 ]), intseq([ 7, 8, 9 ]));
+     * // returns numseq([ 1, 4, 7, 2, 5, 8, 3, 6, 9 ])
+     * numseq([ 1, 2, 3 ]).twine(numseq([ 4, 5, 6 ]), numseq([ 7, 8, 9 ]));
      */
     twine(...seq: this[]): this {
         return this.construct(...this.zipSequenceValues(...seq));
@@ -1474,8 +1474,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Throws an exception if the Sequences are not the same length.
      *
      * @example
-     * // returns intseq([ 7, 8, 5 ])
-     * intseq([ 1, 2, 3 ]).combine((m1, m2) => m1.invert(m2.val()), intseq([ 4, 5, 4 ])
+     * // returns numseq([ 7, 8, 5 ])
+     * numseq([ 1, 2, 3 ]).combine((m1, m2) => m1.invert(m2.val()), numseq([ 4, 5, 4 ])
      */
     combine(fn: (...e: ET[]) => ET, ...seq: this[]): this {
         if (typeof fn !== 'function') {
@@ -1492,8 +1492,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Throws an exception if the Sequences are not the same length.
      *
      * @example
-     * // returns intseq([ 1, 4, 1, 2, 5, 2, 3, 4, 3 ])
-     * intseq([ 1, 2, 3 ]).flatCombine((m1, m2) => [ m1, m2, m3 ], intseq([ 4, 5, 4 ])
+     * // returns numseq([ 1, 4, 1, 2, 5, 2, 3, 4, 3 ])
+     * numseq([ 1, 2, 3 ]).flatCombine((m1, m2) => [ m1, m2, m3 ], numseq([ 4, 5, 4 ])
      */
     flatCombine(fn: (...e: ET[]) => ET[] | ET, ...seq: this[]): this {
         if (typeof fn !== 'function') {
@@ -1510,8 +1510,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Any non-pitch information is taken from this Sequence.
      *
      * @example
-     * // returns intseq([ 1, 0, 3, 0, 1 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).combineMin(intseq([ 5, 4, 3, 2, 1 ]), intseq([ 10, 0, 10, 0, 10 ])
+     * // returns numseq([ 1, 0, 3, 0, 1 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).combineMin(numseq([ 5, 4, 3, 2, 1 ]), numseq([ 10, 0, 10, 0, 10 ])
      */
     combineMin(...seq: this[]): this {
         return this.combine((...vals) => {
@@ -1526,8 +1526,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Any non-pitch information is taken from this Sequence.
      *
      * @example
-     * // returns intseq([ 10, 4, 10, 4, 10 ])
-     * intseq([ 1, 2, 3, 4, 5 ]).combineMax(intseq([ 5, 4, 3, 2, 1 ]), intseq([ 10, 0, 10, 0, 10 ])
+     * // returns numseq([ 10, 4, 10, 4, 10 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).combineMax(numseq([ 5, 4, 3, 2, 1 ]), numseq([ 10, 0, 10, 0, 10 ])
      */
     combineMax(...seq: this[]): this {
         return this.combine((...vals) => {
@@ -1596,8 +1596,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Sequences.
      *
      * @example
-     * //returns [ intseq([ 1, 5 ]), intseq([ 2, 4 ]), intseq([ 3, 3 ]) ]
-     * intseq([ 1, 2, 3 ]).zipWith(intseq([ 5, 4, 3 ]))
+     * //returns [ numseq([ 1, 5 ]), numseq([ 2, 4 ]), numseq([ 3, 3 ]) ]
+     * numseq([ 1, 2, 3 ]).zipWith(numseq([ 5, 4, 3 ]))
      */
     zipWith(...seq: this[]): this[] {
         return this.zipSequenceValues(...seq).map(s => this.construct(s));
@@ -1609,8 +1609,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return the resulting Sequences.
      *
      * @example
-     * // returns [ intseq([ 5, 8, 9 ]), intseq([ -3, 0, 3 ]) ]
-     * intseq([ 1, 2, 3 ]).mapWith(m => [ m[0].augment(m[1].val()), m[1].invert(m[0].val()) ], intseq([ 5, 4, 3 ]))
+     * // returns [ numseq([ 5, 8, 9 ]), numseq([ -3, 0, 3 ]) ]
+     * numseq([ 1, 2, 3 ]).mapWith(m => [ m[0].augment(m[1].val()), m[1].invert(m[0].val()) ], numseq([ 5, 4, 3 ]))
      */
     mapWith(fn: (vals: ET[], i?: number) => ET[] | ET, ...seq: this[]): this[] {
         if (typeof fn !== 'function') {
@@ -1635,8 +1635,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Return the resulting Sequences.
      *
      * @example
-     * // returns [ intseq([ 1, 2 ]), intseq([ 5, 4 ]) ]
-     * intseq([ 1, 2, 3 ]).filterWith(m => m[0].val() !== m[1].val(), intseq([ 5, 4, 3 ]))
+     * // returns [ numseq([ 1, 2 ]), numseq([ 5, 4 ]) ]
+     * numseq([ 1, 2, 3 ]).filterWith(m => m[0].val() !== m[1].val(), numseq([ 5, 4, 3 ]))
      */
     filterWith(fn: (vals: ET[], i?: number) => boolean, ...seq: this[]): this[] {
         if (typeof fn !== 'function') {
@@ -1660,8 +1660,8 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * Throws an exception if the two Sequences are not the same length.
      *
      * @example
-     * // returns [ intseq([ 5, 4, 3, 4, 5 ]), intseq([ 1, 2, 3, 2, 1 ]) ]
-     * intseq([ 1, 2, 3, 4, 5 ]).exchangeValuesIf((m1, m2) => m1.val() < m2.val(), intseq([ 5, 4, 3, 2, 1 ])
+     * // returns [ numseq([ 5, 4, 3, 4, 5 ]), numseq([ 1, 2, 3, 2, 1 ]) ]
+     * numseq([ 1, 2, 3, 4, 5 ]).exchangeValuesIf((m1, m2) => m1.val() < m2.val(), numseq([ 5, 4, 3, 2, 1 ])
      */
     exchangeValuesIf(fn: (s1: ET, s2: ET, i?: number) => boolean, seq: this): [ this, this ] {
         if (typeof fn !== 'function') {
