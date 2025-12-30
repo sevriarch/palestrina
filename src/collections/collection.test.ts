@@ -816,6 +816,11 @@ describe('Collection.dropNth()', () => {
 describe('Collection.insertBefore()', () => {
     const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
 
+    test('no longer supports function 2nd argument', () => {
+        expect(() => c.insertBefore([], ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
+    });
+
     const table: [ string, SeqIndices, ReplacerVal<number>, number[] ][] = [
         [
             'in no locations',
@@ -879,6 +884,11 @@ describe('Collection.insertBefore()', () => {
 
 describe('Collection.insertAfter()', () => {
     const c = new Collection([ 1, 2, 3, 4, 5, 6 ]);
+
+    test('no longer supports function 2nd argument', () => {
+        expect(() => c.insertAfter([], ((v: number) => v + 1) as unknown as ReplacerVal<number>))
+            .toThrow(/replacer functions are no longer supported/);
+    });
 
     const table: [ string, SeqIndices, ReplacerVal<number>, number[] ][] = [
         [

@@ -84,6 +84,14 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         return [ this.constructMember(r) ];
     }
 
+    protected replacer<FromT>(r: Replacer<FromT, ET>, curr: FromT, i: number): ET[] {
+        if (typeof r === 'function') {
+            return this.replacerFn(r, curr, i);
+        }
+
+        return this.replacerValue(r);
+    }
+
     /**
      * Append zero or more items to this Sequence. Return the resulting Sequence.
      * 

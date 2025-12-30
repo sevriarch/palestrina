@@ -577,9 +577,7 @@ export default class Collection<T> {
     /**
      * Insert new values before the specified index or indices in the Collection,
      * Indices can be a number, an array of numbers or a Sequence containing numbers.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
      * // returns numseq([ 1, 6, 7, 2, 3, 6, 7, 4, 5 ])
@@ -589,15 +587,19 @@ export default class Collection<T> {
      * numseq([ 1, 2, 3, 4, 5 ]).insertBefore([ -1 ], 9)
      */
     insertBefore(pos: SeqIndices, rep: ReplacerVal<T>): this {
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.insertBefore(): replacer functions are no longer supported; use ${cname}.flatMapIndices() instead`);
+        }
+
         return this.replaceRelative(pos, rep, 0, 0);
     }
 
     /**
      * Insert new values after the specified index or indices in the Collection,
      * Indices can be a number, an array of numbers or a Sequence containing numbers.
-     * New values can be a Collection, a Collection member, an array of Collection members,
-     * or a function taking a Collection member and its position within the collection and
-     * returning a Collection, a Collection member, an array of Collection members,
+     * New values can be a Collection, a Collection member or an array of Collection members.
      * 
      * @example
      * // returns numseq([ 1, 2, 6, 7, 3, 4, 6, 7, 5 ])
@@ -607,6 +609,12 @@ export default class Collection<T> {
      * numseq([ 1, 2, 3, 4, 5 ]).insertAfter([ -1 ], 9)
      */
     insertAfter(pos: SeqIndices, rep: ReplacerVal<T>): this {
+        if (typeof rep === 'function') {
+            const cname = this.constructor.name;
+
+            throw new Error(`${cname}.insertBefore(): replacer functions are no longer supported; use ${cname}.flatMapIndices() instead`);
+        }
+
         return this.replaceRelative(pos, rep, 0, 1);
     }
 
