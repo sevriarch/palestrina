@@ -1,5 +1,5 @@
 import {
-    SeqIndices, Replacer, ReplacerVal, ReplacerFn,
+    SeqIndices, ReplacerVal, ReplacerFn,
     MapperFn, FlatMapperFn, FinderFn, FilterFn, GrouperFn, CtrlBoolFn, CtrlTypeFn,
     MetaEventKind, MetaEventValueMap, MetaListArg, EventTiming, MetaEventArg
 } from '../types';
@@ -211,14 +211,6 @@ export default class Collection<T> {
 
     protected replacerFn<FromT>(r: ReplacerFn<FromT, T>, curr: FromT, i: number): T[] {
         return this.replacerValue(r(curr, i));
-    }
-
-    protected replacer<FromT>(r: Replacer<FromT, T>, curr: FromT, i: number): T[] {
-        if (typeof r === 'function') {
-            return this.replacerFn(r as ReplacerFn<FromT, T>, curr, i);
-        }
-
-        return this.replacerValue(r);
     }
 
     /*
