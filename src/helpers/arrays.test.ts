@@ -57,133 +57,130 @@ describe('arrays.zip() tests', () => {
 });
 
 describe('arrays.arrayToWindows() tests', () => {
-    const errortable: [ number[], number, number ][] = [
-        [ [ 1, 2, 3 ], 0, 1 ],
-        [ [ 1, 2, 3 ], 1, 0 ],
+    const errortable: [ string, number[], number, number, number | undefined ][] = [
+        [ 'zero size', [ 1, 2, 3 ], 0, 1, undefined ],
+        [ 'zero step', [ 1, 2, 3 ], 1, 0, undefined ],
+        [ 'non-integer offset', [ 1, 2, 3 ], 1, 1, 0.5 ],
+        [ 'offset before start', [ 1, 2, 3 ], 1, 1, -4 ],
     ];
 
-    test.each(errortable)('invalid arguments(%j) fail', (arr, size, step) => {
-        expect(() => arrays.arrayToWindows(arr, size, step)).toThrow();
+    test.each(errortable)('%s fails', (_, arr, size, step, offset) => {
+        expect(() => arrays.arrayToWindows(arr, size, step, offset)).toThrow();
     });
 
-    const table: [ number[], number, number, number[][], number[][] ][] = [
-        [ [], 1, 1, [], [] ],
+    const table: [ string, number[], number, number, number | undefined, number[][], number[][] ][] = [
         [
+            'empty array returns empty results',
+            [],
+            1,
+            1,
+            undefined,
+            [],
+            []
+        ],
+        [
+            'size 1 and step 1 returns individual members',
             [ 1, 2, 3, 4, 5 ],
             1,
             1,
+            undefined,
             [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ],
             []
         ],
         [
+            'size 1 and step 1 with explicit offset 0 returns individual members',
+            [ 1, 2, 3, 4, 5 ],
+            1,
+            1,
+            0,
+            [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ],
+            []
+        ],
+        [
+            'size 1 and step 1 with negative offset at start returns individual members',
+            [ 1, 2, 3, 4, 5 ],
+            1,
+            1,
+            -5,
+            [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ],
+            []
+        ],
+        [
+            'size 1 and step 1 with offset at last member returns only last member',
+            [ 1, 2, 3, 4, 5 ],
+            1,
+            1,
+            -1,
+            [ [ 5 ] ],
+            []
+        ],
+        [
+            'size 1 and step 1 with offset past last member returns empty results',
+            [ 1, 2, 3, 4, 5 ],
+            1,
+            1,
+            5,
+            [],
+            []
+        ],
+        [
+            'size 2 and step 1 returns pairs and a single incomplete',
             [ 1, 2, 3, 4, 5 ],
             2,
             1,
+            undefined,
             [ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ], [ 4, 5 ] ],
             [ [ 5 ] ]
         ],
         [
-            [ 1, 2, 3, 4, 5 ],
-            3,
-            1,
-            [ [ 1, 2, 3 ], [ 2, 3, 4 ], [ 3, 4, 5 ] ],
-            [ [ 4, 5 ], [ 5 ] ]
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
-            4,
-            1,
-            [ [ 1, 2, 3, 4 ], [ 2, 3, 4, 5 ] ],
-            [ [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
-        ],
-        [
+            'size 5 and step 1 returns one quintet and four incompletes',
             [ 1, 2, 3, 4, 5 ],
             5,
             1,
+            undefined,
             [ [ 1, 2, 3, 4, 5 ] ],
             [ [ 2, 3, 4, 5 ], [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
         ],
         [
+            'size 6 and step 1 returns only incompletes',
             [ 1, 2, 3, 4, 5 ],
             6,
             1,
+            undefined,
             [],
             [ [ 1, 2, 3, 4, 5 ], [ 2, 3, 4, 5 ], [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
         ],
         [
+            'size 1 and step 2 returns every second member only',
             [ 1, 2, 3, 4, 5 ],
             1,
             2,
+            undefined,
             [ [ 1 ], [ 3 ], [ 5 ] ],
             []
         ],
         [
-            [ 1, 2, 3, 4, 5 ],
-            2,
-            2,
-            [ [ 1, 2 ], [ 3, 4 ] ],
-            [ [ 5 ] ]
-        ],
-        [
+            'size 3 and step 2 returns two triplets and one incomplete',
             [ 1, 2, 3, 4, 5 ],
             3,
             2,
+            undefined,
             [ [ 1, 2, 3 ], [ 3, 4, 5 ] ],
             [ [ 5 ] ]
         ],
         [
+            'size 3 and step 2 with offset 1 returns one triplet and one incomplete',
             [ 1, 2, 3, 4, 5 ],
-            4,
-            2,
-            [ [ 1, 2, 3, 4 ] ],
-            [ [ 3, 4, 5 ], [ 5 ] ]
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
-            5,
-            2,
-            [ [ 1, 2, 3, 4, 5 ] ],
-            [ [ 3, 4, 5 ], [ 5 ] ]
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
-            6,
-            2,
-            [],
-            [ [ 1, 2, 3, 4, 5 ], [ 3, 4, 5 ], [ 5 ] ]
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
-            1,
             3,
-            [ [ 1 ], [ 4 ] ],
-            []
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
+            2,
             1,
-            4,
-            [ [ 1 ], [ 5 ] ],
-            []
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
-            1,
-            5,
-            [ [ 1 ] ],
-            []
-        ],
-        [
-            [ 1, 2, 3, 4, 5 ],
-            1,
-            6,
-            [ [ 1 ] ],
-            []
+            [ [ 2, 3, 4 ] ],
+            [ [ 4, 5 ] ]
         ],
     ];
 
-    test.each(table)('arrayToWindows(%j,%j,%j) to be [%j,%j]', (arr, size, step, exfull, exrest) => {
-        const [ full, rest ] = arrays.arrayToWindows(arr, size, step);
+    test.each(table)('%s', (_, arr, size, step, offset, exfull, exrest) => {
+        const [ full, rest ] = arrays.arrayToWindows(arr, size, step, offset);
 
         expect(full).toStrictEqual(exfull);
         expect(rest).toStrictEqual(exrest);
