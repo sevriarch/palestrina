@@ -1776,6 +1776,56 @@ describe('Sequence.filterInPosition()', () => {
     });
 });
 
+describe('Sequence.keepWindows()', () => {
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5 ]);
+
+    const errtable: [ string, number, number, number | undefined ][] = [
+        [ 'throws if size zero', 0, 1, undefined ],
+        [ 'throws if step zero', 1, 0, undefined ],
+        [ 'throws if offset non-integer', 1, 0, 0.5 ],
+        [ 'throws if offset before start', 1, 0, -6 ],
+    ];
+
+    test.each(errtable)('%s', (_, size, step, offset) => {
+        expect(() => s1.keepWindows(size, step, offset)).toThrow();
+    });
+
+    const table: [ string, number, number, number | undefined, number[] ][] = [
+        [
+            'size 1, step 1, returns unaffected',
+            1,
+            1,
+            undefined,
+            [ 1, 2, 3, 4, 5 ],
+        ],
+        [
+            'size 1, step 1, offset 1 returns all but first member',
+            1,
+            1,
+            1,
+            [ 2, 3, 4, 5 ],
+        ],
+        [
+            'size 2, step 1, returns expected repetitions',
+            2,
+            1,
+            0,
+            [ 1, 2, 2, 3, 3, 4, 4, 5 ],
+        ],
+        [
+            'size 2, step 3, returns expected subset',
+            2,
+            3,
+            undefined,
+            [ 1, 2, 4, 5 ],
+        ],
+    ];
+
+    test.each(table)('%s', (_, size, step, offset, ret) => {
+        expect(s1.keepWindows(size, step, offset)).toStrictEqual(NumSeq.from(ret));
+    });
+});
+
 describe('Sequence.mapWindow()', () => {
     const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
     const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);

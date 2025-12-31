@@ -1262,6 +1262,24 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
+     * Retain only the members within the defined windows within this Sequence. If
+     * the window is longer than the step within it, this can result in duplicated
+     * members.
+     * 
+     * @example
+     * // returns numseq([ 1, 2, 4, 5, 7, 8 ])
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).keepWindows(2, 3)
+     * 
+     * // returns numseq([ 2, 3, 4, 5, 5, 6, 7, 8 ])
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(3, 4, 1)
+     */
+    keepWindows(size: number, step: number, offset = 0): this {
+        const [ windows ] = arrayToWindows(this.contents, size, step, offset);
+
+        return this.construct(...windows);
+    }
+
+    /**
      * Apply a mapper function to sliding windows within the Sequence, then
      * create a new Sequence from the results. Flattens array results one
      * level. Incomplete windows are discarded.
