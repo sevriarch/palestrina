@@ -9,7 +9,7 @@ import * as mutators from '../mutators/mutators';
 
 import { isNumber, isNonnegInt, isPosInt } from '../helpers/validation';
 import { sum, min, max } from '../helpers/calculations';
-import { dedupe, arrayToWindows, zip, sanitizeToArray } from '../helpers/arrays';
+import { dedupe, validateWindows, arrayToWindows, zip, sanitizeToArray } from '../helpers/arrays';
 import { dumpOneLine } from '../dump/dump';
 
 function fillarray<T>(len: number, val: T) {
@@ -1263,7 +1263,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
     /**
      * Retain only the members within the defined windows within this Sequence. If
-     * the window is longer than the step within it, this can result in duplicated
+     * the window is longer than the step between windows, this can result in duplicated
      * members.
      * 
      * @example
@@ -1271,12 +1271,41 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).keepWindows(2, 3)
      * 
      * // returns numseq([ 2, 3, 4, 5, 5, 6, 7, 8 ])
-     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(3, 4, 1)
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
      */
     keepWindows(size: number, step: number, offset = 0): this {
         const [ windows ] = arrayToWindows(this.contents, size, step, offset);
 
         return this.construct(...windows);
+    }
+
+    /**
+     * Retain only the members outside the defined windows within this Sequence.
+     * 
+     * @example
+     * // returns numseq([ 3, 6, 9 ])
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).dropWindows(2, 3)
+     * 
+     * // returns numseq([ 1 ])
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
+     */
+    dropWindows(size: number, step: number, offset = 0): this {
+        const len = this.contents.length;
+
+        validateWindows(len, size, step, offset);
+
+        if (size >= step) {
+            return this.dropSlice(offset);
+        }
+
+        const first = this.index(offset);
+        const ret: ET[][] = [ this.contents.slice(0, first) ];
+
+        for (let i = first; i < len; i += step) {
+            ret.push(this.contents.slice(i + size, i + step));
+        }
+
+        return this.construct(ret.flat());
     }
 
     /**

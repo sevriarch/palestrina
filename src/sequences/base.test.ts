@@ -1809,7 +1809,7 @@ describe('Sequence.keepWindows()', () => {
             'size 2, step 1, returns expected repetitions',
             2,
             1,
-            0,
+            -5,
             [ 1, 2, 2, 3, 3, 4, 4, 5 ],
         ],
         [
@@ -1823,6 +1823,49 @@ describe('Sequence.keepWindows()', () => {
 
     test.each(table)('%s', (_, size, step, offset, ret) => {
         expect(s1.keepWindows(size, step, offset)).toStrictEqual(NumSeq.from(ret));
+    });
+});
+
+describe('Sequence.dropWindows()', () => {
+    const s1 = NumSeq.from([ 1, 2, 3, 4, 5, 6 ]);
+
+    const errtable: [ string, number, number, number | undefined ][] = [
+        [ 'throws if size zero', 0, 1, undefined ],
+        [ 'throws if step zero', 1, 0, undefined ],
+        [ 'throws if offset non-integer', 1, 0, 0.5 ],
+        [ 'throws if offset before start', 1, 0, -7 ],
+    ];
+
+    test.each(errtable)('%s', (_, size, step, offset) => {
+        expect(() => s1.keepWindows(size, step, offset)).toThrow();
+    });
+
+    const table: [ string, number, number, number | undefined, number[] ][] = [
+        [
+            'size 1, step 1, returns empty',
+            1,
+            1,
+            undefined,
+            [],
+        ],
+        [
+            'size 2, step 3, returns expected subset',
+            2,
+            3,
+            -6,
+            [ 3, 6 ],
+        ],
+        [
+            'size 2, step 3, offset 1, returns single expected value',
+            2,
+            3,
+            1,
+            [ 1, 4 ],
+        ],
+    ];
+
+    test.each(table)('%s', (_, size, step, offset, ret) => {
+        expect(s1.dropWindows(size, step, offset)).toStrictEqual(NumSeq.from(ret));
     });
 });
 

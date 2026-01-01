@@ -40,12 +40,7 @@ export function zip<T>(...arr: T[][]): T[][] {
     return ret;
 }
 
-/**
- * Split an array into an array of sliding windows, moving left to right.
- * An tuple containing two arrays is returned; the first contains complete
- * windows; the second contains all incomplete windows.
- */
-export function arrayToWindows<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][] ] {
+export function validateWindows(len: number, size: number, step: number, offset: number): void {
     if (!isPosInt(size)) {
         throw new Error(`size must be a positive integer; was ${dumpOneLine(size)}`);
     }
@@ -58,12 +53,20 @@ export function arrayToWindows<T>(arr: T[], size: number, step: number, offset =
         throw new Error(`offset must be an integer; was ${dumpOneLine(offset)}`);
     }
 
-    const first = offset < 0 ? arr.length + offset : offset;
-
-    if (first < 0) {
-        throw new Error(`invalid offset ${offset} on length of ${arr.length}`);
+    if (offset < 0 && -offset > len) {
+        throw new Error(`invalid offset ${offset} on length of ${len}`);
     }
+}
 
+/**
+ * Split an array into an array of sliding windows, moving left to right.
+ * An tuple containing two arrays is returned; the first contains complete
+ * windows; the second contains all incomplete windows.
+ */
+export function arrayToWindows<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][] ] {
+    validateWindows(arr.length, size, step, offset);
+
+    const first = offset < 0 ? arr.length + offset : offset;
     const max = arr.length - size;
     const full: T[][] = [];
     const rest: T[][] = [];
