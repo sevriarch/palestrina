@@ -1262,9 +1262,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Retain only the members within the defined windows within this Sequence. If
-     * the window is longer than the step between windows, this can result in duplicated
-     * members.
+     * Retain only the members within the defined windows within this Sequence.
+     * 
+     * If the window is longer than the step between windows, this can result in duplicated members.
      * 
      * @example
      * // returns numseq([ 1, 2, 4, 5, 7, 8 ])
@@ -1309,16 +1309,21 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Apply a mapper function to sliding windows within the Sequence, then
-     * create a new Sequence from the results. Flattens array results one
-     * level. Members outside of the sliding windows, or inside an incomplete
-     * window, are left unaltered.
-     *
+     * Create Sequences from sliding windows within this Sequence, then apply a mapper function
+     * to each of them. Create a new Sequence from the mapped sliding windows, and members of this
+     * sequence that were outside of the sliding window or inside an incomplete window, retaining
+     * the initial order.
+     * 
+     * If the window is longer than the step between windows, this can result in duplicated members.
+     * 
      * @example
-     * // returns numseq([ 3, 7, 5 ])
-     * numseq([ 1, 2, 3, 4, 5 ]).mapWindow(2, 2, p => p[0].transpose(p[1].val()))
+     * // returns numseq([ 2, 1, 4, 3, 5 ])
+     * numseq([ 1, 2, 3, 4, 5 ]).mapWindow(2, 2, p => p[0].retrograde())
+     * 
+     * // returns numseq([ 1, 3, 4, 4, 9, 10, 7 ])
+     * numseq([ 1, 2, 3, 4, 5, 6, 7 ]).mapWindow(2, 3, (s, i) => s.transpose(i), 1)
      */
-    mapWindow(size: number, step: number, mapper: MapperFn<ET[]>, offset = 0): this {
+    mapWindow(size: number, step: number, mapper: MapperFn<this>, offset = 0): this {
         if (typeof mapper !== 'function') {
             throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
         }
@@ -1331,7 +1336,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         const ret: ET[][] = [ this.contents.slice(0, first) ];
 
         for (let i = first; i < len; i += step) {
-            ret.push(mapper(this.contents.slice(i, i + size), i), this.contents.slice(i + size, i + step));
+            ret.push(mapper(this.keepSlice(i, i + size), i).contents, this.contents.slice(i + size, i + step));
         }
 
         return this.construct(ret.flat());

@@ -1874,10 +1874,10 @@ describe('Sequence.mapWindow()', () => {
     const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
     const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
-    const errortable: [ string, number, number, MapperFn<NumSeqMember[]> ][] = [
-        [ 'mapper function is not a function', 5, 5, 0 as unknown as MapperFn<NumSeqMember[]> ],
-        [ 'size is not a positive integer', 0, 5, (e: NumSeqMember[]) => e ],
-        [ 'step is not a positive integer', 5, 0, (e: NumSeqMember[]) => e ],
+    const errortable: [ string, number, number, MapperFn<NumSeq> ][] = [
+        [ 'mapper function is not a function', 5, 5, 0 as unknown as MapperFn<NumSeq> ],
+        [ 'size is not a positive integer', 0, 5, e => e ],
+        [ 'step is not a positive integer', 5, 0, e => e ],
     ];
 
     test.each(errortable)('fails when %s', (_, size, step, fn) => {
@@ -1895,12 +1895,12 @@ describe('Sequence.mapWindow()', () => {
     });
 
     test('size and step one, result length varied, offset zero', () => {
-        expect(s2.mapWindow(1, 1, (a, i) => i % 2 ? [ ...a, ...a ] : [], 0))
+        expect(s2.mapWindow(1, 1, (a, i) => i % 2 ? a.repeat() : a.empty() , 0))
             .toStrictEqual(ChordSeq.from([ [ -3, 4, 6 ], [ -3, 4, 6 ], [ 2 ], [ 2 ] ]));
     });
 
     test('size more than one, step one', () => {
-        expect(s3.mapWindow(2, 1, a => a.reverse()))
+        expect(s3.mapWindow(2, 1, a => a.retrograde()))
             .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6, 14 ], MICROTONAL));
     });
 
@@ -1910,12 +1910,12 @@ describe('Sequence.mapWindow()', () => {
     });
 
     test('size and step more than one (and size less than step), no incomplete window', () => {
-        expect(s1.mapWindow(2, 2, a => a.reverse()))
+        expect(s1.mapWindow(2, 2, a => a.retrograde()))
             .toStrictEqual(NumSeq.from([ -2, 0, 3, 1, 4, 2, -7, 5, 14, 6 ]));
     });
 
     test('size and step more than one (and size greater than step), offset passed, has incomplete window', () => {
-        expect(s1.mapWindow(3, 2, a => a.reverse(), 1))
+        expect(s1.mapWindow(3, 2, a => a.retrograde(), 1))
             .toStrictEqual(NumSeq.from([ 0, 3, 1, -2, 4, 2, 3, -7, 5, 4, 14, 6, -7, 14 ]));
     });
 });
