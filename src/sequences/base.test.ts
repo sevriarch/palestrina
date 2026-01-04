@@ -1885,12 +1885,17 @@ describe('Sequence.mapWindow()', () => {
     });
 
     test('size and step one, result length one', () => {
-        expect(s1.mapWindow(1, 1, ((a, i) => a.map(e => e.transpose(i)))))
+        expect(s1.mapWindow(1, 1, (a, i) => a.map(e => e.transpose(i))))
             .toStrictEqual(NumSeq.from([ 0, -1, 3, 6, 6, 9, 11, 0, 14, 23 ]));
     });
 
-    test('size and step one, result length varied', () => {
-        expect(s2.mapWindow(1, 1, ((a, i) => i % 2 ? [ ...a, ...a ] : [])))
+    test('size and step one, result length one, offset passed', () => {
+        expect(s1.mapWindow(1, 1, (a, i) => a.map(e => e.transpose(i)), 3))
+            .toStrictEqual(NumSeq.from([ 0, -2, 1, 6, 6, 9, 11, 0, 14, 23 ]));
+    });
+
+    test('size and step one, result length varied, offset zero', () => {
+        expect(s2.mapWindow(1, 1, (a, i) => i % 2 ? [ ...a, ...a ] : [], 0))
             .toStrictEqual(ChordSeq.from([ [ -3, 4, 6 ], [ -3, 4, 6 ], [ 2 ], [ 2 ] ]));
     });
 
@@ -1906,7 +1911,12 @@ describe('Sequence.mapWindow()', () => {
 
     test('size and step more than one', () => {
         expect(s1.mapWindow(3, 2, a => a.reverse()))
-            .toStrictEqual(NumSeq.from([ 1, -2, 0, 2, 3, 1, 5, 4, 2, 6, -7, 5 ]));
+            .toStrictEqual(NumSeq.from([ 1, -2, 0, 2, 3, 1, 5, 4, 2, 6, -7, 5, 6, 14 ]));
+    });
+
+    test('size and step more than one, offset passed', () => {
+        expect(s1.mapWindow(3, 2, a => a.reverse(), 1))
+            .toStrictEqual(NumSeq.from([ 0, 3, 1, -2, 5, 4, 2, 14, 6, -7 ]));
     });
 });
 

@@ -36,10 +36,8 @@ class Conversions {
 }
 
 function applyMixins<T extends ISequence<ET>, ET>(seqCtor: new (contents: ET[], metadata: Metadata) => T) {
-    const proto = seqCtor.prototype;
-
     [ 'toNumSeq', 'toNoteSeq', 'toChordSeq', 'toMelody' ].forEach(name => 
-        Object.defineProperty(proto, name, Object.getOwnPropertyDescriptor(Conversions.prototype, name) as PropertyDescriptor)
+        Object.defineProperty(seqCtor.prototype, name, Object.getOwnPropertyDescriptor(Conversions.prototype, name) as PropertyDescriptor)
     );
 }
 

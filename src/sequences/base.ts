@@ -1311,16 +1311,30 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     /**
      * Apply a mapper function to sliding windows within the Sequence, then
      * create a new Sequence from the results. Flattens array results one
-     * level. Incomplete windows are discarded.
+     * level. Members outside of the sliding windows, or inside an incomplete
+     * window, are left unaltered.
      *
      * @example
-     * // returns numseq([ 3, 7 ])
+     * // returns numseq([ 3, 7, 5 ])
      * numseq([ 1, 2, 3, 4, 5 ]).mapWindow(2, 2, p => p[0].transpose(p[1].val()))
      */
-    mapWindow(size: number, step: number, fn: MapperFn<ET[]>): this {
-        const [ windows ] = arrayToWindows(this.contents, size, step);
+    mapWindow(size: number, step: number, mapper: MapperFn<ET[]>, offset = 0): this {
+        if (typeof mapper !== 'function') {
+            throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
+        }
 
-        return this.construct(windows.flatMap(fn));
+        const len = this.contents.length;
+
+        validateWindows(len, size, step, offset);
+
+        const first = this.index(offset);
+        const ret: ET[][] = [ this.contents.slice(0, first) ];
+
+        for (let i = first; i < len; i += step) {
+            ret.push(mapper(this.contents.slice(i, i + size), i), this.contents.slice(i + size, i + step));
+        }
+
+        return this.construct(ret.flat());
     }
 
     /**
