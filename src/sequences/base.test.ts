@@ -1889,7 +1889,7 @@ describe('Sequence.mapWindow()', () => {
             .toStrictEqual(NumSeq.from([ 0, -1, 3, 6, 6, 9, 11, 0, 14, 23 ]));
     });
 
-    test('size and step one, result length one, offset passed', () => {
+    test('size and step one, using position, result length one, offset passed', () => {
         expect(s1.mapWindow(1, 1, (a, i) => a.map(e => e.transpose(i)), 3))
             .toStrictEqual(NumSeq.from([ 0, -2, 1, 6, 6, 9, 11, 0, 14, 23 ]));
     });
@@ -1901,22 +1901,22 @@ describe('Sequence.mapWindow()', () => {
 
     test('size more than one, step one', () => {
         expect(s3.mapWindow(2, 1, a => a.reverse()))
-            .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6 ], MICROTONAL));
+            .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6, 14 ], MICROTONAL));
     });
 
     test('size one, step more than one but a subdivision of sequence length', () => {
-        expect(s3.mapWindow(1, 2, (a, i) => a.map(e => e.transpose(i / 2))))
-            .toStrictEqual(NumSeq.from([ 0, 1.5, 3, 6.5, 8 ], MICROTONAL));
+        expect(s3.mapWindow(1, 2, a => a.map(e => e.diminish(2))))
+            .toStrictEqual(NumSeq.from([ 0, -2, 0.5, 3, 1, 4, 2.5, -7, 3, 14 ], MICROTONAL));
     });
 
-    test('size and step more than one', () => {
-        expect(s1.mapWindow(3, 2, a => a.reverse()))
-            .toStrictEqual(NumSeq.from([ 1, -2, 0, 2, 3, 1, 5, 4, 2, 6, -7, 5, 6, 14 ]));
+    test('size and step more than one (and size less than step), no incomplete window', () => {
+        expect(s1.mapWindow(2, 2, a => a.reverse()))
+            .toStrictEqual(NumSeq.from([ -2, 0, 3, 1, 4, 2, -7, 5, 14, 6 ]));
     });
 
-    test('size and step more than one, offset passed', () => {
+    test('size and step more than one (and size greater than step), offset passed, has incomplete window', () => {
         expect(s1.mapWindow(3, 2, a => a.reverse(), 1))
-            .toStrictEqual(NumSeq.from([ 0, 3, 1, -2, 5, 4, 2, 14, 6, -7 ]));
+            .toStrictEqual(NumSeq.from([ 0, 3, 1, -2, 4, 2, 3, -7, 5, 4, 14, 6, -7, 14 ]));
     });
 });
 
