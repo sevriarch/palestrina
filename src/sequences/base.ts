@@ -9,7 +9,7 @@ import * as mutators from '../mutators/mutators';
 
 import { isNumber, isNonnegInt, isPosInt } from '../helpers/validation';
 import { sum, min, max } from '../helpers/calculations';
-import { dedupe, validateWindows, extractChunksFromArray, zip, sanitizeToArray } from '../helpers/arrays';
+import { dedupe, extractChunksFromArray, zip, sanitizeToArray } from '../helpers/arrays';
 import { dumpOneLine } from '../dump/dump';
 
 function fillarray<T>(len: number, val: T) {
@@ -1341,10 +1341,6 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         if (typeof filter !== 'function') {
             throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
         }
-
-        const len = this.contents.length;
-
-        validateWindows(len, size, step, offset);
 
         const [ windows, rest ] = extractChunksFromArray(this.contents, size, step, offset);
         const ret = [];

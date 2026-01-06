@@ -40,22 +40,20 @@ export function zip<T>(...arr: T[][]): T[][] {
     return ret;
 }
 
-export function validateWindows(len: number, size: number, step: number, offset: number): void {
-    if (!isPosInt(size)) {
-        throw new Error(`size must be a positive integer; was ${dumpOneLine(size)}`);
-    }
-
-    if (!isPosInt(step)) {
-        throw new Error(`step must be a positive integer; was ${dumpOneLine(step)}`);
-    }
-
+function getOffset(offset: number, len: number) {
     if (!isInt(offset)) {
         throw new Error(`offset must be an integer; was ${dumpOneLine(offset)}`);
     }
 
-    if (offset < 0 && -offset > len) {
-        throw new Error(`invalid offset ${offset} on length of ${len}`);
+    if (offset < 0) {
+        if (-offset > len) {
+            throw new Error(`invalid offset ${offset} on length of ${len}`);
+        }
+
+        return len + offset;
     }
+
+    return offset;
 }
 
 /**
@@ -70,11 +68,16 @@ export function validateWindows(len: number, size: number, step: number, offset:
  * arrays, starting with the second.
  */
 export function extractChunksFromArray<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][] ] {
+    if (!isPosInt(size)) {
+        throw new Error(`size must be a positive integer; was ${dumpOneLine(size)}`);
+    }
+
+    if (!isPosInt(step)) {
+        throw new Error(`step must be a positive integer; was ${dumpOneLine(step)}`);
+    }
+
     const len = arr.length;
-
-    validateWindows(len, size, step, offset);
-
-    const first = offset < 0 ? len + offset : offset;
+    const first = getOffset(offset, len);
     const laststart = len - size;
 
     if (first > laststart) { // no full chunk extractable
@@ -84,16 +87,16 @@ export function extractChunksFromArray<T>(arr: T[], size: number, step: number, 
     const rest = [ arr.slice(0, first) ];
     const chunks: T[][] = [];
 
-    let i = first;
-    while (i <= laststart) {
-        chunks.push(arr.slice(i, i + size));
-        rest.push(arr.slice(i + size, i + step));
+    let curr = first;
+    while (curr <= laststart) {
+        chunks.push(arr.slice(curr, curr + size));
+        rest.push(arr.slice(curr + size, curr + step));
 
-        i += step;
+        curr += step;
     }
 
     // append anything at tail of array that was unused
-    const unused = size > step ? (i - step + size) : i;
+    const unused = size > step ? (curr - step + size) : curr;
     rest[rest.length - 1].push(...arr.slice(unused));
 
     return [ chunks, rest ];
