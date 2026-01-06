@@ -9,7 +9,7 @@ import * as mutators from '../mutators/mutators';
 
 import { isNumber, isNonnegInt, isPosInt } from '../helpers/validation';
 import { sum, min, max } from '../helpers/calculations';
-import { dedupe, validateWindows, arrayToWindows, extractChunksFromArray, zip, sanitizeToArray } from '../helpers/arrays';
+import { dedupe, validateWindows, extractChunksFromArray, zip, sanitizeToArray } from '../helpers/arrays';
 import { dumpOneLine } from '../dump/dump';
 
 function fillarray<T>(len: number, val: T) {
@@ -1331,10 +1331,10 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     /**
      * Apply a filter function to sliding windows within the Sequence, then
      * create a new Sequence from the results. Flattens array results one
-     * level. Incomplete windows are discarded.
+     * level.
      *
      * @example
-     * // returns numseq([ 3, 4 ])
+     * // returns numseq([ 3, 4, 5 ])
      * numseq([ 1, 2, 3, 4, 5 ]).filterWindow(2, 2, p => p[0].val() !== 1)
      */
     filterWindow(size: number, step: number, filter: FilterFn<this>, offset = 0): this {
@@ -1423,9 +1423,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             throw new Error(`${this.constructor.name}.chop(): invalid argument ${n}, must be a positive int`);
         }
 
-        const [ windows ] = arrayToWindows(this.contents, n, n);
+        const [ chunks ] = extractChunksFromArray(this.contents, n, n);
 
-        return windows.map(v => this.construct(v));
+        return chunks.map(v => this.construct(v));
     }
 
     /**

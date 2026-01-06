@@ -422,7 +422,7 @@ export interface ISequence<T> extends Collection<T> {
     gamut(gamut: number[], opts: GamutOpts): this;
     filterInPosition(fn: FilterFn<T>, nullval: SeqMemberArgument): this;
     mapWindow(size: number, step: number, fn: MapperFn<this>): this;
-    filterWindow(size: number, step: number, fn: FilterFn<T[]>): this;
+    filterWindow(size: number, step: number, fn: FilterFn<this>): this;
     sort(fn: (a: T, b: T) => number, filter?: FilterFn<T>): this;
 
     // Transform one sequence into one or more sequences

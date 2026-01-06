@@ -59,30 +59,6 @@ export function validateWindows(len: number, size: number, step: number, offset:
 }
 
 /**
- * Split an array into an array of sliding windows, moving left to right.
- * An tuple containing two arrays is returned; the first contains complete
- * windows; the second contains all incomplete windows.
- */
-export function arrayToWindows<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][] ] {
-    validateWindows(arr.length, size, step, offset);
-
-    const first = offset < 0 ? arr.length + offset : offset;
-    const max = arr.length - size;
-    const full: T[][] = [];
-    const rest: T[][] = [];
-
-    for (let i = first; i < arr.length; i += step) {
-        if (i > max) {
-            rest.push(arr.slice(i, i + size));
-        } else {
-            full.push(arr.slice(i, i + size));
-        }
-    }
-
-    return [ full, rest ];
-}
-
-/**
  * Split an array into chunks defined by a size and step number, beginning at an offset.
  * The result is a tuple containing two arrays: the first contains the chunks extracted
  * from the array, the second contains those array members not included in the chunks.
