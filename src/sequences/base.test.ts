@@ -1871,7 +1871,6 @@ describe('Sequence.dropWindows()', () => {
 
 describe('Sequence.mapWindow()', () => {
     const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
-    const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
     const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
     const errortable: [ string, number, number, MapperFn<NumSeq> ][] = [
@@ -1894,14 +1893,9 @@ describe('Sequence.mapWindow()', () => {
             .toStrictEqual(NumSeq.from([ 0, -2, 1, 6, 6, 9, 11, 0, 14, 23 ]));
     });
 
-    test('size and step one, result length varied, offset zero', () => {
-        expect(s2.mapWindow(1, 1, (a, i) => i % 2 ? a.repeat() : a.empty() , 0))
-            .toStrictEqual(ChordSeq.from([ [ -3, 4, 6 ], [ -3, 4, 6 ], [ 2 ], [ 2 ] ]));
-    });
-
     test('size more than one, step one', () => {
         expect(s3.mapWindow(2, 1, a => a.retrograde()))
-            .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6, 14 ], MICROTONAL));
+            .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6 ], MICROTONAL));
     });
 
     test('size one, step more than one but a subdivision of sequence length', () => {
@@ -1909,14 +1903,19 @@ describe('Sequence.mapWindow()', () => {
             .toStrictEqual(NumSeq.from([ 0, -2, 0.5, 3, 1, 4, 2.5, -7, 3, 14 ], MICROTONAL));
     });
 
-    test('size and step more than one (and size less than step), no incomplete window', () => {
+    test('size and step more than one, no incomplete window', () => {
         expect(s1.mapWindow(2, 2, a => a.retrograde()))
             .toStrictEqual(NumSeq.from([ -2, 0, 3, 1, 4, 2, -7, 5, 14, 6 ]));
     });
 
-    test('size and step more than one (and size greater than step), offset passed, has incomplete window', () => {
-        expect(s1.mapWindow(3, 2, a => a.retrograde(), 1))
-            .toStrictEqual(NumSeq.from([ 0, 3, 1, -2, 4, 2, 3, -7, 5, 4, 14, 6, -7, 14 ]));
+    test('size and step more than one, incomplete window', () => {
+        expect(s1.mapWindow(2, 4, a => a.empty(), 1))
+            .toStrictEqual(NumSeq.from([ 0, 3, 2, -7, 6, 14 ]));
+    });
+
+    test('size and step more than one, size greater than step, offset passed, ends with incomplete window', () => {
+        expect(s1.mapWindow(3, 2, a => a.retrograde(), 2))
+            .toStrictEqual(NumSeq.from([ 0, -2, 2, 3, 1, 5, 4, 2, 6, -7, 5, 14 ]));
     });
 });
 
@@ -1925,8 +1924,8 @@ describe('Sequence.filterWindow()', () => {
     const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
     const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
-    const errortable: [ string, number, number, FilterFn<NumSeqMember[]> ][] = [
-        [ 'filter function is not a function', 5, 5, 0 as unknown as FilterFn<NumSeqMember[]> ],
+    const errortable: [ string, number, number, FilterFn<NumSeq> ][] = [
+        [ 'filter function is not a function', 5, 5, 0 as unknown as FilterFn<NumSeq> ],
         [ 'size is not a positive integer', 0, 5, () => true ],
         [ 'step is not a positive integer', 5, 0, () => true ],
     ];
@@ -1936,23 +1935,23 @@ describe('Sequence.filterWindow()', () => {
     });
 
     test('size and step one', () => {
-        expect(s1.filterWindow(1, 1, (a, i) => a[0].val() > i))
+        expect(s1.filterWindow(1, 1, (a, i) => a.contents[0].val() > i))
             .toStrictEqual(NumSeq.from([ 14 ]));
     });
 
     test('size more than one, step one', () => {
-        expect(s3.filterWindow(2, 1, a => a[0].val() < a[1].val()))
+        expect(s3.filterWindow(2, 1, a => a.contents[0].val() < a.contents[1].val()))
             .toStrictEqual(NumSeq.from([ -2, 1, 1, 3, 2, 4, 4, 5, -7, 6, 6, 14 ], MICROTONAL));
     });
 
-    test('size one, step more than one but a subdivision of sequence length', () => {
-        expect(s2.filterWindow(1, 2, a => a[0].len() > 0))
-            .toStrictEqual(ChordSeq.from([ [ 1, 22 ], [ 11 ] ]));
+    test('size one, step more than one', () => {
+        expect(s2.filterWindow(1, 2, a => a.contents[0].len() > 0))
+            .toStrictEqual(ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [ 2 ], [ 11 ] ]));
     });
 
-    test('size and step more than one', () => {
-        expect(s1.filterWindow(3, 2, a => a[0].val() < a[1].val()))
-            .toStrictEqual(NumSeq.from([ 1, 3, 2, 2, 4, 5 ]));
+    test('size and step more than one, offset passed, ends with incomplete window', () => {
+        expect(s1.filterWindow(3, 2, a => a.contents[0].val() < a.contents[1].val(), 1))
+            .toStrictEqual(NumSeq.from([ 0, -2, 1, 3, 4, 5, -7, -7, 6, 14 ]));
     });
 });
 

@@ -9,7 +9,7 @@ import * as mutators from '../mutators/mutators';
 
 import { isNumber, isNonnegInt, isPosInt } from '../helpers/validation';
 import { sum, min, max } from '../helpers/calculations';
-import { dedupe, validateWindows, arrayToWindows, zip, sanitizeToArray } from '../helpers/arrays';
+import { dedupe, validateWindows, arrayToWindows, extractChunksFromArray, zip, sanitizeToArray } from '../helpers/arrays';
 import { dumpOneLine } from '../dump/dump';
 
 function fillarray<T>(len: number, val: T) {
@@ -1274,7 +1274,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
      */
     keepWindows(size: number, step: number, offset = 0): this {
-        const [ windows ] = arrayToWindows(this.contents, size, step, offset);
+        const [ windows ] = extractChunksFromArray(this.contents, size, step, offset);
 
         return this.construct(...windows);
     }
@@ -1290,22 +1290,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
      */
     dropWindows(size: number, step: number, offset = 0): this {
-        const len = this.contents.length;
+        const [ , rest ] = extractChunksFromArray(this.contents, size, step, offset);
 
-        validateWindows(len, size, step, offset);
-
-        if (size >= step) {
-            return this.dropSlice(offset);
-        }
-
-        const first = this.index(offset);
-        const ret: ET[][] = [ this.contents.slice(0, first) ];
-
-        for (let i = first; i < len; i += step) {
-            ret.push(this.contents.slice(i + size, i + step));
-        }
-
-        return this.construct(ret.flat());
+        return this.construct(...rest);
     }
 
     /**
@@ -1328,16 +1315,15 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
         }
 
-        const len = this.contents.length;
-
-        validateWindows(len, size, step, offset);
-
+        const [ windows, rest ] = extractChunksFromArray(this.contents, size, step, offset);
+        const ret = [];
         const first = this.index(offset);
-        const ret: ET[][] = [ this.contents.slice(0, first) ];
 
-        for (let i = first; i < len; i += step) {
-            ret.push(mapper(this.keepSlice(i, i + size), i).contents, this.contents.slice(i + size, i + step));
+        for (let i = 0; i < windows.length; i++) {
+            ret.push(rest[i], mapper(this.construct(windows[i]), first + i * step).contents);
         }
+
+        ret.push(rest[windows.length]);
 
         return this.construct(ret.flat());
     }
@@ -1351,10 +1337,30 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * // returns numseq([ 3, 4 ])
      * numseq([ 1, 2, 3, 4, 5 ]).filterWindow(2, 2, p => p[0].val() !== 1)
      */
-    filterWindow(size: number, step: number, fn: FilterFn<ET[]>): this {
-        const [ windows ] = arrayToWindows(this.contents, size, step);
+    filterWindow(size: number, step: number, filter: FilterFn<this>, offset = 0): this {
+        if (typeof filter !== 'function') {
+            throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
+        }
 
-        return this.construct(...windows.filter(fn));
+        const len = this.contents.length;
+
+        validateWindows(len, size, step, offset);
+
+        const [ windows, rest ] = extractChunksFromArray(this.contents, size, step, offset);
+        const ret = [];
+        const first = this.index(offset);
+
+        for (let i = 0; i < windows.length; i++) {
+            ret.push(rest[i]);
+
+            if (filter(this.construct(windows[i]), first + i * step)) {
+                ret.push(windows[i]);
+            }
+        }
+
+        ret.push(rest[windows.length]);
+
+        return this.construct(ret.flat());
     }
 
     /**
