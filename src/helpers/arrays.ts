@@ -97,24 +97,27 @@ export function extractChunksFromArray<T>(arr: T[], size: number, step: number, 
     const len = arr.length;
 
     validateWindows(len, size, step, offset);
-    const first = offset < 0 ? len + offset : offset;
 
-    if (first + size > len) {
+    const first = offset < 0 ? len + offset : offset;
+    const laststart = len - size;
+
+    if (first > laststart) { // no full chunk extractable
         return [ [], [ arr.slice() ] ];
     }
 
     const rest = [ arr.slice(0, first) ];
     const chunks: T[][] = [];
 
-    for (let i = first; (i + size) <= len; i += step) {
+    let i = first;
+    while (i <= laststart) {
         chunks.push(arr.slice(i, i + size));
+        rest.push(arr.slice(i + size, i + step));
 
-        if (i + size + step > len) { // final loop iteration
-            rest.push(arr.slice(i + size));
-        } else {
-            rest.push(arr.slice(i + size, i + step));
-        }
+        i += step;
     }
+
+    // append anything at tail of array that wasn't processed
+    rest[rest.length - 1].push(...arr.slice(i + size - step));
 
     return [ chunks, rest ];
 }
