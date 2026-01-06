@@ -58,14 +58,21 @@ function getOffset(offset: number, len: number) {
 
 /**
  * Split an array into chunks defined by a size and step number, beginning at an offset.
- * The result is a tuple containing two arrays: the first contains the chunks extracted
- * from the array, the second contains those array members not included in the chunks.
+ * The result is a tuple containing four members:
  * 
- * The second array is always one longer than the first.
+ * The first ("chunks") contains the chunks extracted from the array
  * 
- * To reconstruct the original array, loop through through the result arrays, appending
- * each value in them to an initially empty array, alternating between the two result
- * arrays, starting with the second.
+ * The second ("remnants") contains those remnants not included in the chunks
+ * 
+ * The third ("head") contains any array members before the first chunk
+ * 
+ * The last ("tail") contains any array members left over after the final chunk/remnants extraction
+ * 
+ * The chunks and remnant arrays will always be of the same length.
+ * 
+ * To reconstruct the original array, create a result array containing the head, then loop through
+ * the remnant and chunks arrays, appending each value in turn (chunks first, then remnants). Then
+ * add the tail onto the end after the loop is completed.
  */
 export function extractChunksFromArray<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][], T[], T[] ] {
     if (!isPosInt(size)) {
@@ -76,29 +83,27 @@ export function extractChunksFromArray<T>(arr: T[], size: number, step: number, 
         throw new Error(`step must be a positive integer; was ${dumpOneLine(step)}`);
     }
 
-    const len = arr.length;
-    const first = getOffset(offset, len);
-    const laststart = len - size;
+    const first = getOffset(offset, arr.length);
+    const laststart = arr.length - size;
 
     if (first > laststart) { // no full chunk extractable
         return [ [], [], arr.slice(), [] ];
     }
 
-    const rest = [];
+    const remnants = [];
     const chunks = [];
 
     let curr = first;
-    while (curr <= laststart) {
+    do {
         chunks.push(arr.slice(curr, curr + size));
-        rest.push(arr.slice(curr + size, curr + step));
+        remnants.push(arr.slice(curr + size, curr + step));
 
         curr += step;
-    }
+    } while (curr <= laststart);
 
-    // append anything at tail of array that was unused
     const unused = size > step ? (curr - step + size) : curr;
 
-    return [ chunks, rest, arr.slice(0, first), arr.slice(unused) ];
+    return [ chunks, remnants, arr.slice(0, first), arr.slice(unused) ];
 }
 
 /**
