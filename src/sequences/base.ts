@@ -1290,9 +1290,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
      */
     dropWindows(size: number, step: number, offset = 0): this {
-        const [ , rest ] = extractChunksFromArray(this.contents, size, step, offset);
+        const [ , rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
 
-        return this.construct(...rest);
+        return this.construct(head, ...rest, tail);
     }
 
     /**
@@ -1315,17 +1315,15 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
         }
 
-        const [ windows, rest ] = extractChunksFromArray(this.contents, size, step, offset);
+        const [ windows, rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
         const ret = [];
         const first = this.index(offset);
 
         for (let i = 0; i < windows.length; i++) {
-            ret.push(rest[i], mapper(this.construct(windows[i]), first + i * step).contents);
+            ret.push(mapper(this.construct(windows[i]), first + i * step).contents, rest[i]);
         }
 
-        ret.push(rest[windows.length]);
-
-        return this.construct(ret.flat());
+        return this.construct(head, ...ret, tail);
     }
 
     /**
@@ -1342,21 +1340,19 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
             throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
         }
 
-        const [ windows, rest ] = extractChunksFromArray(this.contents, size, step, offset);
+        const [ windows, rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
         const ret = [];
         const first = this.index(offset);
 
         for (let i = 0; i < windows.length; i++) {
-            ret.push(rest[i]);
-
             if (filter(this.construct(windows[i]), first + i * step)) {
                 ret.push(windows[i]);
             }
+
+            ret.push(rest[i]);
         }
 
-        ret.push(rest[windows.length]);
-
-        return this.construct(ret.flat());
+        return this.construct(head, ...ret, tail);
     }
 
     /**

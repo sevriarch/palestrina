@@ -67,7 +67,7 @@ function getOffset(offset: number, len: number) {
  * each value in them to an initially empty array, alternating between the two result
  * arrays, starting with the second.
  */
-export function extractChunksFromArray<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][] ] {
+export function extractChunksFromArray<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][], T[], T[] ] {
     if (!isPosInt(size)) {
         throw new Error(`size must be a positive integer; was ${dumpOneLine(size)}`);
     }
@@ -81,11 +81,11 @@ export function extractChunksFromArray<T>(arr: T[], size: number, step: number, 
     const laststart = len - size;
 
     if (first > laststart) { // no full chunk extractable
-        return [ [], [ arr.slice() ] ];
+        return [ [], [], arr.slice(), [] ];
     }
 
-    const rest = [ arr.slice(0, first) ];
-    const chunks: T[][] = [];
+    const rest = [];
+    const chunks = [];
 
     let curr = first;
     while (curr <= laststart) {
@@ -97,9 +97,8 @@ export function extractChunksFromArray<T>(arr: T[], size: number, step: number, 
 
     // append anything at tail of array that was unused
     const unused = size > step ? (curr - step + size) : curr;
-    rest[rest.length - 1].push(...arr.slice(unused));
 
-    return [ chunks, rest ];
+    return [ chunks, rest, arr.slice(0, first), arr.slice(unused) ];
 }
 
 /**
