@@ -83,6 +83,43 @@ export function arrayToWindows<T>(arr: T[], size: number, step: number, offset =
 }
 
 /**
+ * Split an array into chunks defined by a size and step number, beginning at an offset.
+ * The result is a tuple containing two arrays: the first contains the chunks extracted
+ * from the array, the second contains those array members not included in the chunks.
+ * 
+ * The second array is always one longer than the first.
+ * 
+ * To reconstruct the original array, loop through through the result arrays, appending
+ * each value in them to an initially empty array, alternating between the two result
+ * arrays, starting with the second.
+ */
+export function extractChunksFromArray<T>(arr: T[], size: number, step: number, offset = 0): [ T[][], T[][] ] {
+    const len = arr.length;
+
+    validateWindows(len, size, step, offset);
+    const first = offset < 0 ? len + offset : offset;
+
+    if (first + size > len) {
+        return [ [], [ arr.slice() ] ];
+    }
+
+    const rest = [ arr.slice(0, first) ];
+    const chunks: T[][] = [];
+
+    for (let i = first; (i + size) <= len; i += step) {
+        chunks.push(arr.slice(i, i + size));
+
+        if (i + size + step > len) { // final loop iteration
+            rest.push(arr.slice(i + size));
+        } else {
+            rest.push(arr.slice(i + size, i + step));
+        }
+    }
+
+    return [ chunks, rest ];
+}
+
+/**
  * Make a copy of the first array. For each value in the second array, remove
  * the first instance of it from this copy. Return this modified copy.
  */

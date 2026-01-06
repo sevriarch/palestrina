@@ -56,7 +56,7 @@ describe('arrays.zip() tests', () => {
     });
 });
 
-describe('arrays.arrayToWindows() tests', () => {
+describe('arrays.extractChunksFromArray() tests', () => {
     const errortable: [ string, number[], number, number, number | undefined ][] = [
         [ 'zero size', [ 1, 2, 3 ], 0, 1, undefined ],
         [ 'zero step', [ 1, 2, 3 ], 1, 0, undefined ],
@@ -65,7 +65,7 @@ describe('arrays.arrayToWindows() tests', () => {
     ];
 
     test.each(errortable)('%s fails', (_, arr, size, step, offset) => {
-        expect(() => arrays.arrayToWindows(arr, size, step, offset)).toThrow();
+        expect(() => arrays.extractChunksFromArray(arr, size, step, offset)).toThrow();
     });
 
     const table: [ string, number[], number, number, number | undefined, number[][], number[][] ][] = [
@@ -76,7 +76,7 @@ describe('arrays.arrayToWindows() tests', () => {
             1,
             undefined,
             [],
-            []
+            [ [] ]
         ],
         [
             'size 1 and step 1 returns individual members',
@@ -85,7 +85,7 @@ describe('arrays.arrayToWindows() tests', () => {
             1,
             undefined,
             [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ],
-            []
+            [ [], [], [], [], [], [] ]
         ],
         [
             'size 1 and step 1 with explicit offset 0 returns individual members',
@@ -94,7 +94,7 @@ describe('arrays.arrayToWindows() tests', () => {
             1,
             0,
             [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ],
-            []
+            [ [], [], [], [], [], [] ]
         ],
         [
             'size 1 and step 1 with negative offset at start returns individual members',
@@ -103,7 +103,7 @@ describe('arrays.arrayToWindows() tests', () => {
             1,
             -5,
             [ [ 1 ], [ 2 ], [ 3 ], [ 4 ], [ 5 ] ],
-            []
+            [ [], [], [], [], [], [] ]
         ],
         [
             'size 1 and step 1 with offset at last member returns only last member',
@@ -112,7 +112,7 @@ describe('arrays.arrayToWindows() tests', () => {
             1,
             -1,
             [ [ 5 ] ],
-            []
+            [ [ 1, 2, 3, 4 ], [] ]
         ],
         [
             'size 1 and step 1 with offset past last member returns empty results',
@@ -121,25 +121,25 @@ describe('arrays.arrayToWindows() tests', () => {
             1,
             5,
             [],
-            []
+            [ [ 1, 2, 3, 4, 5 ] ]
         ],
         [
-            'size 2 and step 1 returns pairs and a single incomplete',
+            'size 2 and step 1 returns pairs',
             [ 1, 2, 3, 4, 5 ],
             2,
             1,
             undefined,
             [ [ 1, 2 ], [ 2, 3 ], [ 3, 4 ], [ 4, 5 ] ],
-            [ [ 5 ] ]
+            [ [], [], [], [], [] ]
         ],
         [
-            'size 5 and step 1 returns one quintet and four incompletes',
+            'size 5 and step 1 returns one quintet',
             [ 1, 2, 3, 4, 5 ],
             5,
             1,
             undefined,
             [ [ 1, 2, 3, 4, 5 ] ],
-            [ [ 2, 3, 4, 5 ], [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+            [ [], [] ],
         ],
         [
             'size 6 and step 1 returns only incompletes',
@@ -147,8 +147,8 @@ describe('arrays.arrayToWindows() tests', () => {
             6,
             1,
             undefined,
-            [],
-            [ [ 1, 2, 3, 4, 5 ], [ 2, 3, 4, 5 ], [ 3, 4, 5 ], [ 4, 5 ], [ 5 ] ]
+            [ ],
+            [ [ 1, 2, 3, 4, 5 ] ],
         ],
         [
             'size 1 and step 2 returns every second member only',
@@ -157,7 +157,7 @@ describe('arrays.arrayToWindows() tests', () => {
             2,
             undefined,
             [ [ 1 ], [ 3 ], [ 5 ] ],
-            []
+            [ [], [ 2 ], [ 4 ], [] ]
         ],
         [
             'size 3 and step 2 returns two triplets and one incomplete',
@@ -166,7 +166,7 @@ describe('arrays.arrayToWindows() tests', () => {
             2,
             undefined,
             [ [ 1, 2, 3 ], [ 3, 4, 5 ] ],
-            [ [ 5 ] ]
+            [ [], [], [] ]
         ],
         [
             'size 3 and step 2 with offset 1 returns one triplet and one incomplete',
@@ -175,14 +175,14 @@ describe('arrays.arrayToWindows() tests', () => {
             2,
             1,
             [ [ 2, 3, 4 ] ],
-            [ [ 4, 5 ] ]
+            [ [ 1 ], [ 5 ] ]
         ],
     ];
 
-    test.each(table)('%s', (_, arr, size, step, offset, exfull, exrest) => {
-        const [ full, rest ] = arrays.arrayToWindows(arr, size, step, offset);
+    test.each(table)('%s', (_, arr, size, step, offset, exchunks, exrest) => {
+        const [ chunks, rest ] = arrays.extractChunksFromArray(arr, size, step, offset);
 
-        expect(full).toStrictEqual(exfull);
+        expect(chunks).toStrictEqual(exchunks);
         expect(rest).toStrictEqual(exrest);
     });
 });
