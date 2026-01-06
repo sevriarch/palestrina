@@ -116,8 +116,9 @@ export function extractChunksFromArray<T>(arr: T[], size: number, step: number, 
         i += step;
     }
 
-    // append anything at tail of array that wasn't processed
-    rest[rest.length - 1].push(...arr.slice(i + size - step));
+    // append anything at tail of array that was unused
+    const unused = size > step ? (i - step + size) : i;
+    rest[rest.length - 1].push(...arr.slice(unused));
 
     return [ chunks, rest ];
 }
