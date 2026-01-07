@@ -44,7 +44,7 @@ mapper methods that do not require a (re)construction case
 methods which do not (re)construct members and thus will throw errors if you do things like .map(v => v.val() + 1)
 - map*()
 - flatMap*()
-- mapWindow()
+- mapChunks()
 - mapWith()
 - appendItems()
 - prependItems()
@@ -64,7 +64,7 @@ methods which do not create new members and are thus irrelevant tothis argument
 - groupBy()
 [in Seq]
 - loop()/repeat()/dupe()/dedupe()/shuffle()
-- filterWindow()
+- filterChunks()
 - sort()
 - chop()
 - [un]twine()

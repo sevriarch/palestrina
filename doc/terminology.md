@@ -116,8 +116,8 @@ Add and then remove, return Sequence:
 
 Apply function to whole Sequence, return Sequence:
 
-* filter|filterInPosition|filterWindow
-* map|flatMap|mapWindow
+* filter|filterInPosition|filterChunks
+* map|flatMap|mapChunks
 * map presets:
  * invert|augment|diminish|mod|trim|wrap|bounce|scale|gamut
  * transpose[|ToMin|ToMax]

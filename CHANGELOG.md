@@ -13,7 +13,8 @@ This is a new major release with some significant behind-the-scenes changes to e
 * The default note duration has changed to be more useful. This may break existing code that relied on the previous not-very-useful value.
 * The metadata second argument to the exported `score()` method is no longer offered; instead one may use available methods to set metadata field by field.
 * Replacer methods [TODO: list these] no longer accept replacements in the form of a function (single values, arrays of values and Collections containing values are still permissible). If a function replacement is passed, an error will be thrown indicating which method (a `map` and/or `flatMap` method) may be used instead.
-* Window methods (`findIfWindow()`, `findIfReverseWindow()`, `replaceIfWindow()`, `replaceIfWindow()`, `mapWindow()`, `filterWindow()`) in Sequences have been heavily redesigned to be more useful; this may break existing implementations.
+* Window methods (`findIfWindow()`, `findIfReverseWindow()`, `replaceIfWindow()`, `replaceIfWindow()`) in Sequences have been heavily redesigned to be more useful; this may break existing implementations.
+* Non-sliding window methods (`mapWindow()`, `filterWindow()` in Sequences) have been completely redesigned, as well as renamed to be more descriptive of their nature (`mapChunks()`, `filterChunks()`).
 
 ### Features
 * Score and Melody now have additional methods listing the contents of the entity in temporal order:

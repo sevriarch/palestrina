@@ -1776,7 +1776,7 @@ describe('Sequence.filterInPosition()', () => {
     });
 });
 
-describe('Sequence.keepWindows()', () => {
+describe('Sequence.keepChunks()', () => {
     const s1 = NumSeq.from([ 1, 2, 3, 4, 5 ]);
 
     const errtable: [ string, number, number, number | undefined ][] = [
@@ -1787,7 +1787,7 @@ describe('Sequence.keepWindows()', () => {
     ];
 
     test.each(errtable)('%s', (_, size, step, offset) => {
-        expect(() => s1.keepWindows(size, step, offset)).toThrow();
+        expect(() => s1.keepChunks(size, step, offset)).toThrow();
     });
 
     const table: [ string, number, number, number | undefined, number[] ][] = [
@@ -1822,11 +1822,11 @@ describe('Sequence.keepWindows()', () => {
     ];
 
     test.each(table)('%s', (_, size, step, offset, ret) => {
-        expect(s1.keepWindows(size, step, offset)).toStrictEqual(NumSeq.from(ret));
+        expect(s1.keepChunks(size, step, offset)).toStrictEqual(NumSeq.from(ret));
     });
 });
 
-describe('Sequence.dropWindows()', () => {
+describe('Sequence.dropChunks()', () => {
     const s1 = NumSeq.from([ 1, 2, 3, 4, 5, 6 ]);
 
     const errtable: [ string, number, number, number | undefined ][] = [
@@ -1837,7 +1837,7 @@ describe('Sequence.dropWindows()', () => {
     ];
 
     test.each(errtable)('%s', (_, size, step, offset) => {
-        expect(() => s1.keepWindows(size, step, offset)).toThrow();
+        expect(() => s1.keepChunks(size, step, offset)).toThrow();
     });
 
     const table: [ string, number, number, number | undefined, number[] ][] = [
@@ -1865,11 +1865,11 @@ describe('Sequence.dropWindows()', () => {
     ];
 
     test.each(table)('%s', (_, size, step, offset, ret) => {
-        expect(s1.dropWindows(size, step, offset)).toStrictEqual(NumSeq.from(ret));
+        expect(s1.dropChunks(size, step, offset)).toStrictEqual(NumSeq.from(ret));
     });
 });
 
-describe('Sequence.mapWindow()', () => {
+describe('Sequence.mapChunks()', () => {
     const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
     const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
 
@@ -1880,46 +1880,46 @@ describe('Sequence.mapWindow()', () => {
     ];
 
     test.each(errortable)('fails when %s', (_, size, step, fn) => {
-        expect(() => s1.mapWindow(size, step, fn)).toThrow();
+        expect(() => s1.mapChunks(size, step, fn)).toThrow();
     });
 
     test('size and step one, result length one', () => {
-        expect(s1.mapWindow(1, 1, (a, i) => a.map(e => e.transpose(i))))
+        expect(s1.mapChunks(1, 1, (a, i) => a.map(e => e.transpose(i))))
             .toStrictEqual(NumSeq.from([ 0, -1, 3, 6, 6, 9, 11, 0, 14, 23 ]));
     });
 
     test('size and step one, using position, result length one, offset passed', () => {
-        expect(s1.mapWindow(1, 1, (a, i) => a.map(e => e.transpose(i)), 3))
+        expect(s1.mapChunks(1, 1, (a, i) => a.map(e => e.transpose(i)), 3))
             .toStrictEqual(NumSeq.from([ 0, -2, 1, 6, 6, 9, 11, 0, 14, 23 ]));
     });
 
     test('size more than one, step one', () => {
-        expect(s3.mapWindow(2, 1, a => a.retrograde()))
+        expect(s3.mapChunks(2, 1, a => a.retrograde()))
             .toStrictEqual(NumSeq.from([ -2, 0, 1, -2, 3, 1, 2, 3, 4, 2, 5, 4, -7, 5, 6, -7, 14, 6 ], MICROTONAL));
     });
 
     test('size one, step more than one but a subdivision of sequence length', () => {
-        expect(s3.mapWindow(1, 2, a => a.map(e => e.diminish(2))))
+        expect(s3.mapChunks(1, 2, a => a.map(e => e.diminish(2))))
             .toStrictEqual(NumSeq.from([ 0, -2, 0.5, 3, 1, 4, 2.5, -7, 3, 14 ], MICROTONAL));
     });
 
     test('size and step more than one, no incomplete window', () => {
-        expect(s1.mapWindow(2, 2, a => a.retrograde()))
+        expect(s1.mapChunks(2, 2, a => a.retrograde()))
             .toStrictEqual(NumSeq.from([ -2, 0, 3, 1, 4, 2, -7, 5, 14, 6 ]));
     });
 
     test('size and step more than one, incomplete window', () => {
-        expect(s1.mapWindow(2, 4, a => a.empty(), 1))
+        expect(s1.mapChunks(2, 4, a => a.empty(), 1))
             .toStrictEqual(NumSeq.from([ 0, 3, 2, -7, 6, 14 ]));
     });
 
     test('size and step more than one, size greater than step, offset passed, ends with incomplete window', () => {
-        expect(s1.mapWindow(3, 2, a => a.retrograde(), 2))
+        expect(s1.mapChunks(3, 2, a => a.retrograde(), 2))
             .toStrictEqual(NumSeq.from([ 0, -2, 2, 3, 1, 5, 4, 2, 6, -7, 5, 14 ]));
     });
 });
 
-describe('Sequence.filterWindow()', () => {
+describe('Sequence.filterChunks()', () => {
     const s1 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ]);
     const s2 = ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [], [ 2 ], [ 11 ] ]);
     const s3 = NumSeq.from([ 0, -2, 1, 3, 2, 4, 5, -7, 6, 14 ], MICROTONAL);
@@ -1931,26 +1931,26 @@ describe('Sequence.filterWindow()', () => {
     ];
 
     test.each(errortable)('fails when %s', (_, size, step, fn) => {
-        expect(() => s1.filterWindow(size, step, fn)).toThrow();
+        expect(() => s1.filterChunks(size, step, fn)).toThrow();
     });
 
     test('size and step one', () => {
-        expect(s1.filterWindow(1, 1, (a, i) => a.contents[0].val() > i))
+        expect(s1.filterChunks(1, 1, (a, i) => a.contents[0].val() > i))
             .toStrictEqual(NumSeq.from([ 14 ]));
     });
 
     test('size more than one, step one', () => {
-        expect(s3.filterWindow(2, 1, a => a.contents[0].val() < a.contents[1].val()))
+        expect(s3.filterChunks(2, 1, a => a.contents[0].val() < a.contents[1].val()))
             .toStrictEqual(NumSeq.from([ -2, 1, 1, 3, 2, 4, 4, 5, -7, 6, 6, 14 ], MICROTONAL));
     });
 
     test('size one, step more than one', () => {
-        expect(s2.filterWindow(1, 2, a => a.contents[0].len() > 0))
+        expect(s2.filterChunks(1, 2, a => a.contents[0].len() > 0))
             .toStrictEqual(ChordSeq.from([ [ 1, 22 ], [ -3, 4, 6 ], [ 2 ], [ 11 ] ]));
     });
 
     test('size and step more than one, offset passed, ends with incomplete window', () => {
-        expect(s1.filterWindow(3, 2, a => a.contents[0].val() < a.contents[1].val(), 1))
+        expect(s1.filterChunks(3, 2, a => a.contents[0].val() < a.contents[1].val(), 1))
             .toStrictEqual(NumSeq.from([ 0, -2, 1, 3, 4, 5, -7, -7, 6, 14 ]));
     });
 });

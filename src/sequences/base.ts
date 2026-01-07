@@ -1262,91 +1262,96 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
     }
 
     /**
-     * Retain only the members within the defined windows within this Sequence.
-     * 
-     * If the window is longer than the step between windows, this can result in duplicated members.
+     * Retain only the members within the defined chunks within this Sequence.
+     *
+     * If chunks are longer than the gap between chunks, this can result in duplication.
      * 
      * @example
      * // returns numseq([ 1, 2, 4, 5, 7, 8 ])
-     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).keepWindows(2, 3)
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).keepChunks(2, 3)
      * 
      * // returns numseq([ 2, 3, 4, 5, 5, 6, 7, 8 ])
-     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepChunks(4, 3, 1)
      */
-    keepWindows(size: number, step: number, offset = 0): this {
-        const [ windows ] = extractChunksFromArray(this.contents, size, step, offset);
+    keepChunks(size: number, step: number, offset = 0): this {
+        const [ chunks ] = extractChunksFromArray(this.contents, size, step, offset);
 
-        return this.construct(...windows);
+        return this.construct(...chunks);
     }
 
     /**
-     * Retain only the members outside the defined windows within this Sequence.
+     * Retain only the members outside the defined chunks within this Sequence.
      * 
      * @example
      * // returns numseq([ 3, 6, 9 ])
-     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).dropWindows(2, 3)
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).dropChunks(2, 3)
      * 
      * // returns numseq([ 1 ])
-     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).keepWindows(4, 3, 1)
+     * numseq([ 1, 2, 3, 4, 5, 6, 7, 8 ]).dropChunks(4, 3, 1)
      */
-    dropWindows(size: number, step: number, offset = 0): this {
+    dropChunks(size: number, step: number, offset = 0): this {
         const [ , rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
 
         return this.construct(head, ...rest, tail);
     }
 
     /**
-     * Create Sequences from sliding windows within this Sequence, then apply a mapper function
-     * to each of them. Create a new Sequence from the mapped sliding windows, and members of this
-     * sequence that were outside of the sliding window or inside an incomplete window, retaining
-     * the initial order.
+     * Replace chunks within this Sequence by the result of a mapper function called on a Sequence
+     * containing each of these chunks in return. The second argument of this mapper function is
+     * the index within this Sequence that the chunk begins at.
      * 
-     * If the window is longer than the step between windows, this can result in duplicated members.
+     * Parts of the Sequence outside of these chunks are unaffected.
+     * 
+     * If chunks are longer than the gap between chunks, this can result in duplication.
      * 
      * @example
      * // returns numseq([ 2, 1, 4, 3, 5 ])
-     * numseq([ 1, 2, 3, 4, 5 ]).mapWindow(2, 2, p => p[0].retrograde())
+     * numseq([ 1, 2, 3, 4, 5 ]).mapChunks(2, 2, p => p[0].retrograde())
      * 
      * // returns numseq([ 1, 3, 4, 4, 9, 10, 7 ])
-     * numseq([ 1, 2, 3, 4, 5, 6, 7 ]).mapWindow(2, 3, (s, i) => s.transpose(i), 1)
+     * numseq([ 1, 2, 3, 4, 5, 6, 7 ]).mapChunks(2, 3, (s, i) => s.transpose(i), 1)
      */
-    mapWindow(size: number, step: number, mapper: MapperFn<this>, offset = 0): this {
+    mapChunks(size: number, step: number, mapper: MapperFn<this>, offset = 0): this {
         if (typeof mapper !== 'function') {
-            throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
+            throw new Error(`${this.constructor.name}.mapChunks(): requires a mapper function`);
         }
 
-        const [ windows, rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
+        const [ chunks, rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
         const ret = [];
         const first = this.index(offset);
 
-        for (let i = 0; i < windows.length; i++) {
-            ret.push(mapper(this.construct(windows[i]), first + i * step).contents, rest[i]);
+        for (let i = 0; i < chunks.length; i++) {
+            ret.push(mapper(this.construct(chunks[i]), first + i * step).contents, rest[i]);
         }
 
         return this.construct(head, ...ret, tail);
     }
 
     /**
-     * Apply a filter function to sliding windows within the Sequence, then
-     * create a new Sequence from the results. Flattens array results one
-     * level.
+     * Filter chunks within this Sequence based on the result of a filter function called on a
+     * Sequence containing each of these chunks in turn. The second argument of this filter
+     * function is the index within this Sequence that the chunk begins at.
+     * 
+     * Parts of the Sequence outside of these chunks are unaffected.
+     * 
+     * If chunks are longer than the gap between chunks, this can result in duplication.
      *
      * @example
      * // returns numseq([ 3, 4, 5 ])
-     * numseq([ 1, 2, 3, 4, 5 ]).filterWindow(2, 2, p => p[0].val() !== 1)
+     * numseq([ 1, 2, 3, 4, 5 ]).filterChunks(2, 2, p => p[0].val() !== 1)
      */
-    filterWindow(size: number, step: number, filter: FilterFn<this>, offset = 0): this {
+    filterChunks(size: number, step: number, filter: FilterFn<this>, offset = 0): this {
         if (typeof filter !== 'function') {
-            throw new Error(`${this.constructor.name}.mapWindow(): requires a mapper function`);
+            throw new Error(`${this.constructor.name}.mapChunks(): requires a mapper function`);
         }
 
-        const [ windows, rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
+        const [ chunks, rest, head, tail ] = extractChunksFromArray(this.contents, size, step, offset);
         const ret = [];
         const first = this.index(offset);
 
-        for (let i = 0; i < windows.length; i++) {
-            if (filter(this.construct(windows[i]), first + i * step)) {
-                ret.push(windows[i]);
+        for (let i = 0; i < chunks.length; i++) {
+            if (filter(this.construct(chunks[i]), first + i * step)) {
+                ret.push(chunks[i]);
             }
 
             ret.push(rest[i]);
