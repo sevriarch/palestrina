@@ -675,9 +675,15 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *     m => m[0].invert(5)
      * )
      */
-    replaceIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>, rep: Replacer<ET[], ET>): this {
+    // mapWindow() isn't really right since it's a map or is it
+
+    replaceIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>, mapper: MapperFn<ET[]>): this {
         if (typeof finder !== 'function') {
-            throw new Error(`${this.constructor.name}.replaceIfWindow(): requires a finder function`);
+            throw new Error(`${this.constructor.name}.mapIfWindow(): requires a finder function`);
+        }
+
+        if (typeof mapper !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIfWindow(): requires a mapper function`);
         }
 
         const vals = this.val();
@@ -690,10 +696,11 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
             const slice = vals.slice(loc - size, loc);
             if (finder(slice, loc - size)) {
-                vals.splice(loc - size, size, ...this.replacer(rep, slice, loc));
+                const mapped = mapper(slice, loc - size).map(this.constructMember);
+
+                vals.splice(loc - size, size, ...mapped);
             }
         }
-
         return this.construct(vals);
     }
 

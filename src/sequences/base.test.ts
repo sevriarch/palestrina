@@ -806,38 +806,22 @@ describe('Sequence.replaceIfWindow()', () => {
     const c2 = NoteSeq.from([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
     const c3 = ChordSeq.from([ [], [ 1, 2 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]);
 
-    test('throws if function is not a function', () => {
-        expect(() => c1.replaceIfWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>, e => e[0].transpose(1))).toThrow();
+    test('throws if filter function is not a function', () => {
+        expect(() => c1.replaceIfWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>, e => [ e[0].transpose(1)])).toThrow();
+    });
+
+    test('throws if mapper function is not a function', () => {
+        expect(() => c1.replaceIfWindow(1, 1, () => true, 0 as unknown as MapperFn<NumSeqMember[]>)).toThrow();
     });
 
     test('returns expected value when size and step both one and replaced with a single value', () => {
-        expect(c1.replaceIfWindow(1, 1, (e, i) => e[0].val() > i, e => e[0].transpose(1)))
-            .toStrictEqual(NumSeq.from([ 2, 5, 4, 2, 6, 7, 11, 10, 7, 8 ]));
-    });
-
-    test('returns expected value when size and step both one and replaced with a number', () => {
-        expect(c1.replaceIfWindow(1, 1, e => e[0].val() % 2 === 0, 0))
-            .toStrictEqual(NumSeq.from([ 1, 0, 3, 0, 5, 0, 0, 9, 7, 0 ]));
-    });
-
-    test('returns expected value when size and step both one and replaced with the contents of the same kind of sequence', () => {
-        expect(c1.replaceIfWindow(1, 1, e => e[0].val() % 2 === 0, NumSeq.from([ 11, 10 ])))
-            .toStrictEqual(NumSeq.from([ 1, 11, 10, 3, 11, 10, 5, 11, 10, 11, 10, 9, 7, 11, 10 ]));
-    });
-
-    test('returns expected value when size and step both one and replaced with the contents of a different kind of sequence', () => {
-        expect(c3.replaceIfWindow(1, 1, e => e[0].len() === 0, NoteSeq.from([ 11, null, 10 ])))
-            .toStrictEqual(ChordSeq.from([ [ 11 ], [], [ 10 ], [ 1, 2 ], [ 3, 4 ], [ 5 ], [ 11 ], [], [ 10 ], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
-    });
-
-    test('returns expected value when size two and step one and replaced with no values', () => {
-        expect(c2.replaceIfWindow(2, 1, e => e.some(m => m.val() === null), []))
-            .toStrictEqual(NoteSeq.from([ 1, 3, 2, 5, 10, 9, 7, 8 ])); // 3 and 10 appear because replace done before second find
+        expect(c1.replaceIfWindow(1, 1, (e, i) => e[0].val() > i, (e, i) => [ e[0].transpose(i) ]))
+            .toStrictEqual(NumSeq.from([ 1, 5, 5, 2, 9, 11, 16, 16, 7, 8 ]));
     });
 
     // TODO: This behaviour seems anomalous
     test('handles when sequence truncated so much that the loop regresses before the start', () => {
-        expect(c1.replaceIfWindow(4, 1, (_, i) => i < 4, e => e.slice(1, 3))).toStrictEqual(NumSeq.from([ 10, 7 ]));
+        expect(c2.replaceIfWindow(4, 1, (_, i) => i < 4, e => e.slice(1, 3))).toStrictEqual(NoteSeq.from([ 10, 7 ]));
     });
 
     test('returns expected value when size two and step two and replaced by duplicating first value', () => {
@@ -846,12 +830,12 @@ describe('Sequence.replaceIfWindow()', () => {
     });
 
     test('adds multivalued members when size two and step two and replaced by number[]', () => {
-        expect(c3.replaceIfWindow(3, 3, e => e[1].len() > e[0].len(), [ -1, -2, -3 ]))
+        expect(c3.replaceIfWindow(3, 3, e => e[1].len() > e[0].len(), e => [ e[0].setPitches(-1), e[0].setPitches(-2), e[0].setPitches(-3) ]))
             .toStrictEqual(ChordSeq.from([ [ -1 ], [ -2 ], [ -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
     });
 
     test('adds multivalued members when size two and step two and replaced by number[][]', () => {
-        expect(c3.replaceIfWindow(3, 3, e => e[1].len() > e[0].len(), [ [ -1, -2, -3 ] ]))
+        expect(c3.replaceIfWindow(3, 3, e => e[1].len() > e[0].len(), e => [ e[0].setPitches([ -1, -2, -3 ]) ]))
             .toStrictEqual(ChordSeq.from([ [ -1, -2, -3 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]));
     });
 });
@@ -886,8 +870,8 @@ describe('Sequence.replaceIfReverseWindow()', () => {
     });
 
     test('returns expected value when size two and step one and replaced with no values', () => {
-        expect(c2.replaceIfWindow(2, 1, e => e.some(m => m.val() === null), []))
-            .toStrictEqual(NoteSeq.from([ 1, 3, 2, 5, 10, 9, 7, 8 ])); // 3 and 10 appear because replace done before second find
+        expect(c2.replaceIfReverseWindow(2, 1, e => e.some(m => m.val() === null), []))
+            .toStrictEqual(NoteSeq.from([ 1, 4, 2, 5, 6, 9, 7, 8 ])); // 4 and 6 appear because replace done before second find
     });
 
     test('returns expected array value when size two and step one and replaced with no values', () => {

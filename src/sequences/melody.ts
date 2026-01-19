@@ -241,7 +241,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
 
         return this.replaceIfWindow(2, 1,
             ([ curr, next ]) => fn(curr, next),
-            ([ curr, next ]) => curr.withDuration(curr.duration + next.duration)
+            ([ curr, next ]) => [ curr.withDuration(curr.duration + next.duration) ]
         );
     }
 
@@ -436,7 +436,7 @@ export default class Melody extends Sequence<MelodyMember> implements ISequence<
             .sort((a, b) => ((a.at as number) - (b.at as number)) || (a.duration - b.duration))
             .replaceIfWindow(2, 1,
                 ([ curr, next ]) => (curr.at as number) === (next.at as number) && curr.duration === next.duration && curr.velocity === next.velocity,
-                ([ curr, next ]) => curr.setPitches([ ...curr.pitch.pitches(), ...next.pitch.pitches() ])
+                ([ curr, next ]) => [ curr.setPitches([ ...curr.pitch.pitches(), ...next.pitch.pitches() ]) ]
             );
     }
 

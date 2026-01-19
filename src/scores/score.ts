@@ -154,7 +154,7 @@ export default class Score extends Collection<Melody> {
             .sort((a, b) => ((a.at as number) - (b.at as number)) || (a.duration - b.duration))
             .replaceIfWindow(2, 1,
                 ([ curr, next ]) => (curr.at as number) === (next.at as number) && curr.duration === next.duration && curr.velocity === next.velocity,
-                ([ curr, next ]) => curr.setPitches([ ...curr.pitch.pitches(), ...next.pitch.pitches() ])
+                ([ curr, next ]) => [ curr.setPitches([ ...curr.pitch.pitches(), ...next.pitch.pitches() ]) ]
             );
 
         return this.construct([ mel ]);

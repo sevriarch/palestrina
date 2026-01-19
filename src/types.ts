@@ -389,7 +389,7 @@ export interface ISequence<T> extends Collection<T> {
     findIfReverseWindow(size: number, step: number, fn: ArrayFinderFn<T>): number[];
 
     // Transform one sequence into another sequence
-    replaceIfWindow(size: number, step: number, fn: ArrayFinderFn<T>, replacer: Replacer<T[], T>): this;
+    replaceIfWindow(size: number, step: number, fn: ArrayFinderFn<T>, mapper: MapperFn<T[]>): this;
     replaceIfReverseWindow(size: number, step: number, fn: ArrayFinderFn<T>, replacer: Replacer<T[], T>): this;
     setSlice(start: number | undefined, end: number | undefined, val: T): this;
     loop(n: number): this;
