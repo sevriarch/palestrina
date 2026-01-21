@@ -11,7 +11,7 @@ export type {
     Metadata, // metadata-related types
     MetaList, MetaListArg, // meta-list-related types
     MetaEvent, MetaEventArg, // meta-event-related types
-    Replacer, ReplacerFn, // replacer-related types
+    ReplacerFn, ReplacerVal, // replacer-related types
     CtrlTypeFn, CtrlBoolFn, // control-flow function types
     FilterFn, FinderFn, ArrayFinderFn, GrouperFn, MapperFn, FlatMapperFn, ValidatorFn, // general method types
 } from './src/types';

@@ -673,9 +673,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *     m => m[0].invert(5)
      * )
      */
-    // mapWindow() isn't really right since it's a map or is it
-
-    replaceIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>, mapper: MapperFn<ET[]>): this {
+    replaceIfWindow(size: number, step: number, finder: ArrayFinderFn<ET>, mapper: (r: ET[], i: number) => SeqArgument): this {
         if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.mapIfWindow(): requires a finder function`);
         }
@@ -694,9 +692,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
             const slice = vals.slice(loc - size, loc);
             if (finder(slice, loc - size)) {
-                const mapped = mapper(slice, loc - size).map(this.constructMember);
+                const mapped = mapper(slice, loc - size);
 
-                vals.splice(loc - size, size, ...mapped);
+                vals.splice(loc - size, size, ...this.replacerValue(mapped));
             }
         }
         return this.construct(vals);
@@ -718,7 +716,7 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *     m => m[0].invert(5)
      * )
      */
-    replaceIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>, mapper: MapperFn<ET[]>): this {
+    replaceIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>, mapper: (r: ET[], i: number) => SeqArgument): this {
         if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceIfReverseWindow(): requires a finder function`);
         }
@@ -736,9 +734,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
             const slice = vals.slice(i, i + size);
             if (finder(slice, i)) {
-                const mapped = mapper(slice, i).map(this.constructMember);
+                const mapped = mapper(slice, i);
 
-                vals.splice(i, size, ...mapped);
+                vals.splice(i, size, ...this.replacerValue(mapped));
             }
         }
 
