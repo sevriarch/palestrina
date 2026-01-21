@@ -385,12 +385,12 @@ export interface ISequence<T> extends Collection<T> {
     hasPeriodicity(): number;
 
     // Find matching members of the sequence
-    findIfWindow(size: number, step: number, fn: ArrayFinderFn<T>): number[];
-    findIfReverseWindow(size: number, step: number, fn: ArrayFinderFn<T>): number[];
+    findIfWindow(size: number, step: number, finder: ArrayFinderFn<T>): number[];
+    findIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<T>): number[];
 
     // Transform one sequence into another sequence
-    replaceIfWindow(size: number, step: number, fn: ArrayFinderFn<T>, mapper: MapperFn<T[]>): this;
-    replaceIfReverseWindow(size: number, step: number, fn: ArrayFinderFn<T>, replacer: Replacer<T[], T>): this;
+    replaceIfWindow(size: number, step: number, finder: ArrayFinderFn<T>, mapper: MapperFn<T[]>): this;
+    replaceIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<T>, mapper: MapperFn<T[]>): this;
     setSlice(start: number | undefined, end: number | undefined, val: T): this;
     loop(n: number): this;
     repeat(n: number): this;

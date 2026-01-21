@@ -720,9 +720,13 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
      *     m => m[0].invert(5)
      * )
      */
-    replaceIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>, rep: Replacer<ET[], ET>): this {
+    replaceIfReverseWindow(size: number, step: number, finder: ArrayFinderFn<ET>, mapper: MapperFn<ET[]>): this {
         if (typeof finder !== 'function') {
             throw new Error(`${this.constructor.name}.replaceIfReverseWindow(): requires a finder function`);
+        }
+
+        if (typeof mapper !== 'function') {
+            throw new Error(`${this.constructor.name}.mapIfWindow(): requires a mapper function`);
         }
 
         const vals = this.val();
@@ -734,7 +738,9 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
 
             const slice = vals.slice(i, i + size);
             if (finder(slice, i)) {
-                vals.splice(i, size, ...this.replacer(rep, slice, i));
+                const mapped = mapper(slice, i).map(this.constructMember);
+
+                vals.splice(i, size, ...mapped);
             }
         }
 
