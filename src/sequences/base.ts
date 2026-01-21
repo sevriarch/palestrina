@@ -1,8 +1,14 @@
-import type { GamutOpts, ReplacerVal, Replacer, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn, NumSeq, NoteSeq, ChordSeq, Melody, SeqMemberArgument, PitchArgument, ISequence, SeqIndices, SeqArgument } from '../types';
+import type {
+    ISequence,
+    ReplacerVal, MapperFn, ArrayFinderFn, FilterFn, PitchMutatorFn, PitchMapperFn,
+    NumSeq, NoteSeq, ChordSeq, Melody,
+    SeqMemberArgument, PitchArgument, SeqIndices, SeqArgument,
+    GamutOpts,
+} from '../types';
 
 import type SeqMember from './members/base';
-import Metadata from '../metadata/metadata';
 
+import Metadata from '../metadata/metadata';
 import Collection from '../collections/collection';
 
 import * as mutators from '../mutators/mutators';
@@ -82,14 +88,6 @@ export default abstract class Sequence<ET extends SeqMember<unknown>> extends Co
         }
 
         return [ this.constructMember(r) ];
-    }
-
-    protected replacer<FromT>(r: Replacer<FromT, ET>, curr: FromT, i: number): ET[] {
-        if (typeof r === 'function') {
-            return this.replacerFn(r, curr, i);
-        }
-
-        return this.replacerValue(r);
     }
 
     /**
