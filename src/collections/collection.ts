@@ -1257,7 +1257,7 @@ export default class Collection<T> {
         const vals: Record<string, T[]> = {};
 
         this.contents.forEach((v, i) => {
-            const val: string | number = fn(v, i);
+            const val = fn(v, i);
 
             if (!vals[val]) {
                 vals[val] = [];
