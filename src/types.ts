@@ -209,11 +209,6 @@ type TypeArrayOrContents<T> = T | T[] | { contents: T[] };
  */
 export type ReplacerVal<T> = TypeArrayOrContents<T extends SeqMember<unknown> ? SeqMemberArgument : T>;
 
-/**
- * A type representing a method for converting existing value(s) within Collections and Sequences into new ones
- */
-export type ReplacerFn<TFrom, TTo> = (curr: TFrom, i: number) => ReplacerVal<TTo>;
-
 /*
  * FUNCTIONS
  */

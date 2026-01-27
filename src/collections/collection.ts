@@ -1,5 +1,5 @@
 import {
-    SeqIndices, ReplacerVal, ReplacerFn,
+    SeqIndices, ReplacerVal,
     MapperFn, FlatMapperFn, FinderFn, FilterFn, GrouperFn, CtrlBoolFn, CtrlTypeFn,
     MetaEventKind, MetaEventValueMap, MetaListArg, EventTiming, MetaEventArg
 } from '../types';
