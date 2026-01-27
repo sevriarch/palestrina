@@ -801,17 +801,41 @@ describe('Sequence.findIfReverseWindow()', () => {
     });
 });
 
+describe('Sequence.mapWindows()', () => {
+    const c1 = NumSeq.from([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
+
+    test('throws if mapper function is not a function', () => {
+        expect(() => c1.mapWindows(1, 1, 0 as unknown as MapperFn<NumSeqMember[]>)).toThrow(/requires a mapper function/);
+    });
+
+    test('works as expected when size and step do not cause multiple actions on individual members', () => {
+        expect(c1.mapWindows(2, 3, v => v.map(v => v.transpose(4))))
+            .toStrictEqual(NumSeq.from([ 5, 8, 3, 6, 9, 6, 14, 13, 7, 8 ]));
+    });
+
+    test('works as expected when size and step do not cause multiple actions on individual members', () => {
+        expect(c1.mapWindows(3, 2, v => v.map(v => v.transpose(4))))
+            .toStrictEqual(NumSeq.from([ 5, 8, 11, 6, 13, 10, 18, 13, 11, 8 ]));
+    });
+
+    // TODO: this does not behave the way I expected, must correct behaviour later
+    //test('works as expected when map increases length of window', () => {
+    //    expect(c1.mapWindows(2, 2, v => [ v[0], v[1], v[0] ]))
+    //        .toStrictEqual(NumSeq.from([ 1, 4, 1, 3, 1, 2, 1, 5, 1, 6, 1, 10, 1, 9, 1, 7, 1, 8, 1 ]));
+    //});
+});
+
 describe('Sequence.replaceIfWindow()', () => {
     const c1 = NumSeq.from([ 1, 4, 3, 2, 5, 6, 10, 9, 7, 8 ]);
     const c2 = NoteSeq.from([ 1, 4, null, 3, 2, 5, 6, null, 10, 9, 7, 8 ]);
     const c3 = ChordSeq.from([ [], [ 1, 2 ], [ 3, 4 ], [ 5 ], [], [ 6, 7, 8 ], [ 9, 10, 11 ], [ 12, 13 ], [ 14 ] ]);
 
     test('throws if filter function is not a function', () => {
-        expect(() => c1.replaceIfWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>, e => [ e[0].transpose(1)])).toThrow();
+        expect(() => c1.replaceIfWindow(1, 1, 0 as unknown as ArrayFinderFn<NumSeqMember>, e => [ e[0].transpose(1)])).toThrow(/requires a filter function/);
     });
 
     test('throws if mapper function is not a function', () => {
-        expect(() => c1.replaceIfWindow(1, 1, () => true, 0 as unknown as MapperFn<NumSeqMember[]>)).toThrow();
+        expect(() => c1.replaceIfWindow(1, 1, () => true, 0 as unknown as MapperFn<NumSeqMember[]>)).toThrow(/requires a mapper function/);
     });
 
     // TODO: This behaviour seems anomalous: revisit

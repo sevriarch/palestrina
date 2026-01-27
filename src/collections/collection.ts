@@ -209,10 +209,6 @@ export default class Collection<T> {
         return [ r as T ];
     }
 
-    protected replacerFn<FromT>(r: ReplacerFn<FromT, T>, curr: FromT, i: number): T[] {
-        return this.replacerValue(r(curr, i));
-    }
-
     /*
      * UTILITY METHODS
      */
